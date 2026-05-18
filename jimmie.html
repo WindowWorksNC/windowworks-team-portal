@@ -262,7 +262,7 @@ html.pin-active,body/* TASK BOARD */
 #tab-resources .hol-ct-lbl{font-size:10px;color:#aaa;text-align:right;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:0.08em;text-transform:uppercase}
 #tab-resources .page-title{display:none}
 #tab-resources .page-sub{display:none}
-#tab-resources{max-width:1100px !important;overflow:hidden}
+#tab-resources{max-width:1100px !important;overflow:hidden;margin:0 auto}
 #tab-resources table{width:100%;font-size:13px}
 #tab-resources th{font-size:11px;padding:8px 10px;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;text-align:left;border-bottom:1px solid #f0ece6}
 #tab-resources td{padding:8px 10px;border-bottom:1px solid #f8f5f0;color:#333;vertical-align:middle}
@@ -363,7 +363,7 @@ html.pin-active,body/* TASK BOARD */
   </div>
   <button class="submit-btn" id="pto-submit-btn" onclick="submitPTO(EMPLOYEE, 'Brandon McClure')">Submit Request</button>
 </div><div class="card">
-  <div class="card-title">My Request History</div>
+  <div class="card-title">My Requests</div>
   <div id="my-requests-loading" class="loading">Loading...</div>
   <div class="table-wrap">
     <table class="data-table" id="my-requests-table" style="display:none">
@@ -555,52 +555,34 @@ async function loadMyRequests(employee){
   const loadEl=document.getElementById('my-requests-loading');
   const tableEl=document.getElementById('my-requests-table');
   const emptyEl=document.getElementById('my-requests-empty');
-  const historyBody=document.getElementById('my-requests-history-body');
   try{
     const d=await api({action:'read',tab:'PTO_Requests'});
     if(loadEl)loadEl.style.display='none';
     if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
     const today=new Date().toISOString().split('T')[0];
-    const allRows=d.data.slice(1).filter(r=>r[1]===employee&&r.some(c=>c));
-    
-    // Active: pending requests, OR approved/denied where end date hasn't passed yet
-    const active=allRows.filter(r=>{
+    const rows=d.data.slice(1).filter(r=>r[1]===employee&&r.some(c=>c));
+    if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
+    if(tableEl)tableEl.style.display='table';
+    const tbody=document.getElementById('my-requests-body');
+    if(tbody)tbody.innerHTML=rows.slice().reverse().map(r=>{
       const status=r[7]||'Pending';
       const endDate=r[4]||r[3]||'';
-      if(status==='Pending') return true;
-      return endDate>=today; // still show if end date hasn't passed
-    });
-    
-    // History: approved/denied where end date has passed
-    const history=allRows.filter(r=>{
-      const status=r[7]||'Pending';
-      const endDate=r[4]||r[3]||'';
-      return status!=='Pending' && endDate<today;
-    });
-
-    if(!active.length){if(emptyEl)emptyEl.style.display='block';}
-    else{
-      if(tableEl)tableEl.style.display='table';
-      const tbody=document.getElementById('my-requests-body');
-      if(tbody)tbody.innerHTML=active.slice().reverse().map(r=>`<tr>
+      let pill;
+      if(status==='Approved'&&endDate>=today){
+        pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';
+      } else if(status==='Approved'){
+        pill='<span class="pill pill-approved">Approved</span>';
+      } else if(status==='Denied'){
+        pill='<span class="pill pill-denied">Denied</span>';
+      } else {
+        pill='<span class="pill pill-pending">Pending</span>';
+      }
+      return `<tr>
         <td>${fmtDate(r[8])}</td><td>${r[2]||''}</td>
         <td>${fmtDate(r[3])}${r[4]&&r[4]!==r[3]?' to '+fmtDate(r[4]):''}</td>
-        <td>${r[5]||''}</td><td>${statusPill(r[7])}</td><td>${r[6]||''}</td>
-      </tr>`).join('');
-    }
-
-    // History section
-    if(historyBody){
-      if(!history.length){
-        historyBody.innerHTML='<tr><td colspan="6" class="empty-state">No past requests.</td></tr>';
-      } else {
-        historyBody.innerHTML=history.slice().reverse().map(r=>`<tr>
-          <td>${fmtDate(r[8])}</td><td>${r[2]||''}</td>
-          <td>${fmtDate(r[3])}${r[4]&&r[4]!==r[3]?' to '+fmtDate(r[4]):''}</td>
-          <td>${r[5]||''}</td><td>${statusPill(r[7])}</td><td>${r[6]||''}</td>
-        </tr>`).join('');
-      }
-    }
+        <td>${r[5]||''}</td><td>${pill}</td><td>${r[6]||''}</td>
+      </tr>`;
+    }).join('');
   }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
 }
 
