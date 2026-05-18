@@ -1147,9 +1147,10 @@ function renderPayroll() {
     </div>`;
   } else nw.innerHTML='';
 
+  const isCurrentYear = year === new Date().getFullYear();
   document.getElementById('payroll-body').innerHTML = periods.map(p => {
-    const isCur = curPeriod && p.n===curPeriod.n;
-    const isNext = nextPay && p.n===nextPay.n;
+    const isCur = isCurrentYear && curPeriod && p.n===curPeriod.n;
+    const isNext = isCurrentYear && nextPay && p.n===nextPay.n;
     const active = isCur || isNext;
     return `<tr class="${active?'cur':''}">
       <td>${p.n}${active?'<span class="badge badge-org">Current</span>':''}</td>
