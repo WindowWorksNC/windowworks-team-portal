@@ -235,3 +235,21 @@ html.pin-active,body/* TASK BOARD */
 
 /* RESOURCES TAB */
 #tab-resources{max-width:1100px !important;overflow:hidden;margin:0 auto}
+/* RESOURCES */
+.next-pay{background:#1a1a1a;border-radius:6px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;box-sizing:border-box}
+.np-label{font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#aaa}
+.np-date{font-family:'Barlow Condensed',Arial,sans-serif;font-size:22px;font-weight:700;color:#c4581f}
+.np-sub{font-size:12px;color:#aaa;margin-top:3px}
+.year-sel{font-size:13px;font-family:'Barlow',sans-serif;padding:4px 8px;border:1px solid #ddd;border-radius:4px;background:#faf8f5;color:#1a1a1a;outline:none;cursor:pointer}
+tr.cur td{background:#fae8df;font-weight:600}
+tr.cur td:first-child{border-left:3px solid #c4581f}
+.badge{font-family:'Barlow Condensed',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:99px;margin-left:6px}
+.badge-org{background:#c4581f;color:#fff}
+.badge-grn{background:#d4edda;color:#155724}
+.badge-gry{background:#e9ecef;color:#666}
+.hol-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #f0ece6;gap:12px}
+.hol-row:last-child{border-bottom:none}
+.hol-name{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:2px}
+.hol-dates{font-size:12px;color:#888}
+.hol-ct{font-family:'Barlow Condensed',Arial,sans-serif;font-size:24px;font-weight:700;color:#c4581f;text-align:right;flex-shrink:0}
+.hol-ct-lbl{font-size:10px;color:#aaa;text-align:right;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:0.08em;text-transform:uppercase}
