@@ -262,6 +262,7 @@ html.pin-active,body/* TASK BOARD */
 #tab-resources .hol-ct-lbl{font-size:10px;color:#aaa;text-align:right;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:0.08em;text-transform:uppercase}
 #tab-resources .page-title{display:none}
 #tab-resources .page-sub{display:none}
+#tab-resources{max-width:1100px !important;overflow:hidden}
 #tab-resources table{width:100%;font-size:13px}
 #tab-resources th{font-size:11px;padding:8px 10px;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;text-align:left;border-bottom:1px solid #f0ece6}
 #tab-resources td{padding:8px 10px;border-bottom:1px solid #f8f5f0;color:#333;vertical-align:middle}
@@ -290,7 +291,7 @@ html.pin-active,body/* TASK BOARD */
   <button class="tab" onclick="switchTab('pto',this)">PTO</button>
   <button class="tab" onclick="switchTab('records',this)">My Record</button>
   <button class="tab" onclick="switchTab('training',this)">Training</button>
-<button class="tab" onclick="switchTab('resources',this);setTimeout(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){console.error('Resources error:',e);}},100);">Resources</button>
+<button class="tab" onclick="switchTab('resources',this);requestAnimationFrame(function(){requestAnimationFrame(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){console.error('Resources error:',e);}})});">Resources</button>
 </div>
 <div class="tab-content" id="tab-pto"><div class="card">
   <div class="card-title">Leave Balances</div>
