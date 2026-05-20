@@ -30,8 +30,6 @@ function initTaskBoard(slug) {
     } catch(e) {}
     tasks = {}; nextId = 1;
   }
-);
-  }
   function esc(s) {
     return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }

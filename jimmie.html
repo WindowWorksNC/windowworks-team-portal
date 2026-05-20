@@ -35,27 +35,31 @@
 <button class="tab" onclick="switchTab('resources',this);requestAnimationFrame(function(){requestAnimationFrame(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){console.error('Resources error:',e);}})});">Resources</button>
 </div>
 <div class="tab-content" id="tab-commission"><div class="card">
-  <div class="card-title">Commission Summary</div>
-  <div id="comm-loading" class="loading">Loading...</div>
-  <div id="comm-content" style="display:none">
-    <div class="stat-grid">
-      <div class="stat-block">
-        <div class="stat-number orange" id="comm-ytd">$0.00</div>
-        <div class="stat-label">YTD Commission</div>
-      </div>
-    </div>
+  <div class="card-title" style="justify-content:space-between">
+    <span>Commission</span>
+    <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">8% company lead</span>
   </div>
-</div>
-<div class="card">
-  <div class="card-title">Commission Ledger</div>
-  <div id="ledger-loading" class="loading">Loading...</div>
-  <div class="table-wrap">
-    <table class="data-table" id="ledger-table" style="display:none">
-      <thead><tr><th>Date</th><th>PO</th><th>Amount</th><th>Lead Source</th><th>Type</th><th>Rate</th><th>Commission</th><th>Pay Period</th></tr></thead>
-      <tbody id="ledger-body"></tbody>
+  <div id="comm-period-header" style="margin-bottom:12px">
+    <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:20px;font-weight:700;color:#1a1a1a" id="comm-period-label">Loading...</div>
+    <div style="font-size:13px;color:#888;margin-top:2px">Period Total: <strong style="color:#c4581f" id="comm-period-total">$0.00</strong> &nbsp;&bull;&nbsp; YTD Total: <strong style="color:#1a1a1a" id="comm-ytd-total">$0.00</strong></div>
+  </div>
+  <div id="comm-loading" class="loading">Loading...</div>
+  <div id="comm-empty" class="empty-state" style="display:none">No commissions this period.</div>
+  <div class="table-wrap" id="comm-table-wrap" style="display:none">
+    <table class="data-table">
+      <thead><tr><th>Date</th><th>Deal</th><th>Amount</th><th>Rate</th><th>Commission</th><th>Notes</th></tr></thead>
+      <tbody id="comm-body"></tbody>
     </table>
   </div>
-  <div id="ledger-empty" class="empty-state" style="display:none">No commission records yet.</div>
+</div>
+<div class="card" style="margin-top:0">
+  <div class="card-title" style="cursor:pointer" onclick="togglePrevPeriods_jimmie(this)">
+    Previous Periods <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="prev-toggle-label_jimmie">(click to expand)</span>
+  </div>
+  <div id="prev-periods-wrap_jimmie" style="display:none">
+    <div id="prev-periods-loading_jimmie" class="loading">Loading...</div>
+    <div id="prev-periods-body_jimmie"></div>
+  </div>
 </div></div><div class="tab-content" id="tab-pto"><div class="card">
   <div class="card-title">Leave Balances</div>
   <div class="stat-grid">
@@ -485,5 +489,165 @@ function calcWorkingDays() {
 <script src="taskboard.js"></script>
 <script>initTaskBoard("jimmie");</script>
 <script src="resources.js"></script>
+<script>
+// Commission functions for jimmie
+async function loadCommission_jimmie() {
+  const loadEl = document.getElementById('comm-loading');
+  const emptyEl = document.getElementById('comm-empty');
+  const tableWrap = document.getElementById('comm-table-wrap');
+  
+  try {
+    const d = await api({action:'read', tab:'Commissions'});
+    if (loadEl) loadEl.style.display = 'none';
+    if (!d.success) return;
+    
+    const rows = d.data.slice(1).filter(r => r[1] === 'Jimmie Coleman' && r.some(c => c));
+    
+    // Determine current pay period
+    const currentPeriod = getCurrentPayPeriodLabel();
+    
+    // Set period header
+    const periodLabel = document.getElementById('comm-period-label');
+    if (periodLabel) periodLabel.textContent = currentPeriod;
+    
+    // Current period rows
+    const currentRows = rows.filter(r => r[8] === currentPeriod);
+    
+    // YTD
+    const ytd = rows.reduce((sum, r) => sum + (Number(r[7]) || 0), 0);
+    const periodTotal = currentRows.reduce((sum, r) => sum + (Number(r[7]) || 0), 0);
+    
+    const ytdEl = document.getElementById('comm-ytd-total');
+    const periodTotalEl = document.getElementById('comm-period-total');
+    if (ytdEl) ytdEl.textContent = fmtMoney(ytd);
+    if (periodTotalEl) periodTotalEl.textContent = fmtMoney(periodTotal);
+    
+    if (!currentRows.length) {
+      if (emptyEl) emptyEl.style.display = 'block';
+    } else {
+      if (tableWrap) tableWrap.style.display = 'block';
+      const tbody = document.getElementById('comm-body');
+      if (tbody) tbody.innerHTML = currentRows.slice().reverse().map(r => `<tr>
+        <td>${fmtDate(r[0])}</td>
+        <td>${r[2]||''}</td>
+        <td>${fmtMoney(r[3])}</td>
+        <td>${r[5]||''}</td>
+        <td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td>
+        <td>${r[9]||''}</td>
+      </tr>`).join('');
+    }
+    
+    // Load previous periods
+    loadPrevPeriods_jimmie(rows, currentPeriod);
+    
+  } catch(e) {
+    if (loadEl) loadEl.style.display = 'none';
+    console.error('Commission load error:', e);
+  }
+}
+
+function loadPrevPeriods_jimmie(rows, currentPeriod) {
+  const body = document.getElementById('prev-periods-body_jimmie');
+  const loading = document.getElementById('prev-periods-loading_jimmie');
+  if (loading) loading.style.display = 'none';
+  if (!body) return;
+  
+  // Group by pay period, exclude current
+  const periods = {};
+  rows.forEach(r => {
+    const period = r[8];
+    if (!period || period === currentPeriod) return;
+    if (!periods[period]) periods[period] = [];
+    periods[period].push(r);
+  });
+  
+  const periodKeys = Object.keys(periods).sort().reverse();
+  if (!periodKeys.length) {
+    body.innerHTML = '<div class="empty-state">No previous periods.</div>';
+    return;
+  }
+  
+  body.innerHTML = periodKeys.map(period => {
+    const periodRows = periods[period];
+    const total = periodRows.reduce((sum, r) => sum + (Number(r[7]) || 0), 0);
+    const id = 'pp-' + period.replace(/[^a-z0-9]/gi, '');
+    return `<div style="border-top:1px solid #f0ece6;padding:10px 0">
+      <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'">
+        <span style="font-size:13px;font-weight:600;color:#1a1a1a">${period}</span>
+        <span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span>
+      </div>
+      <div id="${id}" style="display:none;margin-top:8px">
+        <table class="data-table">
+          <thead><tr><th>Date</th><th>Deal</th><th>Amount</th><th>Rate</th><th>Commission</th><th>Notes</th></tr></thead>
+          <tbody>${periodRows.map(r => `<tr>
+            <td>${fmtDate(r[0])}</td><td>${r[2]||''}</td>
+            <td>${fmtMoney(r[3])}</td><td>${r[5]||''}</td>
+            <td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td>
+            <td>${r[9]||''}</td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function togglePrevPeriods_jimmie(el) {
+  const wrap = document.getElementById('prev-periods-wrap_jimmie');
+  const label = document.getElementById('prev-toggle-label_jimmie');
+  if (!wrap) return;
+  const isOpen = wrap.style.display !== 'none';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  if (label) label.textContent = isOpen ? '(click to expand)' : '(click to collapse)';
+}
+
+function getCurrentPayPeriodLabel() {
+  // 2026 pay periods - bi-weekly starting 12/18/25
+  const PAYROLL = [
+    {n:1,s:'12/18/25',e:'12/31/25',pay:'1/2/2026'},
+    {n:2,s:'01/01/26',e:'01/14/26',pay:'1/16/2026'},
+    {n:3,s:'01/15/26',e:'01/28/26',pay:'1/30/2026'},
+    {n:4,s:'01/29/26',e:'02/11/26',pay:'2/13/2026'},
+    {n:5,s:'02/12/26',e:'02/25/26',pay:'2/27/2026'},
+    {n:6,s:'02/26/26',e:'03/11/26',pay:'3/13/2026'},
+    {n:7,s:'03/12/26',e:'03/25/26',pay:'3/27/2026'},
+    {n:8,s:'03/26/26',e:'04/08/26',pay:'4/10/2026'},
+    {n:9,s:'04/09/26',e:'04/22/26',pay:'4/24/2026'},
+    {n:10,s:'04/23/26',e:'05/06/26',pay:'5/8/2026'},
+    {n:11,s:'05/07/26',e:'05/20/26',pay:'5/22/2026'},
+    {n:12,s:'05/21/26',e:'06/03/26',pay:'6/5/2026'},
+    {n:13,s:'06/04/26',e:'06/17/26',pay:'6/19/2026'},
+    {n:14,s:'06/18/26',e:'07/01/26',pay:'7/3/2026'},
+    {n:15,s:'07/02/26',e:'07/15/26',pay:'7/17/2026'},
+    {n:16,s:'07/16/26',e:'07/29/26',pay:'7/31/2026'},
+    {n:17,s:'07/30/26',e:'08/12/26',pay:'8/14/2026'},
+    {n:18,s:'08/13/26',e:'08/26/26',pay:'8/28/2026'},
+    {n:19,s:'08/27/26',e:'09/09/26',pay:'9/11/2026'},
+    {n:20,s:'09/10/26',e:'09/23/26',pay:'9/25/2026'},
+    {n:21,s:'09/24/26',e:'10/07/26',pay:'10/9/2026'},
+    {n:22,s:'10/08/26',e:'10/21/26',pay:'10/23/2026'},
+    {n:23,s:'10/22/26',e:'11/04/26',pay:'11/6/2026'},
+    {n:24,s:'11/05/26',e:'11/18/26',pay:'11/20/2026'},
+    {n:25,s:'11/19/26',e:'12/02/26',pay:'12/4/2026'},
+    {n:26,s:'12/03/26',e:'12/16/26',pay:'12/18/2026'},
+  ];
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  function pd(str) {
+    const p = str.split('/');
+    let yr = parseInt(p[2]);
+    if (yr < 100) yr += yr < 50 ? 2000 : 1900;
+    return new Date(yr, parseInt(p[0])-1, parseInt(p[1]), 12);
+  }
+  for (const p of PAYROLL) {
+    if (today >= pd(p.s) && today <= pd(p.e)) {
+      return p.s + ' – ' + p.e;
+    }
+  }
+  // Default to last period if past year end
+  return PAYROLL[PAYROLL.length-1].s + ' – ' + PAYROLL[PAYROLL.length-1].e;
+}
+
+loadCommission_jimmie();
+</script>
 </body>
 </html>
