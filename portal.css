@@ -13,7 +13,7 @@ body{font-family:'Barlow',Arial,sans-serif;background:#edeae4;color:#1a1a1a;min-
 .orange-bar{background:#c4581f;height:3px}
 
 /* BODY */
-.body{padding:32px;max-width:1100px;margin:0 auto}
+.body{padding:32px !important;max-width:1100px;margin:0 auto}
 
 /* EMPLOYEE HEADER */
 .employee-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}

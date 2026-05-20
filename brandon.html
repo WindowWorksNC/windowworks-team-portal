@@ -1046,12 +1046,11 @@ async function loadBrandonCommission() {
         </div>`;
     }
     
+    if (content) content.style.display = 'block';
+    
     if (!currentRows.length) {
       if (emptyEl) emptyEl.style.display = 'block';
-      return;
     }
-    
-    if (content) content.style.display = 'block';
     
     const tbody = document.getElementById('brandon-comm-body');
     if (tbody) tbody.innerHTML = currentRows.slice().reverse().map((r, i) => {
