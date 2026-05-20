@@ -148,12 +148,7 @@ body{font-family:'Barlow',Arial,sans-serif;background:#edeae4;color:#1a1a1a;min-
 .footer-l{font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#ccc !important}
 .footer-r{font-size:11px;color:#ccc !important}
 
-.pin-logo span{color:#c4581f}
-.pin-input:focus{border-color:#c4581f}
-.pin-btn:hover{background:#a8461a}
-.pin-forgot:hover{color:#a8461a}
-.pin-step.active{display:block}
-html.pin-active,body/* TASK BOARD */
+/* TASK BOARD */
 .tb-wrap{padding:0;max-width:1060px;margin:0 auto;background:#fff;border:1px solid #e4dbd0;border-radius:8px;padding:20px}
 .tb-add-bar{background:#fff;border:1px solid #e4dbd0;border-radius:8px;padding:14px 16px;margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .tb-add-inp{flex:2;min-width:180px;font-size:13px;font-family:'Barlow',Arial,sans-serif;padding:7px 10px;border:1px solid #ddd;border-radius:4px;background:#faf8f5;color:#1a1a1a;outline:none}
