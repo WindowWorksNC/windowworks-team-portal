@@ -255,5 +255,5 @@ tr.cur td:first-child{border-left:3px solid #c4581f}
 .hol-ct-lbl{font-size:10px;color:#aaa;text-align:right;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:0.08em;text-transform:uppercase}
 
 /* Tab content width constraint */
-.tab-content{max-width:100%;box-sizing:border-box}
+.tab-content{max-width:100%;box-sizing:border-box;padding:0 0 16px 0}
 .tab-content .card{box-sizing:border-box}
