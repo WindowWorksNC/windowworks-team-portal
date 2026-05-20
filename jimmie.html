@@ -601,50 +601,22 @@ function togglePrevPeriods_jimmie(el) {
 }
 
 function getCurrentPayPeriodLabel() {
-  // 2026 pay periods - bi-weekly starting 12/18/25
-  const PAYROLL = [
-    {n:1,s:'12/18/25',e:'12/31/25',pay:'1/2/2026'},
-    {n:2,s:'01/01/26',e:'01/14/26',pay:'1/16/2026'},
-    {n:3,s:'01/15/26',e:'01/28/26',pay:'1/30/2026'},
-    {n:4,s:'01/29/26',e:'02/11/26',pay:'2/13/2026'},
-    {n:5,s:'02/12/26',e:'02/25/26',pay:'2/27/2026'},
-    {n:6,s:'02/26/26',e:'03/11/26',pay:'3/13/2026'},
-    {n:7,s:'03/12/26',e:'03/25/26',pay:'3/27/2026'},
-    {n:8,s:'03/26/26',e:'04/08/26',pay:'4/10/2026'},
-    {n:9,s:'04/09/26',e:'04/22/26',pay:'4/24/2026'},
-    {n:10,s:'04/23/26',e:'05/06/26',pay:'5/8/2026'},
-    {n:11,s:'05/07/26',e:'05/20/26',pay:'5/22/2026'},
-    {n:12,s:'05/21/26',e:'06/03/26',pay:'6/5/2026'},
-    {n:13,s:'06/04/26',e:'06/17/26',pay:'6/19/2026'},
-    {n:14,s:'06/18/26',e:'07/01/26',pay:'7/3/2026'},
-    {n:15,s:'07/02/26',e:'07/15/26',pay:'7/17/2026'},
-    {n:16,s:'07/16/26',e:'07/29/26',pay:'7/31/2026'},
-    {n:17,s:'07/30/26',e:'08/12/26',pay:'8/14/2026'},
-    {n:18,s:'08/13/26',e:'08/26/26',pay:'8/28/2026'},
-    {n:19,s:'08/27/26',e:'09/09/26',pay:'9/11/2026'},
-    {n:20,s:'09/10/26',e:'09/23/26',pay:'9/25/2026'},
-    {n:21,s:'09/24/26',e:'10/07/26',pay:'10/9/2026'},
-    {n:22,s:'10/08/26',e:'10/21/26',pay:'10/23/2026'},
-    {n:23,s:'10/22/26',e:'11/04/26',pay:'11/6/2026'},
-    {n:24,s:'11/05/26',e:'11/18/26',pay:'11/20/2026'},
-    {n:25,s:'11/19/26',e:'12/02/26',pay:'12/4/2026'},
-    {n:26,s:'12/03/26',e:'12/16/26',pay:'12/18/2026'},
-  ];
+  const start = new Date('2025-12-18');
   const today = new Date();
   today.setHours(0,0,0,0);
-  function pd(str) {
-    const p = str.split('/');
-    let yr = parseInt(p[2]);
-    if (yr < 100) yr += yr < 50 ? 2000 : 1900;
-    return new Date(yr, parseInt(p[0])-1, parseInt(p[1]), 12);
-  }
-  for (const p of PAYROLL) {
-    if (today >= pd(p.s) && today <= pd(p.e)) {
-      return p.s + ' – ' + p.e;
-    }
-  }
-  // Default to last period if past year end
-  return PAYROLL[PAYROLL.length-1].s + ' – ' + PAYROLL[PAYROLL.length-1].e;
+  const diffDays = Math.floor((today - start) / (1000*60*60*24));
+  const periodNum = Math.floor(diffDays / 14);
+  const periodStart = new Date(start);
+  periodStart.setDate(periodStart.getDate() + periodNum * 14);
+  const periodEnd = new Date(periodStart);
+  periodEnd.setDate(periodEnd.getDate() + 13);
+  const fmt = d => {
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    const y = String(d.getFullYear()).slice(2);
+    return m+'/'+day+'/'+y;
+  };
+  return fmt(periodStart) + ' – ' + fmt(periodEnd);
 }
 
 loadCommission_jimmie();
