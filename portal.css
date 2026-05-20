@@ -13,7 +13,7 @@ body{font-family:'Barlow',Arial,sans-serif;background:#edeae4;color:#1a1a1a;min-
 .orange-bar{background:#c4581f;height:3px}
 
 /* BODY */
-.body{padding:32px !important;max-width:1100px;margin:0 auto}
+.body{padding:32px 32px 0 32px;max-width:1100px;margin:0 auto}
 
 /* EMPLOYEE HEADER */
 .employee-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
@@ -26,7 +26,7 @@ body{font-family:'Barlow',Arial,sans-serif;background:#edeae4;color:#1a1a1a;min-
 .tab{font-family:'Barlow Condensed',Arial,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:10px 18px;cursor:pointer;color:#666;border-bottom:2px solid transparent;margin-bottom:-2px;background:none;border-top:none;border-left:none;border-right:none}
 .tab.active{color:#c4581f;border-bottom-color:#c4581f}
 .tab:hover{color:#1a1a1a}
-.tab-content{display:none}
+.tab-content{display:none;padding:24px 32px;max-width:1100px;margin:0 auto;box-sizing:border-box}
 .tab-content.active{display:block}
 
 /* CARDS */
@@ -254,6 +254,3 @@ tr.cur td:first-child{border-left:3px solid #c4581f}
 .hol-ct{font-family:'Barlow Condensed',Arial,sans-serif;font-size:24px;font-weight:700;color:#c4581f;text-align:right;flex-shrink:0}
 .hol-ct-lbl{font-size:10px;color:#aaa;text-align:right;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:0.08em;text-transform:uppercase}
 
-/* Tab content width constraint */
-.tab-content{max-width:100%;box-sizing:border-box;padding:0 0 16px 0}
-.tab-content .card{box-sizing:border-box}
