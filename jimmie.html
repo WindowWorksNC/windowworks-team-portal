@@ -602,14 +602,18 @@ function togglePrevPeriods_jimmie(el) {
 
 function getCurrentPayPeriodLabel() {
   const start = new Date('2025-12-18');
-  const today = new Date();
-  today.setHours(0,0,0,0);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const diffDays = Math.floor((today - start) / (1000*60*60*24));
   const periodNum = Math.floor(diffDays / 14);
   const periodStart = new Date(start);
   periodStart.setDate(periodStart.getDate() + periodNum * 14);
   const periodEnd = new Date(periodStart);
   periodEnd.setDate(periodEnd.getDate() + 13);
+  if (today.getTime() === periodEnd.getTime() && now.getHours() >= 23) {
+    periodStart.setDate(periodStart.getDate() + 14);
+    periodEnd.setDate(periodEnd.getDate() + 14);
+  }
   const fmt = d => {
     const m = String(d.getMonth()+1).padStart(2,'0');
     const day = String(d.getDate()).padStart(2,'0');
