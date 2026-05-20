@@ -34,7 +34,7 @@
   <button class="tab" onclick="switchTab('records-admin',this)">Employee Records</button>
   <button class="tab" onclick="switchTab('pto',this)">My PTO</button>
   <button class="tab" onclick="switchTab('my-record',this)">My Record</button>
-<button class="tab" onclick="switchTab('resources',this);requestAnimationFrame(function(){requestAnimationFrame(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){console.error('Resources error:',e);}})});">Resources</button>
+  <button class="tab" onclick="switchTab('resources',this);requestAnimationFrame(function(){requestAnimationFrame(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){}})});">Resources</button>
 </div>
 <div class="tab-content" id="tab-pto-admin"><div class="card">
   <div class="card-title">
@@ -242,38 +242,12 @@
     </table>
   </div>
   <div id="equip-empty" class="empty-state" style="display:none">No equipment on record.</div>
-
+  </div>
 </div>
   <div class="sub-tab-content" data-group="training" id="stab-training-general">
     <div class="alert alert-info" style="font-size:13px">General company training and resources appear here.</div>
   </div>
-
-<div class="tab-content" id="tab-commission-admin"><div class="card">
-  <div class="card-title" style="justify-content:space-between">
-    <span>Commission Summary</span>
-    <span style="font-size:12px;color:#888;font-weight:400;text-transform:none" id="brandon-comm-period-display">Loading...</span>
-  </div>
-  <div id="brandon-comm-loading" class="loading">Loading...</div>
-  <div id="brandon-comm-content" style="display:none">
-    <div class="stat-grid" style="margin-bottom:16px" id="brandon-comm-stats"></div>
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Value</th><th>Rate</th><th>Commission</th><th>Pay Period</th><th>Approved By</th><th>Approved Date</th><th>Action</th></tr></thead>
-        <tbody id="brandon-comm-body"></tbody>
-      </table>
-    </div>
-  </div>
-  <div id="brandon-comm-empty" class="empty-state" style="display:none">No commission entries this period.</div>
-</div>
-<div class="card" style="margin-top:0">
-  <div class="card-title" style="cursor:pointer" onclick="toggleBrandonPrevComm(this)">
-    Previous Periods <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="brandon-prev-comm-toggle">(click to expand)</span>
-  </div>
-  <div id="brandon-prev-comm-wrap" style="display:none">
-    <div id="brandon-prev-comm-loading" class="loading">Loading...</div>
-    <div id="brandon-prev-comm-body"></div>
-  </div>
-</div></div>
+</div></div></div>
 <div class="tab-content active" id="tab-tasks">
 <div class="tb-wrap">
   <p class="tb-hint">Your personal task board. Data saves in your browser. Click bucket names to rename them (except Recurring).</p>
@@ -330,6 +304,26 @@
     <div id="holidays-body"></div>
   </div>
 
+</div>
+<div class="tab-content" id="tab-commission-admin">
+<div class="card">
+  <div class="card-title" style="justify-content:space-between"><span>Commission</span><span style="font-size:12px;color:#888;font-weight:400;text-transform:none" id="brandon-comm-period-display">Loading...</span></div>
+  <div id="brandon-comm-loading" class="loading">Loading...</div>
+  <div id="brandon-comm-content" style="display:none">
+    <div class="stat-grid" style="margin-bottom:16px" id="brandon-comm-stats"></div>
+    <div class="table-wrap">
+      <table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Value</th><th>Rate</th><th>Commission</th><th>Pay Period</th><th>Approved By</th><th>Action</th></tr></thead>
+      <tbody id="brandon-comm-body"></tbody></table>
+    </div>
+  </div>
+  <div id="brandon-comm-empty" class="empty-state" style="display:none">No commission entries this period.</div>
+</div>
+<div class="card">
+  <div class="card-title" style="cursor:pointer" onclick="toggleBrandonPrevComm(this)">Previous Periods <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="brandon-prev-comm-toggle">(click to expand)</span></div>
+  <div id="brandon-prev-comm-wrap" style="display:none">
+    <div id="brandon-prev-comm-loading" class="loading">Loading...</div>
+    <div id="brandon-prev-comm-body"></div>
+  </div>
 </div>
 </div>
 <div class="footer">
@@ -426,20 +420,11 @@ async function loadMyRequests(employee){
       const status=r[7]||'Pending';
       const endDate=r[4]||r[3]||'';
       let pill;
-      if(status==='Approved'&&endDate>=today){
-        pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';
-      } else if(status==='Approved'){
-        pill='<span class="pill pill-approved">Approved</span>';
-      } else if(status==='Denied'){
-        pill='<span class="pill pill-denied">Denied</span>';
-      } else {
-        pill='<span class="pill pill-pending">Pending</span>';
-      }
-      return `<tr>
-        <td>${fmtDate(r[8])}</td><td>${r[2]||''}</td>
-        <td>${fmtDate(r[3])}${r[4]&&r[4]!==r[3]?' to '+fmtDate(r[4]):''}</td>
-        <td>${r[5]||''}</td><td>${pill}</td><td>${r[6]||''}</td>
-      </tr>`;
+      if(status==='Approved'&&endDate>=today){pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';}
+      else if(status==='Approved'){pill='<span class="pill pill-approved">Approved</span>';}
+      else if(status==='Denied'){pill='<span class="pill pill-denied">Denied</span>';}
+      else{pill='<span class="pill pill-pending">Pending</span>';}
+      return `<tr><td>${fmtDate(r[8])}</td><td>${r[2]||''}</td><td>${fmtDate(r[3])}${r[4]&&r[4]!==r[3]?' to '+fmtDate(r[4]):''}</td><td>${r[5]||''}</td><td>${pill}</td><td>${r[6]||''}</td></tr>`;
     }).join('');
   }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
 }
@@ -612,13 +597,12 @@ async function loadAdminPTO(){
       }).join('');
     } else document.getElementById('pending-empty').style.display='block';
 
+    // All active requests (not yet past end date, or pending)
     const active=rows.filter(r=>{
       const status=r[7]||'Pending';
       const endDate=r[4]||r[3]||'';
       if(status==='Pending') return true;
-      if(status==='Approved') return endDate>=today;
-      if(status==='Denied') return endDate>=today;
-      return false;
+      return endDate>=today;
     });
 
     // Past denied requests eligible for archiving
@@ -801,8 +785,7 @@ async function processARFile(){
         const qLabel='Q'+getCurrentQuarter()+' '+new Date().getFullYear();
         const arRow=[new Date().toLocaleDateString('en-US'),0,0,p31_60,p61_90,p91,total,past30,pct.toFixed(2),qLabel];
         await api({action:'append',tab:'AR_Tracking',row:JSON.stringify(arRow)});
-        loadARHistory();
-      }catch(err){console.error('AR save error:',err);}
+      }catch(err){console.error('AR save:',err);}
       // Save snapshot to AR_Tracking
       try{
         const qLabel='Q'+getCurrentQuarter()+' '+new Date().getFullYear();
@@ -1009,150 +992,6 @@ async function loadARHistory() {
 loadScorecardArchiveBrandon();loadARHistory();</script>
 <script src="resources.js"></script>
 <script>
-async function loadBrandonCommission() {
-  const loadEl = document.getElementById('brandon-comm-loading');
-  const content = document.getElementById('brandon-comm-content');
-  const emptyEl = document.getElementById('brandon-comm-empty');
-  
-  try {
-    const d = await api({action:'read', tab:'Commissions'});
-    if (loadEl) loadEl.style.display = 'none';
-    if (!d.success) return;
-    
-    const rows = d.data.slice(1).filter(r => r.some(c => c));
-    const currentPeriod = getBrandonCurrentPeriod();
-    
-    document.getElementById('brandon-comm-period-display').textContent = currentPeriod;
-    
-    const currentRows = rows.filter(r => r[8] === currentPeriod);
-    
-    // Stats per employee
-    const employees = ['Colin Glenn', 'Jimmie Coleman'];
-    const stats = {};
-    employees.forEach(e => {
-      stats[e] = currentRows.filter(r => r[1] === e).reduce((sum, r) => sum + (Number(r[7]) || 0), 0);
-    });
-    
-    const statsEl = document.getElementById('brandon-comm-stats');
-    if (statsEl) {
-      statsEl.innerHTML = employees.map(e => `
-        <div class="stat-block">
-          <div class="stat-number orange">${fmtMoney(stats[e])}</div>
-          <div class="stat-label">${e}</div>
-        </div>`).join('') + `
-        <div class="stat-block">
-          <div class="stat-number">${fmtMoney(Object.values(stats).reduce((a,b)=>a+b,0))}</div>
-          <div class="stat-label">Period Total</div>
-        </div>`;
-    }
-    
-    if (content) content.style.display = 'block';
-    
-    if (!currentRows.length) {
-      if (emptyEl) emptyEl.style.display = 'block';
-    }
-    
-    const tbody = document.getElementById('brandon-comm-body');
-    if (tbody) tbody.innerHTML = currentRows.slice().reverse().map((r, i) => {
-      const rowIdx = d.data.indexOf(r) + 1;
-      const approved = r[10] ? true : false;
-      return `<tr id="comm-row-${rowIdx}">
-        <td>${fmtDate(r[0])}</td>
-        <td>${r[1]||''}</td>
-        <td>${r[2]||''}</td>
-        <td>${fmtMoney(r[3])}</td>
-        <td>${r[5]||''}</td>
-        <td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td>
-        <td style="font-size:11px">${r[8]||''}</td>
-        <td>${r[10]||''}</td>
-        <td>${r[11]||''}</td>
-        <td>${approved 
-          ? '<span class="pill pill-approved">Approved</span>'
-          : `<button class="action-btn btn-approve" onclick="approveCommission(${rowIdx})">Approve</button>`
-        }</td>
-      </tr>`;
-    }).join('');
-    
-    loadBrandonPrevComm(rows, currentPeriod, d.data);
-    
-  } catch(e) {
-    if (loadEl) loadEl.style.display = 'none';
-    console.error('Commission load error:', e);
-  }
-}
-
-async function approveCommission(rowIndex) {
-  const btn = event.target;
-  btn.disabled = true;
-  btn.textContent = 'Saving...';
-  try {
-    const d = await api({action:'read', tab:'Commissions'});
-    if (!d.success) return;
-    const row = [...d.data[rowIndex-1]];
-    while (row.length < 12) row.push('');
-    row[10] = 'Brandon McClure';
-    row[11] = new Date().toLocaleDateString('en-US');
-    await api({action:'update', tab:'Commissions', rowIndex: rowIndex, row: JSON.stringify(row)});
-    loadBrandonCommission();
-  } catch(e) {
-    btn.disabled = false;
-    btn.textContent = 'Approve';
-    alert('Error approving commission. Please try again.');
-  }
-}
-
-function loadBrandonPrevComm(rows, currentPeriod, allData) {
-  const body = document.getElementById('brandon-prev-comm-body');
-  const loading = document.getElementById('brandon-prev-comm-loading');
-  if (loading) loading.style.display = 'none';
-  if (!body) return;
-  
-  const periods = {};
-  rows.forEach(r => {
-    const period = r[8];
-    if (!period || period === currentPeriod) return;
-    if (!periods[period]) periods[period] = [];
-    periods[period].push(r);
-  });
-  
-  const periodKeys = Object.keys(periods).sort().reverse();
-  if (!periodKeys.length) {
-    body.innerHTML = '<div class="empty-state">No previous periods.</div>';
-    return;
-  }
-  
-  body.innerHTML = periodKeys.map(period => {
-    const periodRows = periods[period];
-    const total = periodRows.reduce((sum, r) => sum + (Number(r[7]) || 0), 0);
-    const id = 'bpp-' + period.replace(/[^a-z0-9]/gi, '');
-    return `<div style="border-top:1px solid #f0ece6;padding:10px 0">
-      <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'">
-        <span style="font-size:13px;font-weight:600;color:#1a1a1a">${period}</span>
-        <span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span>
-      </div>
-      <div id="${id}" style="display:none;margin-top:8px">
-        <table class="data-table">
-          <thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Commission</th><th>Approved By</th></tr></thead>
-          <tbody>${periodRows.map(r => `<tr>
-            <td>${fmtDate(r[0])}</td><td>${r[1]||''}</td><td>${r[2]||''}</td>
-            <td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td>
-            <td>${r[10]||'<span style="color:#aaa">Pending</span>'}</td>
-          </tr>`).join('')}</tbody>
-        </table>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function toggleBrandonPrevComm(el) {
-  const wrap = document.getElementById('brandon-prev-comm-wrap');
-  const toggle = document.getElementById('brandon-prev-comm-toggle');
-  if (!wrap) return;
-  const isOpen = wrap.style.display !== 'none';
-  wrap.style.display = isOpen ? 'none' : 'block';
-  if (toggle) toggle.textContent = isOpen ? '(click to expand)' : '(click to collapse)';
-}
-
 function getBrandonCurrentPeriod() {
   const start = new Date('2025-12-18');
   const now = new Date();
@@ -1167,13 +1006,81 @@ function getBrandonCurrentPeriod() {
     periodStart.setDate(periodStart.getDate() + 14);
     periodEnd.setDate(periodEnd.getDate() + 14);
   }
-  const fmt = d => {
-    const m = String(d.getMonth()+1).padStart(2,'0');
-    const day = String(d.getDate()).padStart(2,'0');
-    const y = String(d.getFullYear()).slice(2);
-    return m+'/'+day+'/'+y;
-  };
+  const fmt = d => String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+'/'+String(d.getFullYear()).slice(2);
   return fmt(periodStart) + ' – ' + fmt(periodEnd);
+}
+
+async function loadBrandonCommission() {
+  const loadEl=document.getElementById('brandon-comm-loading');
+  const content=document.getElementById('brandon-comm-content');
+  const emptyEl=document.getElementById('brandon-comm-empty');
+  try {
+    const d=await api({action:'read',tab:'Commissions'});
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success)return;
+    const rows=d.data.slice(1).filter(r=>r.some(c=>c));
+    const currentPeriod=getBrandonCurrentPeriod();
+    document.getElementById('brandon-comm-period-display').textContent=currentPeriod;
+    const currentRows=rows.filter(r=>r[8]===currentPeriod);
+    const employees=['Colin Glenn','Jimmie Coleman'];
+    const stats={};
+    employees.forEach(e=>{stats[e]=currentRows.filter(r=>r[1]===e).reduce((s,r)=>s+(Number(r[7])||0),0);});
+    const statsEl=document.getElementById('brandon-comm-stats');
+    if(statsEl){
+      statsEl.innerHTML=employees.map(e=>`<div class="stat-block"><div class="stat-number orange">${fmtMoney(stats[e])}</div><div class="stat-label">${e}</div></div>`).join('')+
+        `<div class="stat-block"><div class="stat-number">${fmtMoney(Object.values(stats).reduce((a,b)=>a+b,0))}</div><div class="stat-label">Period Total</div></div>`;
+    }
+    if(content)content.style.display='block';
+    if(!currentRows.length){if(emptyEl)emptyEl.style.display='block';return;}
+    const tbody=document.getElementById('brandon-comm-body');
+    if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>{
+      const rowIdx=d.data.findIndex(row=>row===r)+1;
+      const approved=r[10]?true:false;
+      return `<tr><td>${fmtDate(r[0])}</td><td>${r[1]||''}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[5]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td><td style="font-size:11px">${r[8]||''}</td><td>${r[10]||''}</td><td>${approved?'<span class="pill pill-approved">Approved</span>':`<button class="action-btn btn-approve" onclick="approveCommission(${rowIdx})">Approve</button>`}</td></tr>`;
+    }).join('');
+    loadBrandonPrevComm(rows,currentPeriod);
+  } catch(e){if(loadEl)loadEl.style.display='none';}
+}
+
+async function approveCommission(rowIndex) {
+  const btn=event.target;
+  btn.disabled=true;btn.textContent='Saving...';
+  try {
+    const d=await api({action:'read',tab:'Commissions'});
+    if(!d.success)return;
+    const row=[...d.data[rowIndex-1]];
+    while(row.length<12)row.push('');
+    row[10]='Brandon McClure';
+    row[11]=new Date().toLocaleDateString('en-US');
+    await api({action:'update',tab:'Commissions',rowIndex:rowIndex,row:JSON.stringify(row)});
+    loadBrandonCommission();
+  } catch(e){btn.disabled=false;btn.textContent='Approve';}
+}
+
+function loadBrandonPrevComm(rows,currentPeriod){
+  const body=document.getElementById('brandon-prev-comm-body');
+  const loading=document.getElementById('brandon-prev-comm-loading');
+  if(loading)loading.style.display='none';
+  if(!body)return;
+  const periods={};
+  rows.forEach(r=>{const p=r[8];if(!p||p===currentPeriod)return;if(!periods[p])periods[p]=[];periods[p].push(r);});
+  const keys=Object.keys(periods).sort().reverse();
+  if(!keys.length){body.innerHTML='<div class="empty-state">No previous periods.</div>';return;}
+  body.innerHTML=keys.map(period=>{
+    const pRows=periods[period];
+    const total=pRows.reduce((s,r)=>s+(Number(r[7])||0),0);
+    const id='bpp-'+period.replace(/[^a-z0-9]/gi,'');
+    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Commission</th><th>Approved By</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[1]||''}</td><td>${r[2]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td><td>${r[10]||'<span style="color:#aaa">Pending</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+  }).join('');
+}
+
+function toggleBrandonPrevComm(el){
+  const wrap=document.getElementById('brandon-prev-comm-wrap');
+  const toggle=document.getElementById('brandon-prev-comm-toggle');
+  if(!wrap)return;
+  const isOpen=wrap.style.display!=='none';
+  wrap.style.display=isOpen?'none':'block';
+  if(toggle)toggle.textContent=isOpen?'(click to expand)':'(click to collapse)';
 }
 
 loadBrandonCommission();

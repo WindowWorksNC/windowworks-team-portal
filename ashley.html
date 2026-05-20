@@ -31,7 +31,7 @@
   <button class="tab" onclick="switchTab('pto',this)">PTO</button>
   <button class="tab" onclick="switchTab('records',this)">My Record</button>
   <button class="tab" onclick="switchTab('training',this)">Training</button>
-<button class="tab" onclick="switchTab('resources',this);requestAnimationFrame(function(){requestAnimationFrame(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){console.error('Resources error:',e);}})});">Resources</button>
+  <button class="tab" onclick="switchTab('resources',this);requestAnimationFrame(function(){requestAnimationFrame(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){}})});">Resources</button>
 </div>
 <div class="tab-content" id="tab-pto"><div class="card">
   <div class="card-title">Leave Balances</div>
@@ -134,7 +134,7 @@
   <div class="sub-tab-content" data-group="training" id="stab-training-general">
     <div class="alert alert-info" style="font-size:13px">General company training and resources appear here.</div>
   </div>
-</div>
+</div></div></div>
 <div class="tab-content active" id="tab-tasks">
 <div class="tb-wrap">
   <p class="tb-hint">Your personal task board. Data saves in your browser. Click bucket names to rename them (except Recurring).</p>
@@ -191,8 +191,6 @@
     <div id="holidays-body"></div>
   </div>
 
-</div>
-</div>
 </div>
 <div class="footer">
   <div class="footer-l">Window Works Co. &nbsp;&bull;&nbsp; windowworksnc.com</div>
@@ -288,20 +286,11 @@ async function loadMyRequests(employee){
       const status=r[7]||'Pending';
       const endDate=r[4]||r[3]||'';
       let pill;
-      if(status==='Approved'&&endDate>=today){
-        pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';
-      } else if(status==='Approved'){
-        pill='<span class="pill pill-approved">Approved</span>';
-      } else if(status==='Denied'){
-        pill='<span class="pill pill-denied">Denied</span>';
-      } else {
-        pill='<span class="pill pill-pending">Pending</span>';
-      }
-      return `<tr>
-        <td>${fmtDate(r[8])}</td><td>${r[2]||''}</td>
-        <td>${fmtDate(r[3])}${r[4]&&r[4]!==r[3]?' to '+fmtDate(r[4]):''}</td>
-        <td>${r[5]||''}</td><td>${pill}</td><td>${r[6]||''}</td>
-      </tr>`;
+      if(status==='Approved'&&endDate>=today){pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';}
+      else if(status==='Approved'){pill='<span class="pill pill-approved">Approved</span>';}
+      else if(status==='Denied'){pill='<span class="pill pill-denied">Denied</span>';}
+      else{pill='<span class="pill pill-pending">Pending</span>';}
+      return `<tr><td>${fmtDate(r[8])}</td><td>${r[2]||''}</td><td>${fmtDate(r[3])}${r[4]&&r[4]!==r[3]?' to '+fmtDate(r[4]):''}</td><td>${r[5]||''}</td><td>${pill}</td><td>${r[6]||''}</td></tr>`;
     }).join('');
   }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
 }
