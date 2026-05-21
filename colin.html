@@ -318,9 +318,93 @@ html.pin-active,body/* TASK BOARD */
   </div>
   <div id="ledger-empty" class="empty-state" style="display:none">No commission records yet.</div>
 </div></div><div class="tab-content" id="tab-bonuses">
+
+<!-- BONUS SUMMARY -->
 <div class="card">
   <div class="card-title" style="justify-content:space-between">
-    <span>Booking Bonuses <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">$75 per in-home lead booked</span></span>
+    <span>Bonuses</span>
+    <span style="font-size:12px;color:#888;font-weight:400;text-transform:none" id="bonus-summary-sub">Loading...</span>
+  </div>
+  <div id="bonus-summary-loading" class="loading">Loading...</div>
+  <div id="bonus-summary-content" style="display:none">
+    <div class="stat-grid" style="margin-bottom:20px">
+      <div class="stat-block">
+        <div class="stat-number orange" id="bonus-pending-total">$0</div>
+        <div class="stat-label">Earned / Pending</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-number" id="bonus-approved-total">$0</div>
+        <div class="stat-label">Approved</div>
+      </div>
+    </div>
+
+    <!-- PENDING APPROVAL -->
+    <div style="margin-bottom:8px">
+      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#c4581f;margin-bottom:10px">Earned — Pending Approval</div>
+      <div id="bonus-pending-body">
+        <div class="empty-state" id="bonus-pending-empty" style="display:none">No pending bonuses.</div>
+      </div>
+    </div>
+
+    <!-- APPROVED -->
+    <div style="border-top:1px solid #f0ece6;padding-top:16px;margin-top:8px">
+      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#28a745;margin-bottom:10px">Approved</div>
+      <div id="bonus-approved-body">
+        <div class="empty-state" id="bonus-approved-empty" style="display:none">No approved bonuses yet.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OPPORTUNITIES -->
+<div class="card">
+  <div class="card-title">Opportunities</div>
+  <div style="font-size:12px;color:#aaa;margin-bottom:16px">Accounts closest to earning a bonus. Top 3 per category.</div>
+  <div id="opp-loading" class="loading">Loading...</div>
+  <div id="opp-content" style="display:none">
+
+    <div style="margin-bottom:20px">
+      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#555;margin-bottom:4px">New Partner Bounty <span style="color:#aaa;font-weight:400">$250</span></div>
+      <div style="font-size:11px;color:#aaa;margin-bottom:10px">First won deal with a new B2B account — minimum $1,000 deal value</div>
+      <div id="opp-new-partner"></div>
+    </div>
+
+    <div style="border-top:1px solid #f0ece6;padding-top:16px;margin-bottom:20px">
+      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#555;margin-bottom:4px">Anchor Account <span style="color:#aaa;font-weight:400">$2,500</span></div>
+      <div style="font-size:11px;color:#aaa;margin-bottom:10px">3 contracts + $150,000 in revenue within the first 12 months of the relationship</div>
+      <div id="opp-anchor"></div>
+    </div>
+
+    <div style="border-top:1px solid #f0ece6;padding-top:16px;margin-bottom:20px">
+      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#555;margin-bottom:4px">Wallet Share <span style="color:#aaa;font-weight:400">$2,500</span></div>
+      <div style="font-size:11px;color:#aaa;margin-bottom:10px">Existing account grows spend by 20%+ year over year, with at least $60,000 this year</div>
+      <div id="opp-wallet"></div>
+    </div>
+
+    <div style="border-top:1px solid #f0ece6;padding-top:16px">
+      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#555;margin-bottom:4px">Account Retention <span style="color:#aaa;font-weight:400">$2,500</span></div>
+      <div style="font-size:11px;color:#aaa;margin-bottom:10px">Any account that hits $200,000 in a single calendar year</div>
+      <div id="opp-retention"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ALL OTHER B2B ACCOUNTS -->
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleAllAccounts()">
+    <div class="card-title" style="margin-bottom:0">All Other B2B Accounts</div>
+    <span style="font-size:12px;color:#aaa" id="all-accounts-toggle">(click to expand)</span>
+  </div>
+  <div id="all-accounts-wrap" style="display:none;margin-top:16px">
+    <div id="all-accounts-body"></div>
+  </div>
+</div>
+
+<!-- BOOKING BONUSES -->
+<div class="card">
+  <div class="card-title" style="justify-content:space-between">
+    <span>Booking Bonuses <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">$75 per in-home lead booked for outside sales</span></span>
   </div>
   <div id="booking-loading" class="loading">Loading...</div>
   <div id="booking-content" style="display:none">
@@ -367,179 +451,6 @@ html.pin-active,body/* TASK BOARD */
     <button class="submit-btn" onclick="submitBooking()" id="booking-submit-btn">Log Booking Bonus</button>
     <div id="booking-submit-msg" style="margin-top:8px;font-size:13px"></div>
   </div>
-</div>
-
-<div class="card">
-  <div class="card-title">B2B Partner Bounties <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">$250 per new account first sale</span></div>
-  <div id="bounty-loading" class="loading">Loading...</div>
-  <div id="bounty-content" style="display:none">
-    <div class="stat-grid" style="margin-bottom:16px">
-      <div class="stat-block">
-        <div class="stat-number orange" id="bounty-count">0</div>
-        <div class="stat-label">Total Bounties</div>
-      </div>
-      <div class="stat-block">
-        <div class="stat-number orange" id="bounty-total">$0</div>
-        <div class="stat-label">Total Earned</div>
-      </div>
-      <div class="stat-block">
-        <div class="stat-number" id="bounty-pending">$0</div>
-        <div class="stat-label">Pending Approval</div>
-      </div>
-    </div>
-    <div class="table-wrap" id="bounty-table-wrap" style="display:none">
-      <table class="data-table">
-        <thead><tr><th>Date</th><th>Account</th><th>Deal</th><th>Value</th><th>Bonus</th><th>Status</th></tr></thead>
-        <tbody id="bounty-body"></tbody>
-      </table>
-    </div>
-    <div id="bounty-empty" class="empty-state" style="display:none">No partner bounties yet.</div>
-  </div>
-</div>
-
-<div class="card">
-  <div class="card-title">B2B Bonuses Earned <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Live from Pipedrive</span></div>
-  <div id="b2b-loading" class="loading">Loading accounts...</div>
-  <div id="b2b-empty" class="empty-state" style="display:none">No B2B bonuses earned yet.</div>
-  <div id="b2b-earned" style="display:none">
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Account</th><th>Bonus</th><th>Amount</th><th>Details</th></tr></thead>
-        <tbody id="b2b-earned-body"></tbody>
-      </table>
-    </div>
-  </div>
-  <div style="margin-top:16px;border-top:1px solid #f0ece6;padding-top:12px" id="b2b-accounts-section" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleB2BAccounts()">
-      <span style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#aaa">All B2B Accounts</span>
-      <span style="font-size:12px;color:#aaa" id="b2b-accounts-toggle">(click to expand)</span>
-    </div>
-    <div id="b2b-accounts-wrap" style="display:none;margin-top:12px">
-      <div id="b2b-accounts-body"></div>
-    </div>
-  </div>
-</div>
-</div><div class="tab-content" id="tab-pto"><div class="card">
-  <div class="card-title">Leave Balances</div>
-  <div class="stat-grid">
-    <div class="stat-block">
-      <div class="stat-number" id="vac-remaining">--</div>
-      <div class="stat-label">Vacation Days Left</div>
-      <div class="stat-sub" id="vac-used">of 10 used: --</div>
-      <div class="pto-bar-wrap"><div class="pto-bar" id="vac-bar" style="width:0%"></div></div>
-    </div>
-    <div class="stat-block">
-      <div class="stat-number" id="sick-remaining">--</div>
-      <div class="stat-label">Sick Days Left</div>
-      <div class="stat-sub" id="sick-used">of 5 used: --</div>
-      <div class="pto-bar-wrap"><div class="pto-bar" id="sick-bar" style="width:0%"></div></div>
-    </div>
-  </div>
-</div><div class="card">
-  <div class="card-title">Request Time Off</div>
-  <div id="pto-form-alert"></div>
-  <div class="form-row">
-    <div class="form-group">
-      <label class="form-label">Type</label>
-      <select class="form-input" id="pto-type">
-        <option>Vacation</option><option>Sick</option><option>Personal</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Start Date</label>
-      <input type="date" class="form-input" id="pto-start" onchange="calcWorkingDays()">
-    </div>
-    <div class="form-group">
-      <label class="form-label">End Date</label>
-      <input type="date" class="form-input" id="pto-end" onchange="calcWorkingDays()">
-    </div>
-    <div class="form-group" style="max-width:90px">
-      <label class="form-label">Days</label>
-      <input type="number" class="form-input" id="pto-days" min="1" step="1" placeholder="1" readonly style="background:#f0ede8;color:#888">
-    </div>
-  </div>
-  <div class="form-row">
-    <div class="form-group" style="flex:3">
-      <label class="form-label">Notes (optional)</label>
-      <textarea class="form-input form-textarea" id="pto-notes" placeholder="Any relevant details..."></textarea>
-    </div>
-  </div>
-  <button class="submit-btn" id="pto-submit-btn" onclick="submitPTO(EMPLOYEE, 'Brandon McClure')">Submit Request</button>
-</div><div class="card">
-  <div class="card-title">My Requests</div>
-  <div id="my-requests-loading" class="loading">Loading...</div>
-  <div class="table-wrap">
-    <table class="data-table" id="my-requests-table" style="display:none">
-      <thead><tr><th>Submitted</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Notes</th></tr></thead>
-      <tbody id="my-requests-body"></tbody>
-    </table>
-  </div>
-  <div id="my-requests-empty" class="empty-state" style="display:none">No requests yet.</div>
-<div class="card" style="margin-top:8px">
-  <div class="card-title">
-    Request History
-  </div>
-  <div>
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Submitted</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Notes</th></tr></thead>
-        <tbody id="my-requests-history-body"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-</div></div><div class="tab-content" id="tab-records"><div class="card">
-  <div class="card-title">Employee Record</div>
-  <div id="record-loading" class="loading">Loading...</div>
-  <div id="record-content" style="display:none">
-    <table class="data-table"><tbody id="record-body"></tbody></table>
-  </div>
-</div><div class="card">
-  <div class="card-title">Documents</div>
-  <div id="docs-loading" class="loading">Loading...</div>
-  <div id="docs-list"></div>
-</div>
-<div class="card">
-  <div class="card-title">Company Resources</div>
-  <div id="company-resources"><div class="loading">Loading...</div></div>
-</div>
-<div class="card">
-  <div class="card-title">Company Equipment</div>
-  <div id="equip-loading" class="loading">Loading...</div>
-  <div class="table-wrap">
-    <table class="data-table" id="equip-table" style="display:none">
-      <thead><tr><th>Type</th><th>Make / Model</th><th>Serial / Plate</th><th>Issued</th><th>Notes</th></tr></thead>
-      <tbody id="equip-body"></tbody>
-    </table>
-  </div>
-  <div id="equip-empty" class="empty-state" style="display:none">No equipment on record.</div>
-  
-</div></div><div class="tab-content" id="tab-training"><div class="card">
-  <div class="card-title">Training</div>
-  <div class="alert alert-info" style="font-size:13px">
-    Sales training is delivered through Ingage on your iPad. Open the Ingage app to access your training modules, videos, articles, and exit quizzes.
-  </div>
-</div></div>
-<div class="tab-content active" id="tab-tasks">
-<div class="tb-wrap">
-  <p class="tb-hint">Your personal task board. Data saves in your browser. Click bucket names to rename them (except Recurring).</p>
-  <div class="tb-add-bar">
-    <input type="text" class="tb-add-inp" id="tb-add-inp" placeholder="Add a task...">
-    <select class="tb-add-bucket" id="tb-add-bucket">
-      <option value="this-week">This Week</option>
-      <option value="recurring">Recurring</option>
-      <option value="projects">Larger Projects</option>
-      <option value="waiting">Waiting On</option>
-    </select>
-    <button class="tb-add-btn" onclick="tbAdd_colin()">+ Add</button>
-  </div>
-  <div class="tb-grid">
-    <div class="tb-col" data-bucket="this-week"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-this-week" onclick="tbRenameBucket_colin('this-week')">This Week</span></span><span class="tb-col-count" id="tc-this-week">0</span></div><div class="tb-list" id="tl-this-week"></div></div>
-    <div class="tb-col" data-bucket="recurring"><div class="tb-col-header"><span class="tb-col-label"><span id="th-recurring">Recurring</span></span><span class="tb-col-count" id="tc-recurring">0</span></div><div class="tb-list" id="tl-recurring"></div></div>
-    <div class="tb-col" data-bucket="projects"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-projects" onclick="tbRenameBucket_colin('projects')">Larger Projects</span></span><span class="tb-col-count" id="tc-projects">0</span></div><div class="tb-list" id="tl-projects"></div></div>
-    <div class="tb-col" data-bucket="waiting"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-waiting" onclick="tbRenameBucket_colin('waiting')">Waiting On</span></span><span class="tb-col-count" id="tc-waiting">0</span></div><div class="tb-list" id="tl-waiting"></div></div>
-  </div>
-</div>
 </div>
 <div class="tab-content" id="tab-resources">
 <div>
@@ -1390,6 +1301,33 @@ renderHolidays();
 const PIPEDRIVE_TOKEN = 'e3ede19f7c61fad229f89cf091af089cd5a2318e';
 const COLIN_PD_ID = 14869709;
 
+function oppRow(name, detail, progress) {
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f8f5f0;gap:12px">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:#1a1a1a">${name}</div>
+      <div style="font-size:12px;color:#888;margin-top:2px">${detail}</div>
+    </div>
+    <div style="font-size:12px;color:#c4581f;font-weight:600;white-space:nowrap">${progress}</div>
+  </div>`;
+}
+
+function bonusRow(type, account, amount, detail, approved, approvedBy) {
+  const pill = approved
+    ? '<span class="pill pill-approved">Approved</span>'
+    : '<span class="pill pill-pending">Pending</span>';
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f8f5f0;flex-wrap:wrap;gap:8px">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:#1a1a1a">${account}</div>
+      <div style="font-size:11px;color:#aaa;margin-top:2px">${type} — ${detail}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <strong style="color:#c4581f">${fmtMoney(amount)}</strong>
+      ${pill}
+      ${approved ? `<span style="font-size:11px;color:#aaa">${approvedBy}</span>` : ''}
+    </div>
+  </div>`;
+}
+
 async function loadColinBonuses() {
   loadBookingBonuses();
   loadBounties();
@@ -1405,38 +1343,29 @@ async function loadBookingBonuses() {
     if (loadEl) loadEl.style.display = 'none';
     if (contentEl) contentEl.style.display = 'block';
     if (!d.success) return;
-    
     const rows = d.data.slice(1).filter(r => r[0]==='Colin Glenn' && r.some(c => c));
     const currentPeriod = getCurrentPayPeriodLabel_colin();
-    
     const periodRows = rows.filter(r => r[6] === currentPeriod);
-    const periodTotal = periodRows.length * 75;
-    const ytdTotal = rows.length * 75;
-    
     document.getElementById('booking-period-count').textContent = periodRows.length;
-    document.getElementById('booking-period-total').textContent = fmtMoney(periodTotal);
-    document.getElementById('booking-ytd-total').textContent = fmtMoney(ytdTotal);
-    
+    document.getElementById('booking-period-total').textContent = fmtMoney(periodRows.length * 75);
+    document.getElementById('booking-ytd-total').textContent = fmtMoney(rows.length * 75);
     const tableWrap = document.getElementById('booking-table-wrap');
     const emptyEl = document.getElementById('booking-empty');
-    
-    if (!periodRows.length) {
-      if (emptyEl) emptyEl.style.display = 'block';
-    } else {
-      if (tableWrap) tableWrap.style.display = 'block';
+    if (!periodRows.length) { if(emptyEl) emptyEl.style.display='block'; }
+    else {
+      if(tableWrap) tableWrap.style.display='block';
       const tbody = document.getElementById('booking-body');
-      if (tbody) tbody.innerHTML = periodRows.slice().reverse().map(r => `<tr>
-        <td>${fmtDate(r[1])}</td>
-        <td>${r[2]||''}</td>
-        <td>${fmtDate(r[3])}</td>
+      if(tbody) tbody.innerHTML = periodRows.slice().reverse().map(r => `<tr>
+        <td>${fmtDate(r[1])}</td><td>${r[2]||''}</td><td>${fmtDate(r[3])}</td>
         <td><strong style="color:#c4581f">$75.00</strong></td>
         <td>${r[4]||'<span style="color:#aaa">Pending</span>'}</td>
         <td>${r[5]||''}</td>
       </tr>`).join('');
     }
+    updateBonusSummary();
   } catch(e) {
-    if (loadEl) loadEl.style.display = 'none';
-    if (contentEl) contentEl.style.display = 'block';
+    if(loadEl) loadEl.style.display='none';
+    if(contentEl) contentEl.style.display='block';
   }
 }
 
@@ -1445,86 +1374,109 @@ async function submitBooking() {
   const msg = document.getElementById('booking-submit-msg');
   const customer = document.getElementById('booking-customer').value.trim();
   const apptDate = document.getElementById('booking-appt-date').value;
-  
-  if (!customer) { msg.textContent = 'Please enter a customer name.'; msg.style.color = '#dc3545'; return; }
-  if (!apptDate) { msg.textContent = 'Please enter an appointment date.'; msg.style.color = '#dc3545'; return; }
-  
-  btn.disabled = true; btn.textContent = 'Saving...';
-  
+  if (!customer) { msg.textContent='Please enter a customer name.'; msg.style.color='#dc3545'; return; }
+  if (!apptDate) { msg.textContent='Please enter an appointment date.'; msg.style.color='#dc3545'; return; }
+  btn.disabled=true; btn.textContent='Saving...';
   try {
     const today = new Date().toLocaleDateString('en-US');
     const period = getCurrentPayPeriodLabel_colin();
     const notes = document.getElementById('booking-notes').value.trim();
     const row = ['Colin Glenn', today, customer, apptDate, '', notes, period];
     await api({action:'append', tab:'B2B_Booking_Bonuses', row: JSON.stringify(row)});
-    msg.textContent = 'Booking bonus logged!'; msg.style.color = '#28a745';
-    document.getElementById('booking-customer').value = '';
-    document.getElementById('booking-appt-date').value = '';
-    document.getElementById('booking-notes').value = '';
+    msg.textContent='Booking bonus logged!'; msg.style.color='#28a745';
+    document.getElementById('booking-customer').value='';
+    document.getElementById('booking-appt-date').value='';
+    document.getElementById('booking-notes').value='';
     loadBookingBonuses();
-  } catch(e) {
-    msg.textContent = 'Error saving. Please try again.'; msg.style.color = '#dc3545';
-  }
-  btn.disabled = false; btn.textContent = 'Log Booking Bonus';
+  } catch(e) { msg.textContent='Error saving. Please try again.'; msg.style.color='#dc3545'; }
+  btn.disabled=false; btn.textContent='Log Booking Bonus';
 }
 
 // --- PARTNER BOUNTIES ---
+let _bountyRows = [];
 async function loadBounties() {
-  const loadEl = document.getElementById('bounty-loading');
-  const contentEl = document.getElementById('bounty-content');
   try {
     const d = await api({action:'read', tab:'B2B_Partner_Bounties'});
-    if (loadEl) loadEl.style.display = 'none';
-    if (contentEl) contentEl.style.display = 'block';
     if (!d.success) return;
-    
-    const rows = d.data.slice(1).filter(r => r[0]==='Colin Glenn' && r.some(c => c));
-    const approved = rows.filter(r => r[7]);
-    const pending = rows.filter(r => !r[7]);
-    
-    document.getElementById('bounty-count').textContent = rows.length;
-    document.getElementById('bounty-total').textContent = fmtMoney(approved.length * 250);
-    document.getElementById('bounty-pending').textContent = fmtMoney(pending.length * 250);
-    
-    const tableWrap = document.getElementById('bounty-table-wrap');
-    const emptyEl = document.getElementById('bounty-empty');
-    
-    if (!rows.length) {
-      if (emptyEl) emptyEl.style.display = 'block';
-    } else {
-      if (tableWrap) tableWrap.style.display = 'block';
-      const tbody = document.getElementById('bounty-body');
-      if (tbody) tbody.innerHTML = rows.slice().reverse().map(r => `<tr>
-        <td>${fmtDate(r[1])}</td>
-        <td>${r[2]||''}</td>
-        <td>${r[3]||''}</td>
-        <td>${fmtMoney(r[4])}</td>
-        <td><strong style="color:#c4581f">$250.00</strong></td>
-        <td>${r[7] ? '<span class="pill pill-approved">Approved</span>' : '<span class="pill pill-pending">Pending</span>'}</td>
-      </tr>`).join('');
+    _bountyRows = d.data.slice(1).filter(r => r[0]==='Colin Glenn' && r.some(c => c));
+    updateBonusSummary();
+  } catch(e) {}
+}
+
+// --- BONUS SUMMARY (combines booking + bounties + B2B earned) ---
+let _b2bEarned = []; // set by loadB2BTracker
+function updateBonusSummary() {
+  const loadEl = document.getElementById('bonus-summary-loading');
+  const contentEl = document.getElementById('bonus-summary-content');
+  if(loadEl) loadEl.style.display='none';
+  if(contentEl) contentEl.style.display='block';
+
+  const pendingBody = document.getElementById('bonus-pending-body');
+  const approvedBody = document.getElementById('bonus-approved-body');
+  const pendingEmpty = document.getElementById('bonus-pending-empty');
+  const approvedEmpty = document.getElementById('bonus-approved-empty');
+
+  const pending = [];
+  const approved = [];
+
+  // Booking bonuses
+  const bookingRows = document.getElementById('booking-body') ? 
+    [] : []; // loaded separately, get from sheet
+  
+  // Partner bounties from sheet
+  _bountyRows.forEach(r => {
+    const entry = { type:'New Partner Bounty', account:r[2]||r[1]||'', amount:Number(r[7])||250, detail:'First B2B sale', approvedBy:r[7]||'' };
+    if(r[7]) approved.push(entry);
+    else pending.push(entry);
+  });
+
+  // B2B earned from Pipedrive
+  _b2bEarned.forEach(b => {
+    // These are auto-calculated, show as pending until we have a separate approval
+    pending.push({ type: b.label, account: b.account, amount: b.amount, detail: b.detail, approvedBy:'' });
+  });
+
+  const pendingTotal = pending.reduce((s,e) => s+e.amount, 0);
+  const approvedTotal = approved.reduce((s,e) => s+e.amount, 0);
+
+  document.getElementById('bonus-pending-total').textContent = fmtMoney(pendingTotal);
+  document.getElementById('bonus-approved-total').textContent = fmtMoney(approvedTotal);
+  document.getElementById('bonus-summary-sub').textContent = `${fmtMoney(pendingTotal + approvedTotal)} total earned`;
+
+  if(pendingBody) {
+    if(!pending.length) { if(pendingEmpty) pendingEmpty.style.display='block'; }
+    else {
+      if(pendingEmpty) pendingEmpty.style.display='none';
+      pendingBody.innerHTML = pending.map(e => bonusRow(e.type, e.account, e.amount, e.detail, false, '')).join('');
     }
-  } catch(e) {
-    if (loadEl) loadEl.style.display = 'none';
-    if (contentEl) contentEl.style.display = 'block';
+  }
+  if(approvedBody) {
+    if(!approved.length) { if(approvedEmpty) approvedEmpty.style.display='block'; }
+    else {
+      if(approvedEmpty) approvedEmpty.style.display='none';
+      approvedBody.innerHTML = approved.map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy)).join('');
+    }
   }
 }
 
-// --- B2B ACCOUNT TRACKER ---
-function toggleB2BAccounts() {
-  const wrap = document.getElementById('b2b-accounts-wrap');
-  const toggle = document.getElementById('b2b-accounts-toggle');
-  if (!wrap) return;
+function toggleAllAccounts() {
+  const wrap = document.getElementById('all-accounts-wrap');
+  const toggle = document.getElementById('all-accounts-toggle');
+  if(!wrap) return;
   const isOpen = wrap.style.display !== 'none';
   wrap.style.display = isOpen ? 'none' : 'block';
-  if (toggle) toggle.textContent = isOpen ? '(click to expand)' : '(click to collapse)';
+  if(toggle) toggle.textContent = isOpen ? '(click to expand)' : '(click to collapse)';
 }
 
+// --- B2B ACCOUNT TRACKER ---
 async function loadB2BTracker() {
   const loadEl = document.getElementById('b2b-loading');
   const emptyEl = document.getElementById('b2b-empty');
   const earnedEl = document.getElementById('b2b-earned');
   const accountsSection = document.getElementById('b2b-accounts-section');
-  
+  const oppLoadEl = document.getElementById('opp-loading');
+  const oppContent = document.getElementById('opp-content');
+
   try {
     let allDeals = [];
     let start = 0;
@@ -1536,20 +1488,22 @@ async function loadB2BTracker() {
       if (!data.additional_data?.pagination?.more_items_in_collection) break;
       start += 500;
     }
-    
-    if (loadEl) loadEl.style.display = 'none';
-    
+
+    if(loadEl) loadEl.style.display='none';
+    if(oppLoadEl) oppLoadEl.style.display='none';
+
     if (!allDeals.length) {
-      if (emptyEl) emptyEl.style.display = 'block';
+      if(emptyEl) emptyEl.style.display='block';
       return;
     }
-    
+
     const orgs = {};
     const now = new Date();
-    const thisYearStart = new Date(now.getFullYear(), 0, 1);
-    const lastYearStart = new Date(now.getFullYear() - 1, 0, 1);
-    const lastYearEnd = new Date(now.getFullYear() - 1, 11, 31);
-    
+    const thisYear = now.getFullYear();
+    const thisYearStart = new Date(thisYear, 0, 1);
+    const lastYearStart = new Date(thisYear - 1, 0, 1);
+    const lastYearEnd = new Date(thisYear - 1, 11, 31);
+
     allDeals.forEach(deal => {
       if (!deal.org_id) return;
       const orgId = deal.org_id.value;
@@ -1557,118 +1511,144 @@ async function loadB2BTracker() {
       if (!orgs[orgId]) orgs[orgId] = { name: orgName, deals: [] };
       orgs[orgId].deals.push({
         id: deal.id,
-        title: deal.title,
         value: deal.value || 0,
-        wonDate: deal.won_time ? new Date(deal.won_time.replace(' ', 'T') + (deal.won_time.includes('Z') ? '' : 'Z')) : null
+        wonDate: deal.won_time ? new Date(deal.won_time.replace(' ','T') + (deal.won_time.includes('Z') ? '' : 'Z')) : null
       });
     });
-    
+
     const orgData = Object.values(orgs).map(org => {
       const deals = org.deals.sort((a,b) => a.wonDate - b.wonDate);
       const firstSale = deals[0]?.wonDate;
-      
+
       const revThisYear = deals.filter(d => d.wonDate && d.wonDate >= thisYearStart).reduce((s,d) => s+d.value, 0);
       const revLastYear = deals.filter(d => d.wonDate && d.wonDate >= lastYearStart && d.wonDate <= lastYearEnd).reduce((s,d) => s+d.value, 0);
-      
+
       const bonuses = [];
       const alerts = [];
-      
-      // New Partner: first ever sale AND must have occurred this year
-      const thisYear = new Date().getFullYear();
+
+      // New Partner: first ever sale, this year, min $1k
       if (deals.length === 1 && deals[0].value >= 1000 && deals[0].wonDate && deals[0].wonDate.getFullYear() === thisYear) {
-        bonuses.push({label:'New Partner', amount:250, detail:'First sale — $250 bounty'});
+        bonuses.push({label:'New Partner', amount:250, detail:'First B2B sale — $250 bounty', account:org.name});
       }
-      
+
       // Anchor Account: 3 contracts + $150k in first 12 months
+      let anchorProgress = null;
       if (firstSale) {
         const firstSalePlusYear = new Date(firstSale);
         firstSalePlusYear.setFullYear(firstSalePlusYear.getFullYear() + 1);
         const dealsFirstYear = deals.filter(d => d.wonDate && d.wonDate >= firstSale && d.wonDate <= firstSalePlusYear);
         const revFirstYear = dealsFirstYear.reduce((s,d) => s+d.value, 0);
         const contractsFirstYear = dealsFirstYear.length;
-        
+
         if (contractsFirstYear >= 3 && revFirstYear >= 150000) {
-          bonuses.push({label:'Anchor Account', amount:2500, detail:`${contractsFirstYear} contracts, ${fmtMoney(revFirstYear)} in first 12mo`});
+          bonuses.push({label:'Anchor Account', amount:2500, detail:`${contractsFirstYear} contracts, ${fmtMoney(revFirstYear)} in first 12mo`, account:org.name});
         } else if (firstSalePlusYear > now) {
-          // Still in first 12 months -- check if close
-          const revNeeded = 150000 - revFirstYear;
-          const contractsNeeded = 3 - contractsFirstYear;
-          if (revFirstYear >= 150000 * 0.75 || contractsFirstYear >= 2) {
+          // Still in first 12 months -- show alert only if meaningful progress
+          // Must have $100k+ OR 2+ contracts with $50k+
+          const worthAlerting = revFirstYear >= 100000 || (contractsFirstYear >= 2 && revFirstYear >= 50000);
+          if (worthAlerting) {
             const parts = [];
-            if (contractsNeeded > 0) parts.push(`${contractsNeeded} more contract${contractsNeeded > 1 ? 's' : ''}`);
-            if (revNeeded > 0) parts.push(`${fmtMoney(revNeeded)} more revenue`);
-            alerts.push(`Anchor Account: ${parts.join(' and ')} needed by ${firstSalePlusYear.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`);
+            if (contractsFirstYear < 3) parts.push(`${3 - contractsFirstYear} more contract${3-contractsFirstYear>1?'s':''}`);
+            if (revFirstYear < 150000) parts.push(`${fmtMoney(150000 - revFirstYear)} more revenue`);
+            const deadline = firstSalePlusYear.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+            alerts.push(`Anchor Account: ${parts.join(' and ')} needed by ${deadline}`);
+            anchorProgress = { name: org.name, gap: (150000 - revFirstYear) + (3 - contractsFirstYear) * 10000, detail: `${contractsFirstYear}/3 contracts, ${fmtMoney(revFirstYear)}/$150k by ${deadline}` };
           }
         }
       }
-      
+
       // Wallet Share: 20% YOY growth, $60k+ this year
+      let walletProgress = null;
       if (revLastYear > 0) {
-        const targetRev = revLastYear * 1.2;
-        if (revThisYear >= targetRev && revThisYear >= 60000) {
-          bonuses.push({label:'Wallet Share', amount:2500, detail:`${fmtMoney(revThisYear)} this year vs ${fmtMoney(revLastYear)} last year`});
-        } else if (revThisYear >= targetRev * 0.75 && revThisYear < targetRev) {
-          const needed = targetRev - revThisYear;
-          alerts.push(`Wallet Share: ${fmtMoney(needed)} more to hit 20% growth target`);
+        const target = revLastYear * 1.2;
+        if (revThisYear >= target && revThisYear >= 60000) {
+          bonuses.push({label:'Wallet Share', amount:2500, detail:`${fmtMoney(revThisYear)} this year vs ${fmtMoney(revLastYear)} last year`, account:org.name});
+        } else if (revThisYear >= target * 0.75 && revThisYear < target) {
+          const needed = target - revThisYear;
+          alerts.push(`Wallet Share: ${fmtMoney(needed)} more to hit 20% growth`);
+          walletProgress = { name: org.name, gap: needed, detail: `${fmtMoney(revThisYear)} of ${fmtMoney(target)} needed (${fmtMoney(revLastYear)} last year)` };
         }
       }
-      
+
       // Account Retention: $200k this year
+      let retentionProgress = null;
       if (revThisYear >= 200000) {
-        bonuses.push({label:'Account Retention', amount:2500, detail:`${fmtMoney(revThisYear)} this year`});
+        bonuses.push({label:'Account Retention', amount:2500, detail:`${fmtMoney(revThisYear)} this year`, account:org.name});
       } else if (revThisYear >= 150000) {
-        alerts.push(`Account Retention: ${fmtMoney(200000 - revThisYear)} away from $200k`);
+        const needed = 200000 - revThisYear;
+        alerts.push(`Account Retention: ${fmtMoney(needed)} away from $200k`);
+        retentionProgress = { name: org.name, gap: needed, detail: `${fmtMoney(revThisYear)} of $200,000 this year` };
       }
-      
-      return { name: org.name, firstSale, revThisYear, revLastYear, bonuses, alerts, totalDeals: deals.length };
-    }).filter(o => o.totalDeals > 0).sort((a,b) => b.revThisYear - a.revThisYear);
-    
-    // Clear and reset before repopulating
-    const earnedBody2 = document.getElementById('b2b-earned-body');
-    if (earnedBody2) earnedBody2.innerHTML = '';
-    if (earnedEl) earnedEl.style.display = 'none';
-    if (emptyEl) emptyEl.style.display = 'none';
-    
-    // Earned bonuses table
-    const earned = orgData.filter(o => o.bonuses.length > 0);
-    if (earned.length) {
-      if (earnedEl) earnedEl.style.display = 'block';
-      const earnedBody = document.getElementById('b2b-earned-body');
-      if (earnedBody) earnedBody.innerHTML = earned.flatMap(org =>
-        org.bonuses.map(b => `<tr>
-          <td><strong>${org.name}</strong></td>
-          <td><span class="pill pill-orange">${b.label}</span></td>
-          <td><strong style="color:#c4581f">${fmtMoney(b.amount)}</strong></td>
-          <td style="font-size:12px;color:#888">${b.detail}</td>
-        </tr>`)
-      ).join('');
-    } else {
-      if (emptyEl) emptyEl.style.display = 'block';
-    }
-    
-    // All accounts section
-    if (accountsSection) accountsSection.style.display = 'block';
-    const accountsBody = document.getElementById('b2b-accounts-body');
-    if (accountsBody) accountsBody.innerHTML = orgData.map(org => `
-      <div style="padding:12px 0;border-bottom:1px solid #f0ece6">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-          <div>
-            <div style="font-size:13px;font-weight:600;color:#1a1a1a">${org.name}</div>
-            <div style="font-size:11px;color:#aaa;margin-top:2px">${org.totalDeals} deal${org.totalDeals !== 1 ? 's' : ''} &bull; First sale ${org.firstSale ? org.firstSale.toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '--'}</div>
+
+      // New Partner opportunities: orgs with 1 deal under $1k, sorted by closest to $1k
+      let newPartnerProgress = null;
+      if (deals.length === 1 && deals[0].value < 1000 && deals[0].wonDate && deals[0].wonDate.getFullYear() === thisYear) {
+        newPartnerProgress = { name: org.name, gap: 1000 - deals[0].value, detail: `${fmtMoney(deals[0].value)} / $1,000 minimum` };
+      }
+
+      return { name: org.name, bonuses, alerts, revThisYear, revLastYear, totalDeals: deals.length,
+               anchorProgress, walletProgress, retentionProgress, newPartnerProgress };
+    }).filter(o => o.totalDeals > 0);
+
+    // Collect all earned bonuses for summary
+    _b2bEarned = orgData.flatMap(o => o.bonuses);
+    updateBonusSummary();
+
+    // OPPORTUNITIES section
+    if(oppContent) oppContent.style.display = 'block';
+
+    // New Partner opps
+    const npOpps = orgData.filter(o => o.newPartnerProgress).sort((a,b) => a.newPartnerProgress.gap - b.newPartnerProgress.gap).slice(0,3);
+    const npEl = document.getElementById('opp-new-partner');
+    if(npEl) npEl.innerHTML = npOpps.length
+      ? npOpps.map(o => oppRow(o.name, o.newPartnerProgress.detail, `${fmtMoney(o.newPartnerProgress.gap)} away`)).join('')
+      : '<div style="font-size:12px;color:#bbb;padding:8px 0">No accounts close to this threshold.</div>';
+
+    // Anchor opps
+    const anchorOpps = orgData.filter(o => o.anchorProgress).sort((a,b) => a.anchorProgress.gap - b.anchorProgress.gap).slice(0,3);
+    const anchorEl = document.getElementById('opp-anchor');
+    if(anchorEl) anchorEl.innerHTML = anchorOpps.length
+      ? anchorOpps.map(o => oppRow(o.name, o.anchorProgress.detail, '')).join('')
+      : '<div style="font-size:12px;color:#bbb;padding:8px 0">No accounts in progress.</div>';
+
+    // Wallet Share opps
+    const walletOpps = orgData.filter(o => o.walletProgress).sort((a,b) => a.walletProgress.gap - b.walletProgress.gap).slice(0,3);
+    const walletEl = document.getElementById('opp-wallet');
+    if(walletEl) walletEl.innerHTML = walletOpps.length
+      ? walletOpps.map(o => oppRow(o.name, o.walletProgress.detail, `${fmtMoney(o.walletProgress.gap)} away`)).join('')
+      : '<div style="font-size:12px;color:#bbb;padding:8px 0">No accounts close to this threshold.</div>';
+
+    // Retention opps
+    const retentionOpps = orgData.filter(o => o.retentionProgress).sort((a,b) => a.retentionProgress.gap - b.retentionProgress.gap).slice(0,3);
+    const retentionEl = document.getElementById('opp-retention');
+    if(retentionEl) retentionEl.innerHTML = retentionOpps.length
+      ? retentionOpps.map(o => oppRow(o.name, o.retentionProgress.detail, `${fmtMoney(o.retentionProgress.gap)} away`)).join('')
+      : '<div style="font-size:12px;color:#bbb;padding:8px 0">No accounts close to this threshold.</div>';
+
+    // ALL OTHER ACCOUNTS (no bonuses earned, not already in opps or earned)
+    const earnedNames = new Set(orgData.filter(o => o.bonuses.length).map(o => o.name));
+    const otherOrgs = orgData.filter(o => !o.bonuses.length).sort((a,b) => b.revThisYear - a.revThisYear);
+    const allAccountsBody = document.getElementById('all-accounts-body');
+    if(allAccountsBody) allAccountsBody.innerHTML = otherOrgs.length
+      ? otherOrgs.map(org => `
+        <div style="padding:10px 0;border-bottom:1px solid #f0ece6">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-size:13px;font-weight:600">${org.name}</div>
+              <div style="font-size:11px;color:#aaa">${org.totalDeals} deal${org.totalDeals!==1?'s':''}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:13px;font-weight:600">${fmtMoney(org.revThisYear)} <span style="font-size:11px;color:#aaa;font-weight:400">this year</span></div>
+              ${org.revLastYear>0?`<div style="font-size:11px;color:#aaa">${fmtMoney(org.revLastYear)} last year</div>`:''}
+            </div>
           </div>
-          <div style="text-align:right">
-            <div style="font-size:13px;font-weight:600;color:#1a1a1a">${fmtMoney(org.revThisYear)} <span style="font-size:11px;color:#aaa;font-weight:400">this year</span></div>
-            ${org.revLastYear > 0 ? `<div style="font-size:11px;color:#aaa">${fmtMoney(org.revLastYear)} last year</div>` : ''}
-          </div>
-        </div>
-        ${org.bonuses.length ? `<div style="margin-top:6px">${org.bonuses.map(b => `<span class="pill pill-orange" style="margin-right:4px">${b.label} ${fmtMoney(b.amount)}</span>`).join('')}</div>` : ''}
-        ${org.alerts.length ? `<div style="margin-top:6px">${org.alerts.map(a => `<div style="font-size:12px;color:#856404;background:#fff3cd;border:1px solid #ffeeba;border-radius:4px;padding:4px 8px;margin-top:4px">&#9888; ${a}</div>`).join('')}</div>` : ''}
-      </div>
-    `).join('');
-    
+          ${org.alerts.length?`<div style="margin-top:6px">${org.alerts.map(a=>`<div style="font-size:12px;color:#856404;background:#fff3cd;border:1px solid #ffeeba;border-radius:4px;padding:4px 8px;margin-top:4px">⚠ ${a}</div>`).join('')}</div>`:''}
+        </div>`).join('')
+      : '<div class="empty-state">All accounts have earned bonuses.</div>';
+
   } catch(e) {
-    if (loadEl) loadEl.style.display = 'none';
-    if (emptyEl) emptyEl.style.display = 'block';
+    if(loadEl) loadEl.style.display='none';
+    if(oppLoadEl) oppLoadEl.style.display='none';
     console.error('B2B tracker error:', e);
   }
 }
