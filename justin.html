@@ -109,9 +109,6 @@
 </div>
 <div class="tab-content" id="tab-resources">
 <div>
-  <div class="page-title">Company Resources</div>
-  <div class="page-sub">Payroll dates and company holidays for Window Works Co.</div>
-
   <div class="card">
     <div class="card-title">
       Payroll Schedule
@@ -279,7 +276,7 @@ async function loadRecord(employee){
     if(contentEl)contentEl.style.display='block';
     const tbody=document.getElementById('record-body');
     if(!row){if(tbody)tbody.innerHTML='<tr><td colspan="2" class="empty-state">No record on file yet.</td></tr>';return;}
-    const fields=[['Role',row[1]],['Hire Date',fmtDate(row[2])],['90-Day Review',fmtDate(row[3])],['Annual Review Due',fmtDate(row[6])],['Last Review',fmtDate(row[5])],['Status',row[7]]];
+    const fields=[['Role',row[1]],['Hire Date',fmtDate(row[2])],['90-Day Review',fmtDate(row[4])],['Annual Review Due',fmtDate(row[5])],['Last Review',fmtDate(row[6])],['Next Review',fmtDate(row[7])],['Status',row[8]]];
     if(tbody)tbody.innerHTML=fields.map(f=>`<tr><td style="color:#aaa;width:180px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;padding:8px 10px">${f[0]}</td><td style="padding:8px 10px">${f[1]||'--'}</td></tr>`).join('');
   }catch(e){console.error(e);}
 }
