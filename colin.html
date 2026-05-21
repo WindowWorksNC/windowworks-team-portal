@@ -1559,7 +1559,7 @@ async function loadB2BTracker() {
         id: deal.id,
         title: deal.title,
         value: deal.value || 0,
-        wonDate: deal.won_time ? new Date(deal.won_time) : null
+        wonDate: deal.won_time ? new Date(deal.won_time.replace(' ', 'T') + (deal.won_time.includes('Z') ? '' : 'Z')) : null
       });
     });
     
@@ -1573,9 +1573,10 @@ async function loadB2BTracker() {
       const bonuses = [];
       const alerts = [];
       
-      // New Partner
-      if (deals.length === 1 && deals[0].value >= 1000) {
-        bonuses.push({label:'New Partner', amount:250, detail:'First sale \u2014 $250 bounty'});
+      // New Partner: first ever sale AND must have occurred this year
+      const thisYear = new Date().getFullYear();
+      if (deals.length === 1 && deals[0].value >= 1000 && deals[0].wonDate && deals[0].wonDate.getFullYear() === thisYear) {
+        bonuses.push({label:'New Partner', amount:250, detail:'First sale — $250 bounty'});
       }
       
       // Anchor Account: 3 contracts + $150k in first 12 months
@@ -1621,6 +1622,12 @@ async function loadB2BTracker() {
       
       return { name: org.name, firstSale, revThisYear, revLastYear, bonuses, alerts, totalDeals: deals.length };
     }).filter(o => o.totalDeals > 0).sort((a,b) => b.revThisYear - a.revThisYear);
+    
+    // Clear and reset before repopulating
+    const earnedBody2 = document.getElementById('b2b-earned-body');
+    if (earnedBody2) earnedBody2.innerHTML = '';
+    if (earnedEl) earnedEl.style.display = 'none';
+    if (emptyEl) emptyEl.style.display = 'none';
     
     // Earned bonuses table
     const earned = orgData.filter(o => o.bonuses.length > 0);
