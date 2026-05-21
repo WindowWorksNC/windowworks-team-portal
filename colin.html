@@ -398,18 +398,24 @@ html.pin-active,body/* TASK BOARD */
 </div>
 
 <div class="card">
-  <div class="card-title">B2B Account Tracker <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Live from Pipedrive</span></div>
-  <div style="font-size:12px;color:#aaa;margin-bottom:14px">
-    Anchor Account $2,500 &bull; Wallet Share $2,500 &bull; Account Retention $2,500
-  </div>
+  <div class="card-title">B2B Bonuses Earned <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Live from Pipedrive</span></div>
   <div id="b2b-loading" class="loading">Loading accounts...</div>
-  <div id="b2b-empty" class="empty-state" style="display:none">No B2B accounts found.</div>
-  <div id="b2b-content" style="display:none">
+  <div id="b2b-empty" class="empty-state" style="display:none">No B2B bonuses earned yet.</div>
+  <div id="b2b-earned" style="display:none">
     <div class="table-wrap">
       <table class="data-table">
-        <thead><tr><th>Account</th><th>First Sale</th><th>12mo Revenue</th><th>Contracts (12mo)</th><th>Prior Year</th><th>Bonuses</th></tr></thead>
-        <tbody id="b2b-body"></tbody>
+        <thead><tr><th>Account</th><th>Bonus</th><th>Amount</th><th>Details</th></tr></thead>
+        <tbody id="b2b-earned-body"></tbody>
       </table>
+    </div>
+  </div>
+  <div style="margin-top:16px;border-top:1px solid #f0ece6;padding-top:12px" id="b2b-accounts-section" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleB2BAccounts()">
+      <span style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#aaa">All B2B Accounts</span>
+      <span style="font-size:12px;color:#aaa" id="b2b-accounts-toggle">(click to expand)</span>
+    </div>
+    <div id="b2b-accounts-wrap" style="display:none;margin-top:12px">
+      <div id="b2b-accounts-body"></div>
     </div>
   </div>
 </div>
@@ -1504,13 +1510,22 @@ async function loadBounties() {
 }
 
 // --- B2B ACCOUNT TRACKER ---
+function toggleB2BAccounts() {
+  const wrap = document.getElementById('b2b-accounts-wrap');
+  const toggle = document.getElementById('b2b-accounts-toggle');
+  if (!wrap) return;
+  const isOpen = wrap.style.display !== 'none';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  if (toggle) toggle.textContent = isOpen ? '(click to expand)' : '(click to collapse)';
+}
+
 async function loadB2BTracker() {
   const loadEl = document.getElementById('b2b-loading');
-  const contentEl = document.getElementById('b2b-content');
   const emptyEl = document.getElementById('b2b-empty');
+  const earnedEl = document.getElementById('b2b-earned');
+  const accountsSection = document.getElementById('b2b-accounts-section');
   
   try {
-    // Fetch all won deals for Colin from Pipedrive
     let allDeals = [];
     let start = 0;
     while (true) {
@@ -1529,10 +1544,8 @@ async function loadB2BTracker() {
       return;
     }
     
-    // Group by organization
     const orgs = {};
     const now = new Date();
-    const twelveMonthsAgo = new Date(now); twelveMonthsAgo.setFullYear(now.getFullYear() - 1);
     const thisYearStart = new Date(now.getFullYear(), 0, 1);
     const lastYearStart = new Date(now.getFullYear() - 1, 0, 1);
     const lastYearEnd = new Date(now.getFullYear() - 1, 11, 31);
@@ -1550,64 +1563,101 @@ async function loadB2BTracker() {
       });
     });
     
-    // Calculate metrics per org
     const orgData = Object.values(orgs).map(org => {
       const deals = org.deals.sort((a,b) => a.wonDate - b.wonDate);
       const firstSale = deals[0]?.wonDate;
       
-      // 12-month window
-      const deals12mo = deals.filter(d => d.wonDate && d.wonDate >= twelveMonthsAgo);
-      const rev12mo = deals12mo.reduce((s,d) => s+d.value, 0);
-      const contracts12mo = deals12mo.length;
-      
-      // This year vs last year
       const revThisYear = deals.filter(d => d.wonDate && d.wonDate >= thisYearStart).reduce((s,d) => s+d.value, 0);
       const revLastYear = deals.filter(d => d.wonDate && d.wonDate >= lastYearStart && d.wonDate <= lastYearEnd).reduce((s,d) => s+d.value, 0);
       
-      // Bonus eligibility
       const bonuses = [];
-      if (deals.length === 1 && deals[0].value >= 1000) bonuses.push({label:'New Partner', amount:250, note:'First sale'});
+      const alerts = [];
       
-      // Anchor Account: 3 contracts + $150k within first 12 months of relationship
+      // New Partner
+      if (deals.length === 1 && deals[0].value >= 1000) {
+        bonuses.push({label:'New Partner', amount:250, detail:'First sale \u2014 $250 bounty'});
+      }
+      
+      // Anchor Account: 3 contracts + $150k in first 12 months
       if (firstSale) {
         const firstSalePlusYear = new Date(firstSale);
         firstSalePlusYear.setFullYear(firstSalePlusYear.getFullYear() + 1);
         const dealsFirstYear = deals.filter(d => d.wonDate && d.wonDate >= firstSale && d.wonDate <= firstSalePlusYear);
         const revFirstYear = dealsFirstYear.reduce((s,d) => s+d.value, 0);
-        if (dealsFirstYear.length >= 3 && revFirstYear >= 150000) {
-          bonuses.push({label:'Anchor Account', amount:2500, note:`3+ contracts, ${fmtMoney(revFirstYear)} in first 12mo`});
+        const contractsFirstYear = dealsFirstYear.length;
+        
+        if (contractsFirstYear >= 3 && revFirstYear >= 150000) {
+          bonuses.push({label:'Anchor Account', amount:2500, detail:`${contractsFirstYear} contracts, ${fmtMoney(revFirstYear)} in first 12mo`});
+        } else if (firstSalePlusYear > now) {
+          // Still in first 12 months -- check if close
+          const revNeeded = 150000 - revFirstYear;
+          const contractsNeeded = 3 - contractsFirstYear;
+          if (revFirstYear >= 150000 * 0.75 || contractsFirstYear >= 2) {
+            const parts = [];
+            if (contractsNeeded > 0) parts.push(`${contractsNeeded} more contract${contractsNeeded > 1 ? 's' : ''}`);
+            if (revNeeded > 0) parts.push(`${fmtMoney(revNeeded)} more revenue`);
+            alerts.push(`Anchor Account: ${parts.join(' and ')} needed by ${firstSalePlusYear.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`);
+          }
         }
       }
       
-      if (revLastYear > 0 && revThisYear >= revLastYear * 1.2 && revThisYear >= 60000) bonuses.push({label:'Wallet Share', amount:2500, note:'20%+ YOY growth'});
-      if (revThisYear >= 200000) bonuses.push({label:'Account Retention', amount:2500, note:'$200k+ this year'});
+      // Wallet Share: 20% YOY growth, $60k+ this year
+      if (revLastYear > 0) {
+        const targetRev = revLastYear * 1.2;
+        if (revThisYear >= targetRev && revThisYear >= 60000) {
+          bonuses.push({label:'Wallet Share', amount:2500, detail:`${fmtMoney(revThisYear)} this year vs ${fmtMoney(revLastYear)} last year`});
+        } else if (revThisYear >= targetRev * 0.75 && revThisYear < targetRev) {
+          const needed = targetRev - revThisYear;
+          alerts.push(`Wallet Share: ${fmtMoney(needed)} more to hit 20% growth target`);
+        }
+      }
       
-      return { name: org.name, firstSale, rev12mo, contracts12mo, revLastYear, revThisYear, bonuses, totalDeals: deals.length };
-    }).filter(o => o.totalDeals > 0).sort((a,b) => b.rev12mo - a.rev12mo);
+      // Account Retention: $200k this year
+      if (revThisYear >= 200000) {
+        bonuses.push({label:'Account Retention', amount:2500, detail:`${fmtMoney(revThisYear)} this year`});
+      } else if (revThisYear >= 150000) {
+        alerts.push(`Account Retention: ${fmtMoney(200000 - revThisYear)} away from $200k`);
+      }
+      
+      return { name: org.name, firstSale, revThisYear, revLastYear, bonuses, alerts, totalDeals: deals.length };
+    }).filter(o => o.totalDeals > 0).sort((a,b) => b.revThisYear - a.revThisYear);
     
-    if (!orgData.length) {
+    // Earned bonuses table
+    const earned = orgData.filter(o => o.bonuses.length > 0);
+    if (earned.length) {
+      if (earnedEl) earnedEl.style.display = 'block';
+      const earnedBody = document.getElementById('b2b-earned-body');
+      if (earnedBody) earnedBody.innerHTML = earned.flatMap(org =>
+        org.bonuses.map(b => `<tr>
+          <td><strong>${org.name}</strong></td>
+          <td><span class="pill pill-orange">${b.label}</span></td>
+          <td><strong style="color:#c4581f">${fmtMoney(b.amount)}</strong></td>
+          <td style="font-size:12px;color:#888">${b.detail}</td>
+        </tr>`)
+      ).join('');
+    } else {
       if (emptyEl) emptyEl.style.display = 'block';
-      return;
     }
     
-    if (contentEl) contentEl.style.display = 'block';
-    const tbody = document.getElementById('b2b-body');
-    if (tbody) tbody.innerHTML = orgData.map(org => {
-      const bonusBadges = org.bonuses.length
-        ? org.bonuses.map(b => `<span class="pill pill-orange" title="${b.note}">${b.label} ${fmtMoney(b.amount)}</span>`).join(' ')
-        : '<span style="color:#bbb;font-size:12px">None yet</span>';
-      const yoyArrow = org.revLastYear > 0
-        ? (org.revThisYear >= org.revLastYear * 1.2 ? ' <span style="color:#28a745">&#9650;</span>' : ' <span style="color:#aaa">&#9654;</span>')
-        : '';
-      return `<tr>
-        <td><strong>${org.name}</strong></td>
-        <td>${org.firstSale ? org.firstSale.toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '--'}</td>
-        <td>${fmtMoney(org.rev12mo)}</td>
-        <td style="text-align:center">${org.contracts12mo}</td>
-        <td>${fmtMoney(org.revLastYear)}${yoyArrow}</td>
-        <td>${bonusBadges}</td>
-      </tr>`;
-    }).join('');
+    // All accounts section
+    if (accountsSection) accountsSection.style.display = 'block';
+    const accountsBody = document.getElementById('b2b-accounts-body');
+    if (accountsBody) accountsBody.innerHTML = orgData.map(org => `
+      <div style="padding:12px 0;border-bottom:1px solid #f0ece6">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#1a1a1a">${org.name}</div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px">${org.totalDeals} deal${org.totalDeals !== 1 ? 's' : ''} &bull; First sale ${org.firstSale ? org.firstSale.toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '--'}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:13px;font-weight:600;color:#1a1a1a">${fmtMoney(org.revThisYear)} <span style="font-size:11px;color:#aaa;font-weight:400">this year</span></div>
+            ${org.revLastYear > 0 ? `<div style="font-size:11px;color:#aaa">${fmtMoney(org.revLastYear)} last year</div>` : ''}
+          </div>
+        </div>
+        ${org.bonuses.length ? `<div style="margin-top:6px">${org.bonuses.map(b => `<span class="pill pill-orange" style="margin-right:4px">${b.label} ${fmtMoney(b.amount)}</span>`).join('')}</div>` : ''}
+        ${org.alerts.length ? `<div style="margin-top:6px">${org.alerts.map(a => `<div style="font-size:12px;color:#856404;background:#fff3cd;border:1px solid #ffeeba;border-radius:4px;padding:4px 8px;margin-top:4px">&#9888; ${a}</div>`).join('')}</div>` : ''}
+      </div>
+    `).join('');
     
   } catch(e) {
     if (loadEl) loadEl.style.display = 'none';
