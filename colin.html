@@ -317,34 +317,103 @@ html.pin-active,body/* TASK BOARD */
     </table>
   </div>
   <div id="ledger-empty" class="empty-state" style="display:none">No commission records yet.</div>
-</div></div><div class="tab-content" id="tab-bonuses"><div class="card">
-  <div class="card-title">Booking Bonuses <span style="font-size:13px;color:#aaa;font-weight:400;text-transform:none">$75 per in-home lead booked for outside sales</span></div>
-  <div class="alert alert-info" style="font-size:13px">Booking bonus tracking will populate once Pipedrive commission integration is connected.</div>
+</div></div><div class="tab-content" id="tab-bonuses">
+<div class="card">
+  <div class="card-title" style="justify-content:space-between">
+    <span>Booking Bonuses <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">$75 per in-home lead booked</span></span>
+  </div>
+  <div id="booking-loading" class="loading">Loading...</div>
   <div id="booking-content" style="display:none">
-    <div class="stat-grid">
+    <div class="stat-grid" style="margin-bottom:16px">
       <div class="stat-block">
-        <div class="stat-number orange" id="booking-count">0</div>
+        <div class="stat-number orange" id="booking-period-count">0</div>
         <div class="stat-label">This Period</div>
       </div>
       <div class="stat-block">
-        <div class="stat-number orange" id="booking-total">$0</div>
+        <div class="stat-number orange" id="booking-period-total">$0</div>
         <div class="stat-label">Period Total</div>
       </div>
+      <div class="stat-block">
+        <div class="stat-number" id="booking-ytd-total">$0</div>
+        <div class="stat-label">YTD Total</div>
+      </div>
+    </div>
+    <div class="table-wrap" id="booking-table-wrap" style="display:none">
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Customer</th><th>Appt Date</th><th>Bonus</th><th>Approved By</th><th>Notes</th></tr></thead>
+        <tbody id="booking-body"></tbody>
+      </table>
+    </div>
+    <div id="booking-empty" class="empty-state" style="display:none">No booking bonuses this period.</div>
+  </div>
+  <div style="margin-top:16px;border-top:1px solid #f0ece6;padding-top:16px">
+    <div class="card-title" style="margin-bottom:12px">Log a Booking</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Customer Name</label>
+        <input type="text" class="form-input" id="booking-customer" placeholder="Customer name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Appointment Date</label>
+        <input type="date" class="form-input" id="booking-appt-date">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Notes (optional)</label>
+        <input type="text" class="form-input" id="booking-notes" placeholder="e.g. referred by contractor">
+      </div>
+    </div>
+    <button class="submit-btn" onclick="submitBooking()" id="booking-submit-btn">Log Booking Bonus</button>
+    <div id="booking-submit-msg" style="margin-top:8px;font-size:13px"></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">B2B Partner Bounties <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">$250 per new account first sale</span></div>
+  <div id="bounty-loading" class="loading">Loading...</div>
+  <div id="bounty-content" style="display:none">
+    <div class="stat-grid" style="margin-bottom:16px">
+      <div class="stat-block">
+        <div class="stat-number orange" id="bounty-count">0</div>
+        <div class="stat-label">Total Bounties</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-number orange" id="bounty-total">$0</div>
+        <div class="stat-label">Total Earned</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-number" id="bounty-pending">$0</div>
+        <div class="stat-label">Pending Approval</div>
+      </div>
+    </div>
+    <div class="table-wrap" id="bounty-table-wrap" style="display:none">
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Account</th><th>Deal</th><th>Value</th><th>Bonus</th><th>Status</th></tr></thead>
+        <tbody id="bounty-body"></tbody>
+      </table>
+    </div>
+    <div id="bounty-empty" class="empty-state" style="display:none">No partner bounties yet.</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">B2B Account Tracker <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Live from Pipedrive</span></div>
+  <div style="font-size:12px;color:#aaa;margin-bottom:14px">
+    Anchor Account $2,500 &bull; Wallet Share $2,500 &bull; Account Retention $2,500
+  </div>
+  <div id="b2b-loading" class="loading">Loading accounts...</div>
+  <div id="b2b-empty" class="empty-state" style="display:none">No B2B accounts found.</div>
+  <div id="b2b-content" style="display:none">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Account</th><th>First Sale</th><th>12mo Revenue</th><th>Contracts (12mo)</th><th>Prior Year</th><th>Bonuses</th></tr></thead>
+        <tbody id="b2b-body"></tbody>
+      </table>
     </div>
   </div>
 </div>
-<div class="card">
-  <div class="card-title">B2B Account Bonuses</div>
-  <div style="font-size:12px;color:#aaa;margin-bottom:14px">New Partner $250 &bull; Anchor Account $2,500 &bull; Wallet Share $2,500 &bull; Account Retention $2,500</div>
-  <div class="alert alert-info" style="font-size:13px">B2B account tracking will populate once Pipedrive commission integration is connected.</div>
-  <div class="table-wrap">
-    <table class="data-table" id="b2b-table" style="display:none">
-      <thead><tr><th>Account</th><th>First Sale</th><th>Contracts</th><th>Revenue (12mo)</th><th>QTR Revenue</th><th>Bonuses Earned</th></tr></thead>
-      <tbody id="b2b-body"></tbody>
-    </table>
-  </div>
-  <div id="b2b-empty" class="empty-state" style="display:none">No B2B accounts tracked yet.</div>
-</div></div><div class="tab-content" id="tab-pto"><div class="card">
+</div><div class="tab-content" id="tab-pto"><div class="card">
   <div class="card-title">Leave Balances</div>
   <div class="stat-grid">
     <div class="stat-block">
@@ -1307,6 +1376,247 @@ document.getElementById('hol-yr').value = new Date().getFullYear();
 renderPayroll();
 renderHolidays();
 // Init resources on tab click
+</script>
+<script>
+// ============================================================
+// COLIN BONUSES
+// ============================================================
+const PIPEDRIVE_TOKEN = 'e3ede19f7c61fad229f89cf091af089cd5a2318e';
+const COLIN_PD_ID = 14869709;
+
+async function loadColinBonuses() {
+  loadBookingBonuses();
+  loadBounties();
+  loadB2BTracker();
+}
+
+// --- BOOKING BONUSES ---
+async function loadBookingBonuses() {
+  const loadEl = document.getElementById('booking-loading');
+  const contentEl = document.getElementById('booking-content');
+  try {
+    const d = await api({action:'read', tab:'B2B_Booking_Bonuses'});
+    if (loadEl) loadEl.style.display = 'none';
+    if (contentEl) contentEl.style.display = 'block';
+    if (!d.success) return;
+    
+    const rows = d.data.slice(1).filter(r => r[0]==='Colin Glenn' && r.some(c => c));
+    const currentPeriod = getCurrentPayPeriodLabel_colin();
+    
+    const periodRows = rows.filter(r => r[6] === currentPeriod);
+    const periodTotal = periodRows.length * 75;
+    const ytdTotal = rows.length * 75;
+    
+    document.getElementById('booking-period-count').textContent = periodRows.length;
+    document.getElementById('booking-period-total').textContent = fmtMoney(periodTotal);
+    document.getElementById('booking-ytd-total').textContent = fmtMoney(ytdTotal);
+    
+    const tableWrap = document.getElementById('booking-table-wrap');
+    const emptyEl = document.getElementById('booking-empty');
+    
+    if (!periodRows.length) {
+      if (emptyEl) emptyEl.style.display = 'block';
+    } else {
+      if (tableWrap) tableWrap.style.display = 'block';
+      const tbody = document.getElementById('booking-body');
+      if (tbody) tbody.innerHTML = periodRows.slice().reverse().map(r => `<tr>
+        <td>${fmtDate(r[1])}</td>
+        <td>${r[2]||''}</td>
+        <td>${fmtDate(r[3])}</td>
+        <td><strong style="color:#c4581f">$75.00</strong></td>
+        <td>${r[4]||'<span style="color:#aaa">Pending</span>'}</td>
+        <td>${r[5]||''}</td>
+      </tr>`).join('');
+    }
+  } catch(e) {
+    if (loadEl) loadEl.style.display = 'none';
+    if (contentEl) contentEl.style.display = 'block';
+  }
+}
+
+async function submitBooking() {
+  const btn = document.getElementById('booking-submit-btn');
+  const msg = document.getElementById('booking-submit-msg');
+  const customer = document.getElementById('booking-customer').value.trim();
+  const apptDate = document.getElementById('booking-appt-date').value;
+  
+  if (!customer) { msg.textContent = 'Please enter a customer name.'; msg.style.color = '#dc3545'; return; }
+  if (!apptDate) { msg.textContent = 'Please enter an appointment date.'; msg.style.color = '#dc3545'; return; }
+  
+  btn.disabled = true; btn.textContent = 'Saving...';
+  
+  try {
+    const today = new Date().toLocaleDateString('en-US');
+    const period = getCurrentPayPeriodLabel_colin();
+    const notes = document.getElementById('booking-notes').value.trim();
+    const row = ['Colin Glenn', today, customer, apptDate, '', notes, period];
+    await api({action:'append', tab:'B2B_Booking_Bonuses', row: JSON.stringify(row)});
+    msg.textContent = 'Booking bonus logged!'; msg.style.color = '#28a745';
+    document.getElementById('booking-customer').value = '';
+    document.getElementById('booking-appt-date').value = '';
+    document.getElementById('booking-notes').value = '';
+    loadBookingBonuses();
+  } catch(e) {
+    msg.textContent = 'Error saving. Please try again.'; msg.style.color = '#dc3545';
+  }
+  btn.disabled = false; btn.textContent = 'Log Booking Bonus';
+}
+
+// --- PARTNER BOUNTIES ---
+async function loadBounties() {
+  const loadEl = document.getElementById('bounty-loading');
+  const contentEl = document.getElementById('bounty-content');
+  try {
+    const d = await api({action:'read', tab:'B2B_Partner_Bounties'});
+    if (loadEl) loadEl.style.display = 'none';
+    if (contentEl) contentEl.style.display = 'block';
+    if (!d.success) return;
+    
+    const rows = d.data.slice(1).filter(r => r[0]==='Colin Glenn' && r.some(c => c));
+    const approved = rows.filter(r => r[7]);
+    const pending = rows.filter(r => !r[7]);
+    
+    document.getElementById('bounty-count').textContent = rows.length;
+    document.getElementById('bounty-total').textContent = fmtMoney(approved.length * 250);
+    document.getElementById('bounty-pending').textContent = fmtMoney(pending.length * 250);
+    
+    const tableWrap = document.getElementById('bounty-table-wrap');
+    const emptyEl = document.getElementById('bounty-empty');
+    
+    if (!rows.length) {
+      if (emptyEl) emptyEl.style.display = 'block';
+    } else {
+      if (tableWrap) tableWrap.style.display = 'block';
+      const tbody = document.getElementById('bounty-body');
+      if (tbody) tbody.innerHTML = rows.slice().reverse().map(r => `<tr>
+        <td>${fmtDate(r[1])}</td>
+        <td>${r[2]||''}</td>
+        <td>${r[3]||''}</td>
+        <td>${fmtMoney(r[4])}</td>
+        <td><strong style="color:#c4581f">$250.00</strong></td>
+        <td>${r[7] ? '<span class="pill pill-approved">Approved</span>' : '<span class="pill pill-pending">Pending</span>'}</td>
+      </tr>`).join('');
+    }
+  } catch(e) {
+    if (loadEl) loadEl.style.display = 'none';
+    if (contentEl) contentEl.style.display = 'block';
+  }
+}
+
+// --- B2B ACCOUNT TRACKER ---
+async function loadB2BTracker() {
+  const loadEl = document.getElementById('b2b-loading');
+  const contentEl = document.getElementById('b2b-content');
+  const emptyEl = document.getElementById('b2b-empty');
+  
+  try {
+    // Fetch all won deals for Colin from Pipedrive
+    let allDeals = [];
+    let start = 0;
+    while (true) {
+      const resp = await fetch(`https://api.pipedrive.com/v1/deals?api_token=${PIPEDRIVE_TOKEN}&user_id=${COLIN_PD_ID}&status=won&limit=500&start=${start}`);
+      const data = await resp.json();
+      if (!data.success || !data.data) break;
+      allDeals = allDeals.concat(data.data);
+      if (!data.additional_data?.pagination?.more_items_in_collection) break;
+      start += 500;
+    }
+    
+    if (loadEl) loadEl.style.display = 'none';
+    
+    if (!allDeals.length) {
+      if (emptyEl) emptyEl.style.display = 'block';
+      return;
+    }
+    
+    // Group by organization
+    const orgs = {};
+    const now = new Date();
+    const twelveMonthsAgo = new Date(now); twelveMonthsAgo.setFullYear(now.getFullYear() - 1);
+    const thisYearStart = new Date(now.getFullYear(), 0, 1);
+    const lastYearStart = new Date(now.getFullYear() - 1, 0, 1);
+    const lastYearEnd = new Date(now.getFullYear() - 1, 11, 31);
+    
+    allDeals.forEach(deal => {
+      if (!deal.org_id) return;
+      const orgId = deal.org_id.value;
+      const orgName = deal.org_id.name;
+      if (!orgs[orgId]) orgs[orgId] = { name: orgName, deals: [] };
+      orgs[orgId].deals.push({
+        id: deal.id,
+        title: deal.title,
+        value: deal.value || 0,
+        wonDate: deal.won_time ? new Date(deal.won_time) : null
+      });
+    });
+    
+    // Calculate metrics per org
+    const orgData = Object.values(orgs).map(org => {
+      const deals = org.deals.sort((a,b) => a.wonDate - b.wonDate);
+      const firstSale = deals[0]?.wonDate;
+      
+      // 12-month window
+      const deals12mo = deals.filter(d => d.wonDate && d.wonDate >= twelveMonthsAgo);
+      const rev12mo = deals12mo.reduce((s,d) => s+d.value, 0);
+      const contracts12mo = deals12mo.length;
+      
+      // This year vs last year
+      const revThisYear = deals.filter(d => d.wonDate && d.wonDate >= thisYearStart).reduce((s,d) => s+d.value, 0);
+      const revLastYear = deals.filter(d => d.wonDate && d.wonDate >= lastYearStart && d.wonDate <= lastYearEnd).reduce((s,d) => s+d.value, 0);
+      
+      // Bonus eligibility
+      const bonuses = [];
+      if (deals.length === 1 && deals[0].value >= 1000) bonuses.push({label:'New Partner', amount:250, note:'First sale'});
+      
+      // Anchor Account: 3 contracts + $150k within first 12 months of relationship
+      if (firstSale) {
+        const firstSalePlusYear = new Date(firstSale);
+        firstSalePlusYear.setFullYear(firstSalePlusYear.getFullYear() + 1);
+        const dealsFirstYear = deals.filter(d => d.wonDate && d.wonDate >= firstSale && d.wonDate <= firstSalePlusYear);
+        const revFirstYear = dealsFirstYear.reduce((s,d) => s+d.value, 0);
+        if (dealsFirstYear.length >= 3 && revFirstYear >= 150000) {
+          bonuses.push({label:'Anchor Account', amount:2500, note:`3+ contracts, ${fmtMoney(revFirstYear)} in first 12mo`});
+        }
+      }
+      
+      if (revLastYear > 0 && revThisYear >= revLastYear * 1.2 && revThisYear >= 60000) bonuses.push({label:'Wallet Share', amount:2500, note:'20%+ YOY growth'});
+      if (revThisYear >= 200000) bonuses.push({label:'Account Retention', amount:2500, note:'$200k+ this year'});
+      
+      return { name: org.name, firstSale, rev12mo, contracts12mo, revLastYear, revThisYear, bonuses, totalDeals: deals.length };
+    }).filter(o => o.totalDeals > 0).sort((a,b) => b.rev12mo - a.rev12mo);
+    
+    if (!orgData.length) {
+      if (emptyEl) emptyEl.style.display = 'block';
+      return;
+    }
+    
+    if (contentEl) contentEl.style.display = 'block';
+    const tbody = document.getElementById('b2b-body');
+    if (tbody) tbody.innerHTML = orgData.map(org => {
+      const bonusBadges = org.bonuses.length
+        ? org.bonuses.map(b => `<span class="pill pill-orange" title="${b.note}">${b.label} ${fmtMoney(b.amount)}</span>`).join(' ')
+        : '<span style="color:#bbb;font-size:12px">None yet</span>';
+      const yoyArrow = org.revLastYear > 0
+        ? (org.revThisYear >= org.revLastYear * 1.2 ? ' <span style="color:#28a745">&#9650;</span>' : ' <span style="color:#aaa">&#9654;</span>')
+        : '';
+      return `<tr>
+        <td><strong>${org.name}</strong></td>
+        <td>${org.firstSale ? org.firstSale.toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '--'}</td>
+        <td>${fmtMoney(org.rev12mo)}</td>
+        <td style="text-align:center">${org.contracts12mo}</td>
+        <td>${fmtMoney(org.revLastYear)}${yoyArrow}</td>
+        <td>${bonusBadges}</td>
+      </tr>`;
+    }).join('');
+    
+  } catch(e) {
+    if (loadEl) loadEl.style.display = 'none';
+    if (emptyEl) emptyEl.style.display = 'block';
+    console.error('B2B tracker error:', e);
+  }
+}
+
+loadColinBonuses();
 </script>
 </body>
 </html>

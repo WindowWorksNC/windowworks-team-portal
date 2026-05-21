@@ -286,17 +286,52 @@ html.pin-active,body/* TASK BOARD */
     <div class="employee-role">Admin / Payroll</div>
     <div class="employee-meta" id="hire-meta"></div>
   </div>
-</div><div class="tabs">
-  <span style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#aaa;padding:10px 10px 0 4px;display:flex;align-items:flex-end">Team</span>
-  <button class="tab" onclick="switchTab('scorecard',this)">My Scorecard</button>
-  <button class="tab" onclick="switchTab('commission-admin',this)">Commission</button>
-  <button class="tab" onclick="switchTab('pto-admin',this)">PTO Requests</button>
-  <button class="tab" onclick="switchTab('records-admin',this)">Employee Records</button>
-  <span style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#aaa;padding:10px 10px 0 16px;display:flex;align-items:flex-end">Me</span>
-  <button class="tab active" onclick="switchTab('tasks',this)">My Tasks</button>
-  <button class="tab" onclick="switchTab('pto',this)">My PTO</button>
-  <button class="tab" onclick="switchTab('my-record',this)">My Record</button>
-  <button class="tab" onclick="switchTab('resources',this);requestAnimationFrame(function(){requestAnimationFrame(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){}})});">Resources</button>
+</div><div style="display:flex;gap:10px;margin-bottom:20px">
+  <button class="submit-btn" id="view-team-btn" onclick="switchView('team')" style="background:#1a1a1a">Team Management</button>
+  <button class="submit-btn" id="view-me-btn" onclick="switchView('me')" style="background:#e4dbd0;color:#1a1a1a">My Dashboard</button>
+</div>
+<div id="view-team" style="display:block">
+  <div class="tabs" id="tabs-team">
+    <button class="tab active" onclick="switchTab('scorecard',this)">My Scorecard</button>
+    <button class="tab" onclick="switchTab('commission-admin',this)">Commission</button>
+    <button class="tab" onclick="switchTab('pto-admin',this)">PTO Requests</button>
+    <button class="tab" onclick="switchTab('records-admin',this)">Employee Records</button>
+  </div>
+</div>
+<div id="view-me" style="display:none">
+  <div class="tabs" id="tabs-me">
+    <button class="tab active" onclick="switchTab('tasks',this)">My Tasks</button>
+    <button class="tab" onclick="switchTab('pto',this)">My PTO</button>
+    <button class="tab" onclick="switchTab('my-record',this)">My Record</button>
+    <button class="tab" onclick="switchTab('resources',this);requestAnimationFrame(function(){requestAnimationFrame(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){}})});">Resources</button>
+  
+<div class="card" style="margin-top:0">
+  <div class="card-title">Colin Booking Bonuses</div>
+  <div id="brandon-booking-loading" class="loading">Loading...</div>
+  <div id="brandon-booking-content" style="display:none">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Employee</th><th>Date</th><th>Customer</th><th>Appt Date</th><th>Notes</th><th>Action</th></tr></thead>
+        <tbody id="brandon-booking-body"></tbody>
+      </table>
+    </div>
+    <div id="brandon-booking-empty" class="empty-state" style="display:none">No pending booking bonuses.</div>
+  </div>
+</div>
+<div class="card" style="margin-top:0">
+  <div class="card-title">Colin Partner Bounties</div>
+  <div id="brandon-bounty-loading" class="loading">Loading...</div>
+  <div id="brandon-bounty-content" style="display:none">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Employee</th><th>Date</th><th>Account</th><th>Deal</th><th>Value</th><th>Bonus</th><th>Action</th></tr></thead>
+        <tbody id="brandon-bounty-body"></tbody>
+      </table>
+    </div>
+    <div id="brandon-bounty-empty" class="empty-state" style="display:none">No pending partner bounties.</div>
+  </div>
+</div>
+</div>
 </div>
 <div class="tab-content" id="tab-pto-admin"><div class="card">
   <div class="card-title">
@@ -1884,6 +1919,121 @@ function toggleBrandonPrevComm(el){
 }
 
 loadBrandonCommission();
+</script>
+<script>
+function switchView(view) {
+  const teamDiv = document.getElementById('view-team');
+  const meDiv = document.getElementById('view-me');
+  const teamBtn = document.getElementById('view-team-btn');
+  const meBtn = document.getElementById('view-me-btn');
+  
+  if (view === 'team') {
+    teamDiv.style.display = 'block';
+    meDiv.style.display = 'none';
+    teamBtn.style.background = '#1a1a1a';
+    teamBtn.style.color = '#fff';
+    meBtn.style.background = '#e4dbd0';
+    meBtn.style.color = '#1a1a1a';
+    // Show active team tab
+    const activeTeamTab = document.querySelector('#tabs-team .tab.active');
+    if (activeTeamTab) {
+      const tabName = activeTeamTab.getAttribute('onclick').match(/switchTab\('([^']+)'/)[1];
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      const el = document.getElementById('tab-' + tabName);
+      if (el) el.classList.add('active');
+    }
+  } else {
+    teamDiv.style.display = 'none';
+    meDiv.style.display = 'block';
+    teamBtn.style.background = '#e4dbd0';
+    teamBtn.style.color = '#1a1a1a';
+    meBtn.style.background = '#1a1a1a';
+    meBtn.style.color = '#fff';
+    // Show active me tab
+    const activeMeTab = document.querySelector('#tabs-me .tab.active');
+    if (activeMeTab) {
+      const tabName = activeMeTab.getAttribute('onclick').match(/switchTab\('([^']+)'/)[1];
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      const el = document.getElementById('tab-' + tabName);
+      if (el) el.classList.add('active');
+    }
+  }
+}
+
+// Initialize -- show scorecard tab by default
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  const el = document.getElementById('tab-scorecard');
+  if (el) el.classList.add('active');
+});
+</script>
+<script>
+async function loadBrandonBonuses() {
+  // Booking bonuses
+  try {
+    const d = await api({action:'read', tab:'B2B_Booking_Bonuses'});
+    document.getElementById('brandon-booking-loading').style.display = 'none';
+    document.getElementById('brandon-booking-content').style.display = 'block';
+    if (!d.success) return;
+    const rows = d.data.slice(1).filter(r => r.some(c=>c));
+    const pending = rows.filter(r => !r[4]);
+    const emptyEl = document.getElementById('brandon-booking-empty');
+    const tbody = document.getElementById('brandon-booking-body');
+    if (!pending.length) { if(emptyEl) emptyEl.style.display='block'; return; }
+    if (tbody) tbody.innerHTML = pending.map((r,i) => {
+      const rowIdx = d.data.findIndex(row => row === r) + 1;
+      return `<tr><td>${r[0]||''}</td><td>${fmtDate(r[1])}</td><td>${r[2]||''}</td><td>${fmtDate(r[3])}</td><td>${r[5]||''}</td>
+      <td><button class="action-btn btn-approve" onclick="approveBooking(${rowIdx})">Approve</button></td></tr>`;
+    }).join('');
+  } catch(e) { document.getElementById('brandon-booking-loading').style.display='none'; }
+  
+  // Partner bounties
+  try {
+    const d = await api({action:'read', tab:'B2B_Partner_Bounties'});
+    document.getElementById('brandon-bounty-loading').style.display = 'none';
+    document.getElementById('brandon-bounty-content').style.display = 'block';
+    if (!d.success) return;
+    const rows = d.data.slice(1).filter(r => r.some(c=>c));
+    const pending = rows.filter(r => !r[7]);
+    const emptyEl = document.getElementById('brandon-bounty-empty');
+    const tbody = document.getElementById('brandon-bounty-body');
+    if (!pending.length) { if(emptyEl) emptyEl.style.display='block'; return; }
+    if (tbody) tbody.innerHTML = pending.map(r => {
+      const rowIdx = d.data.findIndex(row => row === r) + 1;
+      return `<tr><td>${r[0]||''}</td><td>${fmtDate(r[1])}</td><td>${r[2]||''}</td><td>${r[3]||''}</td><td>${fmtMoney(r[4])}</td><td><strong style="color:#c4581f">$250.00</strong></td><td>${r[7]||''}</td>
+      <td><button class="action-btn btn-approve" onclick="approveBounty(${rowIdx})">Approve</button></td></tr>`;
+    }).join('');
+  } catch(e) { document.getElementById('brandon-bounty-loading').style.display='none'; }
+}
+
+async function approveBooking(rowIndex) {
+  const btn = event.target; btn.disabled=true; btn.textContent='Saving...';
+  try {
+    const d = await api({action:'read', tab:'B2B_Booking_Bonuses'});
+    if (!d.success) return;
+    const row = [...d.data[rowIndex-1]];
+    while(row.length < 6) row.push('');
+    row[4] = 'Brandon McClure';
+    await api({action:'update', tab:'B2B_Booking_Bonuses', rowIndex:rowIndex, row:JSON.stringify(row)});
+    loadBrandonBonuses();
+  } catch(e) { btn.disabled=false; btn.textContent='Approve'; }
+}
+
+async function approveBounty(rowIndex) {
+  const btn = event.target; btn.disabled=true; btn.textContent='Saving...';
+  try {
+    const d = await api({action:'read', tab:'B2B_Partner_Bounties'});
+    if (!d.success) return;
+    const row = [...d.data[rowIndex-1]];
+    while(row.length < 8) row.push('');
+    row[7] = 'Brandon McClure';
+    row[8] = new Date().toLocaleDateString('en-US');
+    await api({action:'update', tab:'B2B_Partner_Bounties', rowIndex:rowIndex, row:JSON.stringify(row)});
+    loadBrandonBonuses();
+  } catch(e) { btn.disabled=false; btn.textContent='Approve'; }
+}
+
+loadBrandonBonuses();
 </script>
 </body>
 </html>
