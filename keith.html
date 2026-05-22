@@ -600,6 +600,14 @@ function expiryDays(dateStr){if(!dateStr)return null;return Math.floor((new Date
 function expiryClass(dateStr){const d=expiryDays(dateStr);if(d===null)return '';if(d<0)return 'expiry-danger';if(d<30)return 'expiry-danger';if(d<60)return 'expiry-warn';return 'expiry-ok';}
 function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return `Expired ${Math.abs(d)}d ago`;return `Expires in ${d}d`;}
 
+
+// Header-based column lookup - use instead of hardcoded r[N]
+// Usage: const c = cols(d.data[0]); then use c('Column Name') to get index
+function cols(headers) {
+  const trimmed = headers.map(h => (h||'').toString().trim());
+  return name => trimmed.indexOf(name.trim());
+}
+
 function switchTab(name,btn){
   btn.closest('.body').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
@@ -640,14 +648,21 @@ async function loadPTOBalances(employee){
   try{
     const d=await api({action:'read',tab:'PTO_Balances'});
     if(!d.success)return;
-    const row=d.data.find(r=>r[0]===employee);
-    const vacUsed=Number(row?.[1]||0),sickUsed=Number(row?.[2]||0);
-    const vacLeft=Math.max(0,10-vacUsed),sickLeft=Math.max(0,5-sickUsed);
+    const c=cols(d.data[0]);
+    const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
+    if(!row)return;
+    const vacUsed=Number(row[c('Vacation Used')])||0;
+    const sickUsed=Number(row[c('Sick Used')])||0;
+    const vacBal=Number(row[c('Vacation Balance')])||0;
+    const sickBal=Number(row[c('Sick Balance')])||0;
+    const hireDate=row[c('Hire Date')]||'';
+    const vacTotal=vacUsed+vacBal;
+    const sickTotal=sickUsed+sickBal;
     const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
     const sw=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=v;};
-    s('vac-remaining',vacLeft);s('vac-used',`of 10 used: ${vacUsed}`);sw('vac-bar',Math.min(100,(vacUsed/10)*100)+'%');
-    s('sick-remaining',sickLeft);s('sick-used',`of 5 used: ${sickUsed}`);sw('sick-bar',Math.min(100,(sickUsed/5)*100)+'%');
-    if(row?.[3]){const hm=document.getElementById('hire-meta');if(hm)hm.textContent='Hire date: '+fmtDate(row[3]);}
+    s('vac-remaining',vacBal);s('vac-used',`of ${vacTotal} used: ${vacUsed}`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsed/vacTotal)*100)+'%':'0%');
+    s('sick-remaining',sickBal);s('sick-used',`of ${sickTotal} used: ${sickUsed}`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsed/sickTotal)*100)+'%':'0%');
+    if(hireDate){const hm=document.getElementById('hire-meta');if(hm)hm.textContent='Hire date: '+fmtDate(hireDate);}
   }catch(e){console.error(e);}
 }
 
@@ -659,29 +674,21 @@ async function loadMyRequests(employee){
     const d=await api({action:'read',tab:'PTO_Requests'});
     if(loadEl)loadEl.style.display='none';
     if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
+    const c=cols(d.data[0]);
     const today=new Date().toISOString().split('T')[0];
-    const rows=d.data.slice(1).filter(r=>r[1]===employee&&r.some(c=>c));
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
     if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
     if(tableEl)tableEl.style.display='table';
     const tbody=document.getElementById('my-requests-body');
     if(tbody)tbody.innerHTML=rows.slice().reverse().map(r=>{
-      const status=r[7]||'Pending';
-      const endDate=r[4]||r[3]||'';
+      const status=(r[c('Status')]||'Pending').trim();
+      const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
       let pill;
-      if(status==='Approved'&&endDate>=today){
-        pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';
-      } else if(status==='Approved'){
-        pill='<span class="pill pill-approved">Approved</span>';
-      } else if(status==='Denied'){
-        pill='<span class="pill pill-denied">Denied</span>';
-      } else {
-        pill='<span class="pill pill-pending">Pending</span>';
-      }
-      return `<tr>
-        <td>${fmtDate(r[8])}</td><td>${r[2]||''}</td>
-        <td>${fmtDate(r[3])}${r[4]&&r[4]!==r[3]?' to '+fmtDate(r[4]):''}</td>
-        <td>${r[5]||''}</td><td>${pill}</td><td>${r[6]||''}</td>
-      </tr>`;
+      if(status==='Approved'&&endDate>=today){pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';}
+      else if(status==='Approved'){pill='<span class="pill pill-approved">Approved</span>';}
+      else if(status==='Denied'){pill='<span class="pill pill-denied">Denied</span>';}
+      else{pill='<span class="pill pill-pending">Pending</span>';}
+      return `<tr><td>${fmtDate(r[c('Submitted')])}</td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${pill}</td><td>${r[c('Reason')]||''}</td></tr>`;
     }).join('');
   }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
 }
@@ -689,23 +696,19 @@ async function loadMyRequests(employee){
 async function loadCommissions(employee){
   try{
     const d=await api({action:'read',tab:'Commissions'});
-    ['comm-loading','ledger-loading'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-    const contentEl=document.getElementById('comm-content');
-    const tableEl=document.getElementById('ledger-table');
-    const emptyEl=document.getElementById('ledger-empty');
-    if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
-    const rows=d.data.slice(1).filter(r=>r[1]===employee);
-    let ytd=0;rows.forEach(r=>ytd+=Number(r[7]||0));
-    if(contentEl)contentEl.style.display='block';
-    const ytdEl=document.getElementById('comm-ytd');if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
-    // Only show empty if no active AND no history
-const today2=new Date().toISOString().split('T')[0];
-const hasAny=rows.length>0;
-if(!hasAny){if(emptyEl)emptyEl.style.display='block';return;}
-    if(tableEl)tableEl.style.display='table';
-    const tbody=document.getElementById('ledger-body');
-    if(tbody)tbody.innerHTML=rows.reverse().map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[4]||''}</td><td>${r[5]||''}</td><td>${r[6]?r[6]+'%':''}</td><td><strong>${fmtMoney(r[7])}</strong></td><td>${r[8]||''}</td></tr>`).join('');
-  }catch(e){console.error(e);}
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
+    const ytd=rows.reduce((s,r)=>s+(Number(r[c('Commission')])||0),0);
+    const ytdEl=document.getElementById('comm-ytd');
+    if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
+    const tbody=document.getElementById('comm-body-old');
+    if(tbody)tbody.innerHTML=rows.slice().reverse().slice(0,10).map(r=>`<tr>
+      <td>${fmtDate(r[c('Date')])}</td><td>${r[c('Deal Name')]||''}</td>
+      <td>${fmtMoney(r[c('Deal Value')])}</td><td>${r[c('Rate')]||''}</td>
+      <td><strong style="color:#c4581f">${fmtMoney(r[c('Commission')])}</strong></td>
+    </tr>`).join('');
+  }catch(e){}
 }
 
 async function loadRecord(employee){
@@ -715,16 +718,23 @@ async function loadRecord(employee){
     const contentEl=document.getElementById('record-content');
     if(loadEl)loadEl.style.display='none';
     if(!d.success){if(contentEl)contentEl.style.display='block';return;}
-    const row=d.data.slice(1).find(r=>r[0]===employee);
+    const c=cols(d.data[0]);
+    const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
     if(contentEl)contentEl.style.display='block';
     const tbody=document.getElementById('record-body');
     if(!row){if(tbody)tbody.innerHTML='<tr><td colspan="2" class="empty-state">No record on file yet.</td></tr>';return;}
-    const fields=[['Role',row[1]],['Hire Date',fmtDate(row[2])],['90-Day Review',fmtDate(row[4])],['Annual Review Due',fmtDate(row[5])],['Last Review',fmtDate(row[6])],['Next Review',fmtDate(row[7])],['Status',row[8]]];
-    if(tbody)tbody.innerHTML=fields.map(f=>`<tr><td style="color:#aaa;width:180px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;padding:8px 10px">${f[0]}</td><td style="padding:8px 10px">${f[1]||'--'}</td></tr>`).join('');
-  }catch(e){console.error(e);}
+    const fields=[
+      ['Role',row[c('Role')]],
+      ['Hire Date',fmtDate(row[c('Hire Date')])],
+      ['90-Day Review',fmtDate(row[c('Review Due 90Day')])],
+      ['Annual Review Due',fmtDate(row[c('Review Due Annual')])],
+      ['Last Review',fmtDate(row[c('Last Review')])],
+      ['Next Review',fmtDate(row[c('Next Review')])],
+      ['Status',row[c('Status')]]
+    ];
+    if(tbody)tbody.innerHTML=fields.map(([label,val])=>`<tr><td style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;width:160px">${label}</td><td>${val||'<span style="color:#ddd">—</span>'}</td></tr>`).join('');
+  }catch(e){}
 }
-
-const ALL_DOCS_BASE=['Employment Contract','Company Policies','Dress Code Policy','PTO Policy','W-4','Direct Deposit Form','Emergency Contact / Medical Form','Receipt of Company Equipment','Mileage Policy','Government ID'];
 
 async function loadDocs(employee,hasCommissionDoc){
   const docs=[...ALL_DOCS_BASE];
@@ -789,21 +799,24 @@ async function saveExpiry(employee){
 
 async function loadEquipment(employee){
   const loadEl=document.getElementById('equip-loading');
+  const listEl=document.getElementById('equip-list');
+  const emptyEl=document.getElementById('equip-empty');
   try{
     const d=await api({action:'read',tab:'Equipment'});
     if(loadEl)loadEl.style.display='none';
-    const tableEl=document.getElementById('equip-table');
-    const emptyEl=document.getElementById('equip-empty');
     if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
-    const rows=d.data.slice(1).filter(r=>r[0]===employee&&!r[5]);
-    // Only show empty if no active AND no history
-const today2=new Date().toISOString().split('T')[0];
-const hasAny=rows.length>0;
-if(!hasAny){if(emptyEl)emptyEl.style.display='block';return;}
-    if(tableEl)tableEl.style.display='table';
-    const tbody=document.getElementById('equip-body');
-    if(tbody)tbody.innerHTML=rows.map(r=>`<tr><td><span class="equip-type-badge">${r[1]||''}</span></td><td>${r[2]||''}</td><td>${r[3]||''}</td><td>${fmtDate(r[4])}</td><td>${r[6]||''}</td></tr>`).join('');
-  }catch(e){if(loadEl)loadEl.style.display='none';}
+    const c=cols(d.data[0]);
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
+    if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
+    if(listEl){
+      listEl.innerHTML=rows.map(r=>`<div class="bonus-row">
+        <div class="bonus-name">${r[c('Make Model')]||''}
+          <div class="bonus-criteria">${r[c('Item Type')]||''} ${r[c('Serial Number')]?'&bull; S/N: '+r[c('Serial Number')]:''}</div>
+        </div>
+        <div style="font-size:12px;color:#aaa;text-align:right">Issued ${fmtDate(r[c('Date Issued')])||''}${r[c('Date Returned')]?' &bull; Returned '+fmtDate(r[c('Date Returned')]):''}</div>
+      </div>`).join('');
+    }
+  }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
 }
 
 async function addEquipment(employee){
@@ -920,9 +933,10 @@ async function loadScorecard(){
   try{
     const d=await api({action:'read',tab:'Overdue_Activities'});
     if(d.success){
-      const rows=d.data.slice(1).filter(r=>r[1]==='Keith Howze');
+      const oc=cols(d.data[0]);
+      const rows=d.data.slice(1).filter(r=>(r[oc('Employee')]||'').trim()==='Keith Howze');
       if(rows.length){
-        const avg=rows.reduce((s,r)=>s+Number(r[2]||0),0)/rows.length;
+        const avg=rows.reduce((s,r)=>s+Number(r[oc('Overdue Count')]||0),0)/rows.length;
         document.getElementById('d2-avg').textContent=avg.toFixed(1)+' avg';
         updateDomainUI('domain-data','d2-pill',avg===0,false);
         updateTotal();
@@ -934,10 +948,11 @@ async function loadScorecard(){
     const d=await api({action:'read',tab:'Bonuses'});
     if(d.success){
       const q=getCurrentQuarter();
-      const row=d.data.slice(1).find(r=>r[0]==='Keith Howze'&&r[4]==q&&r[1]==='Scorecard');
-      if(row&&row[7]){
+      const bck=cols(d.data[0]);
+      const row=d.data.slice(1).find(r=>(r[bck('Employee')]||'').trim()==='Keith Howze'&&r[bck('Quarter')]==q&&(r[bck('Type')]||'').trim()==='Scorecard');
+      if(row&&row[bck('Notes')]){
         try{
-          const saved=JSON.parse(row[7]);
+          const saved=JSON.parse(row[bck('Notes')]);
           if(saved.d1reorder)document.getElementById('d1-reorder').value=saved.d1reorder;
           if(saved.d1total)document.getElementById('d1-total').value=saved.d1total;
           if(saved.d1reorder&&saved.d1total)calcMeasurement();
@@ -1348,7 +1363,9 @@ async function closeQuarterKeith() {
   btn.disabled = false; btn.textContent = 'Close Quarter';
 }
 
-async function loadScorecardArchiveKeith() {
+async // NOTE: Scorecard_Archive uses positional indices because sheet headers are merged/split
+// Column order: Employee[0], Quarter[1], Year[2], D1Result[3], D1Pass[4], D2Result[5], D2Pass[6], D3Result[7], D3Pass[8], D4Result[9], D4Pass[10], TotalBonus[11], ClosedDate[12], Notes[13]
+function loadScorecardArchiveKeith() {
   try {
     const d = await api({action:'read', tab:'Scorecard_Archive'});
     if (!d.success) return;

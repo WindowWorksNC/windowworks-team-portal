@@ -364,26 +364,20 @@ html.pin-active,body/* TASK BOARD */
   <div id="opp-content" style="display:none">
 
     <div style="margin-bottom:20px">
-      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#555;margin-bottom:4px">New Partner Bounty <span style="color:#aaa;font-weight:400">$250</span></div>
-      <div style="font-size:11px;color:#aaa;margin-bottom:10px">First won deal with a new B2B account — minimum $1,000 deal value</div>
-      <div id="opp-new-partner"></div>
-    </div>
-
-    <div style="border-top:1px solid #f0ece6;padding-top:16px;margin-bottom:20px">
-      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#555;margin-bottom:4px">Anchor Account <span style="color:#aaa;font-weight:400">$2,500</span></div>
-      <div style="font-size:11px;color:#aaa;margin-bottom:10px">3 contracts + $150,000 in revenue within the first 12 months of the relationship</div>
+      <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:2px">Anchor Account <span style="font-size:13px;color:#c4581f;font-weight:400">$2,500</span></div>
+      <div style="font-size:12px;color:#aaa;margin-bottom:10px">3 contracts + $150,000 in revenue within the first 12 months</div>
       <div id="opp-anchor"></div>
     </div>
 
     <div style="border-top:1px solid #f0ece6;padding-top:16px;margin-bottom:20px">
-      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#555;margin-bottom:4px">Wallet Share <span style="color:#aaa;font-weight:400">$2,500</span></div>
-      <div style="font-size:11px;color:#aaa;margin-bottom:10px">Existing account grows spend by 20%+ year over year, with at least $60,000 this year</div>
+      <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:2px">Wallet Share <span style="font-size:13px;color:#c4581f;font-weight:400">$2,500</span></div>
+      <div style="font-size:12px;color:#aaa;margin-bottom:10px">Existing account grows spend by 20%+ year over year, minimum $60,000 this year</div>
       <div id="opp-wallet"></div>
     </div>
 
     <div style="border-top:1px solid #f0ece6;padding-top:16px">
-      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#555;margin-bottom:4px">Account Retention <span style="color:#aaa;font-weight:400">$2,500</span></div>
-      <div style="font-size:11px;color:#aaa;margin-bottom:10px">Any account that hits $200,000 in a single calendar year</div>
+      <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:2px">Account Retention <span style="font-size:13px;color:#c4581f;font-weight:400">$2,500</span></div>
+      <div style="font-size:12px;color:#aaa;margin-bottom:10px">Any account that hits $200,000 in revenue in a single calendar year</div>
       <div id="opp-retention"></div>
     </div>
 
@@ -511,6 +505,14 @@ function expiryDays(dateStr){if(!dateStr)return null;return Math.floor((new Date
 function expiryClass(dateStr){const d=expiryDays(dateStr);if(d===null)return '';if(d<0)return 'expiry-danger';if(d<30)return 'expiry-danger';if(d<60)return 'expiry-warn';return 'expiry-ok';}
 function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return `Expired ${Math.abs(d)}d ago`;return `Expires in ${d}d`;}
 
+
+// Header-based column lookup - use instead of hardcoded r[N]
+// Usage: const c = cols(d.data[0]); then use c('Column Name') to get index
+function cols(headers) {
+  const trimmed = headers.map(h => (h||'').toString().trim());
+  return name => trimmed.indexOf(name.trim());
+}
+
 function switchTab(name,btn){
   btn.closest('.body').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
@@ -551,14 +553,21 @@ async function loadPTOBalances(employee){
   try{
     const d=await api({action:'read',tab:'PTO_Balances'});
     if(!d.success)return;
-    const row=d.data.find(r=>r[0]===employee);
-    const vacUsed=Number(row?.[1]||0),sickUsed=Number(row?.[2]||0);
-    const vacLeft=Math.max(0,10-vacUsed),sickLeft=Math.max(0,5-sickUsed);
+    const c=cols(d.data[0]);
+    const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
+    if(!row)return;
+    const vacUsed=Number(row[c('Vacation Used')])||0;
+    const sickUsed=Number(row[c('Sick Used')])||0;
+    const vacBal=Number(row[c('Vacation Balance')])||0;
+    const sickBal=Number(row[c('Sick Balance')])||0;
+    const hireDate=row[c('Hire Date')]||'';
+    const vacTotal=vacUsed+vacBal;
+    const sickTotal=sickUsed+sickBal;
     const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
     const sw=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=v;};
-    s('vac-remaining',vacLeft);s('vac-used',`of 10 used: ${vacUsed}`);sw('vac-bar',Math.min(100,(vacUsed/10)*100)+'%');
-    s('sick-remaining',sickLeft);s('sick-used',`of 5 used: ${sickUsed}`);sw('sick-bar',Math.min(100,(sickUsed/5)*100)+'%');
-    if(row?.[3]){const hm=document.getElementById('hire-meta');if(hm)hm.textContent='Hire date: '+fmtDate(row[3]);}
+    s('vac-remaining',vacBal);s('vac-used',`of ${vacTotal} used: ${vacUsed}`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsed/vacTotal)*100)+'%':'0%');
+    s('sick-remaining',sickBal);s('sick-used',`of ${sickTotal} used: ${sickUsed}`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsed/sickTotal)*100)+'%':'0%');
+    if(hireDate){const hm=document.getElementById('hire-meta');if(hm)hm.textContent='Hire date: '+fmtDate(hireDate);}
   }catch(e){console.error(e);}
 }
 
@@ -570,29 +579,21 @@ async function loadMyRequests(employee){
     const d=await api({action:'read',tab:'PTO_Requests'});
     if(loadEl)loadEl.style.display='none';
     if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
+    const c=cols(d.data[0]);
     const today=new Date().toISOString().split('T')[0];
-    const rows=d.data.slice(1).filter(r=>r[1]===employee&&r.some(c=>c));
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
     if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
     if(tableEl)tableEl.style.display='table';
     const tbody=document.getElementById('my-requests-body');
     if(tbody)tbody.innerHTML=rows.slice().reverse().map(r=>{
-      const status=r[7]||'Pending';
-      const endDate=r[4]||r[3]||'';
+      const status=(r[c('Status')]||'Pending').trim();
+      const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
       let pill;
-      if(status==='Approved'&&endDate>=today){
-        pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';
-      } else if(status==='Approved'){
-        pill='<span class="pill pill-approved">Approved</span>';
-      } else if(status==='Denied'){
-        pill='<span class="pill pill-denied">Denied</span>';
-      } else {
-        pill='<span class="pill pill-pending">Pending</span>';
-      }
-      return `<tr>
-        <td>${fmtDate(r[8])}</td><td>${r[2]||''}</td>
-        <td>${fmtDate(r[3])}${r[4]&&r[4]!==r[3]?' to '+fmtDate(r[4]):''}</td>
-        <td>${r[5]||''}</td><td>${pill}</td><td>${r[6]||''}</td>
-      </tr>`;
+      if(status==='Approved'&&endDate>=today){pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';}
+      else if(status==='Approved'){pill='<span class="pill pill-approved">Approved</span>';}
+      else if(status==='Denied'){pill='<span class="pill pill-denied">Denied</span>';}
+      else{pill='<span class="pill pill-pending">Pending</span>';}
+      return `<tr><td>${fmtDate(r[c('Submitted')])}</td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${pill}</td><td>${r[c('Reason')]||''}</td></tr>`;
     }).join('');
   }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
 }
@@ -600,23 +601,19 @@ async function loadMyRequests(employee){
 async function loadCommissions(employee){
   try{
     const d=await api({action:'read',tab:'Commissions'});
-    ['comm-loading','ledger-loading'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-    const contentEl=document.getElementById('comm-content');
-    const tableEl=document.getElementById('ledger-table');
-    const emptyEl=document.getElementById('ledger-empty');
-    if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
-    const rows=d.data.slice(1).filter(r=>r[1]===employee);
-    let ytd=0;rows.forEach(r=>ytd+=Number(r[7]||0));
-    if(contentEl)contentEl.style.display='block';
-    const ytdEl=document.getElementById('comm-ytd');if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
-    // Only show empty if no active AND no history
-const today2=new Date().toISOString().split('T')[0];
-const hasAny=rows.length>0;
-if(!hasAny){if(emptyEl)emptyEl.style.display='block';return;}
-    if(tableEl)tableEl.style.display='table';
-    const tbody=document.getElementById('ledger-body');
-    if(tbody)tbody.innerHTML=rows.reverse().map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[4]||''}</td><td>${r[5]||''}</td><td>${r[6]?r[6]+'%':''}</td><td><strong>${fmtMoney(r[7])}</strong></td><td>${r[8]||''}</td></tr>`).join('');
-  }catch(e){console.error(e);}
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
+    const ytd=rows.reduce((s,r)=>s+(Number(r[c('Commission')])||0),0);
+    const ytdEl=document.getElementById('comm-ytd');
+    if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
+    const tbody=document.getElementById('comm-body-old');
+    if(tbody)tbody.innerHTML=rows.slice().reverse().slice(0,10).map(r=>`<tr>
+      <td>${fmtDate(r[c('Date')])}</td><td>${r[c('Deal Name')]||''}</td>
+      <td>${fmtMoney(r[c('Deal Value')])}</td><td>${r[c('Rate')]||''}</td>
+      <td><strong style="color:#c4581f">${fmtMoney(r[c('Commission')])}</strong></td>
+    </tr>`).join('');
+  }catch(e){}
 }
 
 async function loadRecord(employee){
@@ -626,16 +623,23 @@ async function loadRecord(employee){
     const contentEl=document.getElementById('record-content');
     if(loadEl)loadEl.style.display='none';
     if(!d.success){if(contentEl)contentEl.style.display='block';return;}
-    const row=d.data.slice(1).find(r=>r[0]===employee);
+    const c=cols(d.data[0]);
+    const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
     if(contentEl)contentEl.style.display='block';
     const tbody=document.getElementById('record-body');
     if(!row){if(tbody)tbody.innerHTML='<tr><td colspan="2" class="empty-state">No record on file yet.</td></tr>';return;}
-    const fields=[['Role',row[1]],['Hire Date',fmtDate(row[2])],['90-Day Review',fmtDate(row[4])],['Annual Review Due',fmtDate(row[5])],['Last Review',fmtDate(row[6])],['Next Review',fmtDate(row[7])],['Status',row[8]]];
-    if(tbody)tbody.innerHTML=fields.map(f=>`<tr><td style="color:#aaa;width:180px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;padding:8px 10px">${f[0]}</td><td style="padding:8px 10px">${f[1]||'--'}</td></tr>`).join('');
-  }catch(e){console.error(e);}
+    const fields=[
+      ['Role',row[c('Role')]],
+      ['Hire Date',fmtDate(row[c('Hire Date')])],
+      ['90-Day Review',fmtDate(row[c('Review Due 90Day')])],
+      ['Annual Review Due',fmtDate(row[c('Review Due Annual')])],
+      ['Last Review',fmtDate(row[c('Last Review')])],
+      ['Next Review',fmtDate(row[c('Next Review')])],
+      ['Status',row[c('Status')]]
+    ];
+    if(tbody)tbody.innerHTML=fields.map(([label,val])=>`<tr><td style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;width:160px">${label}</td><td>${val||'<span style="color:#ddd">—</span>'}</td></tr>`).join('');
+  }catch(e){}
 }
-
-const ALL_DOCS_BASE=['Employment Contract','Company Policies','Dress Code Policy','PTO Policy','W-4','Direct Deposit Form','Emergency Contact / Medical Form','Receipt of Company Equipment','Mileage Policy','Government ID'];
 
 async function loadDocs(employee,hasCommissionDoc){
   const docs=[...ALL_DOCS_BASE];
@@ -700,21 +704,24 @@ async function saveExpiry(employee){
 
 async function loadEquipment(employee){
   const loadEl=document.getElementById('equip-loading');
+  const listEl=document.getElementById('equip-list');
+  const emptyEl=document.getElementById('equip-empty');
   try{
     const d=await api({action:'read',tab:'Equipment'});
     if(loadEl)loadEl.style.display='none';
-    const tableEl=document.getElementById('equip-table');
-    const emptyEl=document.getElementById('equip-empty');
     if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
-    const rows=d.data.slice(1).filter(r=>r[0]===employee&&!r[5]);
-    // Only show empty if no active AND no history
-const today2=new Date().toISOString().split('T')[0];
-const hasAny=rows.length>0;
-if(!hasAny){if(emptyEl)emptyEl.style.display='block';return;}
-    if(tableEl)tableEl.style.display='table';
-    const tbody=document.getElementById('equip-body');
-    if(tbody)tbody.innerHTML=rows.map(r=>`<tr><td><span class="equip-type-badge">${r[1]||''}</span></td><td>${r[2]||''}</td><td>${r[3]||''}</td><td>${fmtDate(r[4])}</td><td>${r[6]||''}</td></tr>`).join('');
-  }catch(e){if(loadEl)loadEl.style.display='none';}
+    const c=cols(d.data[0]);
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
+    if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
+    if(listEl){
+      listEl.innerHTML=rows.map(r=>`<div class="bonus-row">
+        <div class="bonus-name">${r[c('Make Model')]||''}
+          <div class="bonus-criteria">${r[c('Item Type')]||''} ${r[c('Serial Number')]?'&bull; S/N: '+r[c('Serial Number')]:''}</div>
+        </div>
+        <div style="font-size:12px;color:#aaa;text-align:right">Issued ${fmtDate(r[c('Date Issued')])||''}${r[c('Date Returned')]?' &bull; Returned '+fmtDate(r[c('Date Returned')]):''}</div>
+      </div>`).join('');
+    }
+  }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
 }
 
 async function addEquipment(employee){
@@ -1343,9 +1350,10 @@ async function loadBookingBonuses() {
     if (loadEl) loadEl.style.display = 'none';
     if (contentEl) contentEl.style.display = 'block';
     if (!d.success) return;
-    const rows = d.data.slice(1).filter(r => r[0]==='Colin Glenn' && r.some(c => c));
+    const bc6=cols(d.data[0]);
+    const rows = d.data.slice(1).filter(r => (r[bc6('Employee')]||'').trim()==='Colin Glenn' && r.some(x => x));
     const currentPeriod = getCurrentPayPeriodLabel_colin();
-    const periodRows = rows.filter(r => r[6] === currentPeriod);
+    const periodRows = rows.filter(r => (r[bc6('Pay Period')]||'').trim() === currentPeriod);
     document.getElementById('booking-period-count').textContent = periodRows.length;
     document.getElementById('booking-period-total').textContent = fmtMoney(periodRows.length * 75);
     document.getElementById('booking-ytd-total').textContent = fmtMoney(rows.length * 75);
@@ -1356,10 +1364,10 @@ async function loadBookingBonuses() {
       if(tableWrap) tableWrap.style.display='block';
       const tbody = document.getElementById('booking-body');
       if(tbody) tbody.innerHTML = periodRows.slice().reverse().map(r => `<tr>
-        <td>${fmtDate(r[1])}</td><td>${r[2]||''}</td><td>${fmtDate(r[3])}</td>
+        <td>${fmtDate(r[bc6('Date')])}</td><td>${r[bc6('Customer Name')]||''}</td><td>${fmtDate(r[bc6('Appointment Date')])}</td>
         <td><strong style="color:#c4581f">$75.00</strong></td>
-        <td>${r[4]||'<span style="color:#aaa">Pending</span>'}</td>
-        <td>${r[5]||''}</td>
+        <td>${r[bc6('Approved By')]||'<span style="color:#aaa">Pending</span>'}</td>
+        <td>${r[bc6('Notes')]||''}</td>
       </tr>`).join('');
     }
     updateBonusSummary();
@@ -1425,9 +1433,16 @@ function updateBonusSummary() {
   
   // Partner bounties from sheet
   _bountyRows.forEach(r => {
-    const entry = { type:'New Partner Bounty', account:r[2]||r[1]||'', amount:Number(r[7])||250, detail:'First B2B sale', approvedBy:r[7]||'' };
-    if(r[7]) approved.push(entry);
-    else pending.push(entry);
+    const bc3=window._bountyColLookup||(name=>0);
+      const entry = { 
+        type:'New Partner Bounty', 
+        account: r[bc3('Org Name')]||r[bc3('Account')]||r[bc3('Deal Name')]||'',
+        amount: Number(r[bc3('Amount')])||250, 
+        detail:'First B2B sale', 
+        approvedBy: r[bc3('Approved By')]||'' 
+      };
+      if(r[bc3('Approved By')]) approved.push(entry);
+      else pending.push(entry);
   });
 
   // B2B earned from Pipedrive
@@ -1597,33 +1612,50 @@ async function loadB2BTracker() {
     // OPPORTUNITIES section
     if(oppContent) oppContent.style.display = 'block';
 
-    // New Partner opps
-    const npOpps = orgData.filter(o => o.newPartnerProgress).sort((a,b) => a.newPartnerProgress.gap - b.newPartnerProgress.gap).slice(0,3);
-    const npEl = document.getElementById('opp-new-partner');
-    if(npEl) npEl.innerHTML = npOpps.length
-      ? npOpps.map(o => oppRow(o.name, o.newPartnerProgress.detail, `${fmtMoney(o.newPartnerProgress.gap)} away`)).join('')
-      : '<div style="font-size:12px;color:#bbb;padding:8px 0">No accounts close to this threshold.</div>';
-
-    // Anchor opps
-    const anchorOpps = orgData.filter(o => o.anchorProgress).sort((a,b) => a.anchorProgress.gap - b.anchorProgress.gap).slice(0,3);
+    // Anchor opps - top 3 accounts in first 12mo window, not yet earned
+    const anchorCandidates = orgData.filter(o => !o.bonuses.find(b=>b.label==='Anchor Account') && o.anchorProgress)
+      .sort((a,b) => a.anchorProgress.gap - b.anchorProgress.gap).slice(0,3);
+    // Also include accounts in first year with no progress object (under threshold) sorted by revenue
+    const anchorAll = orgData.filter(o => !o.bonuses.find(b=>b.label==='Anchor Account'))
+      .sort((a,b) => (b.anchorProgress ? -b.anchorProgress.gap : b.revThisYear) - (a.anchorProgress ? -a.anchorProgress.gap : a.revThisYear))
+      .slice(0,3);
     const anchorEl = document.getElementById('opp-anchor');
-    if(anchorEl) anchorEl.innerHTML = anchorOpps.length
-      ? anchorOpps.map(o => oppRow(o.name, o.anchorProgress.detail, '')).join('')
+    if(anchorEl) anchorEl.innerHTML = anchorAll.length
+      ? anchorAll.map(o => {
+          const detail = o.anchorProgress ? o.anchorProgress.detail : `${o.totalDeals} deal${o.totalDeals!==1?'s':''} — ${fmtMoney(o.revThisYear)} this year`;
+          const progress = o.anchorProgress ? '' : '';
+          return oppRow(o.name, detail, progress);
+        }).join('')
       : '<div style="font-size:12px;color:#bbb;padding:8px 0">No accounts in progress.</div>';
 
-    // Wallet Share opps
-    const walletOpps = orgData.filter(o => o.walletProgress).sort((a,b) => a.walletProgress.gap - b.walletProgress.gap).slice(0,3);
+    // Wallet Share opps - top 3 with prior year revenue, not yet earned
+    const walletAll = orgData.filter(o => !o.bonuses.find(b=>b.label==='Wallet Share') && o.revLastYear > 0)
+      .map(o => ({...o, yoyGrowth: (o.revThisYear - o.revLastYear) / o.revLastYear}))
+      .sort((a,b) => b.yoyGrowth - a.yoyGrowth).slice(0,3);
     const walletEl = document.getElementById('opp-wallet');
-    if(walletEl) walletEl.innerHTML = walletOpps.length
-      ? walletOpps.map(o => oppRow(o.name, o.walletProgress.detail, `${fmtMoney(o.walletProgress.gap)} away`)).join('')
-      : '<div style="font-size:12px;color:#bbb;padding:8px 0">No accounts close to this threshold.</div>';
+    if(walletEl) walletEl.innerHTML = walletAll.length
+      ? walletAll.map(o => {
+          const pct = ((o.revThisYear - o.revLastYear) / o.revLastYear * 100).toFixed(0);
+          const target = o.revLastYear * 1.2;
+          const detail = o.walletProgress
+            ? o.walletProgress.detail
+            : `${fmtMoney(o.revThisYear)} this year vs ${fmtMoney(o.revLastYear)} last year (${pct>0?'+':''}${pct}%)`;
+          const prog = o.walletProgress ? `${fmtMoney(o.walletProgress.gap)} away` : `need ${fmtMoney(Math.max(0,target-o.revThisYear))} more`;
+          return oppRow(o.name, detail, prog);
+        }).join('')
+      : '<div style="font-size:12px;color:#bbb;padding:8px 0">No accounts with prior year data.</div>';
 
-    // Retention opps
-    const retentionOpps = orgData.filter(o => o.retentionProgress).sort((a,b) => a.retentionProgress.gap - b.retentionProgress.gap).slice(0,3);
+    // Retention opps - top 3 by this year revenue, not yet at $200k
+    const retentionAll = orgData.filter(o => !o.bonuses.find(b=>b.label==='Account Retention') && o.revThisYear > 0)
+      .sort((a,b) => b.revThisYear - a.revThisYear).slice(0,3);
     const retentionEl = document.getElementById('opp-retention');
-    if(retentionEl) retentionEl.innerHTML = retentionOpps.length
-      ? retentionOpps.map(o => oppRow(o.name, o.retentionProgress.detail, `${fmtMoney(o.retentionProgress.gap)} away`)).join('')
-      : '<div style="font-size:12px;color:#bbb;padding:8px 0">No accounts close to this threshold.</div>';
+    if(retentionEl) retentionEl.innerHTML = retentionAll.length
+      ? retentionAll.map(o => {
+          const detail = o.retentionProgress ? o.retentionProgress.detail : `${fmtMoney(o.revThisYear)} this year`;
+          const prog = `${fmtMoney(Math.max(0, 200000 - o.revThisYear))} away`;
+          return oppRow(o.name, detail, prog);
+        }).join('')
+      : '<div style="font-size:12px;color:#bbb;padding:8px 0">No active accounts this year.</div>';
 
     // ALL OTHER ACCOUNTS (no bonuses earned, not already in opps or earned)
     const earnedNames = new Set(orgData.filter(o => o.bonuses.length).map(o => o.name));

@@ -657,6 +657,14 @@ function expiryDays(dateStr){if(!dateStr)return null;return Math.floor((new Date
 function expiryClass(dateStr){const d=expiryDays(dateStr);if(d===null)return '';if(d<0)return 'expiry-danger';if(d<30)return 'expiry-danger';if(d<60)return 'expiry-warn';return 'expiry-ok';}
 function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return `Expired ${Math.abs(d)}d ago`;return `Expires in ${d}d`;}
 
+
+// Header-based column lookup - use instead of hardcoded r[N]
+// Usage: const c = cols(d.data[0]); then use c('Column Name') to get index
+function cols(headers) {
+  const trimmed = headers.map(h => (h||'').toString().trim());
+  return name => trimmed.indexOf(name.trim());
+}
+
 function switchTab(name,btn){
   btn.closest('.body').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
@@ -697,14 +705,21 @@ async function loadPTOBalances(employee){
   try{
     const d=await api({action:'read',tab:'PTO_Balances'});
     if(!d.success)return;
-    const row=d.data.find(r=>r[0]===employee);
-    const vacUsed=Number(row?.[1]||0),sickUsed=Number(row?.[2]||0);
-    const vacLeft=Math.max(0,10-vacUsed),sickLeft=Math.max(0,5-sickUsed);
+    const c=cols(d.data[0]);
+    const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
+    if(!row)return;
+    const vacUsed=Number(row[c('Vacation Used')])||0;
+    const sickUsed=Number(row[c('Sick Used')])||0;
+    const vacBal=Number(row[c('Vacation Balance')])||0;
+    const sickBal=Number(row[c('Sick Balance')])||0;
+    const hireDate=row[c('Hire Date')]||'';
+    const vacTotal=vacUsed+vacBal;
+    const sickTotal=sickUsed+sickBal;
     const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
     const sw=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=v;};
-    s('vac-remaining',vacLeft);s('vac-used',`of 10 used: ${vacUsed}`);sw('vac-bar',Math.min(100,(vacUsed/10)*100)+'%');
-    s('sick-remaining',sickLeft);s('sick-used',`of 5 used: ${sickUsed}`);sw('sick-bar',Math.min(100,(sickUsed/5)*100)+'%');
-    if(row?.[3]){const hm=document.getElementById('hire-meta');if(hm)hm.textContent='Hire date: '+fmtDate(row[3]);}
+    s('vac-remaining',vacBal);s('vac-used',`of ${vacTotal} used: ${vacUsed}`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsed/vacTotal)*100)+'%':'0%');
+    s('sick-remaining',sickBal);s('sick-used',`of ${sickTotal} used: ${sickUsed}`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsed/sickTotal)*100)+'%':'0%');
+    if(hireDate){const hm=document.getElementById('hire-meta');if(hm)hm.textContent='Hire date: '+fmtDate(hireDate);}
   }catch(e){console.error(e);}
 }
 
@@ -716,29 +731,21 @@ async function loadMyRequests(employee){
     const d=await api({action:'read',tab:'PTO_Requests'});
     if(loadEl)loadEl.style.display='none';
     if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
+    const c=cols(d.data[0]);
     const today=new Date().toISOString().split('T')[0];
-    const rows=d.data.slice(1).filter(r=>r[1]===employee&&r.some(c=>c));
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
     if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
     if(tableEl)tableEl.style.display='table';
     const tbody=document.getElementById('my-requests-body');
     if(tbody)tbody.innerHTML=rows.slice().reverse().map(r=>{
-      const status=r[7]||'Pending';
-      const endDate=r[4]||r[3]||'';
+      const status=(r[c('Status')]||'Pending').trim();
+      const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
       let pill;
-      if(status==='Approved'&&endDate>=today){
-        pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';
-      } else if(status==='Approved'){
-        pill='<span class="pill pill-approved">Approved</span>';
-      } else if(status==='Denied'){
-        pill='<span class="pill pill-denied">Denied</span>';
-      } else {
-        pill='<span class="pill pill-pending">Pending</span>';
-      }
-      return `<tr>
-        <td>${fmtDate(r[8])}</td><td>${r[2]||''}</td>
-        <td>${fmtDate(r[3])}${r[4]&&r[4]!==r[3]?' to '+fmtDate(r[4]):''}</td>
-        <td>${r[5]||''}</td><td>${pill}</td><td>${r[6]||''}</td>
-      </tr>`;
+      if(status==='Approved'&&endDate>=today){pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';}
+      else if(status==='Approved'){pill='<span class="pill pill-approved">Approved</span>';}
+      else if(status==='Denied'){pill='<span class="pill pill-denied">Denied</span>';}
+      else{pill='<span class="pill pill-pending">Pending</span>';}
+      return `<tr><td>${fmtDate(r[c('Submitted')])}</td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${pill}</td><td>${r[c('Reason')]||''}</td></tr>`;
     }).join('');
   }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
 }
@@ -746,23 +753,19 @@ async function loadMyRequests(employee){
 async function loadCommissions(employee){
   try{
     const d=await api({action:'read',tab:'Commissions'});
-    ['comm-loading','ledger-loading'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-    const contentEl=document.getElementById('comm-content');
-    const tableEl=document.getElementById('ledger-table');
-    const emptyEl=document.getElementById('ledger-empty');
-    if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
-    const rows=d.data.slice(1).filter(r=>r[1]===employee);
-    let ytd=0;rows.forEach(r=>ytd+=Number(r[7]||0));
-    if(contentEl)contentEl.style.display='block';
-    const ytdEl=document.getElementById('comm-ytd');if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
-    // Only show empty if no active AND no history
-const today2=new Date().toISOString().split('T')[0];
-const hasAny=rows.length>0;
-if(!hasAny){if(emptyEl)emptyEl.style.display='block';return;}
-    if(tableEl)tableEl.style.display='table';
-    const tbody=document.getElementById('ledger-body');
-    if(tbody)tbody.innerHTML=rows.reverse().map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[4]||''}</td><td>${r[5]||''}</td><td>${r[6]?r[6]+'%':''}</td><td><strong>${fmtMoney(r[7])}</strong></td><td>${r[8]||''}</td></tr>`).join('');
-  }catch(e){console.error(e);}
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
+    const ytd=rows.reduce((s,r)=>s+(Number(r[c('Commission')])||0),0);
+    const ytdEl=document.getElementById('comm-ytd');
+    if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
+    const tbody=document.getElementById('comm-body-old');
+    if(tbody)tbody.innerHTML=rows.slice().reverse().slice(0,10).map(r=>`<tr>
+      <td>${fmtDate(r[c('Date')])}</td><td>${r[c('Deal Name')]||''}</td>
+      <td>${fmtMoney(r[c('Deal Value')])}</td><td>${r[c('Rate')]||''}</td>
+      <td><strong style="color:#c4581f">${fmtMoney(r[c('Commission')])}</strong></td>
+    </tr>`).join('');
+  }catch(e){}
 }
 
 async function loadRecord(employee){
@@ -772,16 +775,23 @@ async function loadRecord(employee){
     const contentEl=document.getElementById('record-content');
     if(loadEl)loadEl.style.display='none';
     if(!d.success){if(contentEl)contentEl.style.display='block';return;}
-    const row=d.data.slice(1).find(r=>r[0]===employee);
+    const c=cols(d.data[0]);
+    const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
     if(contentEl)contentEl.style.display='block';
     const tbody=document.getElementById('record-body');
     if(!row){if(tbody)tbody.innerHTML='<tr><td colspan="2" class="empty-state">No record on file yet.</td></tr>';return;}
-    const fields=[['Role',row[1]],['Hire Date',fmtDate(row[2])],['90-Day Review',fmtDate(row[4])],['Annual Review Due',fmtDate(row[5])],['Last Review',fmtDate(row[6])],['Next Review',fmtDate(row[7])],['Status',row[8]]];
-    if(tbody)tbody.innerHTML=fields.map(f=>`<tr><td style="color:#aaa;width:180px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;padding:8px 10px">${f[0]}</td><td style="padding:8px 10px">${f[1]||'--'}</td></tr>`).join('');
-  }catch(e){console.error(e);}
+    const fields=[
+      ['Role',row[c('Role')]],
+      ['Hire Date',fmtDate(row[c('Hire Date')])],
+      ['90-Day Review',fmtDate(row[c('Review Due 90Day')])],
+      ['Annual Review Due',fmtDate(row[c('Review Due Annual')])],
+      ['Last Review',fmtDate(row[c('Last Review')])],
+      ['Next Review',fmtDate(row[c('Next Review')])],
+      ['Status',row[c('Status')]]
+    ];
+    if(tbody)tbody.innerHTML=fields.map(([label,val])=>`<tr><td style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;width:160px">${label}</td><td>${val||'<span style="color:#ddd">—</span>'}</td></tr>`).join('');
+  }catch(e){}
 }
-
-const ALL_DOCS_BASE=['Employment Contract','Company Policies','Dress Code Policy','PTO Policy','W-4','Direct Deposit Form','Emergency Contact / Medical Form','Receipt of Company Equipment','Mileage Policy','Government ID'];
 
 async function loadDocs(employee,hasCommissionDoc){
   const docs=[...ALL_DOCS_BASE];
@@ -846,21 +856,24 @@ async function saveExpiry(employee){
 
 async function loadEquipment(employee){
   const loadEl=document.getElementById('equip-loading');
+  const listEl=document.getElementById('equip-list');
+  const emptyEl=document.getElementById('equip-empty');
   try{
     const d=await api({action:'read',tab:'Equipment'});
     if(loadEl)loadEl.style.display='none';
-    const tableEl=document.getElementById('equip-table');
-    const emptyEl=document.getElementById('equip-empty');
     if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
-    const rows=d.data.slice(1).filter(r=>r[0]===employee&&!r[5]);
-    // Only show empty if no active AND no history
-const today2=new Date().toISOString().split('T')[0];
-const hasAny=rows.length>0;
-if(!hasAny){if(emptyEl)emptyEl.style.display='block';return;}
-    if(tableEl)tableEl.style.display='table';
-    const tbody=document.getElementById('equip-body');
-    if(tbody)tbody.innerHTML=rows.map(r=>`<tr><td><span class="equip-type-badge">${r[1]||''}</span></td><td>${r[2]||''}</td><td>${r[3]||''}</td><td>${fmtDate(r[4])}</td><td>${r[6]||''}</td></tr>`).join('');
-  }catch(e){if(loadEl)loadEl.style.display='none';}
+    const c=cols(d.data[0]);
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
+    if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
+    if(listEl){
+      listEl.innerHTML=rows.map(r=>`<div class="bonus-row">
+        <div class="bonus-name">${r[c('Make Model')]||''}
+          <div class="bonus-criteria">${r[c('Item Type')]||''} ${r[c('Serial Number')]?'&bull; S/N: '+r[c('Serial Number')]:''}</div>
+        </div>
+        <div style="font-size:12px;color:#aaa;text-align:right">Issued ${fmtDate(r[c('Date Issued')])||''}${r[c('Date Returned')]?' &bull; Returned '+fmtDate(r[c('Date Returned')]):''}</div>
+      </div>`).join('');
+    }
+  }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
 }
 
 async function addEquipment(employee){
@@ -891,18 +904,19 @@ async function loadAdminPTO(){
     document.getElementById('pending-loading').style.display='none';
     document.getElementById('all-requests-loading').style.display='none';
     if(!d.success)return;
+    const c=cols(d.data[0]);
     const today=new Date().toISOString().split('T')[0];
-    let rows=d.data.slice(1).filter(r=>r.some(c=>c));
-    const pending=rows.filter(r=>r[7]==='Pending'||!r[7]);
+    let rows=d.data.slice(1).filter(r=>r.some(x=>x));
+    const pending=rows.filter(r=>(r[c('Status')]||'Pending')==='Pending'||!r[c('Status')]);
     document.getElementById('pending-count').textContent=pending.length+' pending';
     if(pending.length){
       document.getElementById('pending-table').style.display='table';
       document.getElementById('pending-body').innerHTML=pending.map((r)=>{
         const idx=d.data.indexOf(r)+1;
         return `<tr>
-          <td><strong>${r[1]||''}</strong></td><td>${r[2]||''}</td>
-          <td>${fmtDate(r[3])}${r[4]&&r[4]!==r[3]?' to '+fmtDate(r[4]):''}</td>
-          <td>${r[5]||''}</td><td>${r[6]||''}</td>
+          <td><strong>${r[c('Employee')]||''}</strong></td><td>${r[c('Type')]||''}</td>
+          <td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td>
+          <td>${r[c('Days')]||''}</td><td>${r[c('Reason')]||''}</td>
           <td>
             <button class="action-btn btn-approve" onclick="reviewPTO(${idx},'Approved')">Approve</button>
             <button class="action-btn btn-deny" onclick="reviewPTO(${idx},'Denied')">Deny</button>
@@ -911,31 +925,30 @@ async function loadAdminPTO(){
       }).join('');
     } else document.getElementById('pending-empty').style.display='block';
 
-    // All active requests (not yet past end date, or pending)
     const active=rows.filter(r=>{
-      const status=r[7]||'Pending';
-      const endDate=r[4]||r[3]||'';
+      const status=(r[c('Status')]||'Pending').trim();
+      const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
       if(status==='Pending') return true;
-      return endDate>=today;
+      if(status==='Approved') return endDate>=today;
+      if(status==='Denied') return endDate>=today;
+      return false;
     });
 
-    // Past denied requests eligible for archiving
     const archivable=rows.filter(r=>{
-      const status=r[7]||'';
-      const endDate=r[4]||r[3]||'';
+      const status=(r[c('Status')]||'').trim();
+      const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
       return status==='Denied'&&endDate<today;
     });
 
     if(active.length){
       document.getElementById('all-requests-table').style.display='table';
       document.getElementById('all-requests-body').innerHTML=active.slice().reverse().map(r=>`<tr>
-        <td>${r[1]||''}</td><td>${fmtDate(r[8])}</td><td>${r[2]||''}</td>
-        <td>${fmtDate(r[3])}${r[4]&&r[4]!==r[3]?' to '+fmtDate(r[4]):''}</td>
-        <td>${r[5]||''}</td><td>${statusPill(r[7])}</td><td>${r[9]||''}</td>
+        <td>${r[c('Employee')]||''}</td><td>${fmtDate(r[c('Submitted')])}</td><td>${r[c('Type')]||''}</td>
+        <td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td>
+        <td>${r[c('Days')]||''}</td><td>${statusPill(r[c('Status')])}</td><td>${r[c('Reviewed By')]||''}</td>
       </tr>`).join('');
     } else document.getElementById('all-requests-empty').style.display='block';
 
-    // Archive section for past denied
     const archiveSection=document.getElementById('archive-section');
     if(archiveSection){
       if(archivable.length){
@@ -943,8 +956,8 @@ async function loadAdminPTO(){
         document.getElementById('archive-body').innerHTML=archivable.map(r=>{
           const idx=d.data.indexOf(r)+1;
           return `<tr>
-            <td>${r[1]||''}</td><td>${fmtDate(r[3])}${r[4]&&r[4]!==r[3]?' to '+fmtDate(r[4]):''}</td>
-            <td>${r[5]||''}</td><td>${fmtDate(r[8])}</td>
+            <td>${r[c('Employee')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td>
+            <td>${r[c('Days')]||''}</td><td>${fmtDate(r[c('Submitted')])}</td>
             <td><button class="action-btn btn-edit" onclick="archiveRequest(${idx})">Archive</button></td>
           </tr>`;
         }).join('');
@@ -971,11 +984,13 @@ async function reviewPTO(rowIndex, status){
   try{
     const d = await api({action:'read',tab:'PTO_Requests'});
     if(!d.success)return;
+    const c=cols(d.data[0]);
     const row=[...d.data[rowIndex-1]];
-    row[7]=status;row[9]=APPROVER;
+    row[c('Status')]=status;
+    row[c('Reviewed By')]=APPROVER;
     await api({action:'update',tab:'PTO_Requests',rowIndex:rowIndex,row:JSON.stringify(row)});
     loadAdminPTO();
-    loadAllBalances();
+    if(typeof loadAllBalances==='function')loadAllBalances();
   }catch(e){alert('Error updating request');}
 }
 
@@ -1119,9 +1134,10 @@ async function loadBrandonScorecard(){
   try{
     const d=await api({action:'read',tab:'Overdue_Activities'});
     if(d.success){
-      const rows=d.data.slice(1).filter(r=>r[0]);
+      const oc2=cols(d.data[0]);
+      const rows=d.data.slice(1).filter(r=>r[oc2('Employee')]);
       if(rows.length){
-        const avg=rows.reduce((s,r)=>s+Number(r[2]||0),0)/rows.length;
+        const avg=rows.reduce((s,r)=>s+Number(r[oc2('Overdue Count')]||0),0)/rows.length;
         document.getElementById('d1-avg').textContent=avg.toFixed(1)+' team avg';
         updateDomainUI('domain-pipedrive','d1-pill',avg===0,false);
         updateBTotal();
@@ -1133,9 +1149,10 @@ async function loadBrandonScorecard(){
     const d=await api({action:'read',tab:'Bonuses'});
     if(d.success){
       const q=getCurrentQuarter();
-      const row=d.data.slice(1).find(r=>r[0]==='Brandon McClure'&&r[4]==q&&r[1]==='Consistent Performance');
+      const bcb=cols(d.data[0]);
+      const row=d.data.slice(1).find(r=>(r[bcb('Employee')]||'').trim()==='Brandon McClure'&&r[bcb('Quarter')]==q&&(r[bcb('Type')]||'').trim()==='Consistent Performance');
       if(row){
-        const pass=row[5]==='Pass';
+        const pass=(r[bcb('Status')]||'').trim()==='Pass';
         updateDomainUI('domain-consistent','d3-pill',pass,false);
         updateBTotal();
       }
@@ -1529,7 +1546,9 @@ async function closeQuarterBrandon() {
   btn.disabled = false; btn.textContent = 'Close Quarter';
 }
 
-async function loadScorecardArchiveBrandon() {
+async // NOTE: Scorecard_Archive uses positional indices because sheet headers are merged/split
+// Column order: Employee[0], Quarter[1], Year[2], D1Result[3], D1Pass[4], D2Result[5], D2Pass[6], D3Result[7], D3Pass[8], D4Result[9], D4Pass[10], TotalBonus[11], ClosedDate[12], Notes[13]
+function loadScorecardArchiveBrandon() {
   try {
     const d = await api({action:'read', tab:'Scorecard_Archive'});
     if (!d.success) return;
@@ -1559,292 +1578,26 @@ async function loadARHistory() {
     const tableEl = document.getElementById('ar-history-table');
     if (loadEl) loadEl.style.display = 'none';
     if (!d.success || !d.data.slice(1).length) return;
+    const arc=cols(d.data[0]);
     const q = getCurrentQuarter();
     const year = new Date().getFullYear();
     const qLabel = 'Q' + q + ' ' + year;
-    const rows = d.data.slice(1).filter(r => r[9] === qLabel);
+    const rows = d.data.slice(1).filter(r => (r[arc('Pay Period')]||'').toString().trim() === qLabel);
     if (!rows.length) return;
     if (tableEl) tableEl.style.display = 'table';
     const tbody = document.getElementById('ar-history-body');
     if (tbody) tbody.innerHTML = rows.slice().reverse().map(r => {
-      const pct = Number(r[8] || 0);
+      const pct = Number(r[arc('Past30 Percent')] || 0);
       const pass = pct < 10;
       return `<tr>
-        <td>${r[0]}</td>
-        <td>$${Number(r[7]||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
-        <td>$${Number(r[6]||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+        <td>${r[arc('Date')]||''}</td>
+        <td>$${Number(r[arc('Past30 Amount')]||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+        <td>$${Number(r[arc('Total')]||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
         <td>${pct.toFixed(2)}%</td>
         <td>${pass?'<span class="pill pill-approved">Pass</span>':'<span class="pill pill-denied">Fail</span>'}</td>
       </tr>`;
     }).join('');
   } catch(e) { console.error(e); }
-}
-
-loadScorecardArchiveBrandon();loadARHistory();</script>
-<script>
-// ============================================================
-// DATE UTILITIES
-// ============================================================
-function pd(str) {
-  // Parse M/D/YYYY or MM/DD/YY
-  const p = str.split('/');
-  let yr = parseInt(p[2]);
-  if (yr < 100) yr += yr < 50 ? 2000 : 1900;
-  return new Date(yr, parseInt(p[0])-1, parseInt(p[1]), 12);
-}
-function fmt(d) {
-  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-}
-function fmtLong(d) {
-  return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
-}
-function fmtRange(a, b) {
-  if (!b || a.toDateString()===b.toDateString()) return fmtLong(a);
-  return fmtLong(a) + ' \u2013 ' + fmtLong(b);
-}
-function D(y,m,d) { return new Date(y,m-1,d,12); }
-function addDays(d,n) { const x=new Date(d); x.setDate(x.getDate()+n); return x; }
-
-// ============================================================
-// PAYROLL
-// ============================================================
-const P2026 = [
-  {n:1, s:'12/18/25',e:'12/31/25',due:'12/31/2025',pay:'1/2/2026'},
-  {n:2, s:'01/01/26',e:'01/14/26',due:'1/14/2026', pay:'1/16/2026'},
-  {n:3, s:'01/15/26',e:'01/28/26',due:'1/28/2026', pay:'1/30/2026'},
-  {n:4, s:'01/29/26',e:'02/11/26',due:'2/11/2026', pay:'2/13/2026'},
-  {n:5, s:'02/12/26',e:'02/25/26',due:'2/25/2026', pay:'2/27/2026'},
-  {n:6, s:'02/26/26',e:'03/11/26',due:'3/11/2026', pay:'3/13/2026'},
-  {n:7, s:'03/12/26',e:'03/25/26',due:'3/25/2026', pay:'3/27/2026'},
-  {n:8, s:'03/26/26',e:'04/08/26',due:'4/8/2026',  pay:'4/10/2026'},
-  {n:9, s:'04/09/26',e:'04/22/26',due:'4/22/2026', pay:'4/24/2026'},
-  {n:10,s:'04/23/26',e:'05/06/26',due:'5/6/2026',  pay:'5/8/2026'},
-  {n:11,s:'05/07/26',e:'05/20/26',due:'5/20/2026', pay:'5/22/2026'},
-  {n:12,s:'05/21/26',e:'06/03/26',due:'6/3/2026',  pay:'6/5/2026'},
-  {n:13,s:'06/04/26',e:'06/17/26',due:'6/17/2026', pay:'6/19/2026'},
-  {n:14,s:'06/18/26',e:'07/01/26',due:'7/1/2026',  pay:'7/3/2026'},
-  {n:15,s:'07/02/26',e:'07/15/26',due:'7/15/2026', pay:'7/17/2026'},
-  {n:16,s:'07/16/26',e:'07/29/26',due:'7/29/2026', pay:'7/31/2026'},
-  {n:17,s:'07/30/26',e:'08/12/26',due:'8/12/2026', pay:'8/14/2026'},
-  {n:18,s:'08/13/26',e:'08/26/26',due:'8/26/2026', pay:'8/28/2026'},
-  {n:19,s:'08/27/26',e:'09/09/26',due:'9/9/2026',  pay:'9/11/2026'},
-  {n:20,s:'09/10/26',e:'09/23/26',due:'9/23/2026', pay:'9/25/2026'},
-  {n:21,s:'09/24/26',e:'10/07/26',due:'10/7/2026', pay:'10/9/2026'},
-  {n:22,s:'10/08/26',e:'10/21/26',due:'10/21/2026',pay:'10/23/2026'},
-  {n:23,s:'10/22/26',e:'11/04/26',due:'11/4/2026', pay:'11/6/2026'},
-  {n:24,s:'11/05/26',e:'11/18/26',due:'11/18/2026',pay:'11/20/2026'},
-  {n:25,s:'11/19/26',e:'12/02/26',due:'12/2/2026', pay:'12/4/2026'},
-  {n:26,s:'12/03/26',e:'12/16/26',due:'12/16/2026',pay:'12/18/2026'},
-];
-
-function genPayroll(year) {
-  if (year===2026) return P2026;
-  const prev = genPayroll(year-1);
-  const last = prev[prev.length-1];
-  let start = addDays(pd(last.e), 1);
-  const periods = [];
-  for (let n=1; n<=26; n++) {
-    const end = addDays(start, 13);
-    const due = new Date(end);
-    let pay = addDays(due, 2);
-    if (pay.getDay()===0) pay = addDays(pay, 1);
-    if (pay.getDay()===6) pay = addDays(pay, 2);
-    const ms = d => (d.getMonth()+1)+'/'+('0'+d.getDate()).slice(-2)+'/'+(d.getFullYear()%100).toString().padStart(2,'0');
-    const mf = d => (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear();
-    periods.push({n, s:ms(start), e:ms(end), due:mf(due), pay:mf(pay)});
-    start = addDays(end, 1);
-  }
-  return periods;
-}
-
-function renderPayroll() {
-  const year = parseInt(document.getElementById('year-sel').value);
-  const periods = genPayroll(year);
-  const today = new Date(); today.setHours(0,0,0,0);
-  let nextPay=null, curPeriod=null;
-
-  periods.forEach(p => {
-    const sd=pd(p.s), ed=pd(p.e), payd=pd(p.pay);
-    if (today>=sd && today<=ed) curPeriod=p;
-    if (payd>=today && !nextPay) nextPay=p;
-  });
-
-  const nw = document.getElementById('next-pay-wrap');
-  if (nextPay) {
-    const payd=pd(nextPay.pay);
-    const days=Math.round((payd-today)/(1000*60*60*24));
-    nw.innerHTML=`<div class="next-pay">
-      <div><div class="np-label">Next Paycheck</div>
-        <div class="np-date">${fmt(payd)}</div>
-        <div class="np-sub">Period #${nextPay.n}: ${nextPay.s} &ndash; ${nextPay.e}</div>
-      </div>
-      <div style="text-align:right">
-        <div class="np-date">${days}</div>
-        <div class="np-sub">days away</div>
-      </div>
-    </div>`;
-  } else nw.innerHTML='';
-
-  const isCurrentYear = year === new Date().getFullYear();
-  document.getElementById('payroll-body').innerHTML = periods.map(p => {
-    const isCur = isCurrentYear && curPeriod && p.n===curPeriod.n;
-    const isNext = isCurrentYear && nextPay && p.n===nextPay.n;
-    const active = isCur || isNext;
-    return `<tr class="${active?'cur':''}">
-      <td>${p.n}${active?'<span class="badge badge-org">Current</span>':''}</td>
-      <td>${p.s} &ndash; ${p.e}</td>
-      <td>${fmt(pd(p.due))}</td>
-      <td><strong>${fmt(pd(p.pay))}</strong></td>
-    </tr>`;
-  }).join('');
-}
-
-// ============================================================
-// HOLIDAYS
-// ============================================================
-
-function getEaster(y) {
-  const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4;
-  const f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3);
-  const h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4;
-  const l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451);
-  const mo=Math.floor((h+l-7*m+114)/31)-1;
-  const day=((h+l-7*m+114)%31)+1;
-  return new Date(y,mo,day,12);
-}
-
-function nthWeekday(y,month,weekday,nth) {
-  // month 1-based, weekday 0=Sun
-  let d=new Date(y,month-1,1,12);
-  while(d.getDay()!==weekday) d=addDays(d,1);
-  return addDays(d,(nth-1)*7);
-}
-
-function lastWeekday(y,month,weekday) {
-  let d=new Date(y,month,0,12); // last day of month
-  while(d.getDay()!==weekday) d=addDays(d,-1);
-  return d;
-}
-
-function getHolidays(y) {
-  const hols = [];
-
-  // Good Friday (Friday before Easter)
-  const easter = getEaster(y);
-  const goodFri = addDays(easter,-2);
-  hols.push({name:'Good Friday', start:goodFri, end:goodFri, days:1});
-
-  // Memorial Day (last Monday of May)
-  const memDay = lastWeekday(y,5,1);
-  hols.push({name:'Memorial Day', start:memDay, end:memDay, days:1});
-
-  // Independence Day
-  const jul4 = D(y,7,4);
-  const jul4day = jul4.getDay();
-  let indDay;
-  if (jul4day===6) indDay=D(y,7,3);       // Sat -> Fri before
-  else if (jul4day===0) indDay=D(y,7,5);  // Sun -> Mon after
-  else indDay=jul4;
-  hols.push({name:'Independence Day', start:indDay, end:indDay, days:1});
-
-  // Labor Day (first Monday of September)
-  const laborDay = nthWeekday(y,9,1,1);
-  hols.push({name:'Labor Day', start:laborDay, end:laborDay, days:1});
-
-  // Thanksgiving (4th Thursday of November + Friday)
-  const thu = nthWeekday(y,11,4,4);
-  const thuFri = addDays(thu,1);
-  hols.push({name:'Thanksgiving', start:thu, end:thuFri, days:2});
-
-  // Christmas - follows doc exactly by day of week of Dec 25
-  const dec25 = D(y,12,25);
-  const dow = dec25.getDay(); // 0=Sun
-  let xStart, xEnd, nyStart, nyEnd;
-
-  if (dow===1) { // Monday: close Mon(25)-Wed(27). NY: Mon(1)-Tue(2)
-    xStart=D(y,12,25); xEnd=D(y,12,27);
-    nyStart=D(y+1,1,1); nyEnd=D(y+1,1,2);
-  } else if (dow===2) { // Tuesday: close Mon(24)-Wed(26). NY: Mon(31)-Tue(1)
-    xStart=D(y,12,24); xEnd=D(y,12,26);
-    nyStart=D(y,12,31); nyEnd=D(y+1,1,1);
-  } else if (dow===3) { // Wednesday: close Tue(24)-Thu(26). NY: Tue(31)-Wed(1)
-    xStart=D(y,12,24); xEnd=D(y,12,26);
-    nyStart=D(y,12,31); nyEnd=D(y+1,1,1);
-  } else if (dow===4) { // Thursday: close Wed(24)-Fri(26). NY: Wed(31)-Thu(1)
-    xStart=D(y,12,24); xEnd=D(y,12,26);
-    nyStart=D(y,12,31); nyEnd=D(y+1,1,1);
-  } else if (dow===5) { // Friday: close Wed(23)-Fri(25). NY: Thu(31)-Fri(1)
-    xStart=D(y,12,23); xEnd=D(y,12,25);
-    nyStart=D(y,12,31); nyEnd=D(y+1,1,1);
-  } else if (dow===6) { // Saturday: close Thu(23)-Mon(27). NY: Thu(30)-Fri(31)
-    xStart=D(y,12,23); xEnd=D(y,12,27);
-    nyStart=D(y,12,30); nyEnd=D(y,12,31);
-  } else { // Sunday: close Fri(23)-Tue(27). NY: Fri(30)-Mon(2)
-    xStart=D(y,12,23); xEnd=D(y,12,27);
-    nyStart=D(y,12,30); nyEnd=D(y+1,1,2);
-  }
-
-  // Count workdays
-  function workdays(s,e) {
-    let ct=0,d=new Date(s);
-    while(d<=e){if(d.getDay()!==0&&d.getDay()!==6)ct++;d=addDays(d,1);}
-    return ct;
-  }
-
-  hols.push({name:'Christmas', start:xStart, end:xEnd, days:workdays(xStart,xEnd)});
-  hols.push({name:"New Year's", start:nyStart, end:nyEnd, days:workdays(nyStart,nyEnd)});
-
-  return hols;
-}
-
-function renderHolidays() {
-  const y = parseInt(document.getElementById('hol-yr').value);
-  const today = new Date(); today.setHours(0,0,0,0);
-  const hols = getHolidays(y);
-  document.getElementById('holidays-body').innerHTML = hols.map(h => {
-    const isPast = h.end < today;
-    const isCur = h.start<=today && h.end>=today;
-    const isUp = h.start>today;
-    const badge = isCur ? '<span class="badge badge-grn">This Week</span>' :
-                  isPast ? '<span class="badge badge-gry">Past</span>' :
-                  '<span class="badge badge-grn">Upcoming</span>';
-    return `<div class="hol-row">
-      <div>
-        <div class="hol-name">${h.name} ${badge}</div>
-        <div class="hol-dates">${fmtRange(h.start, h.end)}</div>
-      </div>
-      <div>
-        <div class="hol-ct">${h.days}</div>
-        <div class="hol-ct-lbl">day${h.days!==1?'s':''} off</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// Init
-document.getElementById('year-sel').value = new Date().getFullYear();
-document.getElementById('hol-yr').value = new Date().getFullYear();
-renderPayroll();
-renderHolidays();
-// Init resources on tab click
-</script>
-<script>
-function getBrandonCurrentPeriod() {
-  const start = new Date('2025-12-18');
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const diffDays = Math.floor((today - start) / (1000*60*60*24));
-  const periodNum = Math.floor(diffDays / 14);
-  const periodStart = new Date(start);
-  periodStart.setDate(periodStart.getDate() + periodNum * 14);
-  const periodEnd = new Date(periodStart);
-  periodEnd.setDate(periodEnd.getDate() + 13);
-  if (today.getTime() === periodEnd.getTime() && now.getHours() >= 23) {
-    periodStart.setDate(periodStart.getDate() + 14);
-    periodEnd.setDate(periodEnd.getDate() + 14);
-  }
-  const fmt = d => String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+'/'+String(d.getFullYear()).slice(2);
-  return fmt(periodStart) + ' – ' + fmt(periodEnd);
 }
 
 async function loadBrandonCommission() {
@@ -1855,13 +1608,14 @@ async function loadBrandonCommission() {
     const d=await api({action:'read',tab:'Commissions'});
     if(loadEl)loadEl.style.display='none';
     if(!d.success)return;
-    const rows=d.data.slice(1).filter(r=>r.some(c=>c));
+    const bc=cols(d.data[0]);
+    const rows=d.data.slice(1).filter(r=>r.some(x=>x));
     const currentPeriod=getBrandonCurrentPeriod();
     document.getElementById('brandon-comm-period-display').textContent=currentPeriod;
-    const currentRows=rows.filter(r=>r[8]===currentPeriod);
+    const currentRows=rows.filter(r=>(r[bc('Pay Period')]||'').trim()===currentPeriod);
     const employees=['Colin Glenn','Jimmie Coleman'];
     const stats={};
-    employees.forEach(e=>{stats[e]=currentRows.filter(r=>r[1]===e).reduce((s,r)=>s+(Number(r[7])||0),0);});
+    employees.forEach(e=>{stats[e]=currentRows.filter(r=>(r[bc('Employee')]||'').trim()===e).reduce((s,r)=>s+(Number(r[bc('Commission')])||0),0);});
     const statsEl=document.getElementById('brandon-comm-stats');
     if(statsEl){
       statsEl.innerHTML=employees.map(e=>`<div class="stat-block"><div class="stat-number orange">${fmtMoney(stats[e])}</div><div class="stat-label">${e}</div></div>`).join('')+
@@ -1872,8 +1626,8 @@ async function loadBrandonCommission() {
     const tbody=document.getElementById('brandon-comm-body');
     if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>{
       const rowIdx=d.data.findIndex(row=>row===r)+1;
-      const approved=r[10]?true:false;
-      return `<tr><td>${fmtDate(r[0])}</td><td>${r[1]||''}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[5]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td><td style="font-size:11px">${r[8]||''}</td><td>${r[10]||''}</td><td>${approved?'<span class="pill pill-approved">Approved</span>':`<button class="action-btn btn-approve" onclick="approveCommission(${rowIdx})">Approve</button>`}</td></tr>`;
+      const approved=r[bc('Approved by')]?true:false;
+      return `<tr><td>${fmtDate(r[bc('Date')])}</td><td>${(r[bc('Employee')]||'').trim()}</td><td>${r[bc('Deal Name')]||''}</td><td>${fmtMoney(r[bc('Deal Value')])}</td><td>${(r[bc('Rate')]||'').trim()}</td><td><strong style="color:#c4581f">${fmtMoney(r[bc('Commission')])}</strong></td><td style="font-size:11px">${r[bc('Pay Period')]||''}</td><td>${r[bc('Approved by')]||''}</td><td>${approved?'<span class="pill pill-approved">Approved</span>':`<button class="action-btn btn-approve" onclick="approveCommission(${rowIdx})">Approve</button>`}</td></tr>`;
     }).join('');
     loadBrandonPrevComm(rows,currentPeriod);
   } catch(e){if(loadEl)loadEl.style.display='none';}
@@ -1898,14 +1652,14 @@ function loadBrandonPrevComm(rows,currentPeriod){
   if(loading)loading.style.display='none';
   if(!body)return;
   const periods={};
-  rows.forEach(r=>{const p=r[8];if(!p||p===currentPeriod)return;if(!periods[p])periods[p]=[];periods[p].push(r);});
+  rows.forEach(r=>{const p=(r[bc('Pay Period')]||'').trim();if(!p||p===currentPeriod)return;if(!periods[p])periods[p]=[];periods[p].push(r);});
   const keys=Object.keys(periods).sort().reverse();
   if(!keys.length){body.innerHTML='<div class="empty-state">No previous periods.</div>';return;}
   body.innerHTML=keys.map(period=>{
     const pRows=periods[period];
-    const total=pRows.reduce((s,r)=>s+(Number(r[7])||0),0);
+    const total=pRows.reduce((s,r)=>s+(Number(r[bc('Commission')])||0),0);
     const id='bpp-'+period.replace(/[^a-z0-9]/gi,'');
-    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Commission</th><th>Approved By</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[1]||''}</td><td>${r[2]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td><td>${r[10]||'<span style="color:#aaa">Pending</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Commission</th><th>Approved By</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[bc('Date')])}</td><td>${(r[bc('Employee')]||'').trim()}</td><td>${r[bc('Deal Name')]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[bc('Commission')])}</strong></td><td>${r[bc('Approved by')]||'<span style="color:#aaa">Pending</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
   }).join('');
 }
 
@@ -1976,13 +1730,13 @@ async function loadBrandonBonuses() {
     document.getElementById('brandon-booking-content').style.display = 'block';
     if (!d.success) return;
     const rows = d.data.slice(1).filter(r => r.some(c=>c));
-    const pending = rows.filter(r => !r[4]);
+    const pending = rows.filter(r => !r[bc4('Approved By')]);
     const emptyEl = document.getElementById('brandon-booking-empty');
     const tbody = document.getElementById('brandon-booking-body');
     if (!pending.length) { if(emptyEl) emptyEl.style.display='block'; return; }
     if (tbody) tbody.innerHTML = pending.map((r,i) => {
       const rowIdx = d.data.findIndex(row => row === r) + 1;
-      return `<tr><td>${r[0]||''}</td><td>${fmtDate(r[1])}</td><td>${r[2]||''}</td><td>${fmtDate(r[3])}</td><td>${r[5]||''}</td>
+      return `<tr><td>${r[bc4('Employee')]||''}</td><td>${fmtDate(r[bc4('Date')])}</td><td>${r[bc4('Customer Name')]||''}</td><td>${fmtDate(r[bc4('Appointment Date')])}</td><td>${r[bc4('Notes')]||''}</td>
       <td><button class="action-btn btn-approve" onclick="approveBooking(${rowIdx})">Approve</button></td></tr>`;
     }).join('');
   } catch(e) { document.getElementById('brandon-booking-loading').style.display='none'; }
@@ -1993,14 +1747,15 @@ async function loadBrandonBonuses() {
     document.getElementById('brandon-bounty-loading').style.display = 'none';
     document.getElementById('brandon-bounty-content').style.display = 'block';
     if (!d.success) return;
-    const rows = d.data.slice(1).filter(r => r.some(c=>c));
-    const pending = rows.filter(r => !r[7]);
+    const bc5=cols(d.data[0]);
+    const rows = d.data.slice(1).filter(r => r.some(x=>x));
+    const pending = rows.filter(r => !r[bc5('Approved By')]);
     const emptyEl = document.getElementById('brandon-bounty-empty');
     const tbody = document.getElementById('brandon-bounty-body');
     if (!pending.length) { if(emptyEl) emptyEl.style.display='block'; return; }
     if (tbody) tbody.innerHTML = pending.map(r => {
       const rowIdx = d.data.findIndex(row => row === r) + 1;
-      return `<tr><td>${r[0]||''}</td><td>${fmtDate(r[1])}</td><td>${r[2]||''}</td><td>${r[3]||''}</td><td>${fmtMoney(r[4])}</td><td><strong style="color:#c4581f">$250.00</strong></td><td>${r[7]||''}</td>
+      return `<tr><td>${r[bc5('Employee')]||''}</td><td>${fmtDate(r[bc5('Date')])}</td><td>${r[bc5('Org Name')]||r[bc5('Account')]||''}</td><td>${r[bc5('Deal Name')]||''}</td><td>${fmtMoney(r[bc5('Deal Value')])}</td><td><strong style="color:#c4581f">${fmtMoney(r[bc5('Amount')])||'$250.00'}</strong></td><td>${r[bc5('Approved By')]||''}</td>
       <td><button class="action-btn btn-approve" onclick="approveBounty(${rowIdx})">Approve</button></td></tr>`;
     }).join('');
   } catch(e) { document.getElementById('brandon-bounty-loading').style.display='none'; }
@@ -2026,8 +1781,9 @@ async function approveBounty(rowIndex) {
     if (!d.success) return;
     const row = [...d.data[rowIndex-1]];
     while(row.length < 8) row.push('');
-    row[7] = 'Brandon McClure';
-    row[8] = new Date().toLocaleDateString('en-US');
+    const abc2=d.data[0].map(h=>(h||'').toString().trim());
+    row[abc2.indexOf('Approved By')] = 'Brandon McClure';
+    row[abc2.indexOf('Approved Date')] = new Date().toLocaleDateString('en-US');
     await api({action:'update', tab:'B2B_Partner_Bounties', rowIndex:rowIndex, row:JSON.stringify(row)});
     loadBrandonBonuses();
   } catch(e) { btn.disabled=false; btn.textContent='Approve'; }
