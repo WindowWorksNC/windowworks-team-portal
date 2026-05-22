@@ -89,14 +89,15 @@ function renderPayroll() {
   if (nextPay) {
     const payd=pd(nextPay.pay);
     const days=Math.round((payd-today)/(1000*60*60*24));
+    const isToday=days===0;
     nw.innerHTML=`<div class="next-pay">
-      <div><div class="np-label">Next Paycheck</div>
-        <div class="np-date">${fmt(payd)}</div>
-        <div class="np-sub">Period #${nextPay.n}: ${nextPay.s} &ndash; ${nextPay.e}</div>
+      <div><div class="np-label">${isToday?'Payday! 🤑':'Next Paycheck'}</div>
+        <div class="np-date">${isToday?'Today':fmt(payd)}</div>
+        <div class="np-sub">${isToday?'Go check your bank 💸':'Period #'+nextPay.n+': '+nextPay.s+' \u2013 '+nextPay.e}</div>
       </div>
       <div style="text-align:right">
-        <div class="np-date">${days}</div>
-        <div class="np-sub">days away</div>
+        <div class="np-date" style="color:${isToday?'#28a745':'#c4581f'}">${isToday?'🎉':days}</div>
+        <div class="np-sub">${isToday?'':' days away'}</div>
       </div>
     </div>`;
   } else nw.innerHTML='';
@@ -104,7 +105,7 @@ function renderPayroll() {
   document.getElementById('payroll-body').innerHTML = periods.map(p => {
     const isCur = curPeriod && p.n===curPeriod.n;
     const isNext = nextPay && p.n===nextPay.n;
-    const active = isCur || isNext;
+    const active = isCur;
     return `<tr class="${active?'cur':''}">
       <td>${p.n}${active?'<span class="badge badge-org">Current</span>':''}</td>
       <td>${p.s} &ndash; ${p.e}</td>

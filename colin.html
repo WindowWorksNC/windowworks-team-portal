@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=70">
+<link rel="stylesheet" href="portal.css?v=71">
 </head>
 <body>
     
@@ -627,7 +627,7 @@ function calcWorkingDays() {
 <script>initTaskBoard("colin");</script>
 <script src="resources.js"></script>
 <script>
-function getCurrentPayPeriodLabel_colin() {{
+function getCurrentPayPeriodLabel_colin() {
   const start = new Date('2025-12-18');
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -637,20 +637,20 @@ function getCurrentPayPeriodLabel_colin() {{
   periodStart.setDate(periodStart.getDate() + periodNum * 14);
   const periodEnd = new Date(periodStart);
   periodEnd.setDate(periodEnd.getDate() + 13);
-  if (today.getTime() === periodEnd.getTime() && now.getHours() >= 23) {{
+  if (today.getTime() === periodEnd.getTime() && now.getHours() >= 23) {
     periodStart.setDate(periodStart.getDate() + 14);
     periodEnd.setDate(periodEnd.getDate() + 14);
-  }}
+  }
   const fmt = d => String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+'/'+String(d.getFullYear()).slice(2);
   return fmt(periodStart) + ' – ' + fmt(periodEnd);
-}}
+}
 
-async function loadCommission_colin() {{
+async function loadCommission_colin() {
   const loadEl=document.getElementById('comm-loading');
   const emptyEl=document.getElementById('comm-empty');
   const tableWrap=document.getElementById('comm-table-wrap');
-  try {{
-    const d=await api({{action:'read',tab:'Commissions'}});
+  try {
+    const d=await api({action:'read',tab:'Commissions'});
     if(loadEl)loadEl.style.display='none';
     if(!d.success)return;
     const rows=d.data.slice(1).filter(r=>r[1]==='Colin Glenn'&&r.some(c=>c));
@@ -664,41 +664,41 @@ async function loadCommission_colin() {{
     const ptEl=document.getElementById('comm-period-total');
     if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
     if(ptEl)ptEl.textContent=fmtMoney(periodTotal);
-    if(!currentRows.length){{if(emptyEl)emptyEl.style.display='block';}}
-    else{{
+    if(!currentRows.length){if(emptyEl)emptyEl.style.display='block';}
+    else{
       if(tableWrap)tableWrap.style.display='block';
       const tbody=document.getElementById('comm-body');
-      if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>`<tr><td>${{fmtDate(r[0])}}</td><td>${{r[2]||''}}</td><td>${{fmtMoney(r[3])}}</td><td>${{r[5]||''}}</td><td><strong style="color:#c4581f">${{fmtMoney(r[7])}}</strong></td><td>${{r[9]||''}}</td></tr>`).join('');
-    }}
+      if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[5]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td><td>${r[9]||''}</td></tr>`).join('');
+    }
     loadPrevPeriods_colin(rows,currentPeriod);
-  }}catch(e){{if(loadEl)loadEl.style.display='none';}}
-}}
+  }catch(e){if(loadEl)loadEl.style.display='none';}
+}
 
-function loadPrevPeriods_colin(rows,currentPeriod){{
+function loadPrevPeriods_colin(rows,currentPeriod){
   const body=document.getElementById('prev-periods-body_colin');
   const loading=document.getElementById('prev-periods-loading_colin');
   if(loading)loading.style.display='none';
   if(!body)return;
-  const periods={{}};
-  rows.forEach(r=>{{const p=r[8];if(!p||p===currentPeriod)return;if(!periods[p])periods[p]=[];periods[p].push(r);}});
+  const periods={};
+  rows.forEach(r=>{const p=r[8];if(!p||p===currentPeriod)return;if(!periods[p])periods[p]=[];periods[p].push(r);});
   const keys=Object.keys(periods).sort().reverse();
-  if(!keys.length){{body.innerHTML='<div class="empty-state">No previous periods.</div>';return;}}
-  body.innerHTML=keys.map(period=>{{
+  if(!keys.length){body.innerHTML='<div class="empty-state">No previous periods.</div>';return;}
+  body.innerHTML=keys.map(period=>{
     const pRows=periods[period];
     const total=pRows.reduce((s,r)=>s+(Number(r[7])||0),0);
     const id='pp-'+period.replace(/[^a-z0-9]/gi,'');
-    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${{id}}').style.display=document.getElementById('${{id}}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${{period}}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${{fmtMoney(total)}}</span></div><div id="${{id}}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Deal</th><th>Amount</th><th>Rate</th><th>Commission</th></tr></thead><tbody>${{pRows.map(r=>`<tr><td>${{fmtDate(r[0])}}</td><td>${{r[2]||''}}</td><td>${{fmtMoney(r[3])}}</td><td>${{r[5]||''}}</td><td><strong style="color:#c4581f">${{fmtMoney(r[7])}}</strong></td></tr>`).join('')}}</tbody></table></div></div>`;
-  }}).join('');
-}}
+    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Deal</th><th>Amount</th><th>Rate</th><th>Commission</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[5]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td></tr>`).join('')}</tbody></table></div></div>`;
+  }).join('');
+}
 
-function togglePrevPeriods_colin(el){{
+function togglePrevPeriods_colin(el){
   const wrap=document.getElementById('prev-periods-wrap_colin');
   const label=document.getElementById('prev-toggle-label_colin');
   if(!wrap)return;
   const isOpen=wrap.style.display!=='none';
   wrap.style.display=isOpen?'none':'block';
   if(label)label.textContent=isOpen?'(click to expand)':'(click to collapse)';
-}}
+}
 
 loadCommission_colin();
 </script>
