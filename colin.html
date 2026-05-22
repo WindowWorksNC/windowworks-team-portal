@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=71">
+<link rel="stylesheet" href="portal.css?v=72">
 </head>
 <body>
     
@@ -184,7 +184,6 @@
     <button class="submit-btn" onclick="submitBooking()" id="booking-submit-btn">Log Booking Bonus</button>
     <div id="booking-submit-msg" style="margin-top:8px;font-size:13px"></div>
   </div>
-</div>
 <div class="tab-content" id="tab-pto"><div class="card">
   <div class="card-title">Leave Balances</div>
   <div class="stat-grid">
@@ -806,9 +805,11 @@ async function loadBounties() {
   try {
     const d = await api({action:'read', tab:'B2B_Partner_Bounties'});
     if (!d.success) return;
-    _bountyRows = d.data.slice(1).filter(r => r[0]==='Colin Glenn' && r.some(c => c));
+    const bc2=cols(d.data[0]);
+    window._bountyColLookup = bc2;
+    _bountyRows = d.data.slice(1).filter(r => (r[bc2('Employee')]||'').trim()==='Colin Glenn' && r.some(x => x));
     updateBonusSummary();
-  } catch(e) {}
+  } catch(e) { console.error('loadBounties error:', e); }
 }
 
 // --- BONUS SUMMARY (combines booking + bounties + B2B earned) ---
@@ -833,8 +834,12 @@ function updateBonusSummary() {
   
   // Partner bounties from sheet
   _bountyRows.forEach(r => {
-    const entry = { type:'New Partner Bounty', account:r[2]||r[3]||r[1]||'', amount:Number(r[7])||250, detail:'First B2B sale', approvedBy:r[7]||'' };
-    if(r[7]) approved.push(entry);
+    const bc3=window._bountyColLookup;
+    const orgName = bc3 ? (r[bc3('Org Name')]||r[bc3('Account')]||r[bc3('Deal Name')]||'').trim() : (r[3]||r[2]||'');
+    const approvedBy = bc3 ? (r[bc3('Approved By')]||'').trim() : (r[9]||'').trim();
+    const amt = bc3 ? (Number(r[bc3('Amount')])||250) : 250;
+    const entry = { type:'New Partner Bounty', account:orgName, amount:amt, detail:'First B2B sale — $250 bounty', approvedBy:approvedBy };
+    if(approvedBy) approved.push(entry);
     else pending.push(entry);
   });
 

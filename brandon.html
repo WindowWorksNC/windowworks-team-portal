@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=71">
+<link rel="stylesheet" href="portal.css?v=72">
 </head>
 <body>
     
@@ -268,6 +268,61 @@
   </div>
 
 </div>
+<div class="tab-content" id="tab-pto-admin"><div class="card">
+  <div class="card-title">
+    Pending PTO Requests
+    <span id="pending-count" class="pill pill-pending">0 pending</span>
+  </div>
+  <div id="pending-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="pending-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Type</th><th>Dates</th><th>Days</th><th>Notes</th><th>Action</th></tr></thead>
+      <tbody id="pending-body"></tbody>
+    </table>
+  </div>
+  <div id="pending-empty" class="empty-state" style="display:none">No pending requests.</div>
+</div>
+<div class="card">
+  <div class="card-title">All Requests</div>
+  <div id="all-requests-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="all-requests-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Submitted</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Reviewed By</th></tr></thead>
+      <tbody id="all-requests-body"></tbody>
+    </table>
+  </div>
+  <div id="all-requests-empty" class="empty-state" style="display:none">No requests found.</div>
+</div>
+<div class="card" id="archive-section" style="display:none">
+  <div class="card-title">Past Denied Requests <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none">Ready to archive</span></div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Employee</th><th>Dates</th><th>Days</th><th>Submitted</th><th>Action</th></tr></thead>
+      <tbody id="archive-body"></tbody>
+    </table>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title">PTO Balances</div>
+  <div id="balances-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="balances-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Vacation Used</th><th>Vacation Left</th><th>Sick Used</th><th>Sick Left</th></tr></thead>
+      <tbody id="balances-body"></tbody>
+    </table>
+  </div>
+</div></div>
+<div class="tab-content" id="tab-records-admin"><div class="card">
+  <div class="card-title">Expiring IDs</div>
+  <div id="expiry-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="expiry-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Expiry Date</th><th>Status</th></tr></thead>
+      <tbody id="expiry-body"></tbody>
+    </table>
+  </div>
+  <div id="expiry-empty" class="empty-state" style="display:none">No expiry data on file.</div>
+</div></div>
 <div class="tab-content" id="tab-commission-admin">
 <div class="card">
   <div class="card-title" style="justify-content:space-between"><span>Commission</span><span style="font-size:12px;color:#888;font-weight:400;text-transform:none" id="brandon-comm-period-display">Loading...</span></div>
