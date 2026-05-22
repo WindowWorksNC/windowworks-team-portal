@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Justin Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=57">
+<link rel="stylesheet" href="portal.css?v=69">
 </head>
 <body>
     
@@ -167,8 +167,7 @@ function expiryClass(dateStr){const d=expiryDays(dateStr);if(d===null)return '';
 function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return `Expired ${Math.abs(d)}d ago`;return `Expires in ${d}d`;}
 
 
-// Header-based column lookup - use instead of hardcoded r[N]
-// Usage: const c = cols(d.data[0]); then use c('Column Name') to get index
+// Header-based column lookup
 function cols(headers) {
   const trimmed = headers.map(h => (h||'').toString().trim());
   return name => trimmed.indexOf(name.trim());
@@ -262,19 +261,23 @@ async function loadMyRequests(employee){
 async function loadCommissions(employee){
   try{
     const d=await api({action:'read',tab:'Commissions'});
-    if(!d.success)return;
-    const c=cols(d.data[0]);
-    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
-    const ytd=rows.reduce((s,r)=>s+(Number(r[c('Commission')])||0),0);
-    const ytdEl=document.getElementById('comm-ytd');
-    if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
-    const tbody=document.getElementById('comm-body-old');
-    if(tbody)tbody.innerHTML=rows.slice().reverse().slice(0,10).map(r=>`<tr>
-      <td>${fmtDate(r[c('Date')])}</td><td>${r[c('Deal Name')]||''}</td>
-      <td>${fmtMoney(r[c('Deal Value')])}</td><td>${r[c('Rate')]||''}</td>
-      <td><strong style="color:#c4581f">${fmtMoney(r[c('Commission')])}</strong></td>
-    </tr>`).join('');
-  }catch(e){}
+    ['comm-loading','ledger-loading'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+    const contentEl=document.getElementById('comm-content');
+    const tableEl=document.getElementById('ledger-table');
+    const emptyEl=document.getElementById('ledger-empty');
+    if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
+    const rows=d.data.slice(1).filter(r=>r[1]===employee);
+    let ytd=0;rows.forEach(r=>ytd+=Number(r[7]||0));
+    if(contentEl)contentEl.style.display='block';
+    const ytdEl=document.getElementById('comm-ytd');if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
+    // Only show empty if no active AND no history
+const today2=new Date().toISOString().split('T')[0];
+const hasAny=rows.length>0;
+if(!hasAny){if(emptyEl)emptyEl.style.display='block';return;}
+    if(tableEl)tableEl.style.display='table';
+    const tbody=document.getElementById('ledger-body');
+    if(tbody)tbody.innerHTML=rows.reverse().map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[4]||''}</td><td>${r[5]||''}</td><td>${r[6]?r[6]+'%':''}</td><td><strong>${fmtMoney(r[7])}</strong></td><td>${r[8]||''}</td></tr>`).join('');
+  }catch(e){console.error(e);}
 }
 
 async function loadRecord(employee){
@@ -433,7 +436,6 @@ async function loadAdminPTO(){
         </tr>`;
       }).join('');
     } else document.getElementById('pending-empty').style.display='block';
-
     const active=rows.filter(r=>{
       const status=(r[c('Status')]||'Pending').trim();
       const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
@@ -442,13 +444,11 @@ async function loadAdminPTO(){
       if(status==='Denied') return endDate>=today;
       return false;
     });
-
     const archivable=rows.filter(r=>{
       const status=(r[c('Status')]||'').trim();
       const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
       return status==='Denied'&&endDate<today;
     });
-
     if(active.length){
       document.getElementById('all-requests-table').style.display='table';
       document.getElementById('all-requests-body').innerHTML=active.slice().reverse().map(r=>`<tr>
@@ -457,7 +457,6 @@ async function loadAdminPTO(){
         <td>${r[c('Days')]||''}</td><td>${statusPill(r[c('Status')])}</td><td>${r[c('Reviewed By')]||''}</td>
       </tr>`).join('');
     } else document.getElementById('all-requests-empty').style.display='block';
-
     const archiveSection=document.getElementById('archive-section');
     if(archiveSection){
       if(archivable.length){

@@ -7,267 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<style>/* portal_shared.css - Window Works Team Portal */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Barlow',Arial,sans-serif;background:#edeae4;color:#1a1a1a;min-height:100vh;font-size:14px;overflow-x:hidden}
-
-/* HEADER */
-.header{background:#1a1a1a;padding:18px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.logo{font-family:'Barlow Condensed',Arial,sans-serif;font-weight:700;font-size:22px;letter-spacing:0.12em;text-transform:uppercase;color:#fff;text-decoration:none}
-.logo span{color:#c4581f}
-.header-right{display:flex;align-items:center;gap:14px}
-.header-tag{font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#c4581f;border:1px solid #c4581f;padding:3px 10px;border-radius:2px}
-.back-link{font-size:12px;color:#666;text-decoration:none;font-family:'Barlow',sans-serif}
-.back-link:hover{color:#c4581f}
-.orange-bar{background:#c4581f;height:3px}
-
-/* BODY */
-.body{padding:32px;max-width:1100px;margin:0 auto}
-
-/* EMPLOYEE HEADER */
-.employee-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
-.employee-name{font-family:'Barlow Condensed',Arial,sans-serif;font-size:36px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#1a1a1a;line-height:1}
-.employee-role{font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#c4581f;margin-top:4px}
-.employee-meta{font-size:12px;color:#aaa;margin-top:4px}
-
-/* TABS */
-.tabs{display:flex;gap:0;border-bottom:2px solid #e4dbd0;margin-bottom:24px;flex-wrap:wrap}
-.tab{font-family:'Barlow Condensed',Arial,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:10px 18px;cursor:pointer;color:#666;border-bottom:2px solid transparent;margin-bottom:-2px;background:none;border-top:none;border-left:none;border-right:none}
-.tab.active{color:#c4581f;border-bottom-color:#c4581f}
-.tab:hover{color:#1a1a1a}
-.tab-content{display:none}
-.tab-content.active{display:block}
-
-/* CARDS */
-.card{background:#fff;border:1px solid #e4dbd0;border-radius:8px;padding:20px;margin-bottom:16px}
-.card-title{font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#555;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-
-/* STAT BLOCKS */
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:16px}
-.stat-block{background:#f0ede8;border:1px solid #e4e0da;border-radius:6px;padding:14px;text-align:center}
-.stat-number{font-family:'Barlow Condensed',Arial,sans-serif;font-size:32px;font-weight:700;color:#1a1a1a;line-height:1}
-.stat-number.orange{color:#c4581f}
-.stat-label{font-size:12px;color:#555;text-transform:uppercase;letter-spacing:0.1em;font-family:'Barlow Condensed',Arial,sans-serif;margin-top:3px}
-.stat-sub{font-size:12px;color:#444;margin-top:2px}
-.pto-bar-wrap{height:5px;background:#f0ece6;border-radius:99px;margin-top:8px;overflow:hidden}
-.pto-bar{height:100%;background:#c4581f;border-radius:99px}
-
-/* FORMS */
-.form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-.form-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:130px}
-.form-label{font-size:12px;font-family:'Barlow Condensed',Arial,sans-serif;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#555}
-.form-input{font-size:13px;font-family:'Barlow',sans-serif;padding:7px 10px;border:1px solid #ddd;border-radius:4px;background:#f5f3f0;color:#1a1a1a;outline:none;width:100%}
-.form-input:focus{border-color:#c4581f}
-.form-textarea{resize:vertical;min-height:60px}
-.submit-btn{font-family:'Barlow Condensed',Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:9px 20px;border:none;border-radius:4px;background:#c4581f;color:#fff;cursor:pointer}
-.submit-btn:hover{background:#a8461a}
-.submit-btn:disabled{background:#ddd;color:#999;cursor:not-allowed}
-.secondary-btn{background:#fff;color:#555;border:1px solid #ddd}
-.secondary-btn:hover{background:#f0ece6;border-color:#c4581f;color:#c4581f}
-
-/* TABLES */
-.data-table{width:100%;border-collapse:collapse;font-size:14px}
-.data-table th{font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;text-align:left;padding:8px 10px;border-bottom:1px solid #f0ece6}
-.data-table td{padding:9px 10px;border-bottom:1px solid #f8f5f0;color:#333;vertical-align:middle}
-.data-table tr:last-child td{border-bottom:none}
-.data-table tr:hover td{background:#f5f3f0}
-.table-wrap{overflow-x:auto}
-
-/* PILLS */
-.pill{display:inline-block;font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;border-radius:99px}
-.pill-pending{background:#fef3cd;color:#856404}
-.pill-approved{background:#d4edda;color:#155724}
-.pill-denied{background:#f8d7da;color:#721c24}
-.pill-orange{background:#fae8df;color:#c4581f}
-.pill-gray{background:#e9ecef;color:#666}
-.pill-yellow{background:#fff3cd;color:#856404}
-
-/* ACTION BUTTONS */
-.action-btn{font-size:11px;padding:4px 10px;border-radius:4px;border:1px solid;cursor:pointer;font-family:'Barlow',sans-serif;white-space:nowrap}
-.btn-approve{border-color:#28a745;color:#28a745;background:#fff}
-.btn-approve:hover{background:#d4edda}
-.btn-deny{border-color:#dc3545;color:#dc3545;background:#fff}
-.btn-deny:hover{background:#f8d7da}
-.btn-edit{border-color:#aaa;color:#666;background:#fff}
-.btn-edit:hover{background:#f5f5f5}
-
-/* ALERTS */
-.alert{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:12px;border:1px solid}
-.alert-success{background:#d4edda;color:#155724;border-color:#c3e6cb}
-.alert-error{background:#f8d7da;color:#721c24;border-color:#f5c6cb}
-.alert-info{background:#fae8df;color:#c4581f;border-color:#f5c4a8}
-.alert-warning{background:#fff3cd;color:#856404;border-color:#ffeeba}
-
-/* STATES */
-.loading{color:#aaa;font-size:13px;font-style:italic;padding:12px 0}
-.empty-state{color:#bbb;font-size:13px;font-style:italic;padding:16px 0;text-align:center}
-
-/* SCORECARD */
-.scorecard-domain{border:1px solid #e4dbd0;border-radius:6px;padding:16px;margin-bottom:12px}
-.scorecard-domain.pass{border-left:4px solid #28a745}
-.scorecard-domain.fail{border-left:4px solid #dc3545}
-.scorecard-domain.pending{border-left:4px solid #aaa}
-.domain-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.domain-name{font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1a1a1a}
-.domain-value{font-family:'Barlow Condensed',Arial,sans-serif;font-size:20px;font-weight:700;color:#1a1a1a}
-.domain-criteria{font-size:12px;color:#888;margin-bottom:10px}
-
-/* DOC CHECKLIST */
-.doc-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0ece6;flex-wrap:wrap;gap:8px}
-.doc-row:last-child{border-bottom:none}
-.doc-name{font-size:13px;color:#333;flex:1}
-.doc-actions{display:flex;align-items:center;gap:8px}
-.doc-link{font-size:12px;color:#c4581f;text-decoration:none}
-.doc-link:hover{text-decoration:underline}
-.doc-input{font-size:12px;padding:4px 8px;border:1px solid #ddd;border-radius:4px;background:#f5f3f0;color:#1a1a1a;outline:none;width:280px}
-.doc-input:focus{border-color:#c4581f}
-
-/* EQUIPMENT */
-.equip-type-badge{font-size:11px;padding:2px 7px;border-radius:3px;background:#f0ece6;color:#888;font-family:'Barlow Condensed',Arial,sans-serif;font-weight:600;letter-spacing:0.06em;text-transform:uppercase}
-
-/* ID EXPIRY */
-.expiry-ok{color:#28a745;font-weight:600}
-.expiry-warn{color:#856404;font-weight:600}
-.expiry-danger{color:#dc3545;font-weight:600}
-
-/* RESOURCES */
-.resource-link{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f5f3f0;border:1px solid #e4dbd0;border-radius:6px;text-decoration:none;color:#1a1a1a;font-size:13px;margin-bottom:8px}
-.resource-link:hover{border-color:#c4581f;color:#c4581f}
-.resource-icon{font-size:16px}
-
-/* TRAINING TABS */
-.sub-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
-.sub-tab{font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:6px 14px;border-radius:4px;cursor:pointer;background:#f0ece6;color:#888;border:none}
-.sub-tab.active{background:#c4581f;color:#fff}
-.sub-tab-content{display:none}
-.sub-tab-content.active{display:block}
-.training-item{padding:10px 14px;background:#f5f3f0;border:1px solid #e4dbd0;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
-.training-item a{color:#c4581f;text-decoration:none;font-size:13px}
-.training-item a:hover{text-decoration:underline}
-
-/* BONUS TRACKER */
-.bonus-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0ece6;flex-wrap:wrap;gap:8px}
-.bonus-row:last-child{border-bottom:none}
-.bonus-name{font-size:13px;font-weight:500;color:#1a1a1a;flex:1}
-.bonus-criteria{font-size:11px;color:#aaa;margin-top:2px}
-.bonus-amount{font-family:'Barlow Condensed',Arial,sans-serif;font-size:16px;font-weight:700;color:#c4581f}
-
-/* FOOTER */
-.footer{background:#1a1a1a;padding:12px 32px;display:flex;align-items:center;justify-content:space-between;margin-top:60px}
-.footer-l{font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#ccc !important}
-.footer-r{font-size:11px;color:#ccc !important}
-
-.pin-logo span{color:#c4581f}
-.pin-input:focus{border-color:#c4581f}
-.pin-btn:hover{background:#a8461a}
-.pin-forgot:hover{color:#a8461a}
-.pin-step.active{display:block}
-html.pin-active,body/* TASK BOARD */
-.tb-wrap{padding:0;max-width:1060px;margin:0 auto;background:#fff;border:1px solid #e4dbd0;border-radius:8px;padding:20px}
-.tb-add-bar{background:#fff;border:1px solid #e4dbd0;border-radius:8px;padding:14px 16px;margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.tb-add-inp{flex:2;min-width:180px;font-size:13px;font-family:'Barlow',Arial,sans-serif;padding:7px 10px;border:1px solid #ddd;border-radius:4px;background:#faf8f5;color:#1a1a1a;outline:none}
-.tb-add-inp:focus{border-color:#c4581f}
-.tb-add-bucket{font-size:13px;font-family:'Barlow',Arial,sans-serif;padding:7px 10px;border:1px solid #ddd;border-radius:4px;background:#faf8f5;color:#1a1a1a;outline:none;min-width:150px}
-.tb-add-btn{font-family:'Barlow Condensed',Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:8px 18px;border:none;border-radius:4px;background:#c4581f;color:#fff;cursor:pointer}
-.tb-add-btn:hover{background:#a8461a}
-.tb-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:700px){.tb-grid{grid-template-columns:1fr}}
-.tb-col{border-radius:8px;padding:12px;min-height:200px;border:1px solid transparent}
-.tb-col[data-bucket="this-week"]{background:#c4581f;border-color:#a8461a}
-.tb-col[data-bucket="recurring"]{background:#1a1a1a;border-color:#333}
-.tb-col[data-bucket="projects"]{background:#f5ede0;border-color:#e4dbd0}
-.tb-col[data-bucket="waiting"]{background:#888;border-color:#777}
-.tb-col.tb-col-over .tb-list{outline:2px dashed rgba(255,255,255,0.5);outline-offset:3px;border-radius:6px}
-.tb-col[data-bucket="projects"].tb-col-over .tb-list{outline-color:#c4581f}
-.tb-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.1)}
-.tb-col[data-bucket="projects"] .tb-col-header{border-bottom-color:#e4dbd0}
-.tb-col-label{font-family:'Barlow Condensed',Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;display:flex;align-items:center;gap:6px;cursor:default}
-.tb-col[data-bucket="this-week"] .tb-col-label{color:#fff}
-.tb-col[data-bucket="recurring"] .tb-col-label{color:#fff}
-.tb-col[data-bucket="projects"] .tb-col-label{color:#1a1a1a}
-.tb-col[data-bucket="waiting"] .tb-col-label{color:#fff}
-.tb-bucket-name{cursor:pointer}
-.tb-bucket-name:hover{text-decoration:underline}
-.tb-bucket-name-inp{font-family:'Barlow Condensed',Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.5);color:inherit;outline:none;width:120px}
-.tb-col-count{font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px}
-.tb-col[data-bucket="this-week"] .tb-col-count{background:rgba(0,0,0,0.25);color:#fff}
-.tb-col[data-bucket="recurring"] .tb-col-count{background:rgba(255,255,255,0.1);color:#ccc}
-.tb-col[data-bucket="projects"] .tb-col-count{background:#e4dbd0;color:#555}
-.tb-col[data-bucket="waiting"] .tb-col-count{background:rgba(0,0,0,0.2);color:#fff}
-.tb-list{display:flex;flex-direction:column;gap:6px;min-height:30px}
-.tb-empty{font-size:12px;text-align:center;padding:14px 0;font-style:italic;opacity:0.5;color:#fff}
-.tb-col[data-bucket="projects"] .tb-empty{color:#aaa}
-.tb-task{background:#fff;border:1px solid #e8e2da;border-radius:5px;overflow:hidden;cursor:default}
-.tb-task:hover{border-color:#c4581f}
-.tb-task.tb-dragging{opacity:0.25}
-.tb-task.tb-rdone{opacity:0.55}
-.tb-task.tb-drop-above{border-top:2px solid #c4581f}
-.tb-task.tb-drop-below{border-bottom:2px solid #c4581f}
-.tb-task-top{padding:8px 10px;display:flex;align-items:flex-start;gap:6px;cursor:grab}
-.tb-task-top:active{cursor:grabbing}
-.tb-task-body{flex:1;min-width:0}
-.tb-task-text{font-size:13px;color:#1a1a1a;line-height:1.4}
-.tb-text-done{text-decoration:line-through;color:#bbb}
-.tb-meta{font-size:11px;color:#bbb;margin-top:3px}
-.tb-task-btns{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
-.tb-del,.tb-edit,.tb-exp{background:none;border:none;cursor:pointer;padding:2px 3px;border-radius:3px;line-height:1;font-family:'Barlow',Arial,sans-serif}
-.tb-del{color:#ddd;font-size:13px}.tb-del:hover{color:#c4581f}
-.tb-edit{color:#ccc;font-size:12px}.tb-edit:hover{color:#c4581f}
-.tb-exp{color:#bbb;font-size:11px;white-space:nowrap}.tb-exp:hover{color:#c4581f}
-.tb-edit-inp{font-size:13px;font-family:'Barlow',Arial,sans-serif;color:#1a1a1a;width:100%;border:none;border-bottom:1px solid #c4581f;background:transparent;outline:none;padding:0}
-.tb-rcheck{width:14px;height:14px;flex-shrink:0;accent-color:#c4581f;cursor:pointer;margin-top:2px}
-.tb-status{display:inline-block;font-family:'Barlow Condensed',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:1px 7px;border-radius:99px;cursor:pointer;margin-top:4px}
-.tb-status-new{background:#e8e2da;color:#888}.tb-status-new:hover{background:#ddd}
-.tb-status-progress{background:#c4581f;color:#fff}.tb-status-progress:hover{background:#a8461a}
-.tb-detail{border-top:1px solid #f0ece6;padding:8px 10px;background:#faf8f5;display:none}
-.tb-detail.open{display:block}
-.tb-detail-label{font-family:'Barlow Condensed',Arial,sans-serif;font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#bbb;margin-bottom:4px}
-.tb-notes{font-size:12px;color:#333;width:100%;border:1px solid transparent;background:transparent;font-family:'Barlow',Arial,sans-serif;resize:vertical;min-height:40px;outline:none;padding:2px;line-height:1.5}
-.tb-notes:focus{background:#fff;border-color:#ddd;border-radius:3px;padding:4px}
-.tb-subs-section{margin-top:8px;padding-top:8px;border-top:1px solid #eee}
-.tb-sub{display:flex;align-items:flex-start;gap:5px;padding:5px 0;border-bottom:1px solid #f5f5f5;font-size:12px}
-.tb-subcheck{width:13px;height:13px;accent-color:#c4581f;cursor:pointer;margin-top:1px;flex-shrink:0}
-.tb-subtext{flex:1;color:#333;line-height:1.4}
-.tb-subdone{text-decoration:line-through;color:#bbb}
-.tb-subdel{background:none;border:none;cursor:pointer;color:#ddd;font-size:12px;padding:1px 2px}
-.tb-subdel:hover{color:#c4581f}
-.tb-add-sub-row{display:flex;gap:5px;margin-top:6px}
-.tb-sub-inp{flex:1;font-size:12px;font-family:'Barlow',Arial,sans-serif;padding:4px 7px;border:1px solid #ddd;border-radius:4px;background:#fff;color:#1a1a1a;outline:none}
-.tb-sub-inp:focus{border-color:#c4581f}
-.tb-sub-btn{font-size:11px;padding:4px 9px;border:1px solid #ddd;border-radius:4px;background:#fff;color:#555;cursor:pointer;font-family:'Barlow',Arial,sans-serif;white-space:nowrap}
-.tb-sub-btn:hover{border-color:#c4581f;color:#c4581f}
-.tb-move-row{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid #eee}
-.tb-move-lbl{font-size:11px;color:#bbb;font-family:'Barlow',Arial,sans-serif}
-.tb-mv{font-size:11px;padding:2px 7px;border:1px solid #ddd;border-radius:4px;background:#fff;color:#555;cursor:pointer;font-family:'Barlow',Arial,sans-serif}
-.tb-mv:hover{border-color:#c4581f;color:#c4581f}
-.tb-hint{font-size:12px;color:#aaa;margin-bottom:12px;font-style:italic}
-
-/* RESOURCES TAB */
-#tab-resources .next-pay{background:#1a1a1a;border-radius:6px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;box-sizing:border-box}
-#tab-resources .np-label{font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#aaa}
-#tab-resources .np-date{font-family:'Barlow Condensed',Arial,sans-serif;font-size:22px;font-weight:700;color:#c4581f}
-#tab-resources .np-sub{font-size:12px;color:#aaa;margin-top:3px}
-#tab-resources .year-sel{font-size:13px;font-family:'Barlow',sans-serif;padding:4px 8px;border:1px solid #ddd;border-radius:4px;background:#faf8f5;color:#1a1a1a;outline:none;cursor:pointer}
-#tab-resources tr.cur td{background:#fae8df;font-weight:600}
-#tab-resources tr.cur td:first-child{border-left:3px solid #c4581f}
-#tab-resources .badge{font-family:'Barlow Condensed',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:99px;margin-left:6px}
-#tab-resources .badge-org{background:#c4581f;color:#fff}
-#tab-resources .badge-grn{background:#d4edda;color:#155724}
-#tab-resources .badge-gry{background:#e9ecef;color:#666}
-#tab-resources .hol-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #f0ece6;gap:12px}
-#tab-resources .hol-row:last-child{border-bottom:none}
-#tab-resources .hol-name{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:2px}
-#tab-resources .hol-dates{font-size:12px;color:#888}
-#tab-resources .hol-ct{font-family:'Barlow Condensed',Arial,sans-serif;font-size:24px;font-weight:700;color:#c4581f;text-align:right;flex-shrink:0}
-#tab-resources .hol-ct-lbl{font-size:10px;color:#aaa;text-align:right;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:0.08em;text-transform:uppercase}
-#tab-resources .page-title{display:none}
-#tab-resources .page-sub{display:none}
-#tab-resources{max-width:1100px !important;overflow:hidden;margin:0 auto}
-#tab-resources table{width:100%;font-size:13px}
-#tab-resources th{font-size:11px;padding:8px 10px;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;text-align:left;border-bottom:1px solid #f0ece6}
-#tab-resources td{padding:8px 10px;border-bottom:1px solid #f8f5f0;color:#333;vertical-align:middle}
-#tab-resources .card{margin-bottom:16px}
-</style>
+<link rel="stylesheet" href="portal.css?v=69">
 </head>
 <body>
     
@@ -304,34 +44,7 @@ html.pin-active,body/* TASK BOARD */
     <button class="tab" onclick="switchTab('pto',this)">My PTO</button>
     <button class="tab" onclick="switchTab('my-record',this)">My Record</button>
     <button class="tab" onclick="switchTab('resources',this);requestAnimationFrame(function(){requestAnimationFrame(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){}})});">Resources</button>
-  
-<div class="card" style="margin-top:0">
-  <div class="card-title">Colin Booking Bonuses</div>
-  <div id="brandon-booking-loading" class="loading">Loading...</div>
-  <div id="brandon-booking-content" style="display:none">
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Employee</th><th>Date</th><th>Customer</th><th>Appt Date</th><th>Notes</th><th>Action</th></tr></thead>
-        <tbody id="brandon-booking-body"></tbody>
-      </table>
-    </div>
-    <div id="brandon-booking-empty" class="empty-state" style="display:none">No pending booking bonuses.</div>
   </div>
-</div>
-<div class="card" style="margin-top:0">
-  <div class="card-title">Colin Partner Bounties</div>
-  <div id="brandon-bounty-loading" class="loading">Loading...</div>
-  <div id="brandon-bounty-content" style="display:none">
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Employee</th><th>Date</th><th>Account</th><th>Deal</th><th>Value</th><th>Bonus</th><th>Action</th></tr></thead>
-        <tbody id="brandon-bounty-body"></tbody>
-      </table>
-    </div>
-    <div id="brandon-bounty-empty" class="empty-state" style="display:none">No pending partner bounties.</div>
-  </div>
-</div>
-</div>
 </div>
 <div class="tab-content" id="tab-pto-admin"><div class="card">
   <div class="card-title">
@@ -502,18 +215,7 @@ html.pin-active,body/* TASK BOARD */
     </table>
   </div>
   <div id="my-requests-empty" class="empty-state" style="display:none">No requests yet.</div>
-<div class="card" style="margin-top:8px">
-  <div class="card-title">
-    Request History
-  </div>
-  <div>
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Submitted</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Notes</th></tr></thead>
-        <tbody id="my-requests-history-body"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
-      </table>
-    </div>
-  </div>
+
 </div>
 </div></div><div class="tab-content" id="tab-records-admin"><div class="card">
   <div class="card-title">Expiring IDs</div>
@@ -555,7 +257,7 @@ html.pin-active,body/* TASK BOARD */
   <div class="sub-tab-content" data-group="training" id="stab-training-general">
     <div class="alert alert-info" style="font-size:13px">General company training and resources appear here.</div>
   </div>
-</div></div>
+</div></div></div>
 <div class="tab-content active" id="tab-tasks">
 <div class="tb-wrap">
   <p class="tb-hint">Your personal task board. Data saves in your browser. Click bucket names to rename them (except Recurring).</p>
@@ -658,8 +360,7 @@ function expiryClass(dateStr){const d=expiryDays(dateStr);if(d===null)return '';
 function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return `Expired ${Math.abs(d)}d ago`;return `Expires in ${d}d`;}
 
 
-// Header-based column lookup - use instead of hardcoded r[N]
-// Usage: const c = cols(d.data[0]); then use c('Column Name') to get index
+// Header-based column lookup
 function cols(headers) {
   const trimmed = headers.map(h => (h||'').toString().trim());
   return name => trimmed.indexOf(name.trim());
@@ -753,19 +454,23 @@ async function loadMyRequests(employee){
 async function loadCommissions(employee){
   try{
     const d=await api({action:'read',tab:'Commissions'});
-    if(!d.success)return;
-    const c=cols(d.data[0]);
-    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
-    const ytd=rows.reduce((s,r)=>s+(Number(r[c('Commission')])||0),0);
-    const ytdEl=document.getElementById('comm-ytd');
-    if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
-    const tbody=document.getElementById('comm-body-old');
-    if(tbody)tbody.innerHTML=rows.slice().reverse().slice(0,10).map(r=>`<tr>
-      <td>${fmtDate(r[c('Date')])}</td><td>${r[c('Deal Name')]||''}</td>
-      <td>${fmtMoney(r[c('Deal Value')])}</td><td>${r[c('Rate')]||''}</td>
-      <td><strong style="color:#c4581f">${fmtMoney(r[c('Commission')])}</strong></td>
-    </tr>`).join('');
-  }catch(e){}
+    ['comm-loading','ledger-loading'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+    const contentEl=document.getElementById('comm-content');
+    const tableEl=document.getElementById('ledger-table');
+    const emptyEl=document.getElementById('ledger-empty');
+    if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
+    const rows=d.data.slice(1).filter(r=>r[1]===employee);
+    let ytd=0;rows.forEach(r=>ytd+=Number(r[7]||0));
+    if(contentEl)contentEl.style.display='block';
+    const ytdEl=document.getElementById('comm-ytd');if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
+    // Only show empty if no active AND no history
+const today2=new Date().toISOString().split('T')[0];
+const hasAny=rows.length>0;
+if(!hasAny){if(emptyEl)emptyEl.style.display='block';return;}
+    if(tableEl)tableEl.style.display='table';
+    const tbody=document.getElementById('ledger-body');
+    if(tbody)tbody.innerHTML=rows.reverse().map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[4]||''}</td><td>${r[5]||''}</td><td>${r[6]?r[6]+'%':''}</td><td><strong>${fmtMoney(r[7])}</strong></td><td>${r[8]||''}</td></tr>`).join('');
+  }catch(e){console.error(e);}
 }
 
 async function loadRecord(employee){
@@ -924,7 +629,6 @@ async function loadAdminPTO(){
         </tr>`;
       }).join('');
     } else document.getElementById('pending-empty').style.display='block';
-
     const active=rows.filter(r=>{
       const status=(r[c('Status')]||'Pending').trim();
       const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
@@ -933,13 +637,11 @@ async function loadAdminPTO(){
       if(status==='Denied') return endDate>=today;
       return false;
     });
-
     const archivable=rows.filter(r=>{
       const status=(r[c('Status')]||'').trim();
       const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
       return status==='Denied'&&endDate<today;
     });
-
     if(active.length){
       document.getElementById('all-requests-table').style.display='table';
       document.getElementById('all-requests-body').innerHTML=active.slice().reverse().map(r=>`<tr>
@@ -948,7 +650,6 @@ async function loadAdminPTO(){
         <td>${r[c('Days')]||''}</td><td>${statusPill(r[c('Status')])}</td><td>${r[c('Reviewed By')]||''}</td>
       </tr>`).join('');
     } else document.getElementById('all-requests-empty').style.display='block';
-
     const archiveSection=document.getElementById('archive-section');
     if(archiveSection){
       if(archivable.length){
@@ -1110,6 +811,11 @@ async function processARFile(){
       resultEl.innerHTML=`Past 30 days: ${fmtMoney(past30)} / Total: ${fmtMoney(total)} = <strong>${pct.toFixed(2)}%</strong> ${pass?'<span class="pill pill-approved">Pass</span>':'<span class="pill pill-denied">Fail</span>'}`;
       alertEl.innerHTML='<div class="alert alert-success">File processed.</div>';
       updateBTotal();
+      try{
+        const qLabel='Q'+getCurrentQuarter()+' '+new Date().getFullYear();
+        const arRow=[new Date().toLocaleDateString('en-US'),0,0,p31_60,p61_90,p91,total,past30,pct.toFixed(2),qLabel];
+        await api({action:'append',tab:'AR_Tracking',row:JSON.stringify(arRow)});
+      }catch(err){console.error('AR save:',err);}
       // Save snapshot to AR_Tracking
       try{
         const qLabel='Q'+getCurrentQuarter()+' '+new Date().getFullYear();
@@ -1134,10 +840,9 @@ async function loadBrandonScorecard(){
   try{
     const d=await api({action:'read',tab:'Overdue_Activities'});
     if(d.success){
-      const oc2=cols(d.data[0]);
-      const rows=d.data.slice(1).filter(r=>r[oc2('Employee')]);
+      const rows=d.data.slice(1).filter(r=>r[0]);
       if(rows.length){
-        const avg=rows.reduce((s,r)=>s+Number(r[oc2('Overdue Count')]||0),0)/rows.length;
+        const avg=rows.reduce((s,r)=>s+Number(r[2]||0),0)/rows.length;
         document.getElementById('d1-avg').textContent=avg.toFixed(1)+' team avg';
         updateDomainUI('domain-pipedrive','d1-pill',avg===0,false);
         updateBTotal();
@@ -1149,10 +854,9 @@ async function loadBrandonScorecard(){
     const d=await api({action:'read',tab:'Bonuses'});
     if(d.success){
       const q=getCurrentQuarter();
-      const bcb=cols(d.data[0]);
-      const row=d.data.slice(1).find(r=>(r[bcb('Employee')]||'').trim()==='Brandon McClure'&&r[bcb('Quarter')]==q&&(r[bcb('Type')]||'').trim()==='Consistent Performance');
+      const row=d.data.slice(1).find(r=>r[0]==='Brandon McClure'&&r[4]==q&&r[1]==='Consistent Performance');
       if(row){
-        const pass=(r[bcb('Status')]||'').trim()==='Pass';
+        const pass=row[5]==='Pass';
         updateDomainUI('domain-consistent','d3-pill',pass,false);
         updateBTotal();
       }
@@ -1181,290 +885,8 @@ function calcWorkingDays() {
 }
 </script>
 
-<script>
-// TASK BOARD
-function initTaskBoard(slug) {
-  const TKEY = 'ww_tasks_brandon';
-  const NKEY = 'ww_bucket_names_brandon';
-  const DEFAULT_NAMES = {
-    'this-week': 'This Week',
-    'recurring': 'Recurring',
-    'projects': 'Larger Projects',
-    'waiting': 'Waiting On'
-  };
-  const BUCKETS = ['this-week','recurring','projects','waiting'];
-  const LOCKED = ['recurring'];
-  let tasks = {}, nextId = 1, dragId = null, dropTarget = null, dropPos = null;
-
-  function getBucketNames() {
-    try { return JSON.parse(localStorage.getItem(NKEY)) || {...DEFAULT_NAMES}; }
-    catch(e) { return {...DEFAULT_NAMES}; }
-  }
-  function saveBucketNames(names) {
-    localStorage.setItem(NKEY, JSON.stringify(names));
-  }
-  function save() {
-    try { localStorage.setItem(TKEY, JSON.stringify({tasks, nextId})); } catch(e) {}
-  }
-  function load() {
-    try {
-      const d = localStorage.getItem(TKEY);
-      if (d) { const p = JSON.parse(d); tasks = p.tasks; nextId = p.nextId; return; }
-    } catch(e) {}
-    tasks = {}; nextId = 1;
-  }
-  function fmtDate(d) {
-    return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
-  }
-  function esc(s) {
-    return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  function renderBoard() {
-    const names = getBucketNames();
-    BUCKETS.forEach(b => {
-      const items = Object.values(tasks).filter(t => t.bucket === b)
-        .sort((a,c) => (a.order||0) - (c.order||0));
-      const list = document.getElementById('tl-' + b);
-      if (!list) return;
-      list.innerHTML = items.length === 0
-        ? '<div class="tb-empty">Drop tasks here</div>'
-        : items.map(t => taskHTML(t, b)).join('');
-      const cnt = document.getElementById('tc-' + b);
-      if (cnt) cnt.textContent = items.length;
-      // bucket name header
-      const hdr = document.getElementById('th-' + b);
-      if (hdr) hdr.textContent = names[b] || DEFAULT_NAMES[b];
-    });
-    attachTaskEvents();
-  }
-
-  function taskHTML(t, b) {
-    const isOpen = t.open ? 'open' : '';
-    const isRecurring = b === 'recurring';
-    const isProject = b === 'projects';
-    const subs = t.subs || [];
-    const doneCount = subs.filter(s => s.done).length;
-    const meta = t.added ? 'Added ' + t.added : '';
-    const moveBtns = ['this-week','recurring','projects','waiting']
-      .filter(x => x !== b)
-      .map(x => {
-        const names = getBucketNames();
-        return `<button class="tb-mv" onclick="tbMove_brandon('${t.id}','${x}')">${names[x]||DEFAULT_NAMES[x]}</button>`;
-      }).join('');
-
-    const subsHTML = subs.map(s => `
-      <div class="tb-sub">
-        <input type="checkbox" class="tb-subcheck" ${s.done?'checked':''} onchange="tbToggleSub_brandon('${t.id}','${s.id}')">
-        <span class="tb-subtext${s.done?' tb-subdone':''}">${esc(s.text)}</span>
-        <button class="tb-subdel" onclick="tbDelSub_brandon('${t.id}','${s.id}')">&#x2715;</button>
-      </div>`).join('');
-
-    const statusPill = isProject
-      ? `<span class="tb-status ${t.status==='in-progress'?'tb-status-progress':'tb-status-new'}" onclick="tbCycleStatus_brandon('${t.id}')">${t.status==='in-progress'?'In Progress':'Not Started'}</span>`
-      : '';
-
-    const recurringCheck = isRecurring
-      ? `<input type="checkbox" class="tb-rcheck" ${t.done?'checked':''} onchange="tbToggleRecurring_brandon('${t.id}')">`
-      : '';
-
-    return `<div class="tb-task${t.done&&isRecurring?' tb-rdone':''}" id="tbt-${t.id}" draggable="true">
-      <div class="tb-task-top">
-        ${recurringCheck}
-        <div class="tb-task-body">
-          <div class="tb-task-text${t.done&&isRecurring?' tb-text-done':''}" id="tbtxt-${t.id}">${esc(t.text)}</div>
-          ${statusPill}
-          <div class="tb-meta">${meta}${subs.length?' &bull; '+doneCount+'/'+subs.length+' steps':''}</div>
-        </div>
-        <div class="tb-task-btns">
-          <button class="tb-del" onclick="tbDel_brandon('${t.id}')">&#x2715;</button>
-          <button class="tb-edit" onclick="tbEdit_brandon('${t.id}')">&#9998;</button>
-          <button class="tb-exp" onclick="tbTog_brandon('${t.id}')">${isOpen?'&#9650;':'&#9660;'}</button>
-        </div>
-      </div>
-      <div class="tb-detail ${isOpen}" id="tbd-${t.id}">
-        <div class="tb-detail-label">Notes &amp; links</div>
-        <textarea class="tb-notes" id="tbn-${t.id}" onblur="tbSaveNotes_brandon('${t.id}')" placeholder="Notes, links, ideas...">${esc(t.notes||'')}</textarea>
-        <div class="tb-subs-section">
-          <div class="tb-detail-label">Steps / dependencies</div>
-          <div id="tbsubs-${t.id}">${subsHTML}</div>
-          <div class="tb-add-sub-row">
-            <input type="text" class="tb-sub-inp" id="tbsi-${t.id}" placeholder="Add a step..." onkeydown="if(event.key==='Enter')tbAddSub_brandon('${t.id}')">
-            <button class="tb-sub-btn" onclick="tbAddSub_brandon('${t.id}')">+ Step</button>
-          </div>
-        </div>
-        <div class="tb-move-row"><span class="tb-move-lbl">Move to:</span>${moveBtns}</div>
-      </div>
-    </div>`;
-  }
-
-  function attachTaskEvents() {
-    document.querySelectorAll('[id^="tbt-"]').forEach(el => {
-      el.addEventListener('dragstart', e => {
-        dragId = el.id.replace('tbt-','');
-        setTimeout(() => el.classList.add('tb-dragging'), 0);
-        e.dataTransfer.effectAllowed = 'move';
-      });
-      el.addEventListener('dragover', e => {
-        e.preventDefault();
-        document.querySelectorAll('.tb-drop-above,.tb-drop-below').forEach(x => x.classList.remove('tb-drop-above','tb-drop-below'));
-        const rect = el.getBoundingClientRect();
-        dropTarget = el.id.replace('tbt-','');
-        if (e.clientY < rect.top + rect.height/2) {
-          el.classList.add('tb-drop-above'); dropPos = 'above';
-        } else {
-          el.classList.add('tb-drop-below'); dropPos = 'below';
-        }
-      });
-      el.addEventListener('drop', e => {
-        e.stopPropagation();
-      });
-    });
-  }
-
-  // Global functions for this board instance
-  window['tbMove_brandon'] = (id, bucket) => {
-    if (tasks[id]) tasks[id].bucket = bucket;
-    save(); renderBoard();
-  };
-  window['tbDel_brandon'] = (id) => {
-    delete tasks[id]; save(); renderBoard();
-  };
-  window['tbTog_brandon'] = (id) => {
-    if (tasks[id]) tasks[id].open = !tasks[id].open;
-    save(); renderBoard();
-  };
-  window['tbEdit_brandon'] = (id) => {
-    const el = document.getElementById('tbtxt-'+id);
-    if (!el || !tasks[id]) return;
-    const val = tasks[id].text;
-    el.outerHTML = `<input class="tb-edit-inp" id="tbedit-${id}" value="${val.replace(/"/g,'&quot;')}" onblur="tbSaveEdit_brandon('${id}')" onkeydown="if(event.key==='Enter')tbSaveEdit_brandon('${id}');if(event.key==='Escape')renderBoard_brandon()">`;
-    const inp = document.getElementById('tbedit-'+id);
-    if (inp) { inp.focus(); inp.select(); }
-  };
-  window['tbSaveEdit_brandon'] = (id) => {
-    const inp = document.getElementById('tbedit-'+id);
-    if (inp && tasks[id]) { if(inp.value.trim()) tasks[id].text = inp.value.trim(); save(); renderBoard(); }
-  };
-  window['renderBoard_brandon'] = renderBoard;
-  window['tbSaveNotes_brandon'] = (id) => {
-    const el = document.getElementById('tbn-'+id);
-    if (el && tasks[id]) { tasks[id].notes = el.value; save(); }
-  };
-  window['tbToggleSub_brandon'] = (tid, sid) => {
-    if (!tasks[tid]) return;
-    const sub = tasks[tid].subs.find(s => s.id === sid);
-    if (sub) sub.done = !sub.done;
-    save(); renderBoard();
-  };
-  window['tbDelSub_brandon'] = (tid, sid) => {
-    if (!tasks[tid]) return;
-    tasks[tid].subs = tasks[tid].subs.filter(s => s.id !== sid);
-    save(); renderBoard();
-  };
-  window['tbAddSub_brandon'] = (tid) => {
-    const inp = document.getElementById('tbsi-'+tid);
-    if (!inp || !tasks[tid]) return;
-    const text = inp.value.trim();
-    if (!text) return;
-    tasks[tid].subs.push({id:'s'+nextId++, text, done:false});
-    save(); renderBoard();
-  };
-  window['tbCycleStatus_brandon'] = (id) => {
-    if (!tasks[id]) return;
-    tasks[id].status = tasks[id].status === 'in-progress' ? 'not-started' : 'in-progress';
-    save(); renderBoard();
-  };
-  window['tbToggleRecurring_brandon'] = (id) => {
-    if (!tasks[id]) return;
-    tasks[id].done = !tasks[id].done;
-    save(); renderBoard();
-  };
-
-  // Add task
-  window['tbAdd_brandon'] = () => {
-    const inp = document.getElementById('tb-add-inp');
-    const bucket = document.getElementById('tb-add-bucket').value;
-    const text = inp.value.trim();
-    if (!text) return;
-    const id = 'i' + nextId++;
-    tasks[id] = {id, text, notes:'', bucket, added:fmtDate(new Date()), open:false, subs:[], status:'not-started', done:false, order:nextId};
-    save(); renderBoard();
-    inp.value = ''; inp.focus();
-  };
-
-  // Edit bucket names
-  window['tbRenameBucket_brandon'] = (b) => {
-    if (LOCKED.includes(b)) return;
-    const hdr = document.getElementById('th-'+b);
-    if (!hdr) return;
-    const cur = hdr.textContent;
-    hdr.outerHTML = `<input class="tb-bucket-name-inp" id="thr-${b}" value="${cur}" onblur="tbSaveBucketName_brandon('${b}')" onkeydown="if(event.key==='Enter')tbSaveBucketName_brandon('${b}')">`;
-    const inp = document.getElementById('thr-'+b);
-    if (inp) { inp.focus(); inp.select(); }
-  };
-  window['tbSaveBucketName_brandon'] = (b) => {
-    const inp = document.getElementById('thr-'+b);
-    if (!inp) return;
-    const names = getBucketNames();
-    names[b] = inp.value.trim() || DEFAULT_NAMES[b];
-    saveBucketNames(names);
-    renderBoard();
-  };
-
-  // Monday reset for recurring
-  function checkMondayReset() {
-    const today = new Date();
-    if (today.getDay() !== 1) return;
-    const lastReset = localStorage.getItem('ww_monday_reset_brandon');
-    const todayStr = today.toDateString();
-    if (lastReset === todayStr) return;
-    Object.values(tasks).forEach(t => {
-      if (t.bucket === 'recurring') t.done = false;
-    });
-    localStorage.setItem('ww_monday_reset_brandon', todayStr);
-    save();
-  }
-
-  // Column drag/drop
-  document.querySelectorAll('.tb-col').forEach(col => {
-    col.addEventListener('dragover', e => {
-      e.preventDefault();
-      col.classList.add('tb-col-over');
-    });
-    col.addEventListener('dragleave', () => col.classList.remove('tb-col-over'));
-    col.addEventListener('drop', e => {
-      e.preventDefault();
-      col.classList.remove('tb-col-over');
-      document.querySelectorAll('.tb-drop-above,.tb-drop-below,.tb-dragging').forEach(x => {
-        x.classList.remove('tb-drop-above','tb-drop-below','tb-dragging');
-      });
-      if (!dragId || !tasks[dragId]) return;
-      const bucket = col.dataset.bucket;
-      tasks[dragId].bucket = bucket;
-      if (dropTarget && tasks[dropTarget] && dropTarget !== dragId) {
-        const sorted = Object.values(tasks).filter(t => t.bucket === bucket && t.id !== dragId)
-          .sort((a,b) => (a.order||0)-(b.order||0));
-        const idx = sorted.findIndex(t => t.id === dropTarget);
-        if (idx >= 0) sorted.splice(dropPos === 'above' ? idx : idx+1, 0, tasks[dragId]);
-        else sorted.push(tasks[dragId]);
-        sorted.forEach((t,i) => t.order = i*10);
-      }
-      dragId = null; dropTarget = null; dropPos = null;
-      save(); renderBoard();
-    });
-  });
-
-  load();
-  checkMondayReset();
-  renderBoard();
-
-  // Enter to add
-  const addInp = document.getElementById('tb-add-inp');
-  if (addInp) addInp.addEventListener('keydown', e => { if(e.key==='Enter') window['tbAdd_brandon'](); });
-}
-
-initTaskBoard("brandon");</script>
+<script src="taskboard.js"></script>
+<script>initTaskBoard("brandon");</script>
 <script>
 async function closeQuarterBrandon() {
   const btn = document.getElementById('close-qtr-btn-brandon');
@@ -1546,9 +968,7 @@ async function closeQuarterBrandon() {
   btn.disabled = false; btn.textContent = 'Close Quarter';
 }
 
-async // NOTE: Scorecard_Archive uses positional indices because sheet headers are merged/split
-// Column order: Employee[0], Quarter[1], Year[2], D1Result[3], D1Pass[4], D2Result[5], D2Pass[6], D3Result[7], D3Pass[8], D4Result[9], D4Pass[10], TotalBonus[11], ClosedDate[12], Notes[13]
-function loadScorecardArchiveBrandon() {
+async function loadScorecardArchiveBrandon() {
   try {
     const d = await api({action:'read', tab:'Scorecard_Archive'});
     if (!d.success) return;
@@ -1578,21 +998,20 @@ async function loadARHistory() {
     const tableEl = document.getElementById('ar-history-table');
     if (loadEl) loadEl.style.display = 'none';
     if (!d.success || !d.data.slice(1).length) return;
-    const arc=cols(d.data[0]);
     const q = getCurrentQuarter();
     const year = new Date().getFullYear();
     const qLabel = 'Q' + q + ' ' + year;
-    const rows = d.data.slice(1).filter(r => (r[arc('Pay Period')]||'').toString().trim() === qLabel);
+    const rows = d.data.slice(1).filter(r => r[9] === qLabel);
     if (!rows.length) return;
     if (tableEl) tableEl.style.display = 'table';
     const tbody = document.getElementById('ar-history-body');
     if (tbody) tbody.innerHTML = rows.slice().reverse().map(r => {
-      const pct = Number(r[arc('Past30 Percent')] || 0);
+      const pct = Number(r[8] || 0);
       const pass = pct < 10;
       return `<tr>
-        <td>${r[arc('Date')]||''}</td>
-        <td>$${Number(r[arc('Past30 Amount')]||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
-        <td>$${Number(r[arc('Total')]||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+        <td>${r[0]}</td>
+        <td>$${Number(r[7]||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+        <td>$${Number(r[6]||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
         <td>${pct.toFixed(2)}%</td>
         <td>${pass?'<span class="pill pill-approved">Pass</span>':'<span class="pill pill-denied">Fail</span>'}</td>
       </tr>`;
@@ -1600,47 +1019,69 @@ async function loadARHistory() {
   } catch(e) { console.error(e); }
 }
 
+loadScorecardArchiveBrandon();loadARHistory();</script>
+<script src="resources.js"></script>
+<script>
+function getBrandonCurrentPeriod() {
+  const start = new Date('2025-12-18');
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffDays = Math.floor((today - start) / (1000*60*60*24));
+  const periodNum = Math.floor(diffDays / 14);
+  const periodStart = new Date(start);
+  periodStart.setDate(periodStart.getDate() + periodNum * 14);
+  const periodEnd = new Date(periodStart);
+  periodEnd.setDate(periodEnd.getDate() + 13);
+  if (today.getTime() === periodEnd.getTime() && now.getHours() >= 23) {
+    periodStart.setDate(periodStart.getDate() + 14);
+    periodEnd.setDate(periodEnd.getDate() + 14);
+  }
+  const fmt = d => String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+'/'+String(d.getFullYear()).slice(2);
+  return fmt(periodStart) + ' – ' + fmt(periodEnd);
+}
+
 async function loadBrandonCommission() {
   const loadEl=document.getElementById('brandon-comm-loading');
-  const contentEl=document.getElementById('brandon-comm-content');
+  const content=document.getElementById('brandon-comm-content');
   const emptyEl=document.getElementById('brandon-comm-empty');
   try {
     const d=await api({action:'read',tab:'Commissions'});
     if(loadEl)loadEl.style.display='none';
     if(!d.success)return;
-    const bc=cols(d.data[0]);
-    const rows=d.data.slice(1).filter(r=>r.some(x=>x));
+    const rows=d.data.slice(1).filter(r=>r.some(c=>c));
     const currentPeriod=getBrandonCurrentPeriod();
     document.getElementById('brandon-comm-period-display').textContent=currentPeriod;
-    const currentRows=rows.filter(r=>(r[bc('Pay Period')]||'').trim()===currentPeriod);
+    const currentRows=rows.filter(r=>r[8]===currentPeriod);
     const employees=['Colin Glenn','Jimmie Coleman'];
     const stats={};
-    employees.forEach(e=>{stats[e]=currentRows.filter(r=>(r[bc('Employee')]||'').trim()===e).reduce((s,r)=>s+(Number(r[bc('Commission')])||0),0);});
+    employees.forEach(e=>{stats[e]=currentRows.filter(r=>r[1]===e).reduce((s,r)=>s+(Number(r[7])||0),0);});
     const statsEl=document.getElementById('brandon-comm-stats');
     if(statsEl){
       statsEl.innerHTML=employees.map(e=>`<div class="stat-block"><div class="stat-number orange">${fmtMoney(stats[e])}</div><div class="stat-label">${e}</div></div>`).join('')+
         `<div class="stat-block"><div class="stat-number">${fmtMoney(Object.values(stats).reduce((a,b)=>a+b,0))}</div><div class="stat-label">Period Total</div></div>`;
     }
-    if(contentEl)contentEl.style.display='block';
+    if(content)content.style.display='block';
     if(!currentRows.length){if(emptyEl)emptyEl.style.display='block';return;}
     const tbody=document.getElementById('brandon-comm-body');
     if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>{
       const rowIdx=d.data.findIndex(row=>row===r)+1;
-      const approved=r[bc('Approved by')]?true:false;
-      return `<tr><td>${fmtDate(r[bc('Date')])}</td><td>${(r[bc('Employee')]||'').trim()}</td><td>${r[bc('Deal Name')]||''}</td><td>${fmtMoney(r[bc('Deal Value')])}</td><td>${(r[bc('Rate')]||'').trim()}</td><td><strong style="color:#c4581f">${fmtMoney(r[bc('Commission')])}</strong></td><td style="font-size:11px">${r[bc('Pay Period')]||''}</td><td>${r[bc('Approved by')]||''}</td><td>${approved?'<span class="pill pill-approved">Approved</span>':`<button class="action-btn btn-approve" onclick="approveCommission(${rowIdx})">Approve</button>`}</td></tr>`;
+      const approved=r[10]?true:false;
+      return `<tr><td>${fmtDate(r[0])}</td><td>${r[1]||''}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[5]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td><td style="font-size:11px">${r[8]||''}</td><td>${r[10]||''}</td><td>${approved?'<span class="pill pill-approved">Approved</span>':`<button class="action-btn btn-approve" onclick="approveCommission(${rowIdx})">Approve</button>`}</td></tr>`;
     }).join('');
     loadBrandonPrevComm(rows,currentPeriod);
   } catch(e){if(loadEl)loadEl.style.display='none';}
 }
 
 async function approveCommission(rowIndex) {
-  const btn=event.target;btn.disabled=true;btn.textContent='Saving...';
+  const btn=event.target;
+  btn.disabled=true;btn.textContent='Saving...';
   try {
     const d=await api({action:'read',tab:'Commissions'});
     if(!d.success)return;
     const row=[...d.data[rowIndex-1]];
     while(row.length<12)row.push('');
-    row[10]='Brandon McClure';row[11]=new Date().toLocaleDateString('en-US');
+    row[10]='Brandon McClure';
+    row[11]=new Date().toLocaleDateString('en-US');
     await api({action:'update',tab:'Commissions',rowIndex:rowIndex,row:JSON.stringify(row)});
     loadBrandonCommission();
   } catch(e){btn.disabled=false;btn.textContent='Approve';}
@@ -1652,14 +1093,14 @@ function loadBrandonPrevComm(rows,currentPeriod){
   if(loading)loading.style.display='none';
   if(!body)return;
   const periods={};
-  rows.forEach(r=>{const p=(r[bc('Pay Period')]||'').trim();if(!p||p===currentPeriod)return;if(!periods[p])periods[p]=[];periods[p].push(r);});
+  rows.forEach(r=>{const p=r[8];if(!p||p===currentPeriod)return;if(!periods[p])periods[p]=[];periods[p].push(r);});
   const keys=Object.keys(periods).sort().reverse();
   if(!keys.length){body.innerHTML='<div class="empty-state">No previous periods.</div>';return;}
   body.innerHTML=keys.map(period=>{
     const pRows=periods[period];
-    const total=pRows.reduce((s,r)=>s+(Number(r[bc('Commission')])||0),0);
+    const total=pRows.reduce((s,r)=>s+(Number(r[7])||0),0);
     const id='bpp-'+period.replace(/[^a-z0-9]/gi,'');
-    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Commission</th><th>Approved By</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[bc('Date')])}</td><td>${(r[bc('Employee')]||'').trim()}</td><td>${r[bc('Deal Name')]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[bc('Commission')])}</strong></td><td>${r[bc('Approved by')]||'<span style="color:#aaa">Pending</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Commission</th><th>Approved By</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[1]||''}</td><td>${r[2]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td><td>${r[10]||'<span style="color:#aaa">Pending</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
   }).join('');
 }
 
@@ -1680,15 +1121,10 @@ function switchView(view) {
   const meDiv = document.getElementById('view-me');
   const teamBtn = document.getElementById('view-team-btn');
   const meBtn = document.getElementById('view-me-btn');
-  
   if (view === 'team') {
-    teamDiv.style.display = 'block';
-    meDiv.style.display = 'none';
-    teamBtn.style.background = '#1a1a1a';
-    teamBtn.style.color = '#fff';
-    meBtn.style.background = '#e4dbd0';
-    meBtn.style.color = '#1a1a1a';
-    // Show active team tab
+    teamDiv.style.display = 'block'; meDiv.style.display = 'none';
+    teamBtn.style.background = '#1a1a1a'; teamBtn.style.color = '#fff';
+    meBtn.style.background = '#e4dbd0'; meBtn.style.color = '#1a1a1a';
     const activeTeamTab = document.querySelector('#tabs-team .tab.active');
     if (activeTeamTab) {
       const tabName = activeTeamTab.getAttribute('onclick').match(/switchTab\('([^']+)'/)[1];
@@ -1697,13 +1133,9 @@ function switchView(view) {
       if (el) el.classList.add('active');
     }
   } else {
-    teamDiv.style.display = 'none';
-    meDiv.style.display = 'block';
-    teamBtn.style.background = '#e4dbd0';
-    teamBtn.style.color = '#1a1a1a';
-    meBtn.style.background = '#1a1a1a';
-    meBtn.style.color = '#fff';
-    // Show active me tab
+    teamDiv.style.display = 'none'; meDiv.style.display = 'block';
+    teamBtn.style.background = '#e4dbd0'; teamBtn.style.color = '#1a1a1a';
+    meBtn.style.background = '#1a1a1a'; meBtn.style.color = '#fff';
     const activeMeTab = document.querySelector('#tabs-me .tab.active');
     if (activeMeTab) {
       const tabName = activeMeTab.getAttribute('onclick').match(/switchTab\('([^']+)'/)[1];
@@ -1713,8 +1145,6 @@ function switchView(view) {
     }
   }
 }
-
-// Initialize -- show scorecard tab by default
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   const el = document.getElementById('tab-scorecard');
@@ -1730,13 +1160,13 @@ async function loadBrandonBonuses() {
     document.getElementById('brandon-booking-content').style.display = 'block';
     if (!d.success) return;
     const rows = d.data.slice(1).filter(r => r.some(c=>c));
-    const pending = rows.filter(r => !r[bc4('Approved By')]);
+    const pending = rows.filter(r => !r[4]);
     const emptyEl = document.getElementById('brandon-booking-empty');
     const tbody = document.getElementById('brandon-booking-body');
     if (!pending.length) { if(emptyEl) emptyEl.style.display='block'; return; }
     if (tbody) tbody.innerHTML = pending.map((r,i) => {
       const rowIdx = d.data.findIndex(row => row === r) + 1;
-      return `<tr><td>${r[bc4('Employee')]||''}</td><td>${fmtDate(r[bc4('Date')])}</td><td>${r[bc4('Customer Name')]||''}</td><td>${fmtDate(r[bc4('Appointment Date')])}</td><td>${r[bc4('Notes')]||''}</td>
+      return `<tr><td>${r[0]||''}</td><td>${fmtDate(r[1])}</td><td>${r[2]||''}</td><td>${fmtDate(r[3])}</td><td>${r[5]||''}</td>
       <td><button class="action-btn btn-approve" onclick="approveBooking(${rowIdx})">Approve</button></td></tr>`;
     }).join('');
   } catch(e) { document.getElementById('brandon-booking-loading').style.display='none'; }
@@ -1747,15 +1177,14 @@ async function loadBrandonBonuses() {
     document.getElementById('brandon-bounty-loading').style.display = 'none';
     document.getElementById('brandon-bounty-content').style.display = 'block';
     if (!d.success) return;
-    const bc5=cols(d.data[0]);
-    const rows = d.data.slice(1).filter(r => r.some(x=>x));
-    const pending = rows.filter(r => !r[bc5('Approved By')]);
+    const rows = d.data.slice(1).filter(r => r.some(c=>c));
+    const pending = rows.filter(r => !r[7]);
     const emptyEl = document.getElementById('brandon-bounty-empty');
     const tbody = document.getElementById('brandon-bounty-body');
     if (!pending.length) { if(emptyEl) emptyEl.style.display='block'; return; }
     if (tbody) tbody.innerHTML = pending.map(r => {
       const rowIdx = d.data.findIndex(row => row === r) + 1;
-      return `<tr><td>${r[bc5('Employee')]||''}</td><td>${fmtDate(r[bc5('Date')])}</td><td>${r[bc5('Org Name')]||r[bc5('Account')]||''}</td><td>${r[bc5('Deal Name')]||''}</td><td>${fmtMoney(r[bc5('Deal Value')])}</td><td><strong style="color:#c4581f">${fmtMoney(r[bc5('Amount')])||'$250.00'}</strong></td><td>${r[bc5('Approved By')]||''}</td>
+      return `<tr><td>${r[0]||''}</td><td>${fmtDate(r[1])}</td><td>${r[2]||''}</td><td>${r[3]||''}</td><td>${fmtMoney(r[4])}</td><td><strong style="color:#c4581f">$250.00</strong></td><td>${r[7]||''}</td>
       <td><button class="action-btn btn-approve" onclick="approveBounty(${rowIdx})">Approve</button></td></tr>`;
     }).join('');
   } catch(e) { document.getElementById('brandon-bounty-loading').style.display='none'; }
@@ -1781,9 +1210,8 @@ async function approveBounty(rowIndex) {
     if (!d.success) return;
     const row = [...d.data[rowIndex-1]];
     while(row.length < 8) row.push('');
-    const abc2=d.data[0].map(h=>(h||'').toString().trim());
-    row[abc2.indexOf('Approved By')] = 'Brandon McClure';
-    row[abc2.indexOf('Approved Date')] = new Date().toLocaleDateString('en-US');
+    row[7] = 'Brandon McClure';
+    row[8] = new Date().toLocaleDateString('en-US');
     await api({action:'update', tab:'B2B_Partner_Bounties', rowIndex:rowIndex, row:JSON.stringify(row)});
     loadBrandonBonuses();
   } catch(e) { btn.disabled=false; btn.textContent='Approve'; }
