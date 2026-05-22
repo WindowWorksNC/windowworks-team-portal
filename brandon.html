@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=69">
+<link rel="stylesheet" href="portal.css?v=70">
 </head>
 <body>
     
@@ -32,8 +32,7 @@
 </div>
 <div id="view-team" style="display:block">
   <div class="tabs" id="tabs-team">
-    <button class="tab active" onclick="switchTab('scorecard',this)">My Scorecard</button>
-    <button class="tab" onclick="switchTab('commission-admin',this)">Commission</button>
+    <button class="tab active" onclick="switchTab('commission-admin',this)">Commission</button>
     <button class="tab" onclick="switchTab('pto-admin',this)">PTO Requests</button>
     <button class="tab" onclick="switchTab('records-admin',this)">Employee Records</button>
   </div>
@@ -41,55 +40,12 @@
 <div id="view-me" style="display:none">
   <div class="tabs" id="tabs-me">
     <button class="tab active" onclick="switchTab('tasks',this)">My Tasks</button>
+    <button class="tab" onclick="switchTab('scorecard',this)">My Scorecard</button>
     <button class="tab" onclick="switchTab('pto',this)">My PTO</button>
     <button class="tab" onclick="switchTab('my-record',this)">My Record</button>
     <button class="tab" onclick="switchTab('resources',this);requestAnimationFrame(function(){requestAnimationFrame(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){}})});">Resources</button>
   </div>
-</div>
-<div class="tab-content" id="tab-pto-admin"><div class="card">
-  <div class="card-title">
-    Pending PTO Requests
-    <span id="pending-count" class="pill pill-pending">0 pending</span>
-  </div>
-  <div id="pending-loading" class="loading">Loading...</div>
-  <div class="table-wrap">
-    <table class="data-table" id="pending-table" style="display:none">
-      <thead><tr><th>Employee</th><th>Type</th><th>Dates</th><th>Days</th><th>Notes</th><th>Action</th></tr></thead>
-      <tbody id="pending-body"></tbody>
-    </table>
-  </div>
-  <div id="pending-empty" class="empty-state" style="display:none">No pending requests.</div>
-</div>
-<div class="card">
-  <div class="card-title">All Requests</div>
-  <div id="all-requests-loading" class="loading">Loading...</div>
-  <div class="table-wrap">
-    <table class="data-table" id="all-requests-table" style="display:none">
-      <thead><tr><th>Employee</th><th>Submitted</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Reviewed By</th></tr></thead>
-      <tbody id="all-requests-body"></tbody>
-    </table>
-  </div>
-  <div id="all-requests-empty" class="empty-state" style="display:none">No requests found.</div>
-</div>
-<div class="card" id="archive-section" style="display:none">
-  <div class="card-title">Past Denied Requests <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none">Ready to archive</span></div>
-  <div class="table-wrap">
-    <table class="data-table">
-      <thead><tr><th>Employee</th><th>Dates</th><th>Days</th><th>Submitted</th><th>Action</th></tr></thead>
-      <tbody id="archive-body"></tbody>
-    </table>
-  </div>
-</div>
-<div class="card">
-  <div class="card-title">PTO Balances</div>
-  <div id="balances-loading" class="loading">Loading...</div>
-  <div class="table-wrap">
-    <table class="data-table" id="balances-table" style="display:none">
-      <thead><tr><th>Employee</th><th>Vacation Used</th><th>Vacation Left</th><th>Sick Used</th><th>Sick Left</th></tr></thead>
-      <tbody id="balances-body"></tbody>
-    </table>
-  </div>
-</div></div><div class="tab-content" id="tab-scorecard"><div id="scorecard-loading" class="loading">Loading scorecard...</div>
+</div><div class="tab-content" id="tab-scorecard"><div id="scorecard-loading" class="loading">Loading scorecard...</div>
 <div id="scorecard-content" style="display:none">
   <div class="card">
     <div class="card-title">
@@ -333,6 +289,33 @@
   </div>
 </div>
 </div>
+<div class="card" style="margin-top:0">
+  <div class="card-title">Colin Booking Bonuses <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Pending Approval</span></div>
+  <div id="brandon-booking-loading" class="loading">Loading...</div>
+  <div id="brandon-booking-content" style="display:none">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Employee</th><th>Date</th><th>Customer</th><th>Appt Date</th><th>Notes</th><th>Action</th></tr></thead>
+        <tbody id="brandon-booking-body"></tbody>
+      </table>
+    </div>
+    <div id="brandon-booking-empty" class="empty-state" style="display:none">No pending booking bonuses.</div>
+  </div>
+</div>
+<div class="card" style="margin-top:0">
+  <div class="card-title">B2B Partner Bounties <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Pending Approval</span></div>
+  <div id="brandon-bounty-loading" class="loading">Loading...</div>
+  <div id="brandon-bounty-content" style="display:none">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Employee</th><th>Date</th><th>Account</th><th>Deal</th><th>Value</th><th>Bonus</th><th>Action</th></tr></thead>
+        <tbody id="brandon-bounty-body"></tbody>
+      </table>
+    </div>
+    <div id="brandon-bounty-empty" class="empty-state" style="display:none">No pending partner bounties.</div>
+  </div>
+</div>
+
 <div class="footer">
   <div class="footer-l">Window Works Co. &nbsp;&bull;&nbsp; windowworksnc.com</div>
   <div class="footer-r">(919) 854-6121</div>
@@ -1127,7 +1110,8 @@ function switchView(view) {
     meBtn.style.background = '#e4dbd0'; meBtn.style.color = '#1a1a1a';
     const activeTeamTab = document.querySelector('#tabs-team .tab.active');
     if (activeTeamTab) {
-      const tabName = activeTeamTab.getAttribute('onclick').match(/switchTab\('([^']+)'/)[1];
+      const tabMatch = activeTeamTab.getAttribute('onclick').match(/switchTab\('([^']+)'/);
+      const tabName = tabMatch ? tabMatch[1] : 'commission-admin';
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       const el = document.getElementById('tab-' + tabName);
       if (el) el.classList.add('active');
@@ -1147,7 +1131,7 @@ function switchView(view) {
 }
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  const el = document.getElementById('tab-scorecard');
+  const el = document.getElementById('tab-commission-admin');
   if (el) el.classList.add('active');
 });
 </script>
