@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=74">
+<link rel="stylesheet" href="portal.css?v=75">
 </head>
 <body>
     
@@ -69,17 +69,17 @@
     <div class="stat-grid" style="margin-bottom:20px">
       <div class="stat-block">
         <div class="stat-number orange" id="bonus-pending-total">$0</div>
-        <div class="stat-label">Earned / Pending</div>
+        <div class="stat-label">Pending Approval</div>
       </div>
       <div class="stat-block">
-        <div class="stat-number" id="bonus-approved-total">$0</div>
-        <div class="stat-label">Approved</div>
+        <div class="stat-number" style="color:#28a745" id="bonus-approved-total">$0</div>
+        <div class="stat-label">Approved &amp; Paid</div>
       </div>
     </div>
 
     <!-- PENDING APPROVAL -->
     <div style="margin-bottom:8px">
-      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#c4581f;margin-bottom:10px">Earned — Pending Approval</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#c4581f">Earned — Pending Approval</div><button class="action-btn btn-approve" id="submit-bonuses-btn" onclick="submitBonusesForApproval()" style="display:none">Submit for Approval</button></div>
       <div id="bonus-pending-body">
         <div class="empty-state" id="bonus-pending-empty" style="display:none">No pending bonuses.</div>
       </div>
@@ -847,16 +847,18 @@ function updateBonusSummary() {
 
   // B2B earned from Pipedrive
   _b2bEarned.forEach(b => {
-    // These are auto-calculated, show as pending until we have a separate approval
     pending.push({ type: b.label, account: b.account, amount: b.amount, detail: b.detail, approvedBy:'' });
   });
+  // Show submit button if there are B2B calculated bonuses pending
+  const submitBtn = document.getElementById('submit-bonuses-btn');
+  if (submitBtn) submitBtn.style.display = _b2bEarned.length > 0 ? 'inline-block' : 'none';
 
   const pendingTotal = pending.reduce((s,e) => s+e.amount, 0);
   const approvedTotal = approved.reduce((s,e) => s+e.amount, 0);
 
   document.getElementById('bonus-pending-total').textContent = fmtMoney(pendingTotal);
   document.getElementById('bonus-approved-total').textContent = fmtMoney(approvedTotal);
-  document.getElementById('bonus-summary-sub').textContent = `${fmtMoney(pendingTotal + approvedTotal)} total earned`;
+  document.getElementById('bonus-summary-sub').textContent = pendingTotal > 0 ? `${fmtMoney(pendingTotal)} pending approval` : 'No pending bonuses';
 
   if(pendingBody) {
     if(!pending.length) { if(pendingEmpty) pendingEmpty.style.display='block'; }
@@ -1012,12 +1014,9 @@ async function loadB2BTracker() {
     // OPPORTUNITIES section
     if(oppContent) oppContent.style.display = 'block';
 
-    // Anchor opps - top 3 accounts in first 12mo window, not yet earned
-    const anchorCandidates = orgData.filter(o => !o.bonuses.find(b=>b.label==='Anchor Account') && o.anchorProgress)
-      .sort((a,b) => a.anchorProgress.gap - b.anchorProgress.gap).slice(0,3);
-    // Also include accounts in first year with no progress object (under threshold) sorted by revenue
-    const anchorAll = orgData.filter(o => !o.bonuses.find(b=>b.label==='Anchor Account'))
-      .sort((a,b) => (b.anchorProgress ? -b.anchorProgress.gap : b.revThisYear) - (a.anchorProgress ? -a.anchorProgress.gap : a.revThisYear))
+    // Anchor opps - ONLY accounts still within first 12 months, sorted by gap (closest first)
+    const anchorAll = orgData.filter(o => !o.bonuses.find(b=>b.label==='Anchor Account') && o.anchorProgress)
+      .sort((a,b) => a.anchorProgress.gap - b.anchorProgress.gap)
       .slice(0,3);
     const anchorEl = document.getElementById('opp-anchor');
     if(anchorEl) anchorEl.innerHTML = anchorAll.length
@@ -1105,6 +1104,25 @@ async function loadB2BTracker() {
     if(loadEl) loadEl.style.display='none';
     if(oppLoadEl) oppLoadEl.style.display='none';
     console.error('B2B tracker error:', e);
+  }
+}
+
+async function submitBonusesForApproval() {
+  const btn = document.getElementById('submit-bonuses-btn');
+  if (!btn) return;
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    // Log each pending B2B bonus to the B2B_Partner_Bounties sheet for Brandon to approve
+    for (const b of _b2bEarned) {
+      const row = ['Colin Glenn', new Date().toLocaleDateString('en-US'), b.account, b.account, b.label, b.amount, b.detail, '', '', '', ''];
+      await api({action:'append', tab:'B2B_Partner_Bounties', row:JSON.stringify(row)});
+    }
+    btn.textContent = 'Submitted!';
+    btn.style.background = '#d4edda'; btn.style.color = '#155724'; btn.style.borderColor = '#28a745';
+    setTimeout(() => { btn.disabled = false; btn.textContent = 'Submit for Approval'; btn.style = ''; }, 3000);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Submit for Approval';
+    alert('Error submitting. Please try again.');
   }
 }
 
