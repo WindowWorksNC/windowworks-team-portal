@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=72">
+<link rel="stylesheet" href="portal.css?v=78">
 </head>
 <body>
     
@@ -268,6 +268,20 @@
   </div>
 
 </div>
+
+<div class="card" style="margin-top:0">
+  <div class="card-title">Performance Bonuses <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Anchor / Wallet Share / Retention / Scorecard</span></div>
+  <div id="brandon-b2b-bonus-loading" class="loading">Loading...</div>
+  <div id="brandon-b2b-bonus-content" style="display:none">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Employee</th><th>Date</th><th>Account</th><th>Bonus Type</th><th>Amount</th><th>Action</th></tr></thead>
+        <tbody id="brandon-b2b-bonus-body"></tbody>
+      </table>
+    </div>
+    <div id="brandon-b2b-bonus-empty" class="empty-state" style="display:none">No pending performance bonuses.</div>
+  </div>
+</div>
 <div class="tab-content" id="tab-pto-admin"><div class="card">
   <div class="card-title">
     Pending PTO Requests
@@ -312,17 +326,6 @@
     </table>
   </div>
 </div></div>
-<div class="tab-content" id="tab-records-admin"><div class="card">
-  <div class="card-title">Expiring IDs</div>
-  <div id="expiry-loading" class="loading">Loading...</div>
-  <div class="table-wrap">
-    <table class="data-table" id="expiry-table" style="display:none">
-      <thead><tr><th>Employee</th><th>Expiry Date</th><th>Status</th></tr></thead>
-      <tbody id="expiry-body"></tbody>
-    </table>
-  </div>
-  <div id="expiry-empty" class="empty-state" style="display:none">No expiry data on file.</div>
-</div></div>
 <div class="tab-content" id="tab-commission-admin">
 <div class="card">
   <div class="card-title" style="justify-content:space-between"><span>Commission</span><span style="font-size:12px;color:#888;font-weight:400;text-transform:none" id="brandon-comm-period-display">Loading...</span></div>
@@ -345,7 +348,7 @@
 </div>
 </div>
 <div class="card" style="margin-top:0">
-  <div class="card-title">Colin Booking Bonuses <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Pending Approval</span></div>
+  <div class="card-title">Booking Bonuses <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Pending Approval</span></div>
   <div id="brandon-booking-loading" class="loading">Loading...</div>
   <div id="brandon-booking-content" style="display:none">
     <div class="table-wrap">
@@ -358,7 +361,7 @@
   </div>
 </div>
 <div class="card" style="margin-top:0">
-  <div class="card-title">B2B Partner Bounties <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Pending Approval</span></div>
+  <div class="card-title">Partner Bounties <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Pending Approval</span></div>
   <div id="brandon-bounty-loading" class="loading">Loading...</div>
   <div id="brandon-bounty-content" style="display:none">
     <div class="table-wrap">
@@ -1256,7 +1259,106 @@ async function approveBounty(rowIndex) {
   } catch(e) { btn.disabled=false; btn.textContent='Approve'; }
 }
 
+async function loadBrandonB2BBonuses() {
+  const loadEl = document.getElementById('brandon-b2b-bonus-loading');
+  const contentEl = document.getElementById('brandon-b2b-bonus-content');
+  const emptyEl = document.getElementById('brandon-b2b-bonus-empty');
+  const tbody = document.getElementById('brandon-b2b-bonus-body');
+  
+  try {
+    // Pull from both B2B_Partner_Bounties (Colin B2B bonuses) and Bonuses (Keith scorecard)
+    const [d1, d2] = await Promise.all([
+      api({action:'read', tab:'B2B_Partner_Bounties'}),
+      api({action:'read', tab:'Bonuses'})
+    ]);
+    
+    if(loadEl) loadEl.style.display = 'none';
+    if(contentEl) contentEl.style.display = 'block';
+    
+    const allPending = [];
+    
+    // B2B bonuses -- Anchor, Wallet Share, Retention (not New Partner -- handled separately)
+    if (d1.success) {
+      const bc=cols(d1.data[0]);
+      const b2bTypes = ['Anchor Account','Wallet Share','Account Retention'];
+      d1.data.slice(1).filter(r => r.some(x=>x)).forEach(r => {
+        const bonusType = (r[bc('Bonus Type')]||'').trim();
+        if (!r[bc('Approved By')] && b2bTypes.includes(bonusType)) {
+          const rowIdx = d1.data.indexOf(r) + 1;
+          allPending.push({
+            employee: r[bc('Employee')]||'',
+            date: fmtDate(r[bc('Date')]),
+            detail: r[bc('Org Name')]||r[bc('Account')]||r[bc('Deal Name')]||'',
+            type: bonusType,
+            amount: Number(r[bc('Amount')])||0,
+            sheet: 'B2B_Partner_Bounties',
+            rowIdx
+          });
+        }
+      });
+    }
+    
+    // Scorecard bonuses (Keith and future scorecard employees)
+    if (d2.success) {
+      const bk=cols(d2.data[0]);
+      d2.data.slice(1).filter(r => r.some(x=>x)).forEach(r => {
+        const status = (r[bk('Status')]||'').trim();
+        const type = (r[bk('Type')]||'').trim();
+        if (!r[bk('Approved By')] && status === 'Earned' && type === 'Scorecard') {
+          const rowIdx = d2.data.indexOf(r) + 1;
+          allPending.push({
+            employee: r[bk('Employee')]||'',
+            date: fmtDate(r[bk('Date Approved')]||r[bk('Quarter')]),
+            detail: `Q${r[bk('Quarter')]} ${r[bk('Year')]||''}`,
+            type: 'Scorecard Bonus',
+            amount: Number(r[bk('Amount')])||0,
+            sheet: 'Bonuses',
+            rowIdx
+          });
+        }
+      });
+    }
+    
+    if (!allPending.length) {
+      if(emptyEl) emptyEl.style.display = 'block';
+      return;
+    }
+    
+    if(tbody) tbody.innerHTML = allPending.map(item => `<tr>
+      <td>${item.employee}</td>
+      <td>${item.date}</td>
+      <td style="font-size:12px;color:#888">${item.detail}</td>
+      <td><span class="pill pill-orange">${item.type}</span></td>
+      <td><strong style="color:#c4581f">${fmtMoney(item.amount)}</strong></td>
+      <td><button class="action-btn btn-approve" onclick="approveIncentiveBonus('${item.sheet}',${item.rowIdx})">Approve</button></td>
+    </tr>`).join('');
+    
+  } catch(e) {
+    if(loadEl) loadEl.style.display='none';
+    if(contentEl) contentEl.style.display='block';
+    if(emptyEl) emptyEl.style.display='block';
+    console.error('loadBrandonB2BBonuses error:', e);
+  }
+}
+
+async function approveIncentiveBonus(sheet, rowIndex) {
+  const btn = event.target; btn.disabled=true; btn.textContent='Saving...';
+  try {
+    const d = await api({action:'read', tab:sheet});
+    if (!d.success) return;
+    const bc=cols(d.data[0]);
+    const row=[...d.data[rowIndex-1]];
+    const approvedByIdx = bc('Approved By');
+    const approvedDateIdx = bc('Approved Date') >= 0 ? bc('Approved Date') : bc('Date Approved');
+    if(approvedByIdx >= 0) row[approvedByIdx] = 'Brandon McClure';
+    if(approvedDateIdx >= 0) row[approvedDateIdx] = new Date().toLocaleDateString('en-US');
+    await api({action:'update', tab:sheet, rowIndex:rowIndex, row:JSON.stringify(row)});
+    loadBrandonB2BBonuses();
+  } catch(e) { btn.disabled=false; btn.textContent='Approve'; }
+}
+
 loadBrandonBonuses();
+loadBrandonB2BBonuses();
 </script>
 </body>
 </html>

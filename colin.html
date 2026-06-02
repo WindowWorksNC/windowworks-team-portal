@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=75">
+<link rel="stylesheet" href="portal.css?v=77">
 </head>
 <body>
     
@@ -969,7 +969,7 @@ async function loadB2BTracker() {
             if (revFirstYear < 150000) parts.push(`${fmtMoney(150000 - revFirstYear)} more revenue`);
             const deadline = firstSalePlusYear.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
             alerts.push(`Anchor Account: ${parts.join(' and ')} needed by ${deadline}`);
-            anchorProgress = { name: org.name, gap: (150000 - revFirstYear) + (3 - contractsFirstYear) * 10000, detail: `${contractsFirstYear}/3 contracts, ${fmtMoney(revFirstYear)}/$150k by ${deadline}` };
+            anchorProgress = { name: org.name, gap: (150000 - revFirstYear) + (3 - contractsFirstYear) * 10000, detail: `${contractsFirstYear}/3 contracts, ${fmtMoney(revFirstYear)}/$150k by ${deadline}`, contracts: contractsFirstYear, rev: revFirstYear, deadline: deadline };
           }
         }
       }
@@ -1024,11 +1024,11 @@ async function loadB2BTracker() {
           <thead><tr><th>Account</th><th style="text-align:right">Contracts</th><th style="text-align:right">Revenue (12mo)</th><th style="text-align:right">Deadline</th></tr></thead>
           <tbody>${anchorAll.map(o => {
             const detail = o.anchorProgress ? o.anchorProgress.detail : '';
-            const deadline = o.anchorProgress ? o.anchorProgress.detail.split('by ')[1]||'' : 'N/A';
+            const deadline = o.anchorProgress ? o.anchorProgress.deadline||'' : 'N/A';
             return `<tr>
               <td><strong>${o.name}</strong></td>
-              <td style="text-align:right">${o.anchorProgress?o.anchorProgress.detail.split('/')[0].trim().split(' ').pop():'--'}/3</td>
-              <td style="text-align:right">${fmtMoney(o.revThisYear)}</td>
+              <td style="text-align:right">${o.anchorProgress?o.anchorProgress.contracts:'0'}/3</td>
+              <td style="text-align:right">${o.anchorProgress?fmtMoney(o.anchorProgress.rev):fmtMoney(o.revThisYear)}</td>
               <td style="text-align:right;font-size:11px;color:#aaa">${deadline}</td>
             </tr>`;
           }).join('')}</tbody>
