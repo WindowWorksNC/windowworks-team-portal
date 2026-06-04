@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Keith Howze | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=83">
+<link rel="stylesheet" href="portal.css?v=85">
 </head>
 <body>
     
@@ -43,106 +43,101 @@
     </div>
     <div style="font-size:12px;color:#aaa;margin-bottom:16px">Each domain earns $1,250 when criteria is met. Maximum $5,000 per quarter.</div>
 
-    <div class="scorecard-domain pending" id="domain-measurement">
-      <div class="domain-header">
-        <div>
-          <div class="domain-name">1. Measurement Quality</div>
-          <div class="domain-criteria">Reorder value from measurement error must be under 1% of total product cost</div>
+    <div class="incentive-row" id="domain-measurement">
+      <div class="type-label">1. Measurement Quality <span id="d1-pill" style="margin-left:8px"></span></div>
+      <div class="incentive-row-body">
+        <div style="flex:1">
+          <div class="incentive-row-detail">Reorder value from measurement error must be under 1% of total product cost</div>
+          <div class="form-row" style="margin-top:10px">
+            <div class="form-group">
+              <label class="form-label">Reorder Value ($)</label>
+              <input type="number" class="form-input" id="d1-reorder" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Total Product Cost ($)</label>
+              <input type="number" class="form-input" id="d1-total" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group" style="justify-content:flex-end">
+              <label class="form-label">&nbsp;</label>
+              <button class="submit-btn" onclick="calcMeasurement()">Calculate</button>
+            </div>
+          </div>
         </div>
-        <div style="text-align:right">
-          <div id="d1-pill"></div>
-          <div class="domain-value" id="d1-pct">--</div>
-        </div>
-      </div>
-      <div class="form-row" style="margin-top:8px">
-        <div class="form-group">
-          <label class="form-label">Reorder Value ($)</label>
-          <input type="number" class="form-input" id="d1-reorder" placeholder="0.00" step="0.01">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Total Product Cost ($)</label>
-          <input type="number" class="form-input" id="d1-total" placeholder="0.00" step="0.01">
-        </div>
-        <div class="form-group" style="justify-content:flex-end">
-          <label class="form-label">&nbsp;</label>
-          <button class="submit-btn" onclick="calcMeasurement()">Calculate</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="scorecard-domain pending" id="domain-data">
-      <div class="domain-header">
-        <div>
-          <div class="domain-name">2. Data Integrity</div>
-          <div class="domain-criteria">Average daily overdue Pipedrive activities must be 0</div>
-        </div>
-        <div style="text-align:right">
-          <div id="d2-pill"></div>
-          <div class="domain-value" id="d2-avg">--</div>
-        </div>
-      </div>
-      <div style="font-size:12px;color:#aaa;margin-top:8px">Fed automatically from Pipedrive overdue activity tracking.</div>
-    </div>
-
-    <div class="scorecard-domain pending" id="domain-satisfaction">
-      <div class="domain-header">
-        <div>
-          <div class="domain-name">3. Customer Satisfaction</div>
-          <div class="domain-criteria">At least 3 Google reviews or video testimonials per quarter naming Keith</div>
-        </div>
-        <div style="text-align:right">
-          <div id="d3-pill"></div>
-          <div class="domain-value" id="d3-count">--</div>
-        </div>
-      </div>
-      <div style="font-size:13px;color:#888;margin:10px 0 8px">Enter each review or testimonial:</div>
-      <div id="d3-entries"></div>
-      <div class="form-row" style="margin-top:8px">
-        <div class="form-group" style="flex:2">
-          <label class="form-label">Customer Name</label>
-          <input type="text" class="form-input" id="d3-name" placeholder="Customer name">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Date</label>
-          <input type="date" class="form-input" id="d3-date">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Type</label>
-          <select class="form-input" id="d3-type">
-            <option>Google Review</option>
-            <option>Video Testimonial</option>
-          </select>
-        </div>
-        <div class="form-group" style="justify-content:flex-end">
-          <label class="form-label">&nbsp;</label>
-          <button class="submit-btn" onclick="addReviewEntry()">Add</button>
+        <div class="incentive-row-right">
+          <div class="incentive-amount" id="d1-pct">--</div>
         </div>
       </div>
     </div>
 
-    <div class="scorecard-domain pending" id="domain-delivery">
-      <div class="domain-header">
+    <div class="incentive-row" id="domain-data">
+      <div class="type-label">2. Data Integrity <span id="d2-pill" style="margin-left:8px"></span></div>
+      <div class="incentive-row-body">
         <div>
-          <div class="domain-name">4. Project Delivery</div>
-          <div class="domain-criteria">At least 95% of scheduled projects completed on time</div>
+          <div class="incentive-row-detail">Average daily overdue Pipedrive activities must be 0</div>
+          <div style="font-size:13px;color:#aaa;margin-top:6px">Fed automatically from Pipedrive overdue activity tracking.</div>
         </div>
-        <div style="text-align:right">
-          <div id="d4-pill"></div>
-          <div class="domain-value" id="d4-pct">--</div>
+        <div class="incentive-row-right">
+          <div class="incentive-amount" id="d2-avg">--</div>
         </div>
       </div>
-      <div class="form-row" style="margin-top:8px">
-        <div class="form-group">
-          <label class="form-label">Jobs Scheduled</label>
-          <input type="number" class="form-input" id="d4-scheduled" placeholder="0">
+    </div>
+
+    <div class="incentive-row" id="domain-satisfaction">
+      <div class="type-label">3. Customer Satisfaction <span id="d3-pill" style="margin-left:8px"></span></div>
+      <div class="incentive-row-body">
+        <div style="flex:1">
+          <div class="incentive-row-detail">At least 3 Google reviews or video testimonials per quarter naming Keith</div>
+          <div style="font-size:13px;color:#888;margin:10px 0 8px">Enter each review or testimonial:</div>
+          <div id="d3-entries"></div>
+          <div class="form-row" style="margin-top:8px">
+            <div class="form-group" style="flex:2">
+              <label class="form-label">Customer Name</label>
+              <input type="text" class="form-input" id="d3-name" placeholder="Customer name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input type="date" class="form-input" id="d3-date">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type</label>
+              <select class="form-input" id="d3-type">
+                <option>Google Review</option>
+                <option>Video Testimonial</option>
+              </select>
+            </div>
+            <div class="form-group" style="justify-content:flex-end">
+              <label class="form-label">&nbsp;</label>
+              <button class="submit-btn" onclick="addReviewEntry()">Add</button>
+            </div>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Completed On Time</label>
-          <input type="number" class="form-input" id="d4-ontime" placeholder="0">
+        <div class="incentive-row-right">
+          <div class="incentive-amount" id="d3-count">0/3</div>
         </div>
-        <div class="form-group" style="justify-content:flex-end">
-          <label class="form-label">&nbsp;</label>
-          <button class="submit-btn" onclick="calcDelivery()">Calculate</button>
+      </div>
+    </div>
+    <div class="incentive-row" id="domain-delivery">
+      <div class="type-label">4. Project Delivery <span id="d4-pill" style="margin-left:8px"></span></div>
+      <div class="incentive-row-body">
+        <div style="flex:1">
+          <div class="incentive-row-detail">At least 95% of scheduled projects completed on time</div>
+          <div class="form-row" style="margin-top:10px">
+            <div class="form-group">
+              <label class="form-label">Jobs Scheduled</label>
+              <input type="number" class="form-input" id="d4-scheduled" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Completed On Time</label>
+              <input type="number" class="form-input" id="d4-ontime" placeholder="0">
+            </div>
+            <div class="form-group" style="justify-content:flex-end">
+              <label class="form-label">&nbsp;</label>
+              <button class="submit-btn" onclick="calcDelivery()">Calculate</button>
+            </div>
+          </div>
+        </div>
+        <div class="incentive-row-right">
+          <div class="incentive-amount" id="d4-pct">--</div>
         </div>
       </div>
     </div>
@@ -586,7 +581,8 @@ function getCurrentQuarter(){const m=new Date().getMonth();return Math.floor(m/3
 function updateDomainUI(domainId,pillId,pass,pending){
   const el=document.getElementById(domainId);
   if(!el)return;
-  el.className='scorecard-domain '+(pending?'pending':pass?'pass':'fail');
+  el.style.borderLeft = pending ? '3px solid #e4dbd0' : pass ? '3px solid #28a745' : '3px solid #dc3545';
+  el.style.paddingLeft = '13px';
   document.getElementById(pillId).innerHTML=passFailPill(pass,pending);
 }
 

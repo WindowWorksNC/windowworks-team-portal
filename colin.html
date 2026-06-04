@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=83">
+<link rel="stylesheet" href="portal.css?v=85">
 </head>
 <body>
     
@@ -871,14 +871,14 @@ function updateBonusSummary() {
     if(!pending.length) { if(pendingEmpty) pendingEmpty.style.display='block'; }
     else {
       if(pendingEmpty) pendingEmpty.style.display='none';
-      pendingBody.innerHTML = pending.map(e => bonusRow(e.type, e.account, e.amount, e.detail, false, '', '', '')).join('');
+      pendingBody.innerHTML = pending.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, false, '', '', '')).join('');
     }
   }
   if(approvedBody) {
     if(!approved.length) { if(approvedEmpty) approvedEmpty.style.display='block'; }
     else {
       if(approvedEmpty) approvedEmpty.style.display='none';
-      approvedBody.innerHTML = approved.map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy, e.approvedDate||'', e.payDate||'')).join('');
+      approvedBody.innerHTML = approved.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy, e.approvedDate||'', e.payDate||'')).join('');
     }
   }
 }
