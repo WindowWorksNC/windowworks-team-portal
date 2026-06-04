@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=80">
+<link rel="stylesheet" href="portal.css?v=81">
 </head>
 <body>
     
@@ -1107,26 +1107,13 @@ async function loadBrandonCommission() {
     if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>{
       const rowIdx=d.data.findIndex(row=>row===r)+1;
       const approved=r[10]?true:false;
-      return `<tr><td>${fmtDate(r[0])}</td><td>${r[1]||''}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[5]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td><td style="font-size:11px">${r[8]||''}</td><td>${r[10]||''}</td><td>${approved?'<span class="pill pill-approved">Approved</span>':`<button class="action-btn btn-approve" onclick="approveCommission(${rowIdx})">Approve</button>`}</td></tr>`;
+      return `<tr><td>${fmtDate(r[0])}</td><td>${r[1]||''}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[5]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td><td style="font-size:11px">${r[8]||''}</td><td>${r[10]||''}</td><td>${approved?'<span class="pill pill-approved">Approved</span>':`<button class="action-btn btn-approve" onclick="showApprovalConfirm('Commissions',${rowIdx},r[bc('Employee')]||'',r[bc('Lead Type')]||'Commission',Number(r[bc('Commission')])||0)">Approve</button>`}</td></tr>`;
     }).join('');
     loadBrandonPrevComm(rows,currentPeriod);
   } catch(e){if(loadEl)loadEl.style.display='none';}
 }
 
-async function approveCommission(rowIndex) {
-  const btn=event.target;
-  btn.disabled=true;btn.textContent='Saving...';
-  try {
-    const d=await api({action:'read',tab:'Commissions'});
-    if(!d.success)return;
-    const row=[...d.data[rowIndex-1]];
-    while(row.length<12)row.push('');
-    row[10]='Brandon McClure';
-    row[11]=new Date().toLocaleDateString('en-US');
-    await api({action:'update',tab:'Commissions',rowIndex:rowIndex,row:JSON.stringify(row)});
-    loadBrandonCommission();
-  } catch(e){btn.disabled=false;btn.textContent='Approve';}
-}
+// approveCommission replaced by showApprovalConfirm modal
 
 function loadBrandonPrevComm(rows,currentPeriod){
   const body=document.getElementById('brandon-prev-comm-body');
@@ -1141,7 +1128,7 @@ function loadBrandonPrevComm(rows,currentPeriod){
     const pRows=periods[period];
     const total=pRows.reduce((s,r)=>s+(Number(r[7])||0),0);
     const id='bpp-'+period.replace(/[^a-z0-9]/gi,'');
-    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Commission</th><th>Approved By</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[1]||''}</td><td>${r[2]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td><td>${r[10]||'<span style="color:#aaa">Pending</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Commission</th><th>Approved By</th><th>Pay Date</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[1]||''}</td><td>${r[2]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td><td>${r[10]||'<span style="color:#aaa">Pending</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
   }).join('');
 }
 
@@ -1209,7 +1196,7 @@ async function loadBrandonBonuses() {
     if (tbody) tbody.innerHTML = pending.map((r,i) => {
       const rowIdx = d.data.findIndex(row => row === r) + 1;
       return `<tr><td>${r[0]||''}</td><td>${fmtDate(r[1])}</td><td>${r[2]||''}</td><td>${fmtDate(r[3])}</td><td>${r[5]||''}</td>
-      <td><button class="action-btn btn-approve" onclick="approveBooking(${rowIdx})">Approve</button></td></tr>`;
+      <td><button class="action-btn btn-approve" onclick="showApprovalConfirm('B2B_Booking_Bonuses',${rowIdx},r[bc4('Employee')]||'','Booking Bonus',75)">Approve</button></td></tr>`;
     }).join('');
   } catch(e) { document.getElementById('brandon-booking-loading').style.display='none'; }
   
@@ -1227,37 +1214,14 @@ async function loadBrandonBonuses() {
     if (tbody) tbody.innerHTML = pending.map(r => {
       const rowIdx = d.data.findIndex(row => row === r) + 1;
       return `<tr><td>${r[0]||''}</td><td>${fmtDate(r[1])}</td><td>${r[2]||''}</td><td>${r[3]||''}</td><td>${fmtMoney(r[4])}</td><td><strong style="color:#c4581f">$250.00</strong></td><td>${r[7]||''}</td>
-      <td><button class="action-btn btn-approve" onclick="approveBounty(${rowIdx})">Approve</button></td></tr>`;
+      <td><button class="action-btn btn-approve" onclick="showApprovalConfirm('B2B_Partner_Bounties',${rowIdx},r[bc5('Employee')]||'','Partner Bounty',Number(r[bc5('Amount')])||250)">Approve</button></td></tr>`;
     }).join('');
   } catch(e) { document.getElementById('brandon-bounty-loading').style.display='none'; }
 }
 
-async function approveBooking(rowIndex) {
-  const btn = event.target; btn.disabled=true; btn.textContent='Saving...';
-  try {
-    const d = await api({action:'read', tab:'B2B_Booking_Bonuses'});
-    if (!d.success) return;
-    const row = [...d.data[rowIndex-1]];
-    while(row.length < 6) row.push('');
-    row[4] = 'Brandon McClure';
-    await api({action:'update', tab:'B2B_Booking_Bonuses', rowIndex:rowIndex, row:JSON.stringify(row)});
-    loadBrandonBonuses();
-  } catch(e) { btn.disabled=false; btn.textContent='Approve'; }
-}
+// approveBooking replaced by showApprovalConfirm modal
 
-async function approveBounty(rowIndex) {
-  const btn = event.target; btn.disabled=true; btn.textContent='Saving...';
-  try {
-    const d = await api({action:'read', tab:'B2B_Partner_Bounties'});
-    if (!d.success) return;
-    const row = [...d.data[rowIndex-1]];
-    while(row.length < 8) row.push('');
-    row[7] = 'Brandon McClure';
-    row[8] = new Date().toLocaleDateString('en-US');
-    await api({action:'update', tab:'B2B_Partner_Bounties', rowIndex:rowIndex, row:JSON.stringify(row)});
-    loadBrandonBonuses();
-  } catch(e) { btn.disabled=false; btn.textContent='Approve'; }
-}
+// approveBounty replaced by showApprovalConfirm modal
 
 async function loadBrandonB2BBonuses() {
   const loadEl = document.getElementById('brandon-b2b-bonus-loading');
@@ -1329,7 +1293,7 @@ async function loadBrandonB2BBonuses() {
       <td style="font-size:12px;color:#888">${item.detail}</td>
       <td><span class="pill pill-orange">${item.type}</span></td>
       <td><strong style="color:#c4581f">${fmtMoney(item.amount)}</strong></td>
-      <td><button class="action-btn btn-approve" onclick="approveIncentiveBonus('${item.sheet}',${item.rowIdx})">Approve</button></td>
+      <td><button class="action-btn btn-approve" onclick="showApprovalConfirm('${item.sheet}',${item.rowIdx},'${item.employee}','${item.type}',${item.amount})">Approve</button></td>
     </tr>`).join('');
     
   } catch(e) {
@@ -1340,24 +1304,132 @@ async function loadBrandonB2BBonuses() {
   }
 }
 
-async function approveIncentiveBonus(sheet, rowIndex) {
-  const btn = event.target; btn.disabled=true; btn.textContent='Saving...';
-  try {
-    const d = await api({action:'read', tab:sheet});
-    if (!d.success) return;
-    const bc=cols(d.data[0]);
-    const row=[...d.data[rowIndex-1]];
-    const approvedByIdx = bc('Approved By');
-    const approvedDateIdx = bc('Approved Date') >= 0 ? bc('Approved Date') : bc('Date Approved');
-    if(approvedByIdx >= 0) row[approvedByIdx] = 'Brandon McClure';
-    if(approvedDateIdx >= 0) row[approvedDateIdx] = new Date().toLocaleDateString('en-US');
-    await api({action:'update', tab:sheet, rowIndex:rowIndex, row:JSON.stringify(row)});
-    loadBrandonB2BBonuses();
-  } catch(e) { btn.disabled=false; btn.textContent='Approve'; }
-}
+// approveIncentiveBonus replaced by showApprovalConfirm modal
 
 loadBrandonBonuses();
 loadBrandonB2BBonuses();
 </script>
+
+// Calculate next pay date from approval date
+// Pay periods are bi-weekly, payday is Friday 2 days after period end
+// Base: 2025-12-18 start, periods end every other Wednesday, paid every other Friday
+function getNextPayDateFromApproval(approvalDate) {
+  const base = new Date('2025-12-18');
+  const d = approvalDate || new Date();
+  const today = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diffDays = Math.floor((today - base) / (1000*60*60*24));
+  const periodNum = Math.floor(diffDays / 14);
+  // Period end = base + (periodNum+1)*14 - 1 days
+  const nextPeriodEnd = new Date(base);
+  nextPeriodEnd.setDate(nextPeriodEnd.getDate() + (periodNum + 1) * 14 - 1);
+  // Payday = period end + 2 days (Friday)
+  const payDay = new Date(nextPeriodEnd);
+  payDay.setDate(payDay.getDate() + 2);
+  return payDay;
+}
+
+function fmtPayDate(d) {
+  return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+}
+
+// Show approval confirmation modal
+function showApprovalConfirm(sheet, rowIndex, employeeName, bonusType, amount) {
+  const today = new Date();
+  const nextPay = getNextPayDateFromApproval(today);
+  const approvalDateStr = today.toLocaleDateString('en-US');
+  const payDateStr = fmtPayDate(nextPay);
+  
+  // Remove any existing modal
+  const existing = document.getElementById('approval-modal');
+  if (existing) existing.remove();
+  
+  const modal = document.createElement('div');
+  modal.id = 'approval-modal';
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:8px;padding:28px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18)">
+      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#1a1a1a;margin-bottom:16px">Confirm Approval</div>
+      <div style="font-size:14px;color:#555;margin-bottom:16px">
+        <strong>${employeeName}</strong> -- ${bonusType}<br>
+        <strong style="color:#c4581f;font-size:16px">${fmtMoney(amount)}</strong>
+      </div>
+      <div style="background:#f5f0eb;border-radius:6px;padding:14px;margin-bottom:20px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <span style="color:#888">Approval date</span>
+          <span style="font-weight:600">${approvalDateStr}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="color:#888">Pay date</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-weight:600;color:#c4581f" id="modal-pay-date-display">${payDateStr}</span>
+            <input type="date" id="modal-pay-date-input" value="${nextPay.toISOString().split('T')[0]}" 
+              style="font-size:12px;border:1px solid #ddd;border-radius:4px;padding:2px 6px;display:none"
+              onchange="document.getElementById('modal-pay-date-display').textContent=new Date(this.value+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})">
+            <button onclick="togglePayDateInput()" style="font-size:11px;color:#c4581f;background:none;border:none;cursor:pointer;text-decoration:underline">change</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onclick="confirmApproval('${sheet}',${rowIndex},'${approvalDateStr}')" 
+          style="flex:1;background:#1a1a1a;color:#fff;border:none;border-radius:6px;padding:10px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer">
+          Confirm
+        </button>
+        <button onclick="document.getElementById('approval-modal').remove()" 
+          style="flex:1;background:#f0ece6;color:#1a1a1a;border:none;border-radius:6px;padding:10px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer">
+          Cancel
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function togglePayDateInput() {
+  const input = document.getElementById('modal-pay-date-input');
+  input.style.display = input.style.display === 'none' ? 'inline-block' : 'none';
+}
+
+async function confirmApproval(sheet, rowIndex, approvalDateStr) {
+  const modal = document.getElementById('approval-modal');
+  const payDateInput = document.getElementById('modal-pay-date-input');
+  const payDateDisplay = document.getElementById('modal-pay-date-display');
+  
+  const payDateStr = payDateDisplay ? payDateDisplay.textContent : '';
+  
+  // Disable modal buttons
+  modal.querySelectorAll('button').forEach(b => b.disabled = true);
+  
+  try {
+    const d = await api({action:'read', tab:sheet});
+    if (!d.success) throw new Error('Read failed');
+    const bc = cols(d.data[0]);
+    const row = [...d.data[rowIndex-1]];
+    
+    // Set approved by
+    const approvedByIdx = bc('Approved By') >= 0 ? bc('Approved By') : bc('Approved by');
+    if (approvedByIdx >= 0) row[approvedByIdx] = 'Brandon McClure';
+    
+    // Set approval date
+    const approvedDateIdx = bc('Approved Date') >= 0 ? bc('Approved Date') : bc('Date Approved');
+    if (approvedDateIdx >= 0) row[approvedDateIdx] = approvalDateStr;
+    
+    // Set pay date
+    const payDateIdx = bc('Pay Date');
+    if (payDateIdx >= 0) row[payDateIdx] = payDateStr;
+    
+    await api({action:'update', tab:sheet, rowIndex:rowIndex, row:JSON.stringify(row)});
+    modal.remove();
+    
+    // Reload all approval sections
+    loadBrandonCommission();
+    loadBrandonBonuses();
+    loadBrandonB2BBonuses();
+    
+  } catch(e) {
+    console.error('confirmApproval error:', e);
+    modal.querySelectorAll('button').forEach(b => b.disabled = false);
+    alert('Error saving approval. Please try again.');
+  }
+}
+
 </body>
 </html>

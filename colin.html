@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=80">
+<link rel="stylesheet" href="portal.css?v=81">
 </head>
 <body>
     
@@ -720,19 +720,22 @@ function oppRow(name, detail, progress) {
   </div>`;
 }
 
-function bonusRow(type, account, amount, detail, approved, approvedBy) {
+function bonusRow(type, account, amount, detail, approved, approvedBy, approvedDate, payDate) {
   const pill = approved
     ? '<span class="pill pill-approved">Approved</span>'
     : '<span class="pill pill-pending">Pending</span>';
+  const dateInfo = approved && (approvedDate || payDate)
+    ? `<div style="font-size:11px;color:#aaa;margin-top:2px">${approvedDate ? 'Approved: '+approvedDate : ''}${approvedDate && payDate ? ' · ' : ''}${payDate ? 'Pay date: <strong style="color:#28a745">'+payDate+'</strong>' : ''}</div>`
+    : '';
   return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f8f5f0;flex-wrap:wrap;gap:8px">
     <div>
       <div style="font-size:13px;font-weight:600;color:#1a1a1a">${account}</div>
       <div style="font-size:11px;color:#aaa;margin-top:2px">${type} — ${detail}</div>
+      ${dateInfo}
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <strong style="color:#c4581f">${fmtMoney(amount)}</strong>
       ${pill}
-      ${approved ? `<span style="font-size:11px;color:#aaa">${approvedBy}</span>` : ''}
     </div>
   </div>`;
 }
@@ -840,7 +843,9 @@ function updateBonusSummary() {
     const orgName = bc3 ? (r[bc3('Org Name')]||r[bc3('Account')]||r[bc3('Deal Name')]||'').trim() : (r[3]||r[2]||'');
     const approvedBy = bc3 ? (r[bc3('Approved By')]||'').trim() : (r[9]||'').trim();
     const amt = bc3 ? (Number(r[bc3('Amount')])||250) : 250;
-    const entry = { type:'New Partner Bounty', account:orgName, amount:amt, detail:'First B2B sale — $250 bounty', approvedBy:approvedBy };
+    const approvedDate = bc3 ? (r[bc3('Approved Date')]||'') : '';
+    const payDate = bc3 ? (r[bc3('Pay Date')]||'') : '';
+    const entry = { type:'New Partner Bounty', account:orgName, amount:amt, detail:'First B2B sale — $250 bounty', approvedBy:approvedBy, approvedDate:approvedDate, payDate:payDate };
     if(approvedBy) approved.push(entry);
     else pending.push(entry);
   });
@@ -864,14 +869,14 @@ function updateBonusSummary() {
     if(!pending.length) { if(pendingEmpty) pendingEmpty.style.display='block'; }
     else {
       if(pendingEmpty) pendingEmpty.style.display='none';
-      pendingBody.innerHTML = pending.map(e => bonusRow(e.type, e.account, e.amount, e.detail, false, '')).join('');
+      pendingBody.innerHTML = pending.map(e => bonusRow(e.type, e.account, e.amount, e.detail, false, '', '', '')).join('');
     }
   }
   if(approvedBody) {
     if(!approved.length) { if(approvedEmpty) approvedEmpty.style.display='block'; }
     else {
       if(approvedEmpty) approvedEmpty.style.display='none';
-      approvedBody.innerHTML = approved.map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy)).join('');
+      approvedBody.innerHTML = approved.map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy, e.approvedDate||'', e.payDate||'')).join('');
     }
   }
 }
