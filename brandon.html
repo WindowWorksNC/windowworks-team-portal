@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=83">
+<link rel="stylesheet" href="portal.css?v=84">
 </head>
 <body>
     
@@ -213,7 +213,107 @@
   <div class="sub-tab-content" data-group="training" id="stab-training-general">
     <div class="alert alert-info" style="font-size:13px">General company training and resources appear here.</div>
   </div>
-</div></div></div>
+<div class="tab-content" id="tab-pto-admin"><div class="card">
+  <div class="card-title">
+    Pending PTO Requests
+    <span id="pending-count" class="pill pill-pending">0 pending</span>
+  </div>
+  <div id="pending-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="pending-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Type</th><th>Dates</th><th>Days</th><th>Notes</th><th>Action</th></tr></thead>
+      <tbody id="pending-body"></tbody>
+    </table>
+  </div>
+  <div id="pending-empty" class="empty-state" style="display:none">No pending requests.</div>
+</div>
+<div class="card">
+  <div class="card-title">All Requests</div>
+  <div id="all-requests-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="all-requests-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Submitted</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Reviewed By</th></tr></thead>
+      <tbody id="all-requests-body"></tbody>
+    </table>
+  </div>
+  <div id="all-requests-empty" class="empty-state" style="display:none">No requests found.</div>
+</div>
+<div class="card" id="archive-section" style="display:none">
+  <div class="card-title">Past Denied Requests <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none">Ready to archive</span></div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Employee</th><th>Dates</th><th>Days</th><th>Submitted</th><th>Action</th></tr></thead>
+      <tbody id="archive-body"></tbody>
+    </table>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title">PTO Balances</div>
+  <div id="balances-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="balances-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Vacation Used</th><th>Vacation Left</th><th>Sick Used</th><th>Sick Left</th></tr></thead>
+      <tbody id="balances-body"></tbody>
+    </table>
+  </div>
+</div></div>
+
+
+<div class="tab-content" id="tab-commission-admin">
+<div class="card">
+  <div class="card-title" style="justify-content:space-between"><span>Commission</span><span style="font-size:12px;color:#888;font-weight:400;text-transform:none" id="brandon-comm-period-display">Loading...</span></div>
+  <div id="brandon-comm-loading" class="loading">Loading...</div>
+  <div id="brandon-comm-content" style="display:none">
+    <div class="stat-grid" style="margin-bottom:16px" id="brandon-comm-stats"></div>
+    <div class="table-wrap">
+      <table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Value</th><th>Rate</th><th>Commission</th><th>Pay Period</th><th>Approved By</th><th>Action</th></tr></thead>
+      <tbody id="brandon-comm-body"></tbody></table>
+    </div>
+  </div>
+  <div id="brandon-comm-empty" class="empty-state" style="display:none">No commission entries this period.</div>
+</div>
+<div class="card">
+  <div class="card-title" style="cursor:pointer" onclick="toggleBrandonPrevComm(this)">Previous Periods <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="brandon-prev-comm-toggle">(click to expand)</span></div>
+  <div id="brandon-prev-comm-wrap" style="display:none">
+    <div id="brandon-prev-comm-loading" class="loading">Loading...</div>
+    <div id="brandon-prev-comm-body"></div>
+  </div>
+</div>
+</div>
+<div class="card" style="margin-top:0">
+  <div class="card-title">Booking Bonuses <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Pending Approval</span></div>
+  <div id="brandon-booking-loading" class="loading">Loading...</div>
+  <div id="brandon-booking-content" style="display:none">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Employee</th><th>Date</th><th>Customer</th><th>Appt Date</th><th>Notes</th><th>Action</th></tr></thead>
+        <tbody id="brandon-booking-body"></tbody>
+      </table>
+    </div>
+    <div id="brandon-booking-empty" class="empty-state" style="display:none">No pending booking bonuses.</div>
+  </div>
+</div>
+<div class="card" style="margin-top:0">
+  <div class="card-title">Partner Bounties <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Pending Approval</span></div>
+  <div id="brandon-bounty-loading" class="loading">Loading...</div>
+  <div id="brandon-bounty-content" style="display:none">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Employee</th><th>Date</th><th>Account</th><th>Deal</th><th>Value</th><th>Bonus</th><th>Action</th></tr></thead>
+        <tbody id="brandon-bounty-body"></tbody>
+      </table>
+    </div>
+    <div id="brandon-bounty-empty" class="empty-state" style="display:none">No pending partner bounties.</div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-l">Window Works Co. &nbsp;&bull;&nbsp; windowworksnc.com</div>
+  <div class="footer-r">(919) 854-6121</div>
+</div>
+
+
+
 <div class="tab-content active" id="tab-tasks">
 <div class="tb-wrap">
   <p class="tb-hint">Your personal task board. Data saves in your browser. Click bucket names to rename them (except Recurring).</p>
@@ -282,103 +382,6 @@
     <div id="brandon-b2b-bonus-empty" class="empty-state" style="display:none">No pending performance bonuses.</div>
   </div>
 </div>
-<div class="tab-content" id="tab-pto-admin"><div class="card">
-  <div class="card-title">
-    Pending PTO Requests
-    <span id="pending-count" class="pill pill-pending">0 pending</span>
-  </div>
-  <div id="pending-loading" class="loading">Loading...</div>
-  <div class="table-wrap">
-    <table class="data-table" id="pending-table" style="display:none">
-      <thead><tr><th>Employee</th><th>Type</th><th>Dates</th><th>Days</th><th>Notes</th><th>Action</th></tr></thead>
-      <tbody id="pending-body"></tbody>
-    </table>
-  </div>
-  <div id="pending-empty" class="empty-state" style="display:none">No pending requests.</div>
-</div>
-<div class="card">
-  <div class="card-title">All Requests</div>
-  <div id="all-requests-loading" class="loading">Loading...</div>
-  <div class="table-wrap">
-    <table class="data-table" id="all-requests-table" style="display:none">
-      <thead><tr><th>Employee</th><th>Submitted</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Reviewed By</th></tr></thead>
-      <tbody id="all-requests-body"></tbody>
-    </table>
-  </div>
-  <div id="all-requests-empty" class="empty-state" style="display:none">No requests found.</div>
-</div>
-<div class="card" id="archive-section" style="display:none">
-  <div class="card-title">Past Denied Requests <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none">Ready to archive</span></div>
-  <div class="table-wrap">
-    <table class="data-table">
-      <thead><tr><th>Employee</th><th>Dates</th><th>Days</th><th>Submitted</th><th>Action</th></tr></thead>
-      <tbody id="archive-body"></tbody>
-    </table>
-  </div>
-</div>
-<div class="card">
-  <div class="card-title">PTO Balances</div>
-  <div id="balances-loading" class="loading">Loading...</div>
-  <div class="table-wrap">
-    <table class="data-table" id="balances-table" style="display:none">
-      <thead><tr><th>Employee</th><th>Vacation Used</th><th>Vacation Left</th><th>Sick Used</th><th>Sick Left</th></tr></thead>
-      <tbody id="balances-body"></tbody>
-    </table>
-  </div>
-</div></div>
-<div class="tab-content" id="tab-commission-admin">
-<div class="card">
-  <div class="card-title" style="justify-content:space-between"><span>Commission</span><span style="font-size:12px;color:#888;font-weight:400;text-transform:none" id="brandon-comm-period-display">Loading...</span></div>
-  <div id="brandon-comm-loading" class="loading">Loading...</div>
-  <div id="brandon-comm-content" style="display:none">
-    <div class="stat-grid" style="margin-bottom:16px" id="brandon-comm-stats"></div>
-    <div class="table-wrap">
-      <table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Value</th><th>Rate</th><th>Commission</th><th>Pay Period</th><th>Approved By</th><th>Action</th></tr></thead>
-      <tbody id="brandon-comm-body"></tbody></table>
-    </div>
-  </div>
-  <div id="brandon-comm-empty" class="empty-state" style="display:none">No commission entries this period.</div>
-</div>
-<div class="card">
-  <div class="card-title" style="cursor:pointer" onclick="toggleBrandonPrevComm(this)">Previous Periods <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="brandon-prev-comm-toggle">(click to expand)</span></div>
-  <div id="brandon-prev-comm-wrap" style="display:none">
-    <div id="brandon-prev-comm-loading" class="loading">Loading...</div>
-    <div id="brandon-prev-comm-body"></div>
-  </div>
-</div>
-</div>
-<div class="card" style="margin-top:0">
-  <div class="card-title">Booking Bonuses <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Pending Approval</span></div>
-  <div id="brandon-booking-loading" class="loading">Loading...</div>
-  <div id="brandon-booking-content" style="display:none">
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Employee</th><th>Date</th><th>Customer</th><th>Appt Date</th><th>Notes</th><th>Action</th></tr></thead>
-        <tbody id="brandon-booking-body"></tbody>
-      </table>
-    </div>
-    <div id="brandon-booking-empty" class="empty-state" style="display:none">No pending booking bonuses.</div>
-  </div>
-</div>
-<div class="card" style="margin-top:0">
-  <div class="card-title">Partner Bounties <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Pending Approval</span></div>
-  <div id="brandon-bounty-loading" class="loading">Loading...</div>
-  <div id="brandon-bounty-content" style="display:none">
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Employee</th><th>Date</th><th>Account</th><th>Deal</th><th>Value</th><th>Bonus</th><th>Action</th></tr></thead>
-        <tbody id="brandon-bounty-body"></tbody>
-      </table>
-    </div>
-    <div id="brandon-bounty-empty" class="empty-state" style="display:none">No pending partner bounties.</div>
-  </div>
-</div>
-
-<div class="footer">
-  <div class="footer-l">Window Works Co. &nbsp;&bull;&nbsp; windowworksnc.com</div>
-  <div class="footer-r">(919) 854-6121</div>
-</div>
-
 
 <script>// portal_shared.js - Window Works Team Portal
 const PROXY = 'https://script.google.com/macros/s/AKfycbwfE3icMtaSGtMqP6SMfyJyvluAkUyzhiI7EGz_LV07nYtBiG1UupXaOUxbOC5EBhgCBw/exec';
@@ -1434,6 +1437,6 @@ async function confirmApproval(sheet, rowIndex, approvalDateStr) {
     alert('Error saving approval. Please try again.');
   }
 }
-
+</script>
 </body>
 </html>
