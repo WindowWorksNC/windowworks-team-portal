@@ -94,14 +94,16 @@ body{font-family:'Barlow',Arial,sans-serif;background:#edeae4;color:#1a1a1a;min-
 .empty-state{color:#bbb;font-size:14px;font-style:italic;padding:16px 0;text-align:center}
 
 /* SCORECARD */
-.scorecard-domain{border:1px solid #e4dbd0;border-radius:6px;padding:16px;margin-bottom:12px}
-.scorecard-domain.pass{border-left:4px solid #28a745}
-.scorecard-domain.fail{border-left:4px solid #dc3545}
-.scorecard-domain.pending{border-left:4px solid #aaa}
-.domain-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.domain-name{font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1a1a1a}
-.domain-value{font-family:'Barlow Condensed',Arial,sans-serif;font-size:20px;font-weight:700;color:#1a1a1a}
-.domain-criteria{font-size:13px;color:#888;margin-bottom:10px}
+
+/* Scorecard domain cards - consistent with card system */
+.scorecard-domain { border:1px solid #e4dbd0; border-radius:6px; padding:16px; margin-bottom:12px; background:#fff; }
+.scorecard-domain.pass { border-left:4px solid #28a745; }
+.scorecard-domain.fail { border-left:4px solid #dc3545; }
+.scorecard-domain.pending { border-left:4px solid #e4dbd0; }
+.domain-name { font-family:'Barlow Condensed',Arial,sans-serif; font-size:13px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#c4581f; margin-bottom:4px; }
+.domain-criteria { font-size:13px; color:#888; margin-bottom:8px; }
+.domain-value { font-family:'Barlow Condensed',Arial,sans-serif; font-size:22px; font-weight:700; color:#1a1a1a; }
+
 
 /* DOC CHECKLIST */
 .doc-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0ece6;flex-wrap:wrap;gap:8px}
@@ -256,19 +258,54 @@ tr.cur td:first-child{border-left:3px solid #c4581f}
 .payroll-table td.num { text-align:right; }
 .payroll-table th.num { text-align:right; }
 
-/* Bonus section headers - consistent across Colin/Keith/Brandon */
-.bonus-section-header {
-  font-family:'Barlow Condensed',Arial,sans-serif;
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:0.12em;
-  text-transform:uppercase;
-  color:#fff;
-  background:#c4581f;
-  padding:6px 14px;
-  margin:-16px -16px 16px -16px;
-  border-radius:6px 6px 0 0;
+
+/* Reusable type label - used on bonus entries, scorecard domains, any incentive item */
+.type-label {
+  font-family: 'Barlow Condensed', Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #c4581f;
+  margin-bottom: 4px;
 }
-.bonus-section-header.green { background:#28a745; }
-.bonus-section-header.dark { background:#1a1a1a; }
-.bonus-section-header.gray { background:#888; }
+
+/* Incentive item row - used consistently across all pages */
+.incentive-row {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0ece6;
+}
+.incentive-row:last-child { border-bottom: none; }
+.incentive-row-body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.incentive-row-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+.incentive-row-detail {
+  font-size: 13px;
+  color: #888;
+  margin-top: 2px;
+}
+.incentive-row-meta {
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 4px;
+}
+.incentive-row-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.incentive-amount {
+  font-size: 15px;
+  font-weight: 700;
+  color: #c4581f;
+}

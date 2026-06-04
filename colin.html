@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=82">
+<link rel="stylesheet" href="portal.css?v=83">
 </head>
 <body>
     
@@ -103,19 +103,19 @@
   <div id="opp-content" style="display:none">
 
     <div style="margin-bottom:20px">
-      <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:2px">Anchor Account <span style="font-size:13px;color:#c4581f;font-weight:400">$2,500</span></div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">Anchor Account <span style="font-size:11px;color:#888;font-weight:400;text-transform:none">$2,500</span></div>
       <div style="font-size:12px;color:#aaa;margin-bottom:10px">3 contracts + $150,000 in revenue within the first 12 months</div>
       <div id="opp-anchor"></div>
     </div>
 
     <div style="border-top:1px solid #f0ece6;padding-top:16px;margin-bottom:20px">
-      <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:2px">Wallet Share <span style="font-size:13px;color:#c4581f;font-weight:400">$2,500</span></div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">Wallet Share <span style="font-size:11px;color:#888;font-weight:400;text-transform:none">$2,500</span></div>
       <div style="font-size:12px;color:#aaa;margin-bottom:10px">Existing account grows spend by 20%+ year over year, minimum $60,000 this year</div>
       <div id="opp-wallet"></div>
     </div>
 
     <div style="border-top:1px solid #f0ece6;padding-top:16px">
-      <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:2px">Account Retention <span style="font-size:13px;color:#c4581f;font-weight:400">$2,500</span></div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">Account Retention <span style="font-size:11px;color:#888;font-weight:400;text-transform:none">$2,500</span></div>
       <div style="font-size:12px;color:#aaa;margin-bottom:10px">Any account that hits $200,000 in revenue in a single calendar year</div>
       <div id="opp-retention"></div>
     </div>
@@ -711,12 +711,12 @@ const PIPEDRIVE_TOKEN = 'e3ede19f7c61fad229f89cf091af089cd5a2318e';
 const COLIN_PD_ID = 14869709;
 
 function oppRow(name, detail, progress) {
-  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f8f5f0;gap:12px">
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0ece6;gap:12px">
     <div>
-      <div style="font-size:13px;font-weight:600;color:#1a1a1a">${name}</div>
-      <div style="font-size:12px;color:#888;margin-top:2px">${detail}</div>
+      <div style="font-size:14px;font-weight:600;color:#1a1a1a">${name}</div>
+      <div style="font-size:13px;color:#888;margin-top:2px">${detail}</div>
     </div>
-    <div style="font-size:12px;color:#c4581f;font-weight:600;white-space:nowrap">${progress}</div>
+    <div style="font-size:13px;color:#c4581f;font-weight:600;white-space:nowrap">${progress}</div>
   </div>`;
 }
 
@@ -725,17 +725,19 @@ function bonusRow(type, account, amount, detail, approved, approvedBy, approvedD
     ? '<span class="pill pill-approved">Approved</span>'
     : '<span class="pill pill-pending">Pending</span>';
   const dateInfo = approved && (approvedDate || payDate)
-    ? `<div style="font-size:11px;color:#aaa;margin-top:2px">${approvedDate ? 'Approved: '+approvedDate : ''}${approvedDate && payDate ? ' · ' : ''}${payDate ? 'Pay date: <strong style="color:#28a745">'+payDate+'</strong>' : ''}</div>`
+    ? `<div style="font-size:11px;color:#aaa;margin-top:4px">${approvedDate ? 'Approved: '+approvedDate : ''}${approvedDate && payDate ? ' · ' : ''}${payDate ? 'Pay date: <strong style="color:#28a745">'+payDate+'</strong>' : ''}</div>`
     : '';
-  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f8f5f0;flex-wrap:wrap;gap:8px">
-    <div>
-      <div style="font-size:13px;font-weight:600;color:#1a1a1a">${account}</div>
-      <div style="font-size:11px;color:#aaa;margin-top:2px">${type} — ${detail}</div>
-      ${dateInfo}
-    </div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <strong style="color:#c4581f">${fmtMoney(amount)}</strong>
-      ${pill}
+  return `<div style="padding:12px 0;border-bottom:1px solid #f0ece6">
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">${type}</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:14px;font-weight:600;color:#1a1a1a">${account}</div>
+        <div style="font-size:13px;color:#888;margin-top:2px">${detail}</div>
+        ${dateInfo}
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <strong style="color:#c4581f;font-size:15px">${fmtMoney(amount)}</strong>
+        ${pill}
     </div>
   </div>`;
 }
