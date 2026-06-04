@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=81">
+<link rel="stylesheet" href="portal.css?v=82">
 </head>
 <body>
     
@@ -1090,12 +1090,16 @@ async function loadBrandonCommission() {
     if(loadEl)loadEl.style.display='none';
     if(!d.success)return;
     const rows=d.data.slice(1).filter(r=>r.some(c=>c));
-    const currentPeriod=getBrandonCurrentPeriod();
+    let currentPeriod=getBrandonCurrentPeriod();
+    let currentRows=rows.filter(r=>(r[8]||'').trim()===currentPeriod);
+    if(!currentRows.length && rows.length){
+      const allPeriods=[...new Set(rows.map(r=>(r[8]||'').trim()).filter(Boolean))];
+      if(allPeriods.length){currentPeriod=allPeriods[allPeriods.length-1];currentRows=rows.filter(r=>(r[8]||'').trim()===currentPeriod);}
+    }
     document.getElementById('brandon-comm-period-display').textContent=currentPeriod;
-    const currentRows=rows.filter(r=>r[8]===currentPeriod);
     const employees=['Colin Glenn','Jimmie Coleman'];
     const stats={};
-    employees.forEach(e=>{stats[e]=currentRows.filter(r=>r[1]===e).reduce((s,r)=>s+(Number(r[7])||0),0);});
+    employees.forEach(e=>{stats[e]=currentRows.filter(r=>(r[1]||'').trim()===e).reduce((s,r)=>s+(Number(r[7])||0),0);});
     const statsEl=document.getElementById('brandon-comm-stats');
     if(statsEl){
       statsEl.innerHTML=employees.map(e=>`<div class="stat-block"><div class="stat-number orange">${fmtMoney(stats[e])}</div><div class="stat-label">${e}</div></div>`).join('')+

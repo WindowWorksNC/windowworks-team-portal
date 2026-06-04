@@ -76,7 +76,7 @@ function genPayroll(year) {
 function renderPayroll() {
   const year = parseInt(document.getElementById('year-sel').value);
   const periods = genPayroll(year);
-  const today = new Date(); today.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(12,0,0,0);
   let nextPay=null, curPeriod=null;
 
   periods.forEach(p => {
@@ -107,10 +107,10 @@ function renderPayroll() {
     const isNext = nextPay && p.n===nextPay.n;
     const active = isCur;
     return `<tr class="${active?'cur':''}">
-      <td>${p.n}${active?'<span class="badge badge-org">Current</span>':''}</td>
-      <td>${p.s} &ndash; ${p.e}</td>
-      <td>${fmt(pd(p.due))}</td>
-      <td><strong>${fmt(pd(p.pay))}</strong></td>
+      <td style="text-align:left">${p.n}${active?'<span class="badge badge-org">Current</span>':''}</td>
+      <td style="text-align:left">${p.s} &ndash; ${p.e}</td>
+      <td style="text-align:left">${fmt(pd(p.due))}</td>
+      <td style="text-align:left"><strong>${fmt(pd(p.pay))}</strong></td>
     </tr>`;
   }).join('');
 }
@@ -215,7 +215,7 @@ function getHolidays(y) {
 
 function renderHolidays() {
   const y = parseInt(document.getElementById('hol-yr').value);
-  const today = new Date(); today.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(12,0,0,0);
   const hols = getHolidays(y);
   document.getElementById('holidays-body').innerHTML = hols.map(h => {
     const isPast = h.end < today;
