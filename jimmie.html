@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jimmie Coleman | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=83">
+<link rel="stylesheet" href="portal.css?v=87">
 </head>
 <body>
     
@@ -527,9 +527,9 @@ async function loadCommission_jimmie() {
     const currentPeriod=getCurrentPayPeriodLabel_jimmie();
     const periodLabel=document.getElementById('comm-period-label');
     if(periodLabel)periodLabel.textContent=currentPeriod;
-    const currentRows=rows.filter(r=>r[8]===currentPeriod);
-    const ytd=rows.reduce((s,r)=>s+(Number(r[7])||0),0);
-    const periodTotal=currentRows.reduce((s,r)=>s+(Number(r[7])||0),0);
+    const currentRows=rows.filter(r=>(r[cc('Pay Period')]||'').trim()===currentPeriod);
+    const ytd=rows.reduce((s,r)=>s+(Number(r[cc('Commission')])||0),0);
+    const periodTotal=currentRows.reduce((s,r)=>s+(Number(r[cc('Commission')])||0),0);
     const ytdEl=document.getElementById('comm-ytd-total');
     const ptEl=document.getElementById('comm-period-total');
     if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
