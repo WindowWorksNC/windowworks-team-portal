@@ -62,16 +62,23 @@ function presentPill() { return '<span class="pill pill-approved">On File</span>
 // Buttons use data-pane="{name}"
 function initTabs(containerEl) {
   if (!containerEl) return;
+  // Collect only the pane IDs managed by THIS tabs container
+  const managedPanes = Array.from(containerEl.querySelectorAll('[data-pane]'))
+    .map(btn => btn.dataset.pane);
+
   containerEl.querySelectorAll('[data-pane]').forEach(btn => {
     btn.addEventListener('click', () => {
       const paneName = btn.dataset.pane;
-      const scope = btn.closest('.tabs-scope') || document;
-      // Deactivate all tabs and panes in this scope
-      scope.querySelectorAll('[data-pane]').forEach(b => b.classList.remove('active'));
-      scope.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-      // Activate clicked
+      // Deactivate all buttons in this tabs container
+      containerEl.querySelectorAll('[data-pane]').forEach(b => b.classList.remove('active'));
+      // Deactivate only panes managed by this container
+      managedPanes.forEach(id => {
+        const p = document.getElementById('pane-' + id);
+        if (p) p.classList.remove('active');
+      });
+      // Activate clicked button and its pane
       btn.classList.add('active');
-      const pane = scope.getElementById ? scope.getElementById('pane-' + paneName) : document.getElementById('pane-' + paneName);
+      const pane = document.getElementById('pane-' + paneName);
       if (pane) pane.classList.add('active');
     });
   });
