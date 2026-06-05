@@ -22,7 +22,7 @@ async function loadConsistentPerformance(config) {
 
     const statusEl = document.getElementById('consistent-current-status');
     if (existing) {
-      const result = r[c('Status')] || '';
+      const result = existing[c('Status')] || '';
       if (statusEl) {
         statusEl.style.display = 'block';
         statusEl.className = result === 'Pass' ? 'alert alert-success' : 'alert alert-warning';

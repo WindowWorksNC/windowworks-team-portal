@@ -54,7 +54,7 @@ async function loadCommission(config) {
         <td><strong style="color:#c4581f">${fmtMoney(r[c('Commission')])}</strong></td>
         <td>${r[c('Approved by')] || r[c('Approved By')] || '<span style="color:#aaa">Pending</span>'}</td>
         <td>${fmtDate(r[c('Approved date')] || r[c('Approved Date')])}</td>
-        <td>${r[c('Pay Date')] || ''}</td>
+        <td style="color:#28a745">${(c('Pay Date') >= 0 ? r[c('Pay Date')] : '') || ''}</td>
       </tr>`).join('');
     }
 
@@ -102,7 +102,7 @@ function loadPrevPeriods(allRows, currentPeriod, c) {
             <td>${fmtMoney(r[c('Deal Value')])}</td>
             <td><strong style="color:#c4581f">${fmtMoney(r[c('Commission')])}</strong></td>
             <td>${r[c('Approved by')] || r[c('Approved By')] || '<span style="color:#aaa">Pending</span>'}</td>
-            <td>${r[c('Pay Date')] || ''}</td>
+            <td style="color:#28a745">${(c('Pay Date') >= 0 ? r[c('Pay Date')] : '') || ''}</td>
           </tr>`).join('')}</tbody>
         </table>
       </div>

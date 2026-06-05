@@ -282,3 +282,19 @@ async function loadPipedriveOpportunities(config) {
     console.error('loadPipedriveOpportunities:', e);
   }
 }
+
+async function submitB2BBonuses() {
+  const btn = document.getElementById('submit-b2b-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+  try {
+    // Re-load bonuses summary which will refresh the display
+    await loadBonusSummary(PAGE_CONFIG);
+    if (btn) { btn.textContent = 'Submitted!'; }
+    setTimeout(() => {
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit for Approval'; }
+    }, 2000);
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Submit for Approval'; }
+    alert('Error submitting. Please try again.');
+  }
+}

@@ -73,7 +73,7 @@ async function loadTeamCommission(config) {
         <td style="font-size:12px">${(r[c('Pay Period')] || '').trim()}</td>
         <td>${approved || ''}</td>
         <td>${fmtDate(r[c('Approved date')] || r[c('Approved Date')])}</td>
-        <td style="color:#28a745">${r[c('Pay Date')] || ''}</td>
+        <td style="color:#28a745">${(c('Pay Date') >= 0 ? r[c('Pay Date')] : '') || ''}</td>
         <td>${approved
           ? '<span class="pill pill-approved">Approved</span>'
           : `<button class="action-btn btn-approve" onclick="approveCommission(${rowIdx}, '${(r[c('Employee')] || '').trim()}', ${Number(r[c('Commission')]) || 0})">Approve</button>`
