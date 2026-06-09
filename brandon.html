@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=92">
+<link rel="stylesheet" href="portal.css?v=93">
 </head>
 <body>
 
@@ -262,7 +262,7 @@
     <div class="sc-domain" id="domain-pipedrive">
       <div class="sc-domain-head">
         <div class="sc-domain-title">1. Pipedrive Perfect <span id="d1-pill"></span></div>
-        <div class="sc-domain-val" id="d1-avg">--</div>
+        <div class="sc-domain-val" id="d1-avg"></div>
       </div>
       <div class="sc-domain-desc">Average daily overdue activities across the team must stay at 0.</div>
       <div class="sc-domain-note">Fed automatically from Pipedrive overdue activity tracking.</div>
@@ -271,7 +271,7 @@
     <div class="sc-domain" id="domain-ar">
       <div class="sc-domain-head">
         <div class="sc-domain-title">2. A/R Management <span id="d2-pill"></span></div>
-        <div class="sc-domain-val" id="d2-pct">--</div>
+        <div class="sc-domain-val" id="d2-pct"></div>
       </div>
       <div class="sc-domain-desc">Accounts receivable past 30 days must stay under 10%.</div>
       <div style="margin-top:14px">
@@ -1322,6 +1322,8 @@ async function processARFile(){
 async function loadBrandonScorecard(){
   document.getElementById('scorecard-loading').style.display='none';
   document.getElementById('scorecard-content').style.display='block';
+  var __sq=document.getElementById('sc-quarter');if(__sq)__sq.textContent=getCurrentQuarter();
+  updateDomainUI('domain-pipedrive','d1-pill',false,true);updateDomainUI('domain-ar','d2-pill',false,true);updateDomainUI('domain-consistent','d3-pill',false,true);
   // Pipedrive Perfect - load overdue activities (team average)
   try{
     const d=await api({action:'read',tab:'Overdue_Activities'});

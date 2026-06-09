@@ -322,3 +322,7 @@ tr.cur td:first-child{border-left:3px solid #c4581f}
 .sc-domain-desc{font-size:14px;color:#5a5a5a;line-height:1.45}
 .sc-domain-note{font-size:13px;color:#aaa;margin-top:6px}
 .sc-domain-val{font-family:'Barlow Condensed',Arial,sans-serif;font-size:22px;font-weight:700;color:#c4581f;white-space:nowrap}
+
+/* Keith scorecard cards: enlarge title + criteria to match Brandon */
+.sc-domain .type-label{font-size:15px;letter-spacing:0.04em;color:#1a1a1a;margin-bottom:8px}
+.sc-domain .incentive-row-detail{font-size:14px;color:#5a5a5a}
