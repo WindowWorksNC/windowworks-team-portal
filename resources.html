@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Company Resources | Window Works Team Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="portal.css?v=88">
+</head>
+<body>
+<div class="header">
+  <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
+  <div class="header-right">
+    <a class="back-link" href="javascript:history.back()">&#8592; Back</a>
+    <div class="header-tag">Team Portal</div>
+  </div>
+</div>
+<div class="orange-bar"></div>
+
+<div class="body">
+  <div class="page-title">Company Resources</div>
+  <div class="page-sub">Payroll dates and company holidays for Window Works Co.</div>
+
+  <div class="card">
+    <div class="card-title">
+      Payroll Schedule
+      <select class="year-sel" id="year-sel" onchange="renderPayroll()">
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+      </select>
+    </div>
+    <div id="next-pay-wrap"></div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th style="text-align:left">#</th><th style="text-align:left">Pay Period</th><th style="text-align:left">Due Date</th><th style="text-align:left">Pay Date</th></tr></thead>
+        <tbody id="payroll-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      Company Paid Holidays
+      <select class="year-sel" id="hol-yr" onchange="renderHolidays()">
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+      </select>
+    </div>
+    <div id="holidays-body"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-l">Window Works Co. &nbsp;&bull;&nbsp; windowworksnc.com</div>
+  <div class="footer-r">(919) 854-6121</div>
+</div>
+
+<script src="resources.js"></script>
+</body>
+</html>

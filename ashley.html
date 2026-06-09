@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ashley | Window Works Team Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="portal.css?v=88">
+</head>
+<body>
+    
+    <div class="header">
+  <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
+  <div class="header-right">
+    <a class="back-link" href="index.html" style="color:#ccc;font-size:13px;font-weight:500">&#8592; All Team</a>
+    <div class="header-tag">Team Portal</div>
+  </div>
+</div>
+<div class="orange-bar"></div>
+<div class="body">
+<div class="employee-header">
+  <div>
+    <div class="employee-name">Ashley Ball</div>
+    <div class="employee-role">Admin</div>
+    <div class="employee-meta" id="hire-meta"></div>
+  </div>
+</div><div class="tabs">
+  <button class="tab active" onclick="switchTab('tasks',this)">My Tasks</button>
+  <button class="tab" onclick="switchTab('pto',this)">PTO</button>
+  <button class="tab" onclick="switchTab('records',this)">My Record</button>
+  <button class="tab" onclick="switchTab('training',this)">Training</button>
+  <button class="tab" onclick="switchTab('resources',this);requestAnimationFrame(function(){requestAnimationFrame(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){}})});">Resources</button>
+</div>
+<div class="tab-content" id="tab-pto"><div class="card">
+  <div class="card-title">Leave Balances</div>
+  <div class="stat-grid">
+    <div class="stat-block">
+      <div class="stat-number" id="vac-remaining">--</div>
+      <div class="stat-label">Vacation Days Left</div>
+      <div class="stat-sub" id="vac-used">of 10 used: --</div>
+      <div class="pto-bar-wrap"><div class="pto-bar" id="vac-bar" style="width:0%"></div></div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-number" id="sick-remaining">--</div>
+      <div class="stat-label">Sick Days Left</div>
+      <div class="stat-sub" id="sick-used">of 5 used: --</div>
+      <div class="pto-bar-wrap"><div class="pto-bar" id="sick-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+</div><div class="card">
+  <div class="card-title">Request Time Off</div>
+  <div id="pto-form-alert"></div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select class="form-input" id="pto-type">
+        <option>Vacation</option><option>Sick</option><option>Personal</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Start Date</label>
+      <input type="date" class="form-input" id="pto-start" onchange="calcWorkingDays()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">End Date</label>
+      <input type="date" class="form-input" id="pto-end" onchange="calcWorkingDays()">
+    </div>
+    <div class="form-group" style="max-width:90px">
+      <label class="form-label">Days</label>
+      <input type="number" class="form-input" id="pto-days" min="1" step="1" placeholder="1" readonly style="background:#f0ede8;color:#888">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group" style="flex:3">
+      <label class="form-label">Notes (optional)</label>
+      <textarea class="form-input form-textarea" id="pto-notes" placeholder="Any relevant details..."></textarea>
+    </div>
+  </div>
+  <button class="submit-btn" id="pto-submit-btn" onclick="submitPTO(EMPLOYEE, 'Brandon McClure')">Submit Request</button>
+</div><div class="card">
+  <div class="card-title">My Requests</div>
+  <div id="my-requests-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="my-requests-table" style="display:none">
+      <thead><tr><th>Submitted</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Notes</th></tr></thead>
+      <tbody id="my-requests-body"></tbody>
+    </table>
+  </div>
+  <div id="my-requests-empty" class="empty-state" style="display:none">No requests yet.</div>
+
+</div>
+</div></div><div class="tab-content" id="tab-records"><div class="card">
+  <div class="card-title">Employee Record</div>
+  <div id="record-loading" class="loading">Loading...</div>
+  <div id="record-content" style="display:none">
+    <table class="data-table"><tbody id="record-body"></tbody></table>
+  </div>
+</div><div class="card">
+  <div class="card-title">Documents</div>
+  <div id="docs-loading" class="loading">Loading...</div>
+  <div id="docs-list"></div>
+</div>
+<div class="card">
+  <div class="card-title">Company Resources</div>
+  <div id="company-resources"><div class="loading">Loading...</div></div>
+</div>
+<div class="card">
+  <div class="card-title">Company Equipment</div>
+  <div id="equip-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="equip-table" style="display:none">
+      <thead><tr><th>Type</th><th>Make / Model</th><th>Serial / Plate</th><th>Issued</th><th>Notes</th></tr></thead>
+      <tbody id="equip-body"></tbody>
+    </table>
+  </div>
+  <div id="equip-empty" class="empty-state" style="display:none">No equipment on record.</div>
+  
+</div></div><div class="tab-content" id="tab-training"><div class="card">
+  <div class="card-title">Training</div>
+  <div class="sub-tabs">
+    <button class="sub-tab active" data-group="training" onclick="switchSubTab('training-links',this,'training')">Role Training</button>
+    <button class="sub-tab" data-group="training" onclick="switchSubTab('training-general',this,'training')">General</button>
+  </div>
+  <div class="sub-tab-content active" data-group="training" id="stab-training-links">
+    <div class="alert alert-info" style="font-size:13px">
+      Admin training links live here. Add links via the admin panel or paste them directly below.
+    </div>
+    <div id="training-links-list" style="margin-top:12px">
+      <div class="empty-state">No training links added yet. Paste your Ingage links in the admin panel.</div>
+    </div>
+  </div>
+  <div class="sub-tab-content" data-group="training" id="stab-training-general">
+    <div class="alert alert-info" style="font-size:13px">General company training and resources appear here.</div>
+  </div>
+</div></div></div>
+<div class="tab-content active" id="tab-tasks">
+<div class="tb-wrap">
+  <p class="tb-hint">Your personal task board. Data saves in your browser. Click bucket names to rename them (except Recurring).</p>
+  <div class="tb-add-bar">
+    <input type="text" class="tb-add-inp" id="tb-add-inp" placeholder="Add a task...">
+    <select class="tb-add-bucket" id="tb-add-bucket">
+      <option value="this-week">This Week</option>
+      <option value="recurring">Recurring</option>
+      <option value="projects">Larger Projects</option>
+      <option value="waiting">Waiting On</option>
+    </select>
+    <button class="tb-add-btn" onclick="tbAdd_ashley()">+ Add</button>
+  </div>
+  <div class="tb-grid">
+    <div class="tb-col" data-bucket="this-week"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-this-week" onclick="tbRenameBucket_ashley('this-week')">This Week</span></span><span class="tb-col-count" id="tc-this-week">0</span></div><div class="tb-list" id="tl-this-week"></div></div>
+    <div class="tb-col" data-bucket="recurring"><div class="tb-col-header"><span class="tb-col-label"><span id="th-recurring">Recurring</span></span><span class="tb-col-count" id="tc-recurring">0</span></div><div class="tb-list" id="tl-recurring"></div></div>
+    <div class="tb-col" data-bucket="projects"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-projects" onclick="tbRenameBucket_ashley('projects')">Larger Projects</span></span><span class="tb-col-count" id="tc-projects">0</span></div><div class="tb-list" id="tl-projects"></div></div>
+    <div class="tb-col" data-bucket="waiting"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-waiting" onclick="tbRenameBucket_ashley('waiting')">Waiting On</span></span><span class="tb-col-count" id="tc-waiting">0</span></div><div class="tb-list" id="tl-waiting"></div></div>
+  </div>
+</div>
+</div>
+<div class="tab-content" id="tab-resources">
+<div>
+  <div class="card">
+    <div class="card-title">
+      Payroll Schedule
+      <select class="year-sel" id="year-sel" onchange="renderPayroll()">
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+      </select>
+    </div>
+    <div id="next-pay-wrap"></div>
+    <div>
+      <table style="width:100%;max-width:100%">
+        <thead><tr><th>#</th><th>Pay Period</th><th>Due Date</th><th>Pay Date</th></tr></thead>
+        <tbody id="payroll-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      Company Paid Holidays
+      <select class="year-sel" id="hol-yr" onchange="renderHolidays()">
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+      </select>
+    </div>
+    <div id="holidays-body"></div>
+  </div>
+
+</div>
+<div class="footer">
+  <div class="footer-l">Window Works Co. &nbsp;&bull;&nbsp; windowworksnc.com</div>
+  <div class="footer-r">(919) 854-6121</div>
+</div>
+
+
+<script>// portal_shared.js - Window Works Team Portal
+const PROXY = 'https://script.google.com/macros/s/AKfycbwfE3icMtaSGtMqP6SMfyJyvluAkUyzhiI7EGz_LV07nYtBiG1UupXaOUxbOC5EBhgCBw/exec';
+
+async function api(params){
+  const url = PROXY + '?' + new URLSearchParams(params);
+  const res = await fetch(url);
+  return res.json();
+}
+
+function fmtMoney(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtDate(d){if(!d)return '';try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}catch(e){return d}}
+function statusPill(s){const map={Pending:'pill-pending',Approved:'pill-approved',Denied:'pill-denied'};return `<span class="pill ${map[s]||'pill-pending'}">${s||'Pending'}</span>`;}
+function passFailPill(pass,pending){if(pending)return '<span class="pill pill-gray">Pending Data</span>';return pass?'<span class="pill pill-approved">Pass</span>':'<span class="pill pill-denied">Fail</span>';}
+function missingPill(){return '<span class="pill pill-denied">Missing</span>';}
+function presentPill(){return '<span class="pill pill-approved">On File</span>';}
+
+function expiryDays(dateStr){if(!dateStr)return null;return Math.floor((new Date(dateStr)-new Date())/(1000*60*60*24));}
+function expiryClass(dateStr){const d=expiryDays(dateStr);if(d===null)return '';if(d<0)return 'expiry-danger';if(d<30)return 'expiry-danger';if(d<60)return 'expiry-warn';return 'expiry-ok';}
+function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return `Expired ${Math.abs(d)}d ago`;return `Expires in ${d}d`;}
+
+
+// Header-based column lookup
+function cols(headers) {
+  const trimmed = headers.map(h => (h||'').toString().trim());
+  return name => trimmed.indexOf(name.trim());
+}
+
+function switchTab(name,btn){
+  btn.closest('.body').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const el=document.getElementById('tab-'+name);
+  if(el)el.classList.add('active');
+}
+
+function switchSubTab(name,btn,group){
+  document.querySelectorAll(`.sub-tab[data-group="${group}"]`).forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll(`.sub-tab-content[data-group="${group}"]`).forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const el=document.getElementById('stab-'+name);
+  if(el)el.classList.add('active');
+}
+
+async function submitPTO(employee,approver){
+  const type=document.getElementById('pto-type').value;
+  const start=document.getElementById('pto-start').value;
+  const end=document.getElementById('pto-end').value||start;
+  const days=document.getElementById('pto-days').value;
+  const notes=document.getElementById('pto-notes').value;
+  const alertEl=document.getElementById('pto-form-alert');
+  if(!start||!days){alertEl.innerHTML='<div class="alert alert-error">Start date and number of days are required.</div>';return;}
+  const btn=document.getElementById('pto-submit-btn');
+  btn.disabled=true;btn.textContent='Submitting...';
+  try{
+    const row=[`PTO-${Date.now()}`,employee,type,start,end,Number(days),notes,'Pending',new Date().toLocaleDateString('en-US'),''];
+    await api({action:'append',tab:'PTO_Requests',row:JSON.stringify(row)});
+    alertEl.innerHTML=`<div class="alert alert-success">Request submitted. ${approver} will review it.</div>`;
+    ['pto-start','pto-end','pto-days','pto-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    if(typeof loadMyRequests==='function')loadMyRequests(employee);
+  }catch(e){alertEl.innerHTML='<div class="alert alert-error">Error submitting. Please try again.</div>';}
+  btn.disabled=false;btn.textContent='Submit Request';
+}
+
+async function loadPTOBalances(employee){
+  try{
+    const d=await api({action:'read',tab:'PTO_Balances'});
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
+    if(!row)return;
+    const vacUsed=Number(row[c('Vacation Used')])||0;
+    const sickUsed=Number(row[c('Sick Used')])||0;
+    const vacBal=Number(row[c('Vacation Balance')])||0;
+    const sickBal=Number(row[c('Sick Balance')])||0;
+    const hireDate=row[c('Hire Date')]||'';
+    const vacTotal=vacUsed+vacBal;
+    const sickTotal=sickUsed+sickBal;
+    const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+    const sw=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=v;};
+    s('vac-remaining',vacBal);s('vac-used',`of ${vacTotal} used: ${vacUsed}`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsed/vacTotal)*100)+'%':'0%');
+    s('sick-remaining',sickBal);s('sick-used',`of ${sickTotal} used: ${sickUsed}`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsed/sickTotal)*100)+'%':'0%');
+    if(hireDate){const hm=document.getElementById('hire-meta');if(hm)hm.textContent='Hire date: '+fmtDate(hireDate);}
+  }catch(e){console.error(e);}
+}
+
+async function loadMyRequests(employee){
+  const loadEl=document.getElementById('my-requests-loading');
+  const tableEl=document.getElementById('my-requests-table');
+  const emptyEl=document.getElementById('my-requests-empty');
+  try{
+    const d=await api({action:'read',tab:'PTO_Requests'});
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
+    const c=cols(d.data[0]);
+    const today=new Date().toISOString().split('T')[0];
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
+    if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
+    if(tableEl)tableEl.style.display='table';
+    const tbody=document.getElementById('my-requests-body');
+    if(tbody)tbody.innerHTML=rows.slice().reverse().map(r=>{
+      const status=(r[c('Status')]||'Pending').trim();
+      const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
+      let pill;
+      if(status==='Approved'&&endDate>=today){pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';}
+      else if(status==='Approved'){pill='<span class="pill pill-approved">Approved</span>';}
+      else if(status==='Denied'){pill='<span class="pill pill-denied">Denied</span>';}
+      else{pill='<span class="pill pill-pending">Pending</span>';}
+      return `<tr><td>${fmtDate(r[c('Submitted')])}</td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${pill}</td><td>${r[c('Reason')]||''}</td></tr>`;
+    }).join('');
+  }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
+}
+
+async function loadCommissions(employee){
+  try{
+    const d=await api({action:'read',tab:'Commissions'});
+    ['comm-loading','ledger-loading'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+    const contentEl=document.getElementById('comm-content');
+    const tableEl=document.getElementById('ledger-table');
+    const emptyEl=document.getElementById('ledger-empty');
+    if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
+    const rows=d.data.slice(1).filter(r=>r[1]===employee);
+    let ytd=0;rows.forEach(r=>ytd+=Number(r[7]||0));
+    if(contentEl)contentEl.style.display='block';
+    const ytdEl=document.getElementById('comm-ytd');if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
+    // Only show empty if no active AND no history
+const today2=new Date().toISOString().split('T')[0];
+const hasAny=rows.length>0;
+if(!hasAny){if(emptyEl)emptyEl.style.display='block';return;}
+    if(tableEl)tableEl.style.display='table';
+    const tbody=document.getElementById('ledger-body');
+    if(tbody)tbody.innerHTML=rows.reverse().map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[4]||''}</td><td>${r[5]||''}</td><td>${r[6]?r[6]+'%':''}</td><td><strong>${fmtMoney(r[7])}</strong></td><td>${r[8]||''}</td></tr>`).join('');
+  }catch(e){console.error(e);}
+}
+
+async function loadRecord(employee){
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    const loadEl=document.getElementById('record-loading');
+    const contentEl=document.getElementById('record-content');
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success){if(contentEl)contentEl.style.display='block';return;}
+    const c=cols(d.data[0]);
+    const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
+    if(contentEl)contentEl.style.display='block';
+    const tbody=document.getElementById('record-body');
+    if(!row){if(tbody)tbody.innerHTML='<tr><td colspan="2" class="empty-state">No record on file yet.</td></tr>';return;}
+    const fields=[
+      ['Role',row[c('Role')]],
+      ['Hire Date',fmtDate(row[c('Hire Date')])],
+      ['90-Day Review',fmtDate(row[c('Review Due 90Day')])],
+      ['Annual Review Due',fmtDate(row[c('Review Due Annual')])],
+      ['Last Review',fmtDate(row[c('Last Review')])],
+      ['Next Review',fmtDate(row[c('Next Review')])],
+      ['Status',row[c('Status')]]
+    ];
+    if(tbody)tbody.innerHTML=fields.map(([label,val])=>`<tr><td style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;width:160px">${label}</td><td>${val||'<span style="color:#ddd">-</span>'}</td></tr>`).join('');
+  }catch(e){}
+}
+
+const ALL_DOCS_BASE=['Signed Offer Letter','Employee Handbook Acknowledgment','Government ID','Direct Deposit Authorization','W-4','I-9 Verification','Emergency Contact'];
+async function loadDocs(employee,hasCommissionDoc){
+  const docs=[...ALL_DOCS_BASE];
+  if(hasCommissionDoc)docs.push('Commission / Incentive Outline');
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    const loadEl=document.getElementById('docs-loading');if(loadEl)loadEl.style.display='none';
+    let docData={};
+    if(d.success){
+      const row=d.data.slice(1).find(r=>r[0]===employee);
+      if(row&&row[8]){try{docData=JSON.parse(row[8]);}catch(e){}}
+    }
+    const container=document.getElementById('docs-list');
+    if(!container)return;
+    const idExpiry=docData['Government ID - Expiry']||'';
+    container.innerHTML=docs.map(doc=>{
+      const url=docData[doc]||'';
+      const isID=doc==='Government ID';
+      const expirySection=isID?`<div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
+        <span class="${expiryClass(idExpiry)}" id="expiry-label">${expiryLabel(idExpiry)}</span>
+        <input type="date" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" id="expiry-input" value="${idExpiry}" onchange="saveExpiry('${employee}')">
+      </div>`:'';
+      const safeDoc=doc.replace(/[^a-zA-Z0-9]/g,'-');
+      return `<div class="doc-row">
+        <div>${doc==='Government ID'?`<div class="doc-name">${doc}</div>${expirySection}`:`<div class="doc-name">${doc}</div>`}</div>
+        <div class="doc-actions">
+          ${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:missingPill()}
+          <input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${employee}','${doc}',this.value)">
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){console.error(e);}
+}
+
+async function saveDocLink(employee,doc,url){
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success)return;
+    const rowIdx=d.data.findIndex(r=>r[0]===employee);
+    if(rowIdx<0)return;
+    const row=[...d.data[rowIdx]];
+    let docData={};if(row[8]){try{docData=JSON.parse(row[8]);}catch(e){}}
+    docData[doc]=url;row[8]=JSON.stringify(docData);
+    await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
+  }catch(e){console.error(e);}
+}
+
+async function saveExpiry(employee){
+  const val=document.getElementById('expiry-input').value;
+  const label=document.getElementById('expiry-label');
+  if(label){label.className=expiryClass(val);label.textContent=expiryLabel(val);}
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success)return;
+    const rowIdx=d.data.findIndex(r=>r[0]===employee);if(rowIdx<0)return;
+    const row=[...d.data[rowIdx]];
+    let docData={};if(row[8]){try{docData=JSON.parse(row[8]);}catch(e){}}
+    docData['Government ID - Expiry']=val;row[8]=JSON.stringify(docData);
+    await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
+  }catch(e){console.error(e);}
+}
+
+async function loadEquipment(employee){
+  const loadEl=document.getElementById('equip-loading');
+  const listEl=document.getElementById('equip-list');
+  const emptyEl=document.getElementById('equip-empty');
+  try{
+    const d=await api({action:'read',tab:'Equipment'});
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
+    const c=cols(d.data[0]);
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
+    if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
+    if(listEl){
+      listEl.innerHTML=rows.map(r=>`<div class="bonus-row">
+        <div class="bonus-name">${r[c('Make Model')]||''}
+          <div class="bonus-criteria">${r[c('Item Type')]||''} ${r[c('Serial Number')]?'&bull; S/N: '+r[c('Serial Number')]:''}</div>
+        </div>
+        <div style="font-size:12px;color:#aaa;text-align:right">Issued ${fmtDate(r[c('Date Issued')])||''}${r[c('Date Returned')]?' &bull; Returned '+fmtDate(r[c('Date Returned')]):''}</div>
+      </div>`).join('');
+    }
+  }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
+}
+
+async function addEquipment(employee){
+  const type=document.getElementById('equip-type').value;
+  const makeModel=document.getElementById('equip-makemodel').value;
+  const serial=document.getElementById('equip-serial').value;
+  const issued=document.getElementById('equip-issued').value;
+  const notes=document.getElementById('equip-notes').value;
+  const alertEl=document.getElementById('equip-alert');
+  if(!type||!issued){alertEl.innerHTML='<div class="alert alert-error">Type and issue date are required.</div>';return;}
+  const btn=document.getElementById('equip-submit-btn');
+  btn.disabled=true;btn.textContent='Saving...';
+  try{
+    await api({action:'append',tab:'Equipment',row:JSON.stringify([employee,type,makeModel,serial,issued,'',notes])});
+    alertEl.innerHTML='<div class="alert alert-success">Equipment added.</div>';
+    ['equip-makemodel','equip-serial','equip-issued','equip-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    loadEquipment(employee);
+  }catch(e){alertEl.innerHTML='<div class="alert alert-error">Error saving. Please try again.</div>';}
+  btn.disabled=false;btn.textContent='Add Equipment';
+}
+
+
+const EMPLOYEE='Ashley';
+loadPTOBalances(EMPLOYEE);
+loadMyRequests(EMPLOYEE);
+loadRecord(EMPLOYEE);
+loadEquipment(EMPLOYEE);
+</script>
+<script>
+// Auto-calculate working days when dates change
+function calcWorkingDays() {
+  const start = document.getElementById('pto-start').value;
+  const end = document.getElementById('pto-end').value || start;
+  if (!start) return;
+  let count = 0;
+  let cur = new Date(start + 'T12:00:00');
+  const endD = new Date((end || start) + 'T12:00:00');
+  while (cur <= endD) {
+    const d = cur.getDay();
+    if (d !== 0 && d !== 6) count++;
+    cur.setDate(cur.getDate() + 1);
+  }
+  const daysEl = document.getElementById('pto-days');
+  if (daysEl) daysEl.value = count;
+}
+</script>
+
+<script src="taskboard.js"></script>
+<script>initTaskBoard("ashley");</script>
+<script src="resources.js"></script>
+</body>
+</html>
