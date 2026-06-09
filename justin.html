@@ -383,8 +383,8 @@
       </select>
     </div>
     <div id="next-pay-wrap"></div>
-    <div>
-      <table style="width:100%;max-width:100%">
+    <div class="table-wrap">
+      <table class="data-table payroll-table" style="width:100%;max-width:100%">
         <thead><tr><th>#</th><th>Pay Period</th><th>Due Date</th><th>Pay Date</th></tr></thead>
         <tbody id="payroll-body"></tbody>
       </table>
@@ -578,6 +578,27 @@ function togglePrevComm(el){
 
 // ---------- Incentive Pay (unified pending bonuses) ----------
 let INCENTIVE_PENDING=[];
+// Infer a bounty amount when the sheet cell is blank (rows written by older code paths
+// left Amount/Bonus Type empty). Mirrors the resilient logic on Colin's own page.
+function inferBountyAmount(label,rawAmount){
+  const n=Number(rawAmount);
+  if(n>0)return n;
+  const t=(label||'').toLowerCase();
+  if(t.indexOf('anchor')>=0)return 2500;
+  if(t.indexOf('wallet')>=0)return 2500;
+  if(t.indexOf('retention')>=0)return 2500;
+  if(t.indexOf('booking')>=0)return 75;
+  return 250;
+}
+function dedupeIncentive(list){
+  const seen=new Set();const out=[];
+  list.forEach(i=>{
+    const key=(i.employee||'')+'|'+(i.type||'')+'|'+(i.detail||'');
+    if(seen.has(key))return;
+    seen.add(key);out.push(i);
+  });
+  return out;
+}
 async function loadIncentivePay(){
   const loadEl=document.getElementById('incentive-loading');
   const contentEl=document.getElementById('incentive-content');
@@ -593,47 +614,57 @@ async function loadIncentivePay(){
     if(dBook.success){
       const c=cols(dBook.data[0]);
       dBook.data.slice(1).filter(r=>r.some(x=>x)).forEach(r=>{
+        const employee=(r[c('Employee')]||'').trim();
+        if(!employee)return;
         const rowIdx=dBook.data.indexOf(r)+1;
-        const item={sheet:'B2B_Booking_Bonuses',rowIdx,employee:(r[c('Employee')]||'').trim(),date:fmtDate(r[c('Date')]),detail:r[c('Customer Name')]||'',type:'Booking Bonus',amount:75,approvedBy:r[c('Approved By')]||'',payDate:r[c('Pay Date')]||''};
+        const item={sheet:'B2B_Booking_Bonuses',rowIdx,employee,date:fmtDate(r[c('Date')]),detail:r[c('Customer Name')]||'',type:'Booking Bonus',amount:75,approvedBy:(r[c('Approved By')]||'').trim(),payDate:r[c('Pay Date')]||''};
         if(item.approvedBy)approved.push(item);else pending.push(item);
       });
     }
     if(dBounty.success){
       const c=cols(dBounty.data[0]);
       dBounty.data.slice(1).filter(r=>r.some(x=>x)).forEach(r=>{
+        const employee=(r[c('Employee')]||'').trim();
+        const detail=(r[c('Org Name')]||r[c('Account')]||r[c('Deal Name')]||'').toString().trim();
+        if(!employee||!detail)return; // drop blank/partial rows
         const rowIdx=dBounty.data.indexOf(r)+1;
-        const bonusType=(r[c('Bonus Type')]||'Partner Bounty').trim();
-        const item={sheet:'B2B_Partner_Bounties',rowIdx,employee:(r[c('Employee')]||'').trim(),date:fmtDate(r[c('Date')]),detail:r[c('Org Name')]||r[c('Account')]||r[c('Deal Name')]||'',type:bonusType,amount:Number(r[c('Amount')])||0,approvedBy:r[c('Approved By')]||'',payDate:r[c('Pay Date')]||''};
+        const label=(r[c('Bonus Type')]||r[c('Deal Name')]||'').toString().trim()||'New Partner Bounty';
+        const item={sheet:'B2B_Partner_Bounties',rowIdx,employee,date:fmtDate(r[c('Date')]),detail,type:label,amount:inferBountyAmount(label,r[c('Amount')]),approvedBy:(r[c('Approved By')]||'').trim(),payDate:r[c('Pay Date')]||''};
         if(item.approvedBy)approved.push(item);else pending.push(item);
       });
     }
     if(dBonus.success){
       const c=cols(dBonus.data[0]);
       dBonus.data.slice(1).filter(r=>r.some(x=>x)).forEach(r=>{
+        const employee=(r[c('Employee')]||'').trim();
         const status=(r[c('Status')]||'').trim();
         const type=(r[c('Type')]||'').trim();
-        if(type==='Consistent Performance')return;
-        const approvedBy=r[c('Approved By')]||'';
+        if(!employee||type==='Consistent Performance')return;
+        const amount=Number(r[c('Amount')])||0;
+        if(amount<=0)return; // nothing to pay
+        const approvedBy=(r[c('Approved By')]||'').trim();
         const rowIdx=dBonus.data.indexOf(r)+1;
-        const item={sheet:'Bonuses',rowIdx,employee:(r[c('Employee')]||'').trim(),date:fmtDate(r[c('Date Approved')]||r[c('Quarter')]),detail:`Q${r[c('Quarter')]||''} ${r[c('Year')]||''}`.trim(),type:type||'Bonus',amount:Number(r[c('Amount')])||0,approvedBy,payDate:r[c('Pay Date')]||''};
+        const item={sheet:'Bonuses',rowIdx,employee,date:fmtDate(r[c('Date Approved')]||r[c('Quarter')]),detail:`Q${r[c('Quarter')]||''} ${r[c('Year')]||''}`.trim(),type:type||'Bonus',amount,approvedBy,payDate:r[c('Pay Date')]||''};
         if(status==='Earned'&&!approvedBy)pending.push(item);
         else if(approvedBy||status==='Approved')approved.push(item);
       });
     }
-    INCENTIVE_PENDING=pending;
+    INCENTIVE_PENDING=dedupeIncentive(pending);
+    const approvedDeduped=dedupeIncentive(approved);
     const filter=document.getElementById('incentive-filter');
     if(filter){
-      const emps=[...new Set(pending.concat(approved).map(i=>i.employee).filter(Boolean))].sort();
+      const emps=[...new Set(INCENTIVE_PENDING.concat(approvedDeduped).map(i=>i.employee).filter(Boolean))].sort();
+      const cur=filter.value;
       filter.innerHTML='<option value="all">All employees</option>'+emps.map(e=>`<option value="${e}">${e}</option>`).join('');
+      if(cur&&[...filter.options].some(o=>o.value===cur))filter.value=cur;
     }
     renderIncentive();
-    // approved table
     const aLoad=document.getElementById('incentive-approved-loading');if(aLoad)aLoad.style.display='none';
     const aTable=document.getElementById('incentive-approved-table');
     const aEmpty=document.getElementById('incentive-approved-empty');
     const aBody=document.getElementById('incentive-approved-body');
-    if(!approved.length){if(aEmpty)aEmpty.style.display='block';}
-    else{if(aTable)aTable.style.display='table';if(aBody)aBody.innerHTML=approved.map(i=>`<tr><td>${i.employee}</td><td>${i.type}</td><td><strong style="color:#c4581f">${fmtMoney(i.amount)}</strong></td><td>${i.approvedBy}</td><td>${i.payDate||''}</td></tr>`).join('');}
+    if(!approvedDeduped.length){if(aEmpty)aEmpty.style.display='block';if(aTable)aTable.style.display='none';}
+    else{if(aEmpty)aEmpty.style.display='none';if(aTable)aTable.style.display='table';if(aBody)aBody.innerHTML=approvedDeduped.map(i=>`<tr><td>${i.employee}</td><td>${i.type}</td><td><strong style="color:#c4581f">${fmtMoney(i.amount)}</strong></td><td>${i.approvedBy}</td><td>${i.payDate||''}</td></tr>`).join('');}
   }catch(e){if(loadEl)loadEl.style.display='none';console.error(e);}
 }
 
@@ -673,14 +704,14 @@ function showApprovalConfirm(sheet,rowIndex,employeeName,bonusType,amount){
         </div>
       </div>
       <div style="display:flex;gap:10px">
-        <button onclick="confirmApproval('${sheet}',${rowIndex},'${approvalDateStr}')" style="flex:1;background:#1a1a1a;color:#fff;border:none;border-radius:6px;padding:10px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer">Confirm</button>
+        <button onclick="confirmApproval('${sheet}',${rowIndex},'${approvalDateStr}',${Number(amount)||0})" style="flex:1;background:#1a1a1a;color:#fff;border:none;border-radius:6px;padding:10px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer">Confirm</button>
         <button onclick="document.getElementById('approval-modal').remove()" style="flex:1;background:#f0ece6;color:#1a1a1a;border:none;border-radius:6px;padding:10px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer">Cancel</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
 }
 function togglePayDateInput(){const input=document.getElementById('modal-pay-date-input');input.style.display=input.style.display==='none'?'inline-block':'none';}
-async function confirmApproval(sheet,rowIndex,approvalDateStr){
+async function confirmApproval(sheet,rowIndex,approvalDateStr,amount){
   const modal=document.getElementById('approval-modal');
   const payDateDisplay=document.getElementById('modal-pay-date-display');
   const payDateStr=payDateDisplay?payDateDisplay.textContent:'';
@@ -696,6 +727,9 @@ async function confirmApproval(sheet,rowIndex,approvalDateStr){
     if(approvedDateIdx>=0)row[approvedDateIdx]=approvalDateStr;
     const payDateIdx=c('Pay Date');
     if(payDateIdx>=0)row[payDateIdx]=payDateStr;
+    // Backfill the Amount cell if the sheet left it blank, so payroll has the figure
+    const amtIdx=c('Amount');
+    if(amtIdx>=0&&amount&&!(Number(row[amtIdx])>0))row[amtIdx]=amount;
     const statusIdx=c('Status');
     if(statusIdx>=0&&sheet==='Bonuses')row[statusIdx]='Approved';
     await api({action:'update',tab:sheet,rowIndex:rowIndex,row:JSON.stringify(row)});

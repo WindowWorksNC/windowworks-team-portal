@@ -310,7 +310,7 @@
     </div>
     <div id="next-pay-wrap"></div>
     <div>
-      <table style="width:100%;max-width:100%">
+      <table class="data-table payroll-table" style="width:100%;max-width:100%">
         <thead><tr><th>#</th><th>Pay Period</th><th>Due Date</th><th>Pay Date</th></tr></thead>
         <tbody id="payroll-body"></tbody>
       </table>
@@ -722,6 +722,7 @@ function oppRow(name, detail, progress) {
 }
 
 function bonusRow(type, account, amount, detail, approved, approvedBy, approvedDate, payDate) {
+  if (!account || !String(account).trim()) return '';
   const pill = approved
     ? '<span class="pill pill-approved">Approved</span>'
     : '<span class="pill pill-pending">Pending</span>';
@@ -861,26 +862,35 @@ function updateBonusSummary() {
   const submitBtn = document.getElementById('submit-bonuses-btn');
   if (submitBtn) submitBtn.style.display = _b2bEarned.length > 0 ? 'inline-block' : 'none';
 
-  const pendingTotal = pending.reduce((s,e) => s+e.amount, 0);
-  const approvedTotal = approved.reduce((s,e) => s+e.amount, 0);
+  // Collapse duplicates from repeated submissions / live-calc overlap, and drop blanks.
+  // A New Partner bounty is once per account, so keying on account is correct.
+  function dedupeByAccount(list) {
+    const seen = new Set(); const out = [];
+    list.forEach(e => {
+      const key = (e.account||'').trim().toLowerCase();
+      if (!key) return;
+      if (seen.has(key)) return;
+      seen.add(key); out.push(e);
+    });
+    return out;
+  }
+  const pendingClean = dedupeByAccount(pending);
+  const approvedClean = dedupeByAccount(approved);
+
+  const pendingTotal = pendingClean.reduce((s,e) => s+e.amount, 0);
+  const approvedTotal = approvedClean.reduce((s,e) => s+e.amount, 0);
 
   document.getElementById('bonus-pending-total').textContent = fmtMoney(pendingTotal);
   document.getElementById('bonus-approved-total').textContent = fmtMoney(approvedTotal);
   document.getElementById('bonus-summary-sub').textContent = pendingTotal > 0 ? `${fmtMoney(pendingTotal)} pending approval` : 'No pending bonuses';
 
   if(pendingBody) {
-    if(!pending.length) { if(pendingEmpty) pendingEmpty.style.display='block'; }
-    else {
-      if(pendingEmpty) pendingEmpty.style.display='none';
-      pendingBody.innerHTML = pending.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, false, '', '', '')).join('');
-    }
+    if(!pendingClean.length) { pendingBody.innerHTML='<div class="empty-state" id="bonus-pending-empty">No pending bonuses.</div>'; }
+    else { pendingBody.innerHTML = pendingClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, false, '', '', '')).join(''); }
   }
   if(approvedBody) {
-    if(!approved.length) { if(approvedEmpty) approvedEmpty.style.display='block'; }
-    else {
-      if(approvedEmpty) approvedEmpty.style.display='none';
-      approvedBody.innerHTML = approved.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy, e.approvedDate||'', e.payDate||'')).join('');
-    }
+    if(!approvedClean.length) { approvedBody.innerHTML='<div class="empty-state" id="bonus-approved-empty">No approved bonuses yet.</div>'; }
+    else { approvedBody.innerHTML = approvedClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy, e.approvedDate||'', e.payDate||'')).join(''); }
   }
 }
 

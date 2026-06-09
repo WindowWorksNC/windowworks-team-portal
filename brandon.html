@@ -3,15 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="portal.css?v=88">
 </head>
 <body>
-    
-    <div class="header">
+
+<div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
   <div class="header-right">
     <a class="back-link" href="index.html" style="color:#ccc;font-size:13px;font-weight:500">&#8592; All Team</a>
@@ -26,13 +25,17 @@
     <div class="employee-role">Admin / Payroll</div>
     <div class="employee-meta" id="hire-meta"></div>
   </div>
-</div><div style="display:flex;gap:10px;margin-bottom:20px">
+</div>
+
+<div style="display:flex;gap:10px;margin-bottom:20px">
   <button class="submit-btn" id="view-team-btn" onclick="switchView('team')" style="background:#1a1a1a">Team Management</button>
   <button class="submit-btn" id="view-me-btn" onclick="switchView('me')" style="background:#e4dbd0;color:#1a1a1a">My Dashboard</button>
 </div>
+
 <div id="view-team" style="display:block">
   <div class="tabs" id="tabs-team">
     <button class="tab active" onclick="switchTab('commission-admin',this)">Commission</button>
+    <button class="tab" onclick="switchTab('incentive',this)">Incentive Pay</button>
     <button class="tab" onclick="switchTab('pto-admin',this)">PTO Requests</button>
     <button class="tab" onclick="switchTab('records-admin',this)">Employee Records</button>
   </div>
@@ -45,166 +48,67 @@
     <button class="tab" onclick="switchTab('my-record',this)">My Record</button>
     <button class="tab" onclick="switchTab('resources',this);requestAnimationFrame(function(){requestAnimationFrame(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){}})});">Resources</button>
   </div>
-</div><div class="tab-content" id="tab-scorecard"><div id="scorecard-loading" class="loading">Loading scorecard...</div>
-<div id="scorecard-content" style="display:none">
-  <div class="card">
-    <div class="card-title">
-      Q<span id="sc-quarter">--</span> Scorecard
-      <span id="sc-total" class="stat-number orange" style="font-size:20px">$0</span>
-    </div>
-    <div style="font-size:12px;color:#aaa;margin-bottom:16px">Each domain earns $1,500 when criteria is met. Maximum $4,500 per quarter.</div>
-
-    <div class="incentive-row" id="domain-pipedrive">
-      <div class="type-label">1. Pipedrive Perfect <span id="d1-pill" style="margin-left:8px"></span></div>
-      <div class="incentive-row-body">
-        <div>
-          <div class="incentive-row-detail">Average daily overdue activities across team must stay at 0</div>
-          <div style="font-size:13px;color:#aaa;margin-top:6px">Fed automatically from Pipedrive overdue activity tracking.</div>
-        </div>
-        <div class="incentive-row-right">
-          <div class="incentive-amount" id="d1-avg">--</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="incentive-row" id="domain-ar">
-      <div class="type-label">2. A/R Management <span id="d2-pill" style="margin-left:8px"></span></div>
-      <div class="incentive-row-body">
-        <div style="flex:1">
-          <div class="incentive-row-detail">Accounts receivable past 30 days must stay under 10%</div>
-          <div class="incentive-row-right" style="position:absolute;right:32px"><div class="incentive-amount" id="d2-pct">--</div></div>
-      <div style="margin-top:10px">
-        <div style="font-size:12px;color:#888;margin-bottom:8px">Upload your QBO A/R Aging Summary export (xlsx or csv):</div>
-        <div id="ar-alert"></div>
-        <input type="file" id="ar-file" accept=".xlsx,.csv" style="font-size:13px" onchange="processARFile()">
-        <div id="ar-result" style="margin-top:10px;font-size:13px;color:#555"></div>
-<div class="card" style="margin-top:12px">
-  <div class="card-title" style="cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
-    A/R History This Quarter <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none">(click to expand)</span>
-  </div>
-  <div style="display:none" id="ar-history-wrap">
-    <div class="loading" id="ar-history-loading">Loading...</div>
-    <div class="table-wrap">
-      <table class="data-table" id="ar-history-table" style="display:none">
-        <thead><tr><th>Date</th><th>Past 30 Days</th><th>Total A/R</th><th>Percentage</th><th>Status</th></tr></thead>
-        <tbody id="ar-history-body"></tbody>
-      </table>
-    </div>
-  </div>
 </div>
 
-      </div>
+<!-- ========================= TEAM: COMMISSION ========================= -->
+<div class="tab-content active" id="tab-commission-admin">
+<div class="card">
+  <div class="card-title" style="justify-content:space-between"><span>Commission</span><span style="font-size:12px;color:#888;font-weight:400;text-transform:none" id="comm-period-display">Loading...</span></div>
+  <div id="team-comm-loading" class="loading">Loading...</div>
+  <div id="team-comm-content" style="display:none">
+    <div class="stat-grid" style="margin-bottom:16px" id="team-comm-stats"></div>
+    <div class="table-wrap">
+      <table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Value</th><th>Rate</th><th>Commission</th><th>Pay Period</th><th>Approved By</th><th>Action</th></tr></thead>
+      <tbody id="team-comm-body"></tbody></table>
     </div>
+  </div>
+  <div id="team-comm-empty" class="empty-state" style="display:none">No commission entries this period.</div>
+</div>
+<div class="card">
+  <div class="card-title" style="cursor:pointer" onclick="togglePrevComm(this)">Previous Periods <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="prev-comm-toggle">(click to expand)</span></div>
+  <div id="prev-comm-wrap" style="display:none">
+    <div id="prev-comm-loading" class="loading">Loading...</div>
+    <div id="prev-comm-body"></div>
+  </div>
+</div>
+</div>
 
-    <div class="incentive-row" id="domain-consistent">
-      <div class="type-label">3. Consistent Performance <span id="d3-pill" style="margin-left:8px"></span></div>
-      <div class="incentive-row-body">
-        <div>
-          <div class="incentive-row-detail">Completing all admin tasks without reminders, per manager review</div>
-          <div style="font-size:13px;color:#aaa;margin-top:6px">Set by Rose or Justin each quarter.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div></div><div class="tab-content" id="tab-pto"><div class="card">
-  <div class="card-title">Leave Balances</div>
-  <div class="stat-grid">
-    <div class="stat-block">
-      <div class="stat-number" id="vac-remaining">--</div>
-      <div class="stat-label">Vacation Days Left</div>
-      <div class="stat-sub" id="vac-used">of 10 used: --</div>
-      <div class="pto-bar-wrap"><div class="pto-bar" id="vac-bar" style="width:0%"></div></div>
-    </div>
-    <div class="stat-block">
-      <div class="stat-number" id="sick-remaining">--</div>
-      <div class="stat-label">Sick Days Left</div>
-      <div class="stat-sub" id="sick-used">of 5 used: --</div>
-      <div class="pto-bar-wrap"><div class="pto-bar" id="sick-bar" style="width:0%"></div></div>
-    </div>
-  </div>
-</div><div class="card">
-  <div class="card-title">Request Time Off</div>
-  <div id="pto-form-alert"></div>
-  <div class="form-row">
-    <div class="form-group">
-      <label class="form-label">Type</label>
-      <select class="form-input" id="pto-type">
-        <option>Vacation</option><option>Sick</option><option>Personal</option>
+<!-- ========================= TEAM: INCENTIVE PAY ========================= -->
+<div class="tab-content" id="tab-incentive">
+<div class="card">
+  <div class="card-title">Pending Incentive Pay <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Booking bonuses, partner bounties, performance and scorecard bonuses</span></div>
+  <div id="incentive-loading" class="loading">Loading...</div>
+  <div id="incentive-content" style="display:none">
+    <div style="margin-bottom:14px">
+      <select class="form-input" id="incentive-filter" style="max-width:240px" onchange="renderIncentive()">
+        <option value="all">All employees</option>
       </select>
     </div>
-    <div class="form-group">
-      <label class="form-label">Start Date</label>
-      <input type="date" class="form-input" id="pto-start" onchange="calcWorkingDays()">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Employee</th><th>Date</th><th>Detail</th><th>Type</th><th>Amount</th><th>Action</th></tr></thead>
+        <tbody id="incentive-body"></tbody>
+      </table>
     </div>
-    <div class="form-group">
-      <label class="form-label">End Date</label>
-      <input type="date" class="form-input" id="pto-end" onchange="calcWorkingDays()">
-    </div>
-    <div class="form-group" style="max-width:90px">
-      <label class="form-label">Days</label>
-      <input type="number" class="form-input" id="pto-days" min="1" step="1" placeholder="1" readonly style="background:#f0ede8;color:#888">
-    </div>
+    <div id="incentive-empty" class="empty-state" style="display:none">No pending incentive pay.</div>
   </div>
-  <div class="form-row">
-    <div class="form-group" style="flex:3">
-      <label class="form-label">Notes (optional)</label>
-      <textarea class="form-input form-textarea" id="pto-notes" placeholder="Any relevant details..."></textarea>
-    </div>
-  </div>
-  <button class="submit-btn" id="pto-submit-btn" onclick="submitPTO(EMPLOYEE, 'Rose or Justin Reif')">Submit Request</button>
-</div><div class="card">
-  <div class="card-title">My Requests</div>
-  <div id="my-requests-loading" class="loading">Loading...</div>
+</div>
+<div class="card">
+  <div class="card-title">Approved This Quarter</div>
+  <div id="incentive-approved-loading" class="loading">Loading...</div>
   <div class="table-wrap">
-    <table class="data-table" id="my-requests-table" style="display:none">
-      <thead><tr><th>Submitted</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Notes</th></tr></thead>
-      <tbody id="my-requests-body"></tbody>
+    <table class="data-table" id="incentive-approved-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Type</th><th>Amount</th><th>Approved By</th><th>Pay Date</th></tr></thead>
+      <tbody id="incentive-approved-body"></tbody>
     </table>
   </div>
-  <div id="my-requests-empty" class="empty-state" style="display:none">No requests yet.</div>
+  <div id="incentive-approved-empty" class="empty-state" style="display:none">Nothing approved yet this quarter.</div>
+</div>
+</div>
 
-</div>
-</div></div><div class="tab-content" id="tab-records-admin"><div class="card">
-  <div class="card-title">Expiring IDs</div>
-  <div id="expiry-loading" class="loading">Loading...</div>
-  <div class="table-wrap">
-    <table class="data-table" id="expiry-table" style="display:none">
-      <thead><tr><th>Employee</th><th>Expiry Date</th><th>Status</th></tr></thead>
-      <tbody id="expiry-body"></tbody>
-    </table>
-  </div>
-  <div id="expiry-empty" class="empty-state" style="display:none">No expiry data on file.</div>
-</div></div><div class="tab-content" id="tab-my-record"><div class="card">
-  <div class="card-title">Employee Record</div>
-  <div id="record-loading" class="loading">Loading...</div>
-  <div id="record-content" style="display:none">
-    <table class="data-table"><tbody id="record-body"></tbody></table>
-  </div>
-</div><div class="card">
-  <div class="card-title">Documents</div>
-  <div id="docs-loading" class="loading">Loading...</div>
-  <div id="docs-list"></div>
-</div>
+<!-- ========================= TEAM: PTO REQUESTS ========================= -->
+<div class="tab-content" id="tab-pto-admin">
 <div class="card">
-  <div class="card-title">Company Resources</div>
-  <div id="company-resources"><div class="loading">Loading...</div></div>
-</div>
-<div class="card">
-  <div class="card-title">Company Equipment</div>
-  <div id="equip-loading" class="loading">Loading...</div>
-  <div class="table-wrap">
-    <table class="data-table" id="equip-table" style="display:none">
-      <thead><tr><th>Type</th><th>Make / Model</th><th>Serial / Plate</th><th>Issued</th><th>Notes</th></tr></thead>
-      <tbody id="equip-body"></tbody>
-    </table>
-  </div>
-  <div id="equip-empty" class="empty-state" style="display:none">No equipment on record.</div>
-  </div>
-</div>
-  <div class="sub-tab-content" data-group="training" id="stab-training-general">
-    <div class="alert alert-info" style="font-size:13px">General company training and resources appear here.</div>
-  </div>
-<div class="tab-content" id="tab-pto-admin" style="padding:0 32px;max-width:1100px;margin:0 auto;box-sizing:border-box"><div class="card">
   <div class="card-title">
     Pending PTO Requests
     <span id="pending-count" class="pill pill-pending">0 pending</span>
@@ -217,6 +121,39 @@
     </table>
   </div>
   <div id="pending-empty" class="empty-state" style="display:none">No pending requests.</div>
+</div>
+<div class="card">
+  <div class="card-title">Log Time Off For an Employee <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Auto-approved</span></div>
+  <div id="admin-pto-alert"></div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Employee</label>
+      <select class="form-input" id="admin-pto-emp"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select class="form-input" id="admin-pto-type"><option>Vacation</option><option>Sick</option><option>Personal</option></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Start Date</label>
+      <input type="date" class="form-input" id="admin-pto-start" onchange="adminCalcDays()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">End Date</label>
+      <input type="date" class="form-input" id="admin-pto-end" onchange="adminCalcDays()">
+    </div>
+    <div class="form-group" style="max-width:90px">
+      <label class="form-label">Days</label>
+      <input type="number" class="form-input" id="admin-pto-days" min="0" step="0.5" placeholder="0">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group" style="flex:3">
+      <label class="form-label">Notes (optional)</label>
+      <input type="text" class="form-input" id="admin-pto-notes" placeholder="Any relevant details...">
+    </div>
+  </div>
+  <button class="submit-btn" id="admin-pto-btn" onclick="adminCreatePTO()">Log and Approve</button>
 </div>
 <div class="card">
   <div class="card-title">All Requests</div>
@@ -247,65 +184,31 @@
       <tbody id="balances-body"></tbody>
     </table>
   </div>
-</div></div>
+</div>
+</div>
 
-
-<div class="tab-content" id="tab-commission-admin" style="padding:0 32px;max-width:1100px;margin:0 auto;box-sizing:border-box">
+<!-- ========================= TEAM: EMPLOYEE RECORDS ========================= -->
+<div class="tab-content" id="tab-records-admin">
 <div class="card">
-  <div class="card-title" style="justify-content:space-between"><span>Commission</span><span style="font-size:12px;color:#888;font-weight:400;text-transform:none" id="brandon-comm-period-display">Loading...</span></div>
-  <div id="brandon-comm-loading" class="loading">Loading...</div>
-  <div id="brandon-comm-content" style="display:none">
-    <div class="stat-grid" style="margin-bottom:16px" id="brandon-comm-stats"></div>
-    <div class="table-wrap">
-      <table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Value</th><th>Rate</th><th>Commission</th><th>Pay Period</th><th>Approved By</th><th>Action</th></tr></thead>
-      <tbody id="brandon-comm-body"></tbody></table>
-    </div>
+  <div class="card-title">Expiring IDs</div>
+  <div id="expiry-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="expiry-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Expiry Date</th><th>Status</th></tr></thead>
+      <tbody id="expiry-body"></tbody>
+    </table>
   </div>
-  <div id="brandon-comm-empty" class="empty-state" style="display:none">No commission entries this period.</div>
+  <div id="expiry-empty" class="empty-state" style="display:none">No expiry data on file.</div>
 </div>
 <div class="card">
-  <div class="card-title" style="cursor:pointer" onclick="toggleBrandonPrevComm(this)">Previous Periods <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="brandon-prev-comm-toggle">(click to expand)</span></div>
-  <div id="brandon-prev-comm-wrap" style="display:none">
-    <div id="brandon-prev-comm-loading" class="loading">Loading...</div>
-    <div id="brandon-prev-comm-body"></div>
-  </div>
+  <div class="card-title">Employee Records <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Edit and save per employee</span></div>
+  <div id="records-admin-loading" class="loading">Loading...</div>
+  <div id="records-admin-list"></div>
 </div>
-</div>
-<div class="card" style="margin-top:0">
-  <div class="card-title">Booking Bonuses <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Pending Approval</span></div>
-  <div id="brandon-booking-loading" class="loading">Loading...</div>
-  <div id="brandon-booking-content" style="display:none">
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Employee</th><th>Date</th><th>Customer</th><th>Appt Date</th><th>Notes</th><th>Action</th></tr></thead>
-        <tbody id="brandon-booking-body"></tbody>
-      </table>
-    </div>
-    <div id="brandon-booking-empty" class="empty-state" style="display:none">No pending booking bonuses.</div>
-  </div>
-</div>
-<div class="card" style="margin-top:0">
-  <div class="card-title">Partner Bounties <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Pending Approval</span></div>
-  <div id="brandon-bounty-loading" class="loading">Loading...</div>
-  <div id="brandon-bounty-content" style="display:none">
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Employee</th><th>Date</th><th>Account</th><th>Deal</th><th>Value</th><th>Bonus</th><th>Action</th></tr></thead>
-        <tbody id="brandon-bounty-body"></tbody>
-      </table>
-    </div>
-    <div id="brandon-bounty-empty" class="empty-state" style="display:none">No pending partner bounties.</div>
-  </div>
 </div>
 
-<div class="footer">
-  <div class="footer-l">Window Works Co. &nbsp;&bull;&nbsp; windowworksnc.com</div>
-  <div class="footer-r">(919) 854-6121</div>
-</div>
-
-
-
-<div class="tab-content active" id="tab-tasks">
+<!-- ========================= ME: TASKS ========================= -->
+<div class="tab-content" id="tab-tasks">
 <div class="tb-wrap">
   <p class="tb-hint">Your personal task board. Data saves in your browser. Click bucket names to rename them (except Recurring).</p>
   <div class="tb-add-bar">
@@ -326,6 +229,147 @@
   </div>
 </div>
 </div>
+
+
+<!-- ========================= ME: SCORECARD (Brandon) ========================= -->
+<div class="tab-content" id="tab-scorecard">
+<div id="scorecard-loading" class="loading">Loading scorecard...</div>
+<div id="scorecard-content" style="display:none">
+  <div class="card">
+    <div class="card-title" style="justify-content:space-between"><span>Q<span id="sc-quarter">--</span> Scorecard</span><span id="sc-total" class="stat-number orange" style="font-size:20px">$0</span></div>
+    <div style="font-size:12px;color:#aaa;margin-bottom:16px">Each domain earns $1,500 when criteria is met. Maximum $4,500 per quarter.</div>
+    <div class="incentive-row" id="domain-pipedrive">
+      <div class="type-label">1. Pipedrive Perfect <span id="d1-pill" style="margin-left:8px"></span></div>
+      <div class="incentive-row-body">
+        <div><div class="incentive-row-detail">Average daily overdue activities across team must stay at 0</div><div style="font-size:13px;color:#aaa;margin-top:6px">Fed automatically from Pipedrive overdue activity tracking.</div></div>
+        <div class="incentive-row-right"><div class="incentive-amount" id="d1-avg">--</div></div>
+      </div>
+    </div>
+    <div class="incentive-row" id="domain-ar">
+      <div class="type-label">2. A/R Management <span id="d2-pill" style="margin-left:8px"></span></div>
+      <div class="incentive-row-body">
+        <div style="flex:1">
+          <div class="incentive-row-detail">Accounts receivable past 30 days must stay under 10% <span class="incentive-amount" id="d2-pct" style="margin-left:8px">--</span></div>
+          <div style="margin-top:10px">
+            <div style="font-size:12px;color:#888;margin-bottom:8px">Upload your QBO A/R Aging Summary export (xlsx or csv):</div>
+            <div id="ar-alert"></div>
+            <input type="file" id="ar-file" accept=".xlsx,.csv" style="font-size:13px" onchange="processARFile()">
+            <div id="ar-result" style="margin-top:10px;font-size:13px;color:#555"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="incentive-row" id="domain-consistent">
+      <div class="type-label">3. Consistent Performance <span id="d3-pill" style="margin-left:8px"></span></div>
+      <div class="incentive-row-body">
+        <div><div class="incentive-row-detail">Completing all admin tasks without reminders, per manager review</div><div style="font-size:13px;color:#aaa;margin-top:6px">Set by Rose or Justin each quarter.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="cursor:pointer" onclick="var w=document.getElementById('ar-history-wrap');w.style.display=w.style.display==='none'?'block':'none'">A/R History This Quarter <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none">(click to expand)</span></div>
+    <div style="display:none" id="ar-history-wrap">
+      <div class="loading" id="ar-history-loading">Loading...</div>
+      <div class="table-wrap"><table class="data-table" id="ar-history-table" style="display:none"><thead><tr><th>Date</th><th>Past 30 Days</th><th>Total A/R</th><th>Percentage</th><th>Status</th></tr></thead><tbody id="ar-history-body"></tbody></table></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Close Quarter</div>
+    <div style="font-size:13px;color:#888;margin-bottom:12px">Archives this quarter's results and emails Rose and Justin a summary.</div>
+    <div id="close-qtr-alert-brandon"></div>
+    <button class="submit-btn" id="close-qtr-btn-brandon" onclick="closeQuarterBrandon()">Close Quarter</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Past Quarters</div>
+    <div id="scorecard-archive-brandon"><div class="loading">Loading...</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ========================= ME: PTO ========================= -->
+<div class="tab-content" id="tab-pto">
+<div class="card">
+  <div class="card-title">Leave Balances</div>
+  <div class="stat-grid">
+    <div class="stat-block">
+      <div class="stat-number" id="vac-remaining">--</div>
+      <div class="stat-label">Vacation Days Left</div>
+      <div class="stat-sub" id="vac-used">of 10 used: --</div>
+      <div class="pto-bar-wrap"><div class="pto-bar" id="vac-bar" style="width:0%"></div></div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-number" id="sick-remaining">--</div>
+      <div class="stat-label">Sick Days Left</div>
+      <div class="stat-sub" id="sick-used">of 5 used: --</div>
+      <div class="pto-bar-wrap"><div class="pto-bar" id="sick-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title">Request Time Off</div>
+  <div id="pto-form-alert"></div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select class="form-input" id="pto-type"><option>Vacation</option><option>Sick</option><option>Personal</option></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Start Date</label>
+      <input type="date" class="form-input" id="pto-start" onchange="calcWorkingDays()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">End Date</label>
+      <input type="date" class="form-input" id="pto-end" onchange="calcWorkingDays()">
+    </div>
+    <div class="form-group" style="max-width:90px">
+      <label class="form-label">Days</label>
+      <input type="number" class="form-input" id="pto-days" min="1" step="1" placeholder="1" readonly style="background:#f0ede8;color:#888">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group" style="flex:3">
+      <label class="form-label">Notes (optional)</label>
+      <textarea class="form-input form-textarea" id="pto-notes" placeholder="Any relevant details..."></textarea>
+    </div>
+  </div>
+  <button class="submit-btn" id="pto-submit-btn" onclick="submitPTO(EMPLOYEE, 'Rose or Justin Reif')">Submit Request</button>
+</div>
+<div class="card">
+  <div class="card-title">My Requests</div>
+  <div id="my-requests-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="my-requests-table" style="display:none">
+      <thead><tr><th>Submitted</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Notes</th></tr></thead>
+      <tbody id="my-requests-body"></tbody>
+    </table>
+  </div>
+  <div id="my-requests-empty" class="empty-state" style="display:none">No requests yet.</div>
+</div>
+</div>
+
+<!-- ========================= ME: RECORD ========================= -->
+<div class="tab-content" id="tab-my-record">
+<div class="card">
+  <div class="card-title">Employee Record</div>
+  <div id="record-loading" class="loading">Loading...</div>
+  <div id="record-content" style="display:none">
+    <table class="data-table"><tbody id="record-body"></tbody></table>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title">Documents</div>
+  <div id="docs-loading" class="loading">Loading...</div>
+  <div id="docs-list"></div>
+</div>
+<div class="card">
+  <div class="card-title">My Equipment</div>
+  <div id="equip-loading" class="loading">Loading...</div>
+  <div id="equip-list"></div>
+  <div id="equip-empty" class="empty-state" style="display:none">No equipment on record.</div>
+</div>
+</div>
+
+<!-- ========================= ME: RESOURCES ========================= -->
 <div class="tab-content" id="tab-resources">
 <div>
   <div class="card">
@@ -338,14 +382,13 @@
       </select>
     </div>
     <div id="next-pay-wrap"></div>
-    <div>
-      <table style="width:100%;max-width:100%">
+    <div class="table-wrap">
+      <table class="data-table payroll-table" style="width:100%;max-width:100%">
         <thead><tr><th>#</th><th>Pay Period</th><th>Due Date</th><th>Pay Date</th></tr></thead>
         <tbody id="payroll-body"></tbody>
       </table>
     </div>
   </div>
-
   <div class="card">
     <div class="card-title">
       Company Paid Holidays
@@ -357,25 +400,23 @@
     </div>
     <div id="holidays-body"></div>
   </div>
-
+</div>
 </div>
 
-<div class="card" style="margin-top:0">
-  <div class="card-title">Performance Bonuses <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Anchor / Wallet Share / Retention / Scorecard</span></div>
-  <div id="brandon-b2b-bonus-loading" class="loading">Loading...</div>
-  <div id="brandon-b2b-bonus-content" style="display:none">
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Employee</th><th>Date</th><th>Account</th><th>Bonus Type</th><th>Amount</th><th>Action</th></tr></thead>
-        <tbody id="brandon-b2b-bonus-body"></tbody>
-      </table>
-    </div>
-    <div id="brandon-b2b-bonus-empty" class="empty-state" style="display:none">No pending performance bonuses.</div>
-  </div>
+<div class="footer">
+  <div class="footer-l">Window Works Co. &nbsp;&bull;&nbsp; windowworksnc.com</div>
+  <div class="footer-r">(919) 854-6121</div>
+</div>
 </div>
 
-<script>// portal_shared.js - Window Works Team Portal
+<script>
+// Window Works Team Portal - owner page (Team Management + My Dashboard)
 const PROXY = 'https://script.google.com/macros/s/AKfycbwfE3icMtaSGtMqP6SMfyJyvluAkUyzhiI7EGz_LV07nYtBiG1UupXaOUxbOC5EBhgCBw/exec';
+const EMPLOYEE = 'Brandon McClure';
+const APPROVER = 'Brandon McClure';
+const ROSTER = ['Brandon McClure','Colin Glenn','Jimmie Coleman','Keith Howze','Ashley Ball'];
+const COMMISSION_REPS = ['Colin Glenn','Jimmie Coleman'];
+const ALL_DOCS_BASE = ['Signed Offer Letter','Employee Handbook Acknowledgment','Government ID','Direct Deposit Authorization','W-4','I-9 Verification','Emergency Contact'];
 
 async function api(params){
   const url = PROXY + '?' + new URLSearchParams(params);
@@ -394,15 +435,11 @@ function expiryDays(dateStr){if(!dateStr)return null;return Math.floor((new Date
 function expiryClass(dateStr){const d=expiryDays(dateStr);if(d===null)return '';if(d<0)return 'expiry-danger';if(d<30)return 'expiry-danger';if(d<60)return 'expiry-warn';return 'expiry-ok';}
 function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return `Expired ${Math.abs(d)}d ago`;return `Expires in ${d}d`;}
 
-
-// Header-based column lookup
-function cols(headers) {
-  const trimmed = headers.map(h => (h||'').toString().trim());
-  return name => trimmed.indexOf(name.trim());
-}
+function cols(headers){const trimmed=headers.map(h=>(h||'').toString().trim());return name=>trimmed.indexOf(name.trim());}
+function getCurrentQuarter(){const m=new Date().getMonth();return Math.floor(m/3)+1;}
 
 function switchTab(name,btn){
-  btn.closest('.body').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.closest('.body').querySelectorAll('.tab[onclick^="switchTab"]').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
   const el=document.getElementById('tab-'+name);
@@ -410,13 +447,506 @@ function switchTab(name,btn){
 }
 
 function switchSubTab(name,btn,group){
-  document.querySelectorAll(`.sub-tab[data-group="${group}"]`).forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll(`.tab[data-group="${group}"]`).forEach(t=>t.classList.remove('active'));
   document.querySelectorAll(`.sub-tab-content[data-group="${group}"]`).forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
   const el=document.getElementById('stab-'+name);
   if(el)el.classList.add('active');
 }
 
+function switchView(view){
+  const teamDiv=document.getElementById('view-team');
+  const meDiv=document.getElementById('view-me');
+  const teamBtn=document.getElementById('view-team-btn');
+  const meBtn=document.getElementById('view-me-btn');
+  const showTabFromGroup=(sel,fallback)=>{
+    const active=document.querySelector(sel+' .tab.active');
+    let tabName=fallback;
+    if(active){const m=active.getAttribute('onclick').match(/switchTab\('([^']+)'/);if(m)tabName=m[1];}
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    const el=document.getElementById('tab-'+tabName);
+    if(el)el.classList.add('active');
+  };
+  if(view==='team'){
+    teamDiv.style.display='block';meDiv.style.display='none';
+    teamBtn.style.background='#1a1a1a';teamBtn.style.color='#fff';
+    meBtn.style.background='#e4dbd0';meBtn.style.color='#1a1a1a';
+    showTabFromGroup('#tabs-team','commission-admin');
+  }else{
+    teamDiv.style.display='none';meDiv.style.display='block';
+    teamBtn.style.background='#e4dbd0';teamBtn.style.color='#1a1a1a';
+    meBtn.style.background='#1a1a1a';meBtn.style.color='#fff';
+    showTabFromGroup('#tabs-me','tasks');
+  }
+}
+
+// ---------- Pay period / pay date helpers ----------
+function getCurrentPeriod(){
+  const start=new Date('2025-12-18');
+  const now=new Date();
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const diffDays=Math.floor((today-start)/(1000*60*60*24));
+  const periodNum=Math.floor(diffDays/14);
+  const periodStart=new Date(start);periodStart.setDate(periodStart.getDate()+periodNum*14);
+  const periodEnd=new Date(periodStart);periodEnd.setDate(periodEnd.getDate()+13);
+  const fmt=d=>String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+'/'+String(d.getFullYear()).slice(2);
+  return fmt(periodStart)+' - '+fmt(periodEnd);
+}
+function getNextPayDateFromApproval(approvalDate){
+  const base=new Date('2025-12-18');
+  const d=approvalDate||new Date();
+  const today=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  const diffDays=Math.floor((today-base)/(1000*60*60*24));
+  const periodNum=Math.floor(diffDays/14);
+  const nextPeriodEnd=new Date(base);nextPeriodEnd.setDate(nextPeriodEnd.getDate()+(periodNum+1)*14-1);
+  const payDay=new Date(nextPeriodEnd);payDay.setDate(payDay.getDate()+2);
+  return payDay;
+}
+function fmtPayDate(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+
+// ===================================================================
+//  TEAM MANAGEMENT
+// ===================================================================
+
+// ---------- Commission ----------
+async function loadTeamCommission(){
+  const loadEl=document.getElementById('team-comm-loading');
+  const content=document.getElementById('team-comm-content');
+  const emptyEl=document.getElementById('team-comm-empty');
+  try{
+    const d=await api({action:'read',tab:'Commissions'});
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const rows=d.data.slice(1).filter(r=>r.some(x=>x));
+    let currentPeriod=getCurrentPeriod();
+    let currentRows=rows.filter(r=>(r[c('Pay Period')]||'').trim()===currentPeriod);
+    if(!currentRows.length&&rows.length){
+      const allPeriods=[...new Set(rows.map(r=>(r[c('Pay Period')]||'').trim()).filter(Boolean))];
+      if(allPeriods.length){currentPeriod=allPeriods[allPeriods.length-1];currentRows=rows.filter(r=>(r[c('Pay Period')]||'').trim()===currentPeriod);}
+    }
+    const disp=document.getElementById('comm-period-display');if(disp)disp.textContent=currentPeriod;
+    const stats={};
+    COMMISSION_REPS.forEach(e=>{stats[e]=currentRows.filter(r=>(r[c('Employee')]||'').trim()===e).reduce((s,r)=>s+(Number(r[c('Commission')])||0),0);});
+    const statsEl=document.getElementById('team-comm-stats');
+    if(statsEl){
+      statsEl.innerHTML=COMMISSION_REPS.map(e=>`<div class="stat-block"><div class="stat-number orange">${fmtMoney(stats[e])}</div><div class="stat-label">${e}</div></div>`).join('')+
+        `<div class="stat-block"><div class="stat-number">${fmtMoney(Object.values(stats).reduce((a,b)=>a+b,0))}</div><div class="stat-label">Period Total</div></div>`;
+    }
+    if(content)content.style.display='block';
+    const tbody=document.getElementById('team-comm-body');
+    if(!currentRows.length){if(emptyEl)emptyEl.style.display='block';if(tbody)tbody.innerHTML='';loadPrevComm(rows,currentPeriod);return;}
+    if(emptyEl)emptyEl.style.display='none';
+    if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>{
+      const rowIdx=d.data.indexOf(r)+1;
+      const approvedBy=r[c('Approved By')]||r[c('Approved by')]||'';
+      const emp=(r[c('Employee')]||'').trim();
+      const amt=Number(r[c('Commission')])||0;
+      return `<tr><td>${fmtDate(r[c('Date')])}</td><td>${emp}</td><td>${r[c('Deal Name')]||''}</td><td>${fmtMoney(r[c('Deal Value')])}</td><td>${(r[c('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(amt)}</strong></td><td style="font-size:11px">${(r[c('Pay Period')]||'').trim()}</td><td>${approvedBy}</td><td>${approvedBy?'<span class="pill pill-approved">Approved</span>':`<button class="action-btn btn-approve" onclick="showApprovalConfirm('Commissions',${rowIdx},'${emp.replace(/'/g,"\\'")}','Commission',${amt})">Approve</button>`}</td></tr>`;
+    }).join('');
+    loadPrevComm(rows,currentPeriod);
+  }catch(e){if(loadEl)loadEl.style.display='none';console.error(e);}
+}
+
+function loadPrevComm(rows,currentPeriod){
+  const body=document.getElementById('prev-comm-body');
+  const loading=document.getElementById('prev-comm-loading');
+  if(loading)loading.style.display='none';
+  if(!body||!rows.length)return;
+  const c=cols(window.__commHeaders||[]);
+  const periods={};
+  rows.forEach(r=>{const p=(r[window.__cPayPeriod]||'').trim();if(!p||p===currentPeriod)return;if(!periods[p])periods[p]=[];periods[p].push(r);});
+  const keys=Object.keys(periods).sort().reverse();
+  if(!keys.length){body.innerHTML='<div class="empty-state">No previous periods.</div>';return;}
+  body.innerHTML=keys.map(period=>{
+    const pRows=periods[period];
+    const total=pRows.reduce((s,r)=>s+(Number(r[window.__cCommission])||0),0);
+    const id='pp-'+period.replace(/[^a-z0-9]/gi,'');
+    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="var x=document.getElementById('${id}');x.style.display=x.style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Commission</th><th>Approved By</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[window.__cDate])}</td><td>${r[window.__cEmployee]||''}</td><td>${r[window.__cDeal]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[window.__cCommission])}</strong></td><td>${r[window.__cApprovedBy]||'<span style="color:#aaa">Pending</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+  }).join('');
+}
+
+function togglePrevComm(el){
+  const wrap=document.getElementById('prev-comm-wrap');
+  const toggle=document.getElementById('prev-comm-toggle');
+  if(!wrap)return;
+  const isOpen=wrap.style.display!=='none';
+  wrap.style.display=isOpen?'none':'block';
+  if(toggle)toggle.textContent=isOpen?'(click to expand)':'(click to collapse)';
+}
+
+// ---------- Incentive Pay (unified pending bonuses) ----------
+let INCENTIVE_PENDING=[];
+// Infer a bounty amount when the sheet cell is blank (rows written by older code paths
+// left Amount/Bonus Type empty). Mirrors the resilient logic on Colin's own page.
+function inferBountyAmount(label,rawAmount){
+  const n=Number(rawAmount);
+  if(n>0)return n;
+  const t=(label||'').toLowerCase();
+  if(t.indexOf('anchor')>=0)return 2500;
+  if(t.indexOf('wallet')>=0)return 2500;
+  if(t.indexOf('retention')>=0)return 2500;
+  if(t.indexOf('booking')>=0)return 75;
+  return 250;
+}
+function dedupeIncentive(list){
+  const seen=new Set();const out=[];
+  list.forEach(i=>{
+    const key=(i.employee||'')+'|'+(i.type||'')+'|'+(i.detail||'');
+    if(seen.has(key))return;
+    seen.add(key);out.push(i);
+  });
+  return out;
+}
+async function loadIncentivePay(){
+  const loadEl=document.getElementById('incentive-loading');
+  const contentEl=document.getElementById('incentive-content');
+  try{
+    let dBook={success:false},dBounty={success:false},dBonus={success:false};
+    try{dBook=await api({action:'read',tab:'B2B_Booking_Bonuses'});}catch(e){}
+    try{dBounty=await api({action:'read',tab:'B2B_Partner_Bounties'});}catch(e){}
+    try{dBonus=await api({action:'read',tab:'Bonuses'});}catch(e){}
+    if(loadEl)loadEl.style.display='none';
+    if(contentEl)contentEl.style.display='block';
+    const pending=[];
+    const approved=[];
+    if(dBook.success){
+      const c=cols(dBook.data[0]);
+      dBook.data.slice(1).filter(r=>r.some(x=>x)).forEach(r=>{
+        const employee=(r[c('Employee')]||'').trim();
+        if(!employee)return;
+        const rowIdx=dBook.data.indexOf(r)+1;
+        const item={sheet:'B2B_Booking_Bonuses',rowIdx,employee,date:fmtDate(r[c('Date')]),detail:r[c('Customer Name')]||'',type:'Booking Bonus',amount:75,approvedBy:(r[c('Approved By')]||'').trim(),payDate:r[c('Pay Date')]||''};
+        if(item.approvedBy)approved.push(item);else pending.push(item);
+      });
+    }
+    if(dBounty.success){
+      const c=cols(dBounty.data[0]);
+      dBounty.data.slice(1).filter(r=>r.some(x=>x)).forEach(r=>{
+        const employee=(r[c('Employee')]||'').trim();
+        const detail=(r[c('Org Name')]||r[c('Account')]||r[c('Deal Name')]||'').toString().trim();
+        if(!employee||!detail)return; // drop blank/partial rows
+        const rowIdx=dBounty.data.indexOf(r)+1;
+        const label=(r[c('Bonus Type')]||r[c('Deal Name')]||'').toString().trim()||'New Partner Bounty';
+        const item={sheet:'B2B_Partner_Bounties',rowIdx,employee,date:fmtDate(r[c('Date')]),detail,type:label,amount:inferBountyAmount(label,r[c('Amount')]),approvedBy:(r[c('Approved By')]||'').trim(),payDate:r[c('Pay Date')]||''};
+        if(item.approvedBy)approved.push(item);else pending.push(item);
+      });
+    }
+    if(dBonus.success){
+      const c=cols(dBonus.data[0]);
+      dBonus.data.slice(1).filter(r=>r.some(x=>x)).forEach(r=>{
+        const employee=(r[c('Employee')]||'').trim();
+        const status=(r[c('Status')]||'').trim();
+        const type=(r[c('Type')]||'').trim();
+        if(!employee||type==='Consistent Performance')return;
+        const amount=Number(r[c('Amount')])||0;
+        if(amount<=0)return; // nothing to pay
+        const approvedBy=(r[c('Approved By')]||'').trim();
+        const rowIdx=dBonus.data.indexOf(r)+1;
+        const item={sheet:'Bonuses',rowIdx,employee,date:fmtDate(r[c('Date Approved')]||r[c('Quarter')]),detail:`Q${r[c('Quarter')]||''} ${r[c('Year')]||''}`.trim(),type:type||'Bonus',amount,approvedBy,payDate:r[c('Pay Date')]||''};
+        if(status==='Earned'&&!approvedBy)pending.push(item);
+        else if(approvedBy||status==='Approved')approved.push(item);
+      });
+    }
+    INCENTIVE_PENDING=dedupeIncentive(pending);
+    const approvedDeduped=dedupeIncentive(approved);
+    const filter=document.getElementById('incentive-filter');
+    if(filter){
+      const emps=[...new Set(INCENTIVE_PENDING.concat(approvedDeduped).map(i=>i.employee).filter(Boolean))].sort();
+      const cur=filter.value;
+      filter.innerHTML='<option value="all">All employees</option>'+emps.map(e=>`<option value="${e}">${e}</option>`).join('');
+      if(cur&&[...filter.options].some(o=>o.value===cur))filter.value=cur;
+    }
+    renderIncentive();
+    const aLoad=document.getElementById('incentive-approved-loading');if(aLoad)aLoad.style.display='none';
+    const aTable=document.getElementById('incentive-approved-table');
+    const aEmpty=document.getElementById('incentive-approved-empty');
+    const aBody=document.getElementById('incentive-approved-body');
+    if(!approvedDeduped.length){if(aEmpty)aEmpty.style.display='block';if(aTable)aTable.style.display='none';}
+    else{if(aEmpty)aEmpty.style.display='none';if(aTable)aTable.style.display='table';if(aBody)aBody.innerHTML=approvedDeduped.map(i=>`<tr><td>${i.employee}</td><td>${i.type}</td><td><strong style="color:#c4581f">${fmtMoney(i.amount)}</strong></td><td>${i.approvedBy}</td><td>${i.payDate||''}</td></tr>`).join('');}
+  }catch(e){if(loadEl)loadEl.style.display='none';console.error(e);}
+}
+
+function renderIncentive(){
+  const filter=document.getElementById('incentive-filter');
+  const val=filter?filter.value:'all';
+  const tbody=document.getElementById('incentive-body');
+  const emptyEl=document.getElementById('incentive-empty');
+  const list=INCENTIVE_PENDING.filter(i=>val==='all'||i.employee===val);
+  if(!list.length){if(tbody)tbody.innerHTML='';if(emptyEl)emptyEl.style.display='block';return;}
+  if(emptyEl)emptyEl.style.display='none';
+  if(tbody)tbody.innerHTML=list.map(i=>`<tr><td>${i.employee}</td><td>${i.date}</td><td style="font-size:12px;color:#888">${i.detail}</td><td><span class="pill pill-orange">${i.type}</span></td><td><strong style="color:#c4581f">${fmtMoney(i.amount)}</strong></td><td><button class="action-btn btn-approve" onclick="showApprovalConfirm('${i.sheet}',${i.rowIdx},'${i.employee.replace(/'/g,"\\'")}','${i.type.replace(/'/g,"\\'")}',${i.amount})">Approve</button></td></tr>`).join('');
+}
+
+// ---------- Approval modal ----------
+function showApprovalConfirm(sheet,rowIndex,employeeName,bonusType,amount){
+  const today=new Date();
+  const nextPay=getNextPayDateFromApproval(today);
+  const approvalDateStr=today.toLocaleDateString('en-US');
+  const payDateStr=fmtPayDate(nextPay);
+  const existing=document.getElementById('approval-modal');if(existing)existing.remove();
+  const modal=document.createElement('div');
+  modal.id='approval-modal';
+  modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML=`
+    <div style="background:#fff;border-radius:8px;padding:28px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18)">
+      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#1a1a1a;margin-bottom:16px">Confirm Approval</div>
+      <div style="font-size:14px;color:#555;margin-bottom:16px"><strong>${employeeName}</strong> - ${bonusType}<br><strong style="color:#c4581f;font-size:16px">${fmtMoney(amount)}</strong></div>
+      <div style="background:#f5f0eb;border-radius:6px;padding:14px;margin-bottom:20px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#888">Approval date</span><span style="font-weight:600">${approvalDateStr}</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:#888">Pay date</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-weight:600;color:#c4581f" id="modal-pay-date-display">${payDateStr}</span>
+            <input type="date" id="modal-pay-date-input" value="${nextPay.toISOString().split('T')[0]}" style="font-size:12px;border:1px solid #ddd;border-radius:4px;padding:2px 6px;display:none" onchange="document.getElementById('modal-pay-date-display').textContent=new Date(this.value+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})">
+            <button onclick="togglePayDateInput()" style="font-size:11px;color:#c4581f;background:none;border:none;cursor:pointer;text-decoration:underline">change</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onclick="confirmApproval('${sheet}',${rowIndex},'${approvalDateStr}',${Number(amount)||0})" style="flex:1;background:#1a1a1a;color:#fff;border:none;border-radius:6px;padding:10px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer">Confirm</button>
+        <button onclick="document.getElementById('approval-modal').remove()" style="flex:1;background:#f0ece6;color:#1a1a1a;border:none;border-radius:6px;padding:10px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer">Cancel</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+function togglePayDateInput(){const input=document.getElementById('modal-pay-date-input');input.style.display=input.style.display==='none'?'inline-block':'none';}
+async function confirmApproval(sheet,rowIndex,approvalDateStr,amount){
+  const modal=document.getElementById('approval-modal');
+  const payDateDisplay=document.getElementById('modal-pay-date-display');
+  const payDateStr=payDateDisplay?payDateDisplay.textContent:'';
+  modal.querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{
+    const d=await api({action:'read',tab:sheet});
+    if(!d.success)throw new Error('Read failed');
+    const c=cols(d.data[0]);
+    const row=[...d.data[rowIndex-1]];
+    const approvedByIdx=c('Approved By')>=0?c('Approved By'):c('Approved by');
+    if(approvedByIdx>=0)row[approvedByIdx]=APPROVER;
+    const approvedDateIdx=c('Approved Date')>=0?c('Approved Date'):c('Date Approved');
+    if(approvedDateIdx>=0)row[approvedDateIdx]=approvalDateStr;
+    const payDateIdx=c('Pay Date');
+    if(payDateIdx>=0)row[payDateIdx]=payDateStr;
+    // Backfill the Amount cell if the sheet left it blank, so payroll has the figure
+    const amtIdx=c('Amount');
+    if(amtIdx>=0&&amount&&!(Number(row[amtIdx])>0))row[amtIdx]=amount;
+    const statusIdx=c('Status');
+    if(statusIdx>=0&&sheet==='Bonuses')row[statusIdx]='Approved';
+    await api({action:'update',tab:sheet,rowIndex:rowIndex,row:JSON.stringify(row)});
+    modal.remove();
+    loadTeamCommission();
+    loadIncentivePay();
+  }catch(e){console.error('confirmApproval error:',e);modal.querySelectorAll('button').forEach(b=>b.disabled=false);alert('Error saving approval. Please try again.');}
+}
+
+// ---------- PTO admin ----------
+async function loadAdminPTO(){
+  try{
+    const d=await api({action:'read',tab:'PTO_Requests'});
+    document.getElementById('pending-loading').style.display='none';
+    document.getElementById('all-requests-loading').style.display='none';
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const today=new Date().toISOString().split('T')[0];
+    let rows=d.data.slice(1).filter(r=>r.some(x=>x));
+    const pending=rows.filter(r=>(r[c('Status')]||'Pending')==='Pending'||!r[c('Status')]);
+    document.getElementById('pending-count').textContent=pending.length+' pending';
+    const pendingBody=document.getElementById('pending-body');
+    if(pending.length){
+      document.getElementById('pending-table').style.display='table';
+      document.getElementById('pending-empty').style.display='none';
+      pendingBody.innerHTML=pending.map(r=>{
+        const idx=d.data.indexOf(r)+1;
+        return `<tr><td><strong>${r[c('Employee')]||''}</strong></td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${r[c('Reason')]||r[c('Notes')]||''}</td><td><button class="action-btn btn-approve" onclick="reviewPTO(${idx},'Approved')">Approve</button> <button class="action-btn btn-deny" onclick="reviewPTO(${idx},'Denied')">Deny</button></td></tr>`;
+      }).join('');
+    }else{document.getElementById('pending-table').style.display='none';document.getElementById('pending-empty').style.display='block';if(pendingBody)pendingBody.innerHTML='';}
+    const active=rows.filter(r=>{
+      const status=(r[c('Status')]||'Pending').trim();
+      const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
+      if(status==='Pending')return true;
+      return endDate>=today;
+    });
+    const archivable=rows.filter(r=>{
+      const status=(r[c('Status')]||'').trim();
+      const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
+      return status==='Denied'&&endDate<today;
+    });
+    const allTable=document.getElementById('all-requests-table');
+    const allEmpty=document.getElementById('all-requests-empty');
+    if(active.length){
+      allTable.style.display='table';allEmpty.style.display='none';
+      document.getElementById('all-requests-body').innerHTML=active.slice().reverse().map(r=>`<tr><td>${r[c('Employee')]||''}</td><td>${fmtDate(r[c('Submitted')])}</td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${statusPill(r[c('Status')])}</td><td>${r[c('Reviewed By')]||''}</td></tr>`).join('');
+    }else{allTable.style.display='none';allEmpty.style.display='block';}
+    const archiveSection=document.getElementById('archive-section');
+    if(archiveSection){
+      if(archivable.length){
+        archiveSection.style.display='block';
+        document.getElementById('archive-body').innerHTML=archivable.map(r=>{
+          const idx=d.data.indexOf(r)+1;
+          return `<tr><td>${r[c('Employee')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${fmtDate(r[c('Submitted')])}</td><td><button class="action-btn btn-edit" onclick="archiveRequest(${idx})">Archive</button></td></tr>`;
+        }).join('');
+      }else archiveSection.style.display='none';
+    }
+  }catch(e){console.error(e);}
+}
+
+async function archiveRequest(rowIndex){
+  try{
+    const d=await api({action:'read',tab:'PTO_Requests'});
+    if(!d.success)return;
+    const row=[...d.data[rowIndex-1]];
+    await api({action:'append',tab:'PTO_Archive',row:JSON.stringify(row)});
+    await api({action:'delete',tab:'PTO_Requests',rowIndex:rowIndex});
+    loadAdminPTO();loadAllBalances();
+  }catch(e){alert('Error archiving request');}
+}
+
+async function reviewPTO(rowIndex,status){
+  try{
+    const d=await api({action:'read',tab:'PTO_Requests'});
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const row=[...d.data[rowIndex-1]];
+    row[c('Status')]=status;
+    row[c('Reviewed By')]=APPROVER;
+    await api({action:'update',tab:'PTO_Requests',rowIndex:rowIndex,row:JSON.stringify(row)});
+    loadAdminPTO();
+    if(typeof loadAllBalances==='function')loadAllBalances();
+  }catch(e){alert('Error updating request');}
+}
+
+function adminCalcDays(){
+  const start=document.getElementById('admin-pto-start').value;
+  const end=document.getElementById('admin-pto-end').value||start;
+  if(!start)return;
+  let count=0;let cur=new Date(start+'T12:00:00');const endD=new Date((end||start)+'T12:00:00');
+  while(cur<=endD){const dd=cur.getDay();if(dd!==0&&dd!==6)count++;cur.setDate(cur.getDate()+1);}
+  const el=document.getElementById('admin-pto-days');if(el)el.value=count;
+}
+
+async function adminCreatePTO(){
+  const emp=document.getElementById('admin-pto-emp').value;
+  const type=document.getElementById('admin-pto-type').value;
+  const start=document.getElementById('admin-pto-start').value;
+  const end=document.getElementById('admin-pto-end').value||start;
+  const days=document.getElementById('admin-pto-days').value;
+  const notes=document.getElementById('admin-pto-notes').value;
+  const alertEl=document.getElementById('admin-pto-alert');
+  if(!emp||!start||!days){alertEl.innerHTML='<div class="alert alert-error">Employee, start date, and days are required.</div>';return;}
+  const btn=document.getElementById('admin-pto-btn');btn.disabled=true;btn.textContent='Saving...';
+  try{
+    const row=[`PTO-${Date.now()}`,emp,type,start,end,Number(days),notes,'Approved',new Date().toLocaleDateString('en-US'),APPROVER];
+    await api({action:'append',tab:'PTO_Requests',row:JSON.stringify(row)});
+    alertEl.innerHTML=`<div class="alert alert-success">Logged and approved for ${emp}.</div>`;
+    ['admin-pto-start','admin-pto-end','admin-pto-days','admin-pto-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    loadAdminPTO();loadAllBalances();
+  }catch(e){alertEl.innerHTML='<div class="alert alert-error">Error saving. Please try again.</div>';}
+  btn.disabled=false;btn.textContent='Log and Approve';
+}
+
+async function loadAllBalances(){
+  try{
+    const d=await api({action:'read',tab:'PTO_Balances'});
+    document.getElementById('balances-loading').style.display='none';
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim());
+    if(!rows.length)return;
+    document.getElementById('balances-table').style.display='table';
+    document.getElementById('balances-body').innerHTML=rows.map(r=>{
+      const vu=Number(r[c('Vacation Used')])||0,su=Number(r[c('Sick Used')])||0;
+      const vb=c('Vacation Balance')>=0?Number(r[c('Vacation Balance')])||0:Math.max(0,10-vu);
+      const sb=c('Sick Balance')>=0?Number(r[c('Sick Balance')])||0:Math.max(0,5-su);
+      return `<tr><td><strong>${r[c('Employee')]}</strong></td><td>${vu}</td><td>${vb}</td><td>${su}</td><td>${sb}</td></tr>`;
+    }).join('');
+  }catch(e){console.error(e);}
+}
+
+async function loadExpiryAlerts(){
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    document.getElementById('expiry-loading').style.display='none';
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const docsIdx=c('Documents')>=0?c('Documents'):8;
+    const rows=d.data.slice(1).filter(r=>r[c('Employee')]);
+    const withExpiry=rows.map(r=>{
+      let expiry='';
+      if(r[docsIdx]){try{const doc=JSON.parse(r[docsIdx]);expiry=doc['Government ID - Expiry']||'';}catch(e){}}
+      return {name:r[c('Employee')],expiry};
+    }).filter(r=>r.expiry);
+    if(!withExpiry.length){document.getElementById('expiry-empty').style.display='block';return;}
+    document.getElementById('expiry-table').style.display='table';
+    document.getElementById('expiry-body').innerHTML=withExpiry.sort((a,b)=>new Date(a.expiry)-new Date(b.expiry)).map(r=>`<tr><td><strong>${r.name}</strong></td><td>${fmtDate(r.expiry)}</td><td><span class="${expiryClass(r.expiry)}">${expiryLabel(r.expiry)}</span></td></tr>`).join('');
+  }catch(e){console.error(e);}
+}
+
+// ---------- Employee Records admin (editable) ----------
+function addDays(dateStr,n){if(!dateStr)return '';const d=new Date(dateStr+'T12:00:00');if(isNaN(d))return '';d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];}
+function toInputDate(d){if(!d)return '';try{const x=new Date(d);if(isNaN(x))return '';return x.toISOString().split('T')[0];}catch(e){return '';}}
+
+async function loadRecordsAdmin(){
+  const loadEl=document.getElementById('records-admin-loading');
+  const listEl=document.getElementById('records-admin-list');
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success||!listEl)return;
+    const c=cols(d.data[0]);
+    const hasPin=c('PIN')>=0;
+    const rows=d.data.slice(1).map((r,i)=>({r,rowIndex:i+2})).filter(o=>(o.r[c('Employee')]||'').trim());
+    if(!rows.length){listEl.innerHTML='<div class="empty-state">No employee records found.</div>';return;}
+    listEl.innerHTML=rows.map(o=>{
+      const r=o.r;const name=(r[c('Employee')]||'').trim();
+      const safe='rec-'+name.replace(/[^a-z0-9]/gi,'');
+      const hire=toInputDate(r[c('Hire Date')]);
+      const ninety=r[c('Review Due 90Day')]?fmtDate(r[c('Review Due 90Day')]):(hire?fmtDate(addDays(hire,90)):'--');
+      const pinField=hasPin?`<div class="form-group" style="max-width:120px"><label class="form-label">PIN</label><input type="text" class="form-input" id="${safe}-pin" value="${r[c('PIN')]||''}"></div>`:'';
+      return `<div class="card" style="background:#faf8f5;margin-bottom:14px">
+        <div class="card-title" style="font-size:15px">${name}</div>
+        <div id="${safe}-alert"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Role</label><input type="text" class="form-input" id="${safe}-role" value="${r[c('Role')]||''}"></div>
+          <div class="form-group"><label class="form-label">Hire Date</label><input type="date" class="form-input" id="${safe}-hire" value="${hire}"></div>
+          <div class="form-group"><label class="form-label">Status</label><select class="form-input" id="${safe}-status"><option ${(r[c('Status')]||'')==='Active'?'selected':''}>Active</option><option ${(r[c('Status')]||'')==='Inactive'?'selected':''}>Inactive</option></select></div>
+          ${pinField}
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Last Review</label><input type="date" class="form-input" id="${safe}-last" value="${toInputDate(r[c('Last Review')])}"></div>
+          <div class="form-group"><label class="form-label">Next Review</label><input type="date" class="form-input" id="${safe}-next" value="${toInputDate(r[c('Next Review')])}"></div>
+          <div class="form-group"><label class="form-label">90-Day Review</label><input type="text" class="form-input" value="${ninety}" readonly style="background:#f0ede8;color:#888"></div>
+        </div>
+        <button class="action-btn btn-approve" onclick="saveRecord('${name.replace(/'/g,"\\'")}',${o.rowIndex},'${safe}')">Save</button>
+      </div>`;
+    }).join('');
+  }catch(e){if(loadEl)loadEl.style.display='none';console.error(e);}
+}
+
+async function saveRecord(name,rowIndex,safe){
+  const alertEl=document.getElementById(safe+'-alert');
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success)throw new Error('read');
+    const c=cols(d.data[0]);
+    const row=[...d.data[rowIndex-1]];
+    const setIf=(col,val)=>{const i=c(col);if(i>=0)row[i]=val;};
+    const g=id=>{const el=document.getElementById(safe+'-'+id);return el?el.value:'';};
+    setIf('Role',g('role'));
+    const hire=g('hire');
+    setIf('Hire Date',hire);
+    setIf('Status',g('status'));
+    setIf('Last Review',g('last'));
+    setIf('Next Review',g('next'));
+    if(c('PIN')>=0)setIf('PIN',g('pin'));
+    if(c('Review Due 90Day')>=0&&hire)row[c('Review Due 90Day')]=addDays(hire,90);
+    await api({action:'update',tab:'Employee_Records',rowIndex:rowIndex,row:JSON.stringify(row)});
+    if(alertEl)alertEl.innerHTML='<div class="alert alert-success">Saved.</div>';
+    loadExpiryAlerts();
+  }catch(e){if(alertEl)alertEl.innerHTML='<div class="alert alert-error">Error saving.</div>';}
+}
+
+// ===================================================================
+//  MY DASHBOARD (personal)
+// ===================================================================
 async function submitPTO(employee,approver){
   const type=document.getElementById('pto-type').value;
   const start=document.getElementById('pto-start').value;
@@ -425,16 +955,24 @@ async function submitPTO(employee,approver){
   const notes=document.getElementById('pto-notes').value;
   const alertEl=document.getElementById('pto-form-alert');
   if(!start||!days){alertEl.innerHTML='<div class="alert alert-error">Start date and number of days are required.</div>';return;}
-  const btn=document.getElementById('pto-submit-btn');
-  btn.disabled=true;btn.textContent='Submitting...';
+  const btn=document.getElementById('pto-submit-btn');btn.disabled=true;btn.textContent='Submitting...';
   try{
     const row=[`PTO-${Date.now()}`,employee,type,start,end,Number(days),notes,'Pending',new Date().toLocaleDateString('en-US'),''];
     await api({action:'append',tab:'PTO_Requests',row:JSON.stringify(row)});
-    alertEl.innerHTML=`<div class="alert alert-success">Request submitted. ${approver} will review it.</div>`;
+    alertEl.innerHTML=`<div class="alert alert-success">Request submitted.</div>`;
     ['pto-start','pto-end','pto-days','pto-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     if(typeof loadMyRequests==='function')loadMyRequests(employee);
   }catch(e){alertEl.innerHTML='<div class="alert alert-error">Error submitting. Please try again.</div>';}
   btn.disabled=false;btn.textContent='Submit Request';
+}
+
+function calcWorkingDays(){
+  const start=document.getElementById('pto-start').value;
+  const end=document.getElementById('pto-end').value||start;
+  if(!start)return;
+  let count=0;let cur=new Date(start+'T12:00:00');const endD=new Date((end||start)+'T12:00:00');
+  while(cur<=endD){const dd=cur.getDay();if(dd!==0&&dd!==6)count++;cur.setDate(cur.getDate()+1);}
+  const daysEl=document.getElementById('pto-days');if(daysEl)daysEl.value=count;
 }
 
 async function loadPTOBalances(employee){
@@ -446,16 +984,13 @@ async function loadPTOBalances(employee){
     if(!row)return;
     const vacUsed=Number(row[c('Vacation Used')])||0;
     const sickUsed=Number(row[c('Sick Used')])||0;
-    const vacBal=Number(row[c('Vacation Balance')])||0;
-    const sickBal=Number(row[c('Sick Balance')])||0;
-    const hireDate=row[c('Hire Date')]||'';
-    const vacTotal=vacUsed+vacBal;
-    const sickTotal=sickUsed+sickBal;
+    const vacBal=c('Vacation Balance')>=0?Number(row[c('Vacation Balance')])||0:Math.max(0,10-vacUsed);
+    const sickBal=c('Sick Balance')>=0?Number(row[c('Sick Balance')])||0:Math.max(0,5-sickUsed);
+    const vacTotal=vacUsed+vacBal,sickTotal=sickUsed+sickBal;
     const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
     const sw=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=v;};
     s('vac-remaining',vacBal);s('vac-used',`of ${vacTotal} used: ${vacUsed}`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsed/vacTotal)*100)+'%':'0%');
     s('sick-remaining',sickBal);s('sick-used',`of ${sickTotal} used: ${sickUsed}`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsed/sickTotal)*100)+'%':'0%');
-    if(hireDate){const hm=document.getElementById('hire-meta');if(hm)hm.textContent='Hire date: '+fmtDate(hireDate);}
   }catch(e){console.error(e);}
 }
 
@@ -477,35 +1012,13 @@ async function loadMyRequests(employee){
       const status=(r[c('Status')]||'Pending').trim();
       const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
       let pill;
-      if(status==='Approved'&&endDate>=today){pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';}
-      else if(status==='Approved'){pill='<span class="pill pill-approved">Approved</span>';}
-      else if(status==='Denied'){pill='<span class="pill pill-denied">Denied</span>';}
-      else{pill='<span class="pill pill-pending">Pending</span>';}
-      return `<tr><td>${fmtDate(r[c('Submitted')])}</td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${pill}</td><td>${r[c('Reason')]||''}</td></tr>`;
+      if(status==='Approved'&&endDate>=today)pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';
+      else if(status==='Approved')pill='<span class="pill pill-approved">Approved</span>';
+      else if(status==='Denied')pill='<span class="pill pill-denied">Denied</span>';
+      else pill='<span class="pill pill-pending">Pending</span>';
+      return `<tr><td>${fmtDate(r[c('Submitted')])}</td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${pill}</td><td>${r[c('Reason')]||r[c('Notes')]||''}</td></tr>`;
     }).join('');
   }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
-}
-
-async function loadCommissions(employee){
-  try{
-    const d=await api({action:'read',tab:'Commissions'});
-    ['comm-loading','ledger-loading'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-    const contentEl=document.getElementById('comm-content');
-    const tableEl=document.getElementById('ledger-table');
-    const emptyEl=document.getElementById('ledger-empty');
-    if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
-    const rows=d.data.slice(1).filter(r=>r[1]===employee);
-    let ytd=0;rows.forEach(r=>ytd+=Number(r[7]||0));
-    if(contentEl)contentEl.style.display='block';
-    const ytdEl=document.getElementById('comm-ytd');if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
-    // Only show empty if no active AND no history
-const today2=new Date().toISOString().split('T')[0];
-const hasAny=rows.length>0;
-if(!hasAny){if(emptyEl)emptyEl.style.display='block';return;}
-    if(tableEl)tableEl.style.display='table';
-    const tbody=document.getElementById('ledger-body');
-    if(tbody)tbody.innerHTML=rows.reverse().map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[4]||''}</td><td>${r[5]||''}</td><td>${r[6]?r[6]+'%':''}</td><td><strong>${fmtMoney(r[7])}</strong></td><td>${r[8]||''}</td></tr>`).join('');
-  }catch(e){console.error(e);}
 }
 
 async function loadRecord(employee){
@@ -520,30 +1033,31 @@ async function loadRecord(employee){
     if(contentEl)contentEl.style.display='block';
     const tbody=document.getElementById('record-body');
     if(!row){if(tbody)tbody.innerHTML='<tr><td colspan="2" class="empty-state">No record on file yet.</td></tr>';return;}
+    const hire=row[c('Hire Date')];
     const fields=[
       ['Role',row[c('Role')]],
-      ['Hire Date',fmtDate(row[c('Hire Date')])],
-      ['90-Day Review',fmtDate(row[c('Review Due 90Day')])],
-      ['Annual Review Due',fmtDate(row[c('Review Due Annual')])],
+      ['Hire Date',fmtDate(hire)],
+      ['90-Day Review',row[c('Review Due 90Day')]?fmtDate(row[c('Review Due 90Day')]):(hire?fmtDate(addDays(toInputDate(hire),90)):'')],
       ['Last Review',fmtDate(row[c('Last Review')])],
       ['Next Review',fmtDate(row[c('Next Review')])],
       ['Status',row[c('Status')]]
     ];
     if(tbody)tbody.innerHTML=fields.map(([label,val])=>`<tr><td style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;width:160px">${label}</td><td>${val||'<span style="color:#ddd">-</span>'}</td></tr>`).join('');
-  }catch(e){}
+  }catch(e){console.error(e);}
 }
 
-const ALL_DOCS_BASE=['Signed Offer Letter','Employee Handbook Acknowledgment','Government ID','Direct Deposit Authorization','W-4','I-9 Verification','Emergency Contact'];
 async function loadDocs(employee,hasCommissionDoc){
   const docs=[...ALL_DOCS_BASE];
   if(hasCommissionDoc)docs.push('Commission / Incentive Outline');
   try{
     const d=await api({action:'read',tab:'Employee_Records'});
     const loadEl=document.getElementById('docs-loading');if(loadEl)loadEl.style.display='none';
+    const c=cols(d.data&&d.data[0]?d.data[0]:[]);
+    const docsIdx=c('Documents')>=0?c('Documents'):8;
     let docData={};
     if(d.success){
-      const row=d.data.slice(1).find(r=>r[0]===employee);
-      if(row&&row[8]){try{docData=JSON.parse(row[8]);}catch(e){}}
+      const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
+      if(row&&row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
     }
     const container=document.getElementById('docs-list');
     if(!container)return;
@@ -551,18 +1065,9 @@ async function loadDocs(employee,hasCommissionDoc){
     container.innerHTML=docs.map(doc=>{
       const url=docData[doc]||'';
       const isID=doc==='Government ID';
-      const expirySection=isID?`<div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
-        <span class="${expiryClass(idExpiry)}" id="expiry-label">${expiryLabel(idExpiry)}</span>
-        <input type="date" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" id="expiry-input" value="${idExpiry}" onchange="saveExpiry('${employee}')">
-      </div>`:'';
+      const expirySection=isID?`<div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap"><span class="${expiryClass(idExpiry)}" id="expiry-label">${expiryLabel(idExpiry)}</span><input type="date" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" id="expiry-input" value="${idExpiry}" onchange="saveExpiry('${employee.replace(/'/g,"\\'")}')"></div>`:'';
       const safeDoc=doc.replace(/[^a-zA-Z0-9]/g,'-');
-      return `<div class="doc-row">
-        <div>${doc==='Government ID'?`<div class="doc-name">${doc}</div>${expirySection}`:`<div class="doc-name">${doc}</div>`}</div>
-        <div class="doc-actions">
-          ${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:missingPill()}
-          <input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${employee}','${doc}',this.value)">
-        </div>
-      </div>`;
+      return `<div class="doc-row"><div>${isID?`<div class="doc-name">${doc}</div>${expirySection}`:`<div class="doc-name">${doc}</div>`}</div><div class="doc-actions">${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:missingPill()}<input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${employee.replace(/'/g,"\\'")}','${doc.replace(/'/g,"\\'")}',this.value)"></div></div>`;
     }).join('');
   }catch(e){console.error(e);}
 }
@@ -571,11 +1076,12 @@ async function saveDocLink(employee,doc,url){
   try{
     const d=await api({action:'read',tab:'Employee_Records'});
     if(!d.success)return;
-    const rowIdx=d.data.findIndex(r=>r[0]===employee);
+    const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
+    const rowIdx=d.data.findIndex(r=>(r[c('Employee')]||'').trim()===employee);
     if(rowIdx<0)return;
     const row=[...d.data[rowIdx]];
-    let docData={};if(row[8]){try{docData=JSON.parse(row[8]);}catch(e){}}
-    docData[doc]=url;row[8]=JSON.stringify(docData);
+    let docData={};if(row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
+    docData[doc]=url;row[docsIdx]=JSON.stringify(docData);
     await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
   }catch(e){console.error(e);}
 }
@@ -587,10 +1093,11 @@ async function saveExpiry(employee){
   try{
     const d=await api({action:'read',tab:'Employee_Records'});
     if(!d.success)return;
-    const rowIdx=d.data.findIndex(r=>r[0]===employee);if(rowIdx<0)return;
+    const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
+    const rowIdx=d.data.findIndex(r=>(r[c('Employee')]||'').trim()===employee);if(rowIdx<0)return;
     const row=[...d.data[rowIdx]];
-    let docData={};if(row[8]){try{docData=JSON.parse(row[8]);}catch(e){}}
-    docData['Government ID - Expiry']=val;row[8]=JSON.stringify(docData);
+    let docData={};if(row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
+    docData['Government ID - Expiry']=val;row[docsIdx]=JSON.stringify(docData);
     await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
   }catch(e){console.error(e);}
 }
@@ -606,206 +1113,47 @@ async function loadEquipment(employee){
     const c=cols(d.data[0]);
     const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
     if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
-    if(listEl){
-      listEl.innerHTML=rows.map(r=>`<div class="bonus-row">
-        <div class="bonus-name">${r[c('Make Model')]||''}
-          <div class="bonus-criteria">${r[c('Item Type')]||''} ${r[c('Serial Number')]?'&bull; S/N: '+r[c('Serial Number')]:''}</div>
-        </div>
-        <div style="font-size:12px;color:#aaa;text-align:right">Issued ${fmtDate(r[c('Date Issued')])||''}${r[c('Date Returned')]?' &bull; Returned '+fmtDate(r[c('Date Returned')]):''}</div>
-      </div>`).join('');
-    }
+    if(listEl)listEl.innerHTML=rows.map(r=>`<div class="bonus-row"><div class="bonus-name">${r[c('Make Model')]||r[c('Make / Model')]||''}<div class="bonus-criteria">${r[c('Item Type')]||r[c('Type')]||''} ${r[c('Serial Number')]?'&bull; S/N: '+r[c('Serial Number')]:''}</div></div><div style="font-size:12px;color:#aaa;text-align:right">Issued ${fmtDate(r[c('Date Issued')])||''}${r[c('Date Returned')]?' &bull; Returned '+fmtDate(r[c('Date Returned')]):''}</div></div>`).join('');
   }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
 }
 
-async function addEquipment(employee){
-  const type=document.getElementById('equip-type').value;
-  const makeModel=document.getElementById('equip-makemodel').value;
-  const serial=document.getElementById('equip-serial').value;
-  const issued=document.getElementById('equip-issued').value;
-  const notes=document.getElementById('equip-notes').value;
-  const alertEl=document.getElementById('equip-alert');
-  if(!type||!issued){alertEl.innerHTML='<div class="alert alert-error">Type and issue date are required.</div>';return;}
-  const btn=document.getElementById('equip-submit-btn');
-  btn.disabled=true;btn.textContent='Saving...';
-  try{
-    await api({action:'append',tab:'Equipment',row:JSON.stringify([employee,type,makeModel,serial,issued,'',notes])});
-    alertEl.innerHTML='<div class="alert alert-success">Equipment added.</div>';
-    ['equip-makemodel','equip-serial','equip-issued','equip-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-    loadEquipment(employee);
-  }catch(e){alertEl.innerHTML='<div class="alert alert-error">Error saving. Please try again.</div>';}
-  btn.disabled=false;btn.textContent='Add Equipment';
+// ---------- Populate admin selects ----------
+function populateAdminSelects(){
+  const sel=document.getElementById('admin-pto-emp');
+  if(sel)sel.innerHTML=ROSTER.map(e=>`<option>${e}</option>`).join('');
 }
 
-
-const APPROVER = 'Brandon McClure';
-
-async function loadAdminPTO(){
+// ---------- Stash commission header indices for prev-comm ----------
+async function cacheCommissionHeaders(){
   try{
-    const d=await api({action:'read',tab:'PTO_Requests'});
-    document.getElementById('pending-loading').style.display='none';
-    document.getElementById('all-requests-loading').style.display='none';
-    if(!d.success)return;
-    const c=cols(d.data[0]);
-    const today=new Date().toISOString().split('T')[0];
-    let rows=d.data.slice(1).filter(r=>r.some(x=>x));
-    const pending=rows.filter(r=>(r[c('Status')]||'Pending')==='Pending'||!r[c('Status')]);
-    document.getElementById('pending-count').textContent=pending.length+' pending';
-    if(pending.length){
-      document.getElementById('pending-table').style.display='table';
-      document.getElementById('pending-body').innerHTML=pending.map((r)=>{
-        const idx=d.data.indexOf(r)+1;
-        return `<tr>
-          <td><strong>${r[c('Employee')]||''}</strong></td><td>${r[c('Type')]||''}</td>
-          <td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td>
-          <td>${r[c('Days')]||''}</td><td>${r[c('Reason')]||''}</td>
-          <td>
-            <button class="action-btn btn-approve" onclick="reviewPTO(${idx},'Approved')">Approve</button>
-            <button class="action-btn btn-deny" onclick="reviewPTO(${idx},'Denied')">Deny</button>
-          </td>
-        </tr>`;
-      }).join('');
-    } else document.getElementById('pending-empty').style.display='block';
-    const active=rows.filter(r=>{
-      const status=(r[c('Status')]||'Pending').trim();
-      const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
-      if(status==='Pending') return true;
-      if(status==='Approved') return endDate>=today;
-      if(status==='Denied') return endDate>=today;
-      return false;
-    });
-    const archivable=rows.filter(r=>{
-      const status=(r[c('Status')]||'').trim();
-      const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
-      return status==='Denied'&&endDate<today;
-    });
-    if(active.length){
-      document.getElementById('all-requests-table').style.display='table';
-      document.getElementById('all-requests-body').innerHTML=active.slice().reverse().map(r=>`<tr>
-        <td>${r[c('Employee')]||''}</td><td>${fmtDate(r[c('Submitted')])}</td><td>${r[c('Type')]||''}</td>
-        <td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td>
-        <td>${r[c('Days')]||''}</td><td>${statusPill(r[c('Status')])}</td><td>${r[c('Reviewed By')]||''}</td>
-      </tr>`).join('');
-    } else document.getElementById('all-requests-empty').style.display='block';
-    const archiveSection=document.getElementById('archive-section');
-    if(archiveSection){
-      if(archivable.length){
-        archiveSection.style.display='block';
-        document.getElementById('archive-body').innerHTML=archivable.map(r=>{
-          const idx=d.data.indexOf(r)+1;
-          return `<tr>
-            <td>${r[c('Employee')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td>
-            <td>${r[c('Days')]||''}</td><td>${fmtDate(r[c('Submitted')])}</td>
-            <td><button class="action-btn btn-edit" onclick="archiveRequest(${idx})">Archive</button></td>
-          </tr>`;
-        }).join('');
-      } else archiveSection.style.display='none';
+    const d=await api({action:'read',tab:'Commissions'});
+    if(d.success){
+      const c=cols(d.data[0]);
+      window.__commHeaders=d.data[0];
+      window.__cPayPeriod=c('Pay Period');window.__cCommission=c('Commission');window.__cDate=c('Date');window.__cEmployee=c('Employee');window.__cDeal=c('Deal Name');window.__cApprovedBy=c('Approved By')>=0?c('Approved By'):c('Approved by');
     }
-  }catch(e){console.error(e);}
+  }catch(e){}
 }
 
-async function archiveRequest(rowIndex){
-  try{
-    const d=await api({action:'read',tab:'PTO_Requests'});
-    if(!d.success)return;
-    const row=[...d.data[rowIndex-1]];
-    // append to Archive tab
-    await api({action:'append',tab:'PTO_Archive',row:JSON.stringify(row)});
-    // delete from PTO_Requests
-    await api({action:'delete',tab:'PTO_Requests',rowIndex:rowIndex});
-    loadAdminPTO();
-    loadAllBalances();
-  }catch(e){alert('Error archiving request');}
-}
 
-async function reviewPTO(rowIndex, status){
-  try{
-    const d = await api({action:'read',tab:'PTO_Requests'});
-    if(!d.success)return;
-    const c=cols(d.data[0]);
-    const row=[...d.data[rowIndex-1]];
-    row[c('Status')]=status;
-    row[c('Reviewed By')]=APPROVER;
-    await api({action:'update',tab:'PTO_Requests',rowIndex:rowIndex,row:JSON.stringify(row)});
-    loadAdminPTO();
-    if(typeof loadAllBalances==='function')loadAllBalances();
-  }catch(e){alert('Error updating request');}
-}
-
-async function loadAllBalances(){
-  try{
-    const d = await api({action:'read',tab:'PTO_Balances'});
-    document.getElementById('balances-loading').style.display='none';
-    if(!d.success)return;
-    const rows=d.data.filter(r=>r[0]&&r[0]!=='Employee');
-    if(!rows.length)return;
-    document.getElementById('balances-table').style.display='table';
-    document.getElementById('balances-body').innerHTML=rows.map(r=>{
-      const vu=Number(r[1]||0),su=Number(r[2]||0);
-      return `<tr>
-        <td><strong>${r[0]}</strong></td>
-        <td>${vu}</td><td>${Math.max(0,10-vu)}</td>
-        <td>${su}</td><td>${Math.max(0,5-su)}</td>
-      </tr>`;
-    }).join('');
-  }catch(e){console.error(e);}
-}
-
-async function loadExpiryAlerts(){
-  try{
-    const d = await api({action:'read',tab:'Employee_Records'});
-    document.getElementById('expiry-loading').style.display='none';
-    if(!d.success)return;
-    const rows=d.data.slice(1).filter(r=>r[0]);
-    const withExpiry=rows.map(r=>{
-      let expiry='';
-      if(r[8]){try{const doc=JSON.parse(r[8]);expiry=doc['Government ID - Expiry']||'';}catch(e){}}
-      return {name:r[0],expiry};
-    }).filter(r=>r.expiry);
-    if(!withExpiry.length){document.getElementById('expiry-empty').style.display='block';return;}
-    document.getElementById('expiry-table').style.display='table';
-    document.getElementById('expiry-body').innerHTML=withExpiry
-      .sort((a,b)=>new Date(a.expiry)-new Date(b.expiry))
-      .map(r=>`<tr>
-        <td><strong>${r.name}</strong></td>
-        <td>${fmtDate(r.expiry)}</td>
-        <td><span class="${expiryClass(r.expiry)}">${expiryLabel(r.expiry)}</span></td>
-      </tr>`).join('');
-  }catch(e){console.error(e);}
-}
-
-loadAdminPTO();
-loadAllBalances();
-loadExpiryAlerts();
-
-
-const EMPLOYEE='Brandon McClure';
-loadPTOBalances(EMPLOYEE);
-loadMyRequests(EMPLOYEE);
-loadRecord(EMPLOYEE);
-loadEquipment(EMPLOYEE);
-
-// Scorecard
+// ===================================================================
+//  MY SCORECARD (Brandon)
+// ===================================================================
 const QTR_BONUS_B=1500;
-function getCurrentQuarter(){const m=new Date().getMonth();return Math.floor(m/3)+1;}
-document.getElementById('sc-quarter').textContent=getCurrentQuarter();
-
 function updateDomainUI(domainId,pillId,pass,pending){
   const el=document.getElementById(domainId);
   if(!el)return;
   el.style.borderLeft=pending?'3px solid #e4dbd0':pass?'3px solid #28a745':'3px solid #dc3545';
   el.style.paddingLeft='13px';
-  document.getElementById(pillId).innerHTML=passFailPill(pass,pending);
+  el.classList.toggle('pass',!!pass&&!pending);
+  const p=document.getElementById(pillId);if(p)p.innerHTML=passFailPill(pass,pending);
 }
 function updateBTotal(){
   let total=0;
-  ['domain-pipedrive','domain-ar','domain-consistent'].forEach(d=>{
-    const el=document.getElementById(d);
-    if(el&&el.classList.contains('pass'))total+=QTR_BONUS_B;
-  });
-  document.getElementById('sc-total').textContent=fmtMoney(total);
+  ['domain-pipedrive','domain-ar','domain-consistent'].forEach(d=>{const el=document.getElementById(d);if(el&&el.classList.contains('pass'))total+=QTR_BONUS_B;});
+  const t=document.getElementById('sc-total');if(t)t.textContent=fmtMoney(total);
 }
 
-// AR file processing using SheetJS
 async function processARFile(){
   const file=document.getElementById('ar-file').files[0];
   if(!file)return;
@@ -869,7 +1217,6 @@ async function processARFile(){
     }
   }catch(e){alertEl.innerHTML='<div class="alert alert-error">Error processing file.</div>';}
 }
-
 async function loadBrandonScorecard(){
   document.getElementById('scorecard-loading').style.display='none';
   document.getElementById('scorecard-content').style.display='block';
@@ -900,31 +1247,6 @@ async function loadBrandonScorecard(){
     }
   }catch(e){}
 }
-
-loadBrandonScorecard();
-</script>
-<script>
-// Auto-calculate working days when dates change
-function calcWorkingDays() {
-  const start = document.getElementById('pto-start').value;
-  const end = document.getElementById('pto-end').value || start;
-  if (!start) return;
-  let count = 0;
-  let cur = new Date(start + 'T12:00:00');
-  const endD = new Date((end || start) + 'T12:00:00');
-  while (cur <= endD) {
-    const d = cur.getDay();
-    if (d !== 0 && d !== 6) count++;
-    cur.setDate(cur.getDate() + 1);
-  }
-  const daysEl = document.getElementById('pto-days');
-  if (daysEl) daysEl.value = count;
-}
-</script>
-
-<script src="taskboard.js"></script>
-<script>initTaskBoard("brandon");</script>
-<script>
 async function closeQuarterBrandon() {
   const btn = document.getElementById('close-qtr-btn-brandon');
   if (!confirm('Close Q' + getCurrentQuarter() + ' scorecard? This will archive results and notify Rose and Justin.')) return;
@@ -1004,7 +1326,6 @@ async function closeQuarterBrandon() {
   }
   btn.disabled = false; btn.textContent = 'Close Quarter';
 }
-
 async function loadScorecardArchiveBrandon() {
   try {
     const d = await api({action:'read', tab:'Scorecard_Archive'});
@@ -1026,8 +1347,6 @@ async function loadScorecardArchiveBrandon() {
     </table>`;
   } catch(e) { console.error(e); }
 }
-
-
 async function loadARHistory() {
   try {
     const d = await api({action:'read', tab:'AR_Tracking'});
@@ -1057,383 +1376,32 @@ async function loadARHistory() {
   } catch(e) { console.error(e); }
 }
 
-loadScorecardArchiveBrandon();loadARHistory();</script>
-<script src="resources.js"></script>
-<script>
-function getBrandonCurrentPeriod() {
-  const start = new Date('2025-12-18');
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const diffDays = Math.floor((today - start) / (1000*60*60*24));
-  const periodNum = Math.floor(diffDays / 14);
-  const periodStart = new Date(start);
-  periodStart.setDate(periodStart.getDate() + periodNum * 14);
-  const periodEnd = new Date(periodStart);
-  periodEnd.setDate(periodEnd.getDate() + 13);
-  if (today.getTime() === periodEnd.getTime() && now.getHours() >= 23) {
-    periodStart.setDate(periodStart.getDate() + 14);
-    periodEnd.setDate(periodEnd.getDate() + 14);
-  }
-  const fmt = d => String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+'/'+String(d.getFullYear()).slice(2);
-  return fmt(periodStart) + ' - ' + fmt(periodEnd);
-}
-
-async function loadBrandonCommission() {
-  const loadEl=document.getElementById('brandon-comm-loading');
-  const content=document.getElementById('brandon-comm-content');
-  const emptyEl=document.getElementById('brandon-comm-empty');
-  try {
-    const d=await api({action:'read',tab:'Commissions'});
-    if(loadEl)loadEl.style.display='none';
-    if(!d.success)return;
-    const bc=cols(d.data[0]);
-    const rows=d.data.slice(1).filter(r=>r.some(x=>x));
-    let currentPeriod=getBrandonCurrentPeriod();
-    let currentRows=rows.filter(r=>(r[bc('Pay Period')]||'').trim()===currentPeriod);
-    if(!currentRows.length && rows.length){
-      const allPeriods=[...new Set(rows.map(r=>(r[bc('Pay Period')]||'').trim()).filter(Boolean))];
-      if(allPeriods.length){currentPeriod=allPeriods[allPeriods.length-1];currentRows=rows.filter(r=>(r[bc('Pay Period')]||'').trim()===currentPeriod);}
-    }
-    document.getElementById('brandon-comm-period-display').textContent=currentPeriod;
-    const employees=['Colin Glenn','Jimmie Coleman'];
-    const stats={};
-    employees.forEach(e=>{stats[e]=currentRows.filter(r=>(r[bc('Employee')]||'').trim()===e).reduce((s,r)=>s+(Number(r[bc('Commission')])||0),0);});
-    const statsEl=document.getElementById('brandon-comm-stats');
-    if(statsEl){
-      statsEl.innerHTML=employees.map(e=>`<div class="stat-block"><div class="stat-number orange">${fmtMoney(stats[e])}</div><div class="stat-label">${e}</div></div>`).join('')+
-        `<div class="stat-block"><div class="stat-number">${fmtMoney(Object.values(stats).reduce((a,b)=>a+b,0))}</div><div class="stat-label">Period Total</div></div>`;
-    }
-    if(content)content.style.display='block';
-    if(!currentRows.length){if(emptyEl)emptyEl.style.display='block';return;}
-    const tbody=document.getElementById('brandon-comm-body');
-    if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>{
-      const rowIdx=d.data.findIndex(row=>row===r)+1;
-      const approved=r[bc('Approved by')]?true:false;
-      return `<tr><td>${fmtDate(r[bc('Date')])}</td><td>${(r[bc('Employee')]||'').trim()}</td><td>${r[bc('Deal Name')]||''}</td><td>${fmtMoney(r[bc('Deal Value')])}</td><td>${(r[bc('Rate')]||'').trim()}</td><td><strong style="color:#c4581f">${fmtMoney(r[bc('Commission')])}</strong></td><td style="font-size:11px">${(r[bc('Pay Period')]||'').trim()}</td><td>${r[bc('Approved by')]||''}</td><td>${approved?'<span class="pill pill-approved">Approved</span>':`<button class="action-btn btn-approve" onclick="showApprovalConfirm('Commissions',${rowIdx},r[bc('Employee')]||'',r[bc('Lead Type')]||'Commission',Number(r[bc('Commission')])||0)">Approve</button>`}</td></tr>`;
-    }).join('');
-    loadBrandonPrevComm(rows,currentPeriod);
-  } catch(e){if(loadEl)loadEl.style.display='none';}
-}
-
-// approveCommission replaced by showApprovalConfirm modal
-
-function loadBrandonPrevComm(rows,currentPeriod){
-  const body=document.getElementById('brandon-prev-comm-body');
-  const loading=document.getElementById('brandon-prev-comm-loading');
-  if(loading)loading.style.display='none';
-  if(!body)return;
-  const periods={};
-  rows.forEach(r=>{const p=r[8];if(!p||p===currentPeriod)return;if(!periods[p])periods[p]=[];periods[p].push(r);});
-  const keys=Object.keys(periods).sort().reverse();
-  if(!keys.length){body.innerHTML='<div class="empty-state">No previous periods.</div>';return;}
-  body.innerHTML=keys.map(period=>{
-    const pRows=periods[period];
-    const total=pRows.reduce((s,r)=>s+(Number(r[bc('Commission')])||0),0);
-    const id='bpp-'+period.replace(/[^a-z0-9]/gi,'');
-    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Commission</th><th>Approved By</th><th>Pay Date</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[1]||''}</td><td>${r[2]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[7])}</strong></td><td>${r[10]||'<span style="color:#aaa">Pending</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
-  }).join('');
-}
-
-function toggleBrandonPrevComm(el){
-  const wrap=document.getElementById('brandon-prev-comm-wrap');
-  const toggle=document.getElementById('brandon-prev-comm-toggle');
-  if(!wrap)return;
-  const isOpen=wrap.style.display!=='none';
-  wrap.style.display=isOpen?'none':'block';
-  if(toggle)toggle.textContent=isOpen?'(click to expand)':'(click to collapse)';
-}
-
-loadBrandonCommission();
-</script>
-<script>
-function switchView(view) {
-  const teamDiv = document.getElementById('view-team');
-  const meDiv = document.getElementById('view-me');
-  const teamBtn = document.getElementById('view-team-btn');
-  const meBtn = document.getElementById('view-me-btn');
-  if (view === 'team') {
-    teamDiv.style.display = 'block'; meDiv.style.display = 'none';
-    teamBtn.style.background = '#1a1a1a'; teamBtn.style.color = '#fff';
-    meBtn.style.background = '#e4dbd0'; meBtn.style.color = '#1a1a1a';
-    const activeTeamTab = document.querySelector('#tabs-team .tab.active');
-    if (activeTeamTab) {
-      const tabMatch = activeTeamTab.getAttribute('onclick').match(/switchTab\('([^']+)'/);
-      const tabName = tabMatch ? tabMatch[1] : 'commission-admin';
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const el = document.getElementById('tab-' + tabName);
-      if (el) el.classList.add('active');
-    }
-  } else {
-    teamDiv.style.display = 'none'; meDiv.style.display = 'block';
-    teamBtn.style.background = '#e4dbd0'; teamBtn.style.color = '#1a1a1a';
-    meBtn.style.background = '#1a1a1a'; meBtn.style.color = '#fff';
-    const activeMeTab = document.querySelector('#tabs-me .tab.active');
-    if (activeMeTab) {
-      const tabName = activeMeTab.getAttribute('onclick').match(/switchTab\('([^']+)'/)[1];
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const el = document.getElementById('tab-' + tabName);
-      if (el) el.classList.add('active');
-    }
-  }
-}
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  const el = document.getElementById('tab-commission-admin');
-  if (el) el.classList.add('active');
+// ---------- Init ----------
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  const el=document.getElementById('tab-commission-admin');
+  if(el)el.classList.add('active');
 });
+
+populateAdminSelects();
+cacheCommissionHeaders().then(loadTeamCommission);
+loadIncentivePay();
+loadAdminPTO();
+loadAllBalances();
+loadExpiryAlerts();
+loadRecordsAdmin();
+loadPTOBalances(EMPLOYEE);
+loadMyRequests(EMPLOYEE);
+loadRecord(EMPLOYEE);
+loadDocs(EMPLOYEE,false);
+loadEquipment(EMPLOYEE);
+loadBrandonScorecard();
+loadScorecardArchiveBrandon();
+loadARHistory();
 </script>
-<script>
-async function loadBrandonBonuses() {
-  // Booking bonuses
-  try {
-    const d = await api({action:'read', tab:'B2B_Booking_Bonuses'});
-    document.getElementById('brandon-booking-loading').style.display = 'none';
-    document.getElementById('brandon-booking-content').style.display = 'block';
-    if (!d.success) return;
-    const rows = d.data.slice(1).filter(r => r.some(c=>c));
-    const bbc=cols(d.data[0]);
-    const pending = rows.filter(r => !r[bbc('Approved By')]);
-    const emptyEl = document.getElementById('brandon-booking-empty');
-    const tbody = document.getElementById('brandon-booking-body');
-    if (!pending.length) { if(emptyEl) emptyEl.style.display='block'; return; }
-    if (tbody) tbody.innerHTML = pending.map((r,i) => {
-      const rowIdx = d.data.findIndex(row => row === r) + 1;
-      return `<tr><td>${r[bbc('Employee')]||''}</td><td>${fmtDate(r[bbc('Date')])}</td><td>${r[bbc('Customer Name')]||''}</td><td>${fmtDate(r[bbc('Appointment Date')])}</td><td>${r[bbc('Notes')]||''}</td>
-      <td><button class="action-btn btn-approve" onclick="showApprovalConfirm('B2B_Booking_Bonuses',${rowIdx},'${(r[bbc('Employee')]||'').trim()}','Booking Bonus',75)">Approve</button></td></tr>`;
-    }).join('');
-  } catch(e) { document.getElementById('brandon-booking-loading').style.display='none'; }
-  
-  // Partner bounties
-  try {
-    const d = await api({action:'read', tab:'B2B_Partner_Bounties'});
-    document.getElementById('brandon-bounty-loading').style.display = 'none';
-    document.getElementById('brandon-bounty-content').style.display = 'block';
-    if (!d.success) return;
-    const rows = d.data.slice(1).filter(r => r.some(c=>c));
-    const pbc=cols(d.data[0]);
-    const pending = rows.filter(r => !r[pbc('Approved By')]);
-    const emptyEl = document.getElementById('brandon-bounty-empty');
-    const tbody = document.getElementById('brandon-bounty-body');
-    if (!pending.length) { if(emptyEl) emptyEl.style.display='block'; return; }
-    if (tbody) tbody.innerHTML = pending.map(r => {
-      const rowIdx = d.data.findIndex(row => row === r) + 1;
-      return `<tr><td>${r[pbc('Employee')]||''}</td><td>${fmtDate(r[pbc('Date')])}</td><td>${r[pbc('Org Name')]||r[pbc('Account')]||''}</td><td>${r[pbc('Deal Name')]||''}</td><td>${fmtMoney(r[pbc('Deal Value')])}</td><td><strong style="color:#c4581f">${fmtMoney(r[pbc('Amount')])||'$250.00'}</strong></td><td>${r[pbc('Approved By')]||''}</td>
-      <td><button class="action-btn btn-approve" onclick="showApprovalConfirm('B2B_Partner_Bounties',${rowIdx},'${(r[pbc('Employee')]||'').trim()}','Partner Bounty',${Number(r[pbc('Amount')])||250})">Approve</button></td></tr>`;
-    }).join('');
-  } catch(e) { document.getElementById('brandon-bounty-loading').style.display='none'; }
-}
 
-// approveBooking replaced by showApprovalConfirm modal
-
-// approveBounty replaced by showApprovalConfirm modal
-
-async function loadBrandonB2BBonuses() {
-  const loadEl = document.getElementById('brandon-b2b-bonus-loading');
-  const contentEl = document.getElementById('brandon-b2b-bonus-content');
-  const emptyEl = document.getElementById('brandon-b2b-bonus-empty');
-  const tbody = document.getElementById('brandon-b2b-bonus-body');
-  
-  try {
-    // Pull from both sheets independently so one failure doesn't break the other
-    let d1 = {success:false}, d2 = {success:false};
-    try { d1 = await api({action:'read', tab:'B2B_Partner_Bounties'}); } catch(e) { console.error('B2B_Partner_Bounties error:', e); }
-    try { d2 = await api({action:'read', tab:'Bonuses'}); } catch(e) { console.error('Bonuses error:', e); }
-    
-    if(loadEl) loadEl.style.display = 'none';
-    if(contentEl) contentEl.style.display = 'block';
-    
-    const allPending = [];
-    
-    // B2B bonuses -- Anchor, Wallet Share, Retention (not New Partner -- handled separately)
-    if (d1.success) {
-      const bc=cols(d1.data[0]);
-      const b2bTypes = ['Anchor Account','Wallet Share','Account Retention'];
-      d1.data.slice(1).filter(r => r.some(x=>x)).forEach(r => {
-        const bonusType = (r[bc('Bonus Type')]||'').trim();
-        if (!r[bc('Approved By')] && b2bTypes.includes(bonusType)) {
-          const rowIdx = d1.data.indexOf(r) + 1;
-          allPending.push({
-            employee: r[bc('Employee')]||'',
-            date: fmtDate(r[bc('Date')]),
-            detail: r[bc('Org Name')]||r[bc('Account')]||r[bc('Deal Name')]||'',
-            type: bonusType,
-            amount: Number(r[bc('Amount')])||0,
-            sheet: 'B2B_Partner_Bounties',
-            rowIdx
-          });
-        }
-      });
-    }
-    
-    // Scorecard bonuses (Keith and future scorecard employees)
-    if (d2.success) {
-      const bk=cols(d2.data[0]);
-      d2.data.slice(1).filter(r => r.some(x=>x)).forEach(r => {
-        const status = (r[bk('Status')]||'').trim();
-        const type = (r[bk('Type')]||'').trim();
-        if (!r[bk('Approved By')] && status === 'Earned' && type === 'Scorecard') {
-          const rowIdx = d2.data.indexOf(r) + 1;
-          allPending.push({
-            employee: r[bk('Employee')]||'',
-            date: fmtDate(r[bk('Date Approved')]||r[bk('Quarter')]),
-            detail: `Q${r[bk('Quarter')]} ${r[bk('Year')]||''}`,
-            type: 'Scorecard Bonus',
-            amount: Number(r[bk('Amount')])||0,
-            sheet: 'Bonuses',
-            rowIdx
-          });
-        }
-      });
-    }
-    
-    if (!allPending.length) {
-      if(emptyEl) emptyEl.style.display = 'block';
-      return;
-    }
-    
-    if(tbody) tbody.innerHTML = allPending.map(item => `<tr>
-      <td>${item.employee}</td>
-      <td>${item.date}</td>
-      <td style="font-size:12px;color:#888">${item.detail}</td>
-      <td><span class="pill pill-orange">${item.type}</span></td>
-      <td><strong style="color:#c4581f">${fmtMoney(item.amount)}</strong></td>
-      <td><button class="action-btn btn-approve" onclick="showApprovalConfirm('${item.sheet}',${item.rowIdx},'${item.employee}','${item.type}',${item.amount})">Approve</button></td>
-    </tr>`).join('');
-    
-  } catch(e) {
-    if(loadEl) loadEl.style.display='none';
-    if(contentEl) contentEl.style.display='block';
-    if(emptyEl) emptyEl.style.display='block';
-    console.error('loadBrandonB2BBonuses error:', e);
-  }
-}
-
-// approveIncentiveBonus replaced by showApprovalConfirm modal
-
-loadBrandonBonuses();
-loadBrandonB2BBonuses();
-</script>
-<script>
-// Calculate next pay date from approval date
-// Pay periods are bi-weekly, payday is Friday 2 days after period end
-// Base: 2025-12-18 start, periods end every other Wednesday, paid every other Friday
-function getNextPayDateFromApproval(approvalDate) {
-  const base = new Date('2025-12-18');
-  const d = approvalDate || new Date();
-  const today = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const diffDays = Math.floor((today - base) / (1000*60*60*24));
-  const periodNum = Math.floor(diffDays / 14);
-  // Period end = base + (periodNum+1)*14 - 1 days
-  const nextPeriodEnd = new Date(base);
-  nextPeriodEnd.setDate(nextPeriodEnd.getDate() + (periodNum + 1) * 14 - 1);
-  // Payday = period end + 2 days (Friday)
-  const payDay = new Date(nextPeriodEnd);
-  payDay.setDate(payDay.getDate() + 2);
-  return payDay;
-}
-
-function fmtPayDate(d) {
-  return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
-}
-
-// Show approval confirmation modal
-function showApprovalConfirm(sheet, rowIndex, employeeName, bonusType, amount) {
-  const today = new Date();
-  const nextPay = getNextPayDateFromApproval(today);
-  const approvalDateStr = today.toLocaleDateString('en-US');
-  const payDateStr = fmtPayDate(nextPay);
-  
-  // Remove any existing modal
-  const existing = document.getElementById('approval-modal');
-  if (existing) existing.remove();
-  
-  const modal = document.createElement('div');
-  modal.id = 'approval-modal';
-  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
-  modal.innerHTML = `
-    <div style="background:#fff;border-radius:8px;padding:28px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18)">
-      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#1a1a1a;margin-bottom:16px">Confirm Approval</div>
-      <div style="font-size:14px;color:#555;margin-bottom:16px">
-        <strong>${employeeName}</strong> -- ${bonusType}<br>
-        <strong style="color:#c4581f;font-size:16px">${fmtMoney(amount)}</strong>
-      </div>
-      <div style="background:#f5f0eb;border-radius:6px;padding:14px;margin-bottom:20px;font-size:13px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-          <span style="color:#888">Approval date</span>
-          <span style="font-weight:600">${approvalDateStr}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="color:#888">Pay date</span>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-weight:600;color:#c4581f" id="modal-pay-date-display">${payDateStr}</span>
-            <input type="date" id="modal-pay-date-input" value="${nextPay.toISOString().split('T')[0]}" 
-              style="font-size:12px;border:1px solid #ddd;border-radius:4px;padding:2px 6px;display:none"
-              onchange="document.getElementById('modal-pay-date-display').textContent=new Date(this.value+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})">
-            <button onclick="togglePayDateInput()" style="font-size:11px;color:#c4581f;background:none;border:none;cursor:pointer;text-decoration:underline">change</button>
-          </div>
-        </div>
-      </div>
-      <div style="display:flex;gap:10px">
-        <button onclick="confirmApproval('${sheet}',${rowIndex},'${approvalDateStr}')" 
-          style="flex:1;background:#1a1a1a;color:#fff;border:none;border-radius:6px;padding:10px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer">
-          Confirm
-        </button>
-        <button onclick="document.getElementById('approval-modal').remove()" 
-          style="flex:1;background:#f0ece6;color:#1a1a1a;border:none;border-radius:6px;padding:10px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer">
-          Cancel
-        </button>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
-}
-
-function togglePayDateInput() {
-  const input = document.getElementById('modal-pay-date-input');
-  input.style.display = input.style.display === 'none' ? 'inline-block' : 'none';
-}
-
-async function confirmApproval(sheet, rowIndex, approvalDateStr) {
-  const modal = document.getElementById('approval-modal');
-  const payDateInput = document.getElementById('modal-pay-date-input');
-  const payDateDisplay = document.getElementById('modal-pay-date-display');
-  
-  const payDateStr = payDateDisplay ? payDateDisplay.textContent : '';
-  
-  // Disable modal buttons
-  modal.querySelectorAll('button').forEach(b => b.disabled = true);
-  
-  try {
-    const d = await api({action:'read', tab:sheet});
-    if (!d.success) throw new Error('Read failed');
-    const bc = cols(d.data[0]);
-    const row = [...d.data[rowIndex-1]];
-    
-    // Set approved by
-    const approvedByIdx = bc('Approved By') >= 0 ? bc('Approved By') : bc('Approved by');
-    if (approvedByIdx >= 0) row[approvedByIdx] = 'Brandon McClure';
-    
-    // Set approval date
-    const approvedDateIdx = bc('Approved Date') >= 0 ? bc('Approved Date') : bc('Date Approved');
-    if (approvedDateIdx >= 0) row[approvedDateIdx] = approvalDateStr;
-    
-    // Set pay date
-    const payDateIdx = bc('Pay Date');
-    if (payDateIdx >= 0) row[payDateIdx] = payDateStr;
-    
-    await api({action:'update', tab:sheet, rowIndex:rowIndex, row:JSON.stringify(row)});
-    modal.remove();
-    
-    // Reload all approval sections
-    loadBrandonCommission();
-    loadBrandonBonuses();
-    loadBrandonB2BBonuses();
-    
-  } catch(e) {
-    console.error('confirmApproval error:', e);
-    modal.querySelectorAll('button').forEach(b => b.disabled = false);
-    alert('Error saving approval. Please try again.');
-  }
-}
-</script>
+<script src="taskboard.js"></script>
+<script>initTaskBoard("brandon");</script>
+<script src="resources.js"></script>
 </body>
 </html>
