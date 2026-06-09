@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Justin Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=90">
+<link rel="stylesheet" href="portal.css?v=92">
 </head>
 <body>
 
@@ -204,6 +204,26 @@
   <div class="card-title">Employee Records <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Edit and save per employee</span></div>
   <div id="records-admin-loading" class="loading">Loading...</div>
   <div id="records-admin-list"></div>
+</div>
+<div class="card">
+  <div class="card-title">Equipment <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Assign and collect company equipment</span></div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+    <span style="font-size:11px;color:#888;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:0.1em;text-transform:uppercase">Employee</span>
+    <select id="equip-admin-emp" onchange="loadEquipAdmin(this.value)" style="font-size:14px;font-family:'Barlow',Arial,sans-serif;padding:7px 10px;border:1px solid #ddd;border-radius:4px;background:#faf8f5;color:#1a1a1a;min-width:220px"></select>
+  </div>
+  <div id="equip-admin-list"><div class="loading">Loading...</div></div>
+  <div style="border-top:1px solid #f0ece6;margin-top:18px;padding-top:16px">
+    <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:12px">Assign New Equipment</div>
+    <div id="equip-admin-alert"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div><div class="eq-lbl">Item</div><select id="equip-admin-type" class="eq-inp"></select></div>
+      <div><div class="eq-lbl">Description / Make &amp; Model</div><input id="equip-admin-desc" class="eq-inp" placeholder="e.g. Dell Latitude 5540"></div>
+      <div><div class="eq-lbl">Serial / Plate</div><input id="equip-admin-serial" class="eq-inp" placeholder="Optional"></div>
+      <div><div class="eq-lbl">Date Issued</div><input type="date" id="equip-admin-issued" class="eq-inp"></div>
+    </div>
+    <div style="margin-bottom:12px"><div class="eq-lbl">Notes</div><input id="equip-admin-notes" class="eq-inp" style="width:100%;box-sizing:border-box" placeholder="Optional"></div>
+    <button class="submit-btn" id="equip-admin-btn" onclick="assignEquip()">Assign Equipment</button>
+  </div>
 </div>
 </div>
 
@@ -1226,6 +1246,84 @@ async function cacheCommissionHeaders(){
   }catch(e){}
 }
 
+// ---------- Equipment manager (admin) ----------
+const EQUIP_TYPES=['Computer','Computer case / backpack','iPad','Store keys','Company vehicle','Phone','V1CE card','Other'];
+async function loadEquipAdminEmployees(){
+  const sel=document.getElementById('equip-admin-emp');
+  const ts=document.getElementById('equip-admin-type');
+  if(ts)ts.innerHTML=EQUIP_TYPES.map(t=>`<option value="${t}">${t}</option>`).join('');
+  if(!sel)return;
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const emps=[...new Set(d.data.slice(1).map(r=>(r[c('Employee')]||'').trim()).filter(Boolean))].sort();
+    sel.innerHTML=emps.map(e=>`<option value="${e}">${e}</option>`).join('');
+    if(emps.length)loadEquipAdmin(emps[0]);
+  }catch(e){}
+}
+async function loadEquipAdmin(emp){
+  const wrap=document.getElementById('equip-admin-list');
+  if(!wrap)return;
+  wrap.innerHTML='<div class="loading">Loading...</div>';
+  try{
+    const d=await api({action:'read',tab:'Equipment'});
+    if(!d.success){wrap.innerHTML='<div class="empty-state">Could not load equipment.</div>';return;}
+    const c=cols(d.data[0]);
+    const typeI=c('Item Type')>=0?c('Item Type'):c('Type');
+    const mmI=c('Make Model')>=0?c('Make Model'):c('Make / Model');
+    const rows=d.data.map((r,i)=>({r,idx:i+1})).slice(1).filter(o=>(o.r[c('Employee')]||'').trim()===emp&&o.r.some(x=>x));
+    if(!rows.length){wrap.innerHTML='<div class="empty-state">No equipment assigned.</div>';return;}
+    wrap.innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>Item</th><th>Description</th><th>Serial</th><th>Issued</th><th>Status</th><th></th></tr></thead><tbody>${rows.map(o=>{
+      const r=o.r;const returned=c('Date Returned')>=0?r[c('Date Returned')]:'';
+      return `<tr><td>${(typeI>=0?r[typeI]:'')||''}</td><td>${(mmI>=0?r[mmI]:'')||''}</td><td>${r[c('Serial Number')]||''}</td><td>${fmtDate(r[c('Date Issued')])||''}</td><td>${returned?'<span class="pill pill-gray">Returned '+fmtDate(returned)+'</span>':'<span class="pill pill-approved">Assigned</span>'}</td><td>${returned?'':`<button class="action-btn btn-approve" onclick="collectEquip(${o.idx})">Collect</button>`}</td></tr>`;
+    }).join('')}</tbody></table></div>`;
+  }catch(e){wrap.innerHTML='<div class="empty-state">Could not load equipment.</div>';}
+}
+async function assignEquip(){
+  const emp=document.getElementById('equip-admin-emp').value;
+  const type=document.getElementById('equip-admin-type').value;
+  const desc=document.getElementById('equip-admin-desc').value.trim();
+  const serial=document.getElementById('equip-admin-serial').value.trim();
+  const issued=document.getElementById('equip-admin-issued').value;
+  const notes=document.getElementById('equip-admin-notes').value.trim();
+  const alertEl=document.getElementById('equip-admin-alert');
+  if(!emp||!type||!issued){if(alertEl)alertEl.innerHTML='<div class="alert alert-error">Employee, item, and date issued are required.</div>';return;}
+  const btn=document.getElementById('equip-admin-btn');btn.disabled=true;btn.textContent='Saving...';
+  try{
+    const d=await api({action:'read',tab:'Equipment'});
+    const headers=d.data[0];const c=cols(headers);
+    const row=new Array(headers.length).fill('');
+    const set=(name,alt,val)=>{let i=c(name);if(i<0&&alt)i=c(alt);if(i>=0)row[i]=val;};
+    set('Employee',null,emp);
+    set('Item Type','Type',type);
+    set('Make Model','Make / Model',desc);
+    set('Serial Number',null,serial);
+    set('Date Issued',null,issued);
+    set('Notes',null,notes);
+    await api({action:'append',tab:'Equipment',row:JSON.stringify(row)});
+    if(alertEl)alertEl.innerHTML='<div class="alert alert-success">Equipment assigned.</div>';
+    document.getElementById('equip-admin-desc').value='';
+    document.getElementById('equip-admin-serial').value='';
+    document.getElementById('equip-admin-issued').value='';
+    document.getElementById('equip-admin-notes').value='';
+    loadEquipAdmin(emp);
+  }catch(e){if(alertEl)alertEl.innerHTML='<div class="alert alert-error">Error saving. Please try again.</div>';}
+  btn.disabled=false;btn.textContent='Assign Equipment';
+}
+async function collectEquip(rowIndex){
+  if(!confirm('Mark this item as collected and returned today?'))return;
+  try{
+    const d=await api({action:'read',tab:'Equipment'});
+    const headers=d.data[0];const c=cols(headers);
+    const row=[...d.data[rowIndex-1]];
+    const ri=c('Date Returned');
+    if(ri>=0)row[ri]=new Date().toLocaleDateString('en-US');
+    await api({action:'update',tab:'Equipment',rowIndex:rowIndex,row:JSON.stringify(row)});
+    loadEquipAdmin(document.getElementById('equip-admin-emp').value);
+  }catch(e){alert('Error updating. Please try again.');}
+}
+
 // ---------- Init ----------
 document.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
@@ -1240,6 +1338,7 @@ loadAdminPTO();
 loadAllBalances();
 loadExpiryAlerts();
 loadRecordsAdmin();
+loadEquipAdminEmployees();
 loadTeamDashboard();
 loadPTOBalances(EMPLOYEE);
 loadMyRequests(EMPLOYEE);

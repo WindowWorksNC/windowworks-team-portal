@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jimmie Coleman | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=90">
+<link rel="stylesheet" href="portal.css?v=92">
 </head>
 <body>
     
@@ -44,7 +44,7 @@
   <div id="comm-loading" class="loading">Loading...</div>
   <div id="comm-empty" class="empty-state" style="display:none">No commissions this period.</div>
   <div class="table-wrap" id="comm-table-wrap" style="display:none">
-    <table class="data-table"><thead><tr><th>Date</th><th>Deal</th><th>Amount</th><th>Rate</th><th>Commission</th><th>Notes</th></tr></thead>
+    <table class="data-table"><thead><tr><th>Date</th><th>Deal</th><th>Amount</th><th>Rate</th><th>Commission</th><th>Approved By</th><th>Approved</th></tr></thead>
     <tbody id="comm-body"></tbody></table>
   </div>
 </div>
@@ -518,6 +518,8 @@ async function loadCommission_jimmie() {
     if(loadEl)loadEl.style.display='none';
     if(!d.success)return;
     const cc=cols(d.data[0]);
+    const ai=cc('Approved By')>=0?cc('Approved By'):cc('Approved by');
+    const adi=cc('Approved Date')>=0?cc('Approved Date'):cc('Date Approved');
     const np=s=>(s||'').toString().replace(/[\u2013\u2014]/g,'-').trim();
     const rows=d.data.slice(1).filter(r=>(r[cc('Employee')]||'').toString().trim()==='Jimmie Coleman'&&r.some(c=>c));
     const currentPeriod=getCurrentPayPeriodLabel_jimmie();
@@ -534,13 +536,13 @@ async function loadCommission_jimmie() {
     else{
       if(tableWrap)tableWrap.style.display='block';
       const tbody=document.getElementById('comm-body');
-      if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>`<tr><td>${fmtDate(r[cc('Date')])}</td><td>${r[cc('Deal Name')]||''}</td><td>${fmtMoney(r[cc('Deal Value')])}</td><td>${(r[cc('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(r[cc('Commission')])}</strong></td><td>${r[cc('Notes')]||''}</td></tr>`).join('');
+      if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>`<tr><td>${fmtDate(r[cc('Date')])}</td><td>${r[cc('Deal Name')]||''}</td><td>${fmtMoney(r[cc('Deal Value')])}</td><td>${(r[cc('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(r[cc('Commission')])}</strong></td><td>${(ai>=0&&r[ai])?r[ai]:'<span style="color:#aaa">Pending</span>'}</td><td>${adi>=0?fmtDate(r[adi]):''}</td></tr>`).join('');
     }
-    loadPrevPeriods_jimmie(rows,currentPeriod,cc);
+    loadPrevPeriods_jimmie(rows,currentPeriod,cc,ai,adi);
   }catch(e){if(loadEl)loadEl.style.display='none';console.error('loadCommission_jimmie',e);}
 }
 
-function loadPrevPeriods_jimmie(rows,currentPeriod,cc){
+function loadPrevPeriods_jimmie(rows,currentPeriod,cc,ai,adi){
   const body=document.getElementById('prev-periods-body_jimmie');
   const loading=document.getElementById('prev-periods-loading_jimmie');
   if(loading)loading.style.display='none';
@@ -555,7 +557,7 @@ function loadPrevPeriods_jimmie(rows,currentPeriod,cc){
     const pRows=periods[period];
     const total=pRows.reduce((s,r)=>s+(Number(r[cc('Commission')])||0),0);
     const id='pp-'+period.replace(/[^a-z0-9]/gi,'');
-    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Deal</th><th>Amount</th><th>Rate</th><th>Commission</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[cc('Date')])}</td><td>${r[cc('Deal Name')]||''}</td><td>${fmtMoney(r[cc('Deal Value')])}</td><td>${(r[cc('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(r[cc('Commission')])}</strong></td></tr>`).join('')}</tbody></table></div></div>`;
+    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Deal</th><th>Amount</th><th>Rate</th><th>Commission</th><th>Approved By</th><th>Approved</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[cc('Date')])}</td><td>${r[cc('Deal Name')]||''}</td><td>${fmtMoney(r[cc('Deal Value')])}</td><td>${(r[cc('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(r[cc('Commission')])}</strong></td><td>${(ai>=0&&r[ai])?r[ai]:'<span style="color:#aaa">Pending</span>'}</td><td>${adi>=0?fmtDate(r[adi]):''}</td></tr>`).join('')}</tbody></table></div></div></div>`;
   }).join('');
 }
 
