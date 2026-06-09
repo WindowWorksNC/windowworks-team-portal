@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=88">
+<link rel="stylesheet" href="portal.css?v=90">
 </head>
 <body>
 
@@ -482,25 +482,26 @@ function switchView(view){
 
 // ---------- Pay period / pay date helpers ----------
 function getCurrentPeriod(){
-  const start=new Date('2025-12-18');
+  const startMs=Date.UTC(2025,11,18);
   const now=new Date();
-  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-  const diffDays=Math.floor((today-start)/(1000*60*60*24));
-  const periodNum=Math.floor(diffDays/14);
-  const periodStart=new Date(start);periodStart.setDate(periodStart.getDate()+periodNum*14);
-  const periodEnd=new Date(periodStart);periodEnd.setDate(periodEnd.getDate()+13);
-  const fmt=d=>String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+'/'+String(d.getFullYear()).slice(2);
-  return fmt(periodStart)+' - '+fmt(periodEnd);
+  const todayMs=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());
+  const periodNum=Math.floor((todayMs-startMs)/(14*86400000));
+  const psMs=startMs+periodNum*14*86400000;
+  const peMs=psMs+13*86400000;
+  const fmt=ms=>{const d=new Date(ms);return String(d.getUTCMonth()+1).padStart(2,'0')+'/'+String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCFullYear()).slice(2);};
+  return fmt(psMs)+' - '+fmt(peMs);
 }
+// Normalize pay-period strings: collapse any en/em dash to a plain hyphen and trim,
+// so a stray dash from an upstream source can never hide a row.
+function normPeriod(s){return (s||'').toString().replace(/[\u2013\u2014]/g,'-').trim();}
 function getNextPayDateFromApproval(approvalDate){
-  const base=new Date('2025-12-18');
+  const startMs=Date.UTC(2025,11,18);
   const d=approvalDate||new Date();
-  const today=new Date(d.getFullYear(),d.getMonth(),d.getDate());
-  const diffDays=Math.floor((today-base)/(1000*60*60*24));
-  const periodNum=Math.floor(diffDays/14);
-  const nextPeriodEnd=new Date(base);nextPeriodEnd.setDate(nextPeriodEnd.getDate()+(periodNum+1)*14-1);
-  const payDay=new Date(nextPeriodEnd);payDay.setDate(payDay.getDate()+2);
-  return payDay;
+  const todayMs=Date.UTC(d.getFullYear(),d.getMonth(),d.getDate());
+  const periodNum=Math.floor((todayMs-startMs)/(14*86400000));
+  const payMs=startMs+(periodNum*14+15)*86400000; // end of approval's period + 2 days (Friday)
+  const u=new Date(payMs);
+  return new Date(u.getUTCFullYear(),u.getUTCMonth(),u.getUTCDate(),12);
 }
 function fmtPayDate(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
 
@@ -520,10 +521,10 @@ async function loadTeamCommission(){
     const c=cols(d.data[0]);
     const rows=d.data.slice(1).filter(r=>r.some(x=>x));
     let currentPeriod=getCurrentPeriod();
-    let currentRows=rows.filter(r=>(r[c('Pay Period')]||'').trim()===currentPeriod);
+    let currentRows=rows.filter(r=>normPeriod(r[c('Pay Period')])===normPeriod(currentPeriod));
     if(!currentRows.length&&rows.length){
-      const allPeriods=[...new Set(rows.map(r=>(r[c('Pay Period')]||'').trim()).filter(Boolean))];
-      if(allPeriods.length){currentPeriod=allPeriods[allPeriods.length-1];currentRows=rows.filter(r=>(r[c('Pay Period')]||'').trim()===currentPeriod);}
+      const allPeriods=[...new Set(rows.map(r=>normPeriod(r[c('Pay Period')])).filter(Boolean))];
+      if(allPeriods.length){currentPeriod=allPeriods[allPeriods.length-1];currentRows=rows.filter(r=>normPeriod(r[c('Pay Period')])===normPeriod(currentPeriod));}
     }
     const disp=document.getElementById('comm-period-display');if(disp)disp.textContent=currentPeriod;
     const stats={};
@@ -555,7 +556,7 @@ function loadPrevComm(rows,currentPeriod){
   if(!body||!rows.length)return;
   const c=cols(window.__commHeaders||[]);
   const periods={};
-  rows.forEach(r=>{const p=(r[window.__cPayPeriod]||'').trim();if(!p||p===currentPeriod)return;if(!periods[p])periods[p]=[];periods[p].push(r);});
+  rows.forEach(r=>{const p=normPeriod(r[window.__cPayPeriod]);if(!p||p===normPeriod(currentPeriod))return;if(!periods[p])periods[p]=[];periods[p].push(r);});
   const keys=Object.keys(periods).sort().reverse();
   if(!keys.length){body.innerHTML='<div class="empty-state">No previous periods.</div>';return;}
   body.innerHTML=keys.map(period=>{
