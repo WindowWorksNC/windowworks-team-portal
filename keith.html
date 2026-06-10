@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Keith Howze | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=93">
+<link rel="stylesheet" href="portal.css?v=94">
 </head>
 <body>
     
@@ -37,8 +37,8 @@
 <div class="tab-content" id="tab-scorecard"><div id="scorecard-loading" class="loading">Loading scorecard...</div>
 <div id="scorecard-content" style="display:none">
   <div class="card">
-    <div class="card-title">
-      Q<span id="sc-quarter">--</span> Scorecard
+    <div class="card-title" style="justify-content:space-between">
+      <span>Q<span id="sc-quarter">--</span> Scorecard</span>
       <span id="sc-total" class="stat-number orange" style="font-size:20px">$0</span>
     </div>
     <div style="font-size:12px;color:#aaa;margin-bottom:16px">Each domain earns $1,250 when criteria is met. Maximum $5,000 per quarter.</div>
@@ -210,10 +210,6 @@
   <div class="card-title">Documents</div>
   <div id="docs-loading" class="loading">Loading...</div>
   <div id="docs-list"></div>
-</div>
-<div class="card">
-  <div class="card-title">Company Resources</div>
-  <div id="company-resources"><div class="loading">Loading...</div></div>
 </div>
 <div class="card">
   <div class="card-title">Company Equipment</div>
@@ -527,7 +523,8 @@ async function saveExpiry(employee){
 
 async function loadEquipment(employee){
   const loadEl=document.getElementById('equip-loading');
-  const listEl=document.getElementById('equip-list');
+  const tableEl=document.getElementById('equip-table');
+  const bodyEl=document.getElementById('equip-body');
   const emptyEl=document.getElementById('equip-empty');
   try{
     const d=await api({action:'read',tab:'Equipment'});
@@ -536,14 +533,13 @@ async function loadEquipment(employee){
     const c=cols(d.data[0]);
     const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
     if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
-    if(listEl){
-      listEl.innerHTML=rows.map(r=>`<div class="bonus-row">
-        <div class="bonus-name">${r[c('Make Model')]||''}
-          <div class="bonus-criteria">${r[c('Item Type')]||''} ${r[c('Serial Number')]?'&bull; S/N: '+r[c('Serial Number')]:''}</div>
-        </div>
-        <div style="font-size:12px;color:#aaa;text-align:right">Issued ${fmtDate(r[c('Date Issued')])||''}${r[c('Date Returned')]?' &bull; Returned '+fmtDate(r[c('Date Returned')]):''}</div>
-      </div>`).join('');
-    }
+    const typeI=c('Item Type')>=0?c('Item Type'):c('Type');
+    const mmI=c('Make Model')>=0?c('Make Model'):c('Make / Model');
+    if(tableEl)tableEl.style.display='table';
+    if(bodyEl)bodyEl.innerHTML=rows.map(r=>{
+      const ret=c('Date Returned')>=0?r[c('Date Returned')]:'';
+      return `<tr${ret?' style="color:#aaa"':''}><td>${(typeI>=0?r[typeI]:'')||''}</td><td>${(mmI>=0?r[mmI]:'')||''}</td><td>${r[c('Serial Number')]||''}</td><td>${fmtDate(r[c('Date Issued')])||''}${ret?' (returned '+fmtDate(ret)+')':''}</td><td>${r[c('Notes')]||''}</td></tr>`;
+    }).join('');
   }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
 }
 
@@ -571,6 +567,7 @@ const EMPLOYEE='Keith Howze';
 loadPTOBalances(EMPLOYEE);
 loadMyRequests(EMPLOYEE);
 loadRecord(EMPLOYEE);
+loadDocs(EMPLOYEE, false);
 loadEquipment(EMPLOYEE);
 
 // Scorecard logic
