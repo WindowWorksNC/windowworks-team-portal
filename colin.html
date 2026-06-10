@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=96">
+<link rel="stylesheet" href="portal.css?v=97">
 </head>
 <body>
     
@@ -86,7 +86,7 @@
     </div>
 
     <!-- APPROVED -->
-    <div style="border-top:1px solid #f0ece6;padding-top:16px;margin-top:8px">
+    <div id="bonus-approved-section" style="border-top:1px solid #f0ece6;padding-top:16px;margin-top:8px;display:none">
       <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#28a745;margin-bottom:10px">Approved</div>
       <div id="bonus-approved-body">
         <div class="empty-state" id="bonus-approved-empty" style="display:none">No approved bonuses yet.</div>
@@ -736,6 +736,7 @@ function bonusRow(type, account, amount, detail, approved, approvedBy, approvedD
       <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
         <strong style="color:#c4581f;font-size:15px">${fmtMoney(amount)}</strong>
         ${pill}
+      </div>
     </div>
   </div>`;
 }
@@ -885,9 +886,10 @@ function updateBonusSummary() {
     if(!pendingClean.length) { pendingBody.innerHTML='<div class="empty-state" id="bonus-pending-empty">No pending bonuses.</div>'; }
     else { pendingBody.innerHTML = pendingClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, false, '', '', '')).join(''); }
   }
-  if(approvedBody) {
-    if(!approvedClean.length) { approvedBody.innerHTML='<div class="empty-state" id="bonus-approved-empty">No approved bonuses yet.</div>'; }
-    else { approvedBody.innerHTML = approvedClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy, e.approvedDate||'', e.payDate||'')).join(''); }
+  const approvedSection = document.getElementById('bonus-approved-section');
+  if (approvedSection) approvedSection.style.display = approvedClean.length ? 'block' : 'none';
+  if(approvedBody && approvedClean.length) {
+    approvedBody.innerHTML = approvedClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy, e.approvedDate||'', e.payDate||'')).join('');
   }
 }
 
