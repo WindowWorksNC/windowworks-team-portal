@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=98">
+<link rel="stylesheet" href="portal.css?v=99">
 </head>
 <body>
 
@@ -199,6 +199,19 @@
     </table>
   </div>
   <div id="expiry-empty" class="empty-state" style="display:none">No expiry data on file.</div>
+</div>
+<div class="card">
+  <div class="card-title">Add Employee</div>
+  <div id="add-emp-alert"></div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="add-emp-name" placeholder="First Last"></div>
+    <div class="form-group"><label class="form-label">Role</label><input type="text" class="form-input" id="add-emp-role" placeholder="e.g. Professional Sales"></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Hire Date</label><input type="date" class="form-input" id="add-emp-hire"></div>
+    <div class="form-group"><label class="form-label">Email</label><input type="text" class="form-input" id="add-emp-email" placeholder="name@windowworksnc.com"></div>
+  </div>
+  <button class="submit-btn" id="add-emp-btn" onclick="addEmployee()">Add Employee</button>
 </div>
 <div class="card">
   <div class="card-title">Employee Records <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Edit and save per employee</span></div>
@@ -922,12 +935,13 @@ async function loadRecordsAdmin(){
     if(!rows.length){listEl.innerHTML='<div class="empty-state">No employee records found.</div>';return;}
     listEl.innerHTML=rows.map(o=>{
       const r=o.r;const name=(r[c('Employee')]||'').trim();
+      const status=(r[c('Status')]||'').trim();
       const safe='rec-'+name.replace(/[^a-z0-9]/gi,'');
       const hire=toInputDate(r[c('Hire Date')]);
       const ninety=r[c('Review Due 90Day')]?fmtDate(r[c('Review Due 90Day')]):(hire?fmtDate(addDays(hire,90)):'--');
       const pinField=hasPin?`<div class="form-group" style="max-width:120px"><label class="form-label">PIN</label><input type="text" class="form-input" id="${safe}-pin" value="${r[c('PIN')]||''}"></div>`:'';
       return `<div class="card" style="background:#faf8f5;margin-bottom:14px">
-        <div class="card-title" style="font-size:15px">${name}</div>
+        <div class="card-title" style="font-size:15px">${name}${status==='Inactive'?' <span style="font-size:10px;background:#e9e4dc;color:#888;padding:2px 9px;border-radius:99px;letter-spacing:0.08em;text-transform:uppercase;margin-left:8px;vertical-align:middle">Inactive</span>':''}</div>
         <div id="${safe}-alert"></div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Role</label><input type="text" class="form-input" id="${safe}-role" value="${r[c('Role')]||''}"></div>
@@ -941,6 +955,7 @@ async function loadRecordsAdmin(){
           <div class="form-group"><label class="form-label">90-Day Review</label><input type="text" class="form-input" value="${ninety}" readonly style="background:#f0ede8;color:#888"></div>
         </div>
         <button class="action-btn btn-approve" onclick="saveRecord('${name.replace(/'/g,"\\'")}',${o.rowIndex},'${safe}')">Save</button>
+        ${status!=='Inactive'?`<button class="action-btn" style="background:#fff;color:#c4581f;border:1px solid #c4581f;margin-left:8px" onclick="terminateEmployee('${name.replace(/'/g,"\\'")}',${o.rowIndex})">Terminate</button>`:`<button class="action-btn" style="background:#fff;color:#28a745;border:1px solid #28a745;margin-left:8px" onclick="reactivateEmployee('${name.replace(/'/g,"\\'")}',${o.rowIndex})">Reactivate</button>`}
       </div>`;
     }).join('');
   }catch(e){if(loadEl)loadEl.style.display='none';console.error(e);}
@@ -967,6 +982,79 @@ async function saveRecord(name,rowIndex,safe){
     if(alertEl)alertEl.innerHTML='<div class="alert alert-success">Saved.</div>';
     loadExpiryAlerts();
   }catch(e){if(alertEl)alertEl.innerHTML='<div class="alert alert-error">Error saving.</div>';}
+}
+
+async function addEmployee(){
+  const a=document.getElementById('add-emp-alert');
+  const g=id=>{const el=document.getElementById(id);return el?el.value.trim():'';};
+  const name=g('add-emp-name'), role=g('add-emp-role'), hire=g('add-emp-hire'), email=g('add-emp-email');
+  if(!name||!hire){ if(a)a.innerHTML='<div class="alert alert-error">Name and hire date are required.</div>'; return; }
+  const btn=document.getElementById('add-emp-btn'); if(btn){btn.disabled=true;btn.textContent='Adding...';}
+  try{
+    const er=await api({action:'read',tab:'Employee_Records'});
+    if(!er.success)throw new Error('read');
+    const c=cols(er.data[0]);
+    if(er.data.slice(1).some(r=>(r[c('Employee')]||'').trim().toLowerCase()===name.toLowerCase())){
+      if(a)a.innerHTML='<div class="alert alert-error">An employee named '+name+' already exists.</div>';
+      if(btn){btn.disabled=false;btn.textContent='Add Employee';} return;
+    }
+    const erRow=new Array(er.data[0].length).fill('');
+    const set=(col,v)=>{const i=c(col);if(i>=0)erRow[i]=v;};
+    set('Employee',name); set('Role',role); set('Hire Date',hire); set('Email',email);
+    set('Review Due 90Day',addDays(hire,90)); set('Review Due Annual',addDays(hire,365)); set('Status','Active');
+    await api({action:'append',tab:'Employee_Records',row:JSON.stringify(erRow)});
+    try{
+      const pb=await api({action:'read',tab:'PTO_Balances'});
+      if(pb.success){
+        const pc=cols(pb.data[0]);
+        if(!pb.data.slice(1).some(r=>(r[pc('Employee')]||'').trim().toLowerCase()===name.toLowerCase())){
+          const pbRow=new Array(pb.data[0].length).fill('');
+          const setp=(col,v)=>{const i=pc(col);if(i>=0)pbRow[i]=v;};
+          setp('Employee',name); setp('Vacation Used',0); setp('Sick Used',0); setp('Hire Date',hire); setp('Vacation Balance',10); setp('Sick Balance',5);
+          await api({action:'append',tab:'PTO_Balances',row:JSON.stringify(pbRow)});
+        }
+      }
+    }catch(e){}
+    const first=name.split(/\s+/)[0].toLowerCase().replace(/[^a-z0-9]/g,'');
+    if(a)a.innerHTML='<div class="alert alert-success"><strong>'+name+'</strong> added as Active. PTO balance started (10 vacation, 5 sick) and the 90-day review is set for '+fmtDate(addDays(hire,90))+'.<br><br><strong>One manual step:</strong> the dashboard cannot create their portal page in GitHub. Copy an existing employee file (for example ashley.html) to <strong>'+first+'.html</strong>, update the displayed name and the EMPLOYEE constant inside it, then commit it to the repo.</div>';
+    ['add-emp-name','add-emp-role','add-emp-hire','add-emp-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    loadRecordsAdmin(); if(typeof loadEquipAdminEmployees==='function')loadEquipAdminEmployees();
+  }catch(e){ if(a)a.innerHTML='<div class="alert alert-error">Error adding employee. Please try again.</div>'; }
+  if(btn){btn.disabled=false;btn.textContent='Add Employee';}
+}
+
+async function setEmployeeStatus(rowIndex,newStatus){
+  const d=await api({action:'read',tab:'Employee_Records'});
+  if(!d.success)throw new Error('read');
+  const c=cols(d.data[0]);
+  const row=[...d.data[rowIndex-1]];
+  if(c('Status')>=0)row[c('Status')]=newStatus;
+  await api({action:'update',tab:'Employee_Records',rowIndex:rowIndex,row:JSON.stringify(row)});
+}
+
+async function terminateEmployee(name,rowIndex){
+  if(!confirm('Mark '+name+' as Inactive? Their records are kept, not deleted, and you can reactivate later.'))return;
+  try{
+    await setEmployeeStatus(rowIndex,'Inactive');
+    let msg='';
+    try{
+      const e=await api({action:'read',tab:'Equipment'});
+      if(e.success&&e.data.length){
+        const ec=cols(e.data[0]);
+        const ti=ec('Item Type')>=0?ec('Item Type'):ec('Type');
+        const open=e.data.slice(1).filter(r=>(r[ec('Employee')]||'').trim()===name && !(r[ec('Date Returned')]||'').toString().trim());
+        if(open.length){ msg='\n\nStill assigned and needs collecting: '+open.map(r=>(ti>=0?r[ti]:'')||'item').join(', ')+'.\nUse the Equipment section below to mark each item returned.'; }
+      }
+    }catch(_){}
+    alert(name+' is now Inactive.'+msg);
+    loadRecordsAdmin();
+  }catch(e){ alert('Error updating status. Please try again.'); }
+}
+
+async function reactivateEmployee(name,rowIndex){
+  if(!confirm('Reactivate '+name+'?'))return;
+  try{ await setEmployeeStatus(rowIndex,'Active'); loadRecordsAdmin(); }
+  catch(e){ alert('Error updating status. Please try again.'); }
 }
 
 // ===================================================================
