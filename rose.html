@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rose Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=99">
+<link rel="stylesheet" href="portal.css?v=100">
 </head>
 <body>
 
@@ -1088,7 +1088,7 @@ async function loadTeamDashboard(){
     if(dBonus.success){const c=cols(dBonus.data[0]);dBonus.data.slice(1).filter(r=>r.some(x=>x)).forEach(r=>{const type=(r[c('Type')]||'').trim();if(type==='Consistent Performance')return;const status=(r[c('Status')]||'').trim();const approved=!!r[c('Approved By')]||status==='Approved';if(status==='Earned'||approved)add((r[c('Employee')]||'').trim(),Number(r[c('Amount')])||0,approved);});}
     const emps=Object.keys(agg).sort();
     const table=document.getElementById('td-bonus-table');const body=document.getElementById('td-bonus-body');
-    if(emps.length){table.style.display='table';body.innerHTML=emps.map(e=>`<tr><td><strong>${e}</strong></td><td>${fmtMoney(agg[e].approved)}</td><td style="color:#888">${fmtMoney(agg[e].pending)}</td><td><strong style="color:#c4581f">${fmtMoney(agg[e].approved+agg[e].pending)}</strong></td></tr>`).join('');}
+    if(emps.length){table.style.display='table';body.innerHTML=emps.map(e=>`<tr><td><strong>${e}</strong></td><td><strong style="color:#28a745">${fmtMoney(agg[e].approved)}</strong></td><td style="color:#888">${fmtMoney(agg[e].pending)}</td><td><strong style="color:#c4581f">${fmtMoney(agg[e].approved)}</strong></td></tr>`).join('');}
   }catch(e){console.error(e);}
   // PTO usage
   try{
