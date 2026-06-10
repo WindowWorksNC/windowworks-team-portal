@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Keith Howze | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=94">
+<link rel="stylesheet" href="portal.css?v=95">
 </head>
 <body>
     
@@ -660,12 +660,21 @@ async function loadScorecard(){
   try{
     const d=await api({action:'read',tab:'Overdue_Activities'});
     if(d.success){
-      const rows=d.data.slice(1).filter(r=>r[1]==='Keith Howze');
+      const c=cols((d.data&&d.data[0])||[]);
+      const di=c('Date'),ei=c('Employee'),oi=c('Overdue Count');
+      const _now=new Date(),_cq=getCurrentQuarter(),_cy=_now.getFullYear();
+      const pql=function(s){s=String(s||'').trim();if(!s)return null;if(s.indexOf('-')===4){var p=s.split('-');return new Date(+p[0],(+p[1])-1,parseInt((p[2]||'1'),10),12,0,0);}var x=new Date(s);if(!isNaN(x)){x.setHours(12,0,0,0);return x;}return null;};
+      const inQ=function(s){var x=pql(s);return !!x&&x.getFullYear()===_cy&&(Math.floor(x.getMonth()/3)+1)===_cq;};
+      const rows=d.data.slice(1).filter(r=>(r[ei]||'').trim()==='Keith Howze'&&inQ(r[di]));
+      const el=document.getElementById('d2-avg');
       if(rows.length){
-        const avg=rows.reduce((s,r)=>s+Number(r[2]||0),0)/rows.length;
-        document.getElementById('d2-avg').textContent=avg.toFixed(1)+' avg';
+        const avg=rows.reduce((s,r)=>s+Number(r[oi]||0),0)/rows.length;
+        if(el)el.textContent=avg.toFixed(1)+' avg';
         updateDomainUI('domain-data','d2-pill',avg===0,false);
         updateTotal();
+      } else {
+        if(el)el.textContent='No data this quarter';
+        updateDomainUI('domain-data','d2-pill',false,true);
       }
     }
   }catch(e){console.error(e);}
