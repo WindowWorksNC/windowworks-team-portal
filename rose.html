@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rose Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=103">
+<link rel="stylesheet" href="portal.css?v=104">
 </head>
 <body>
 <!-- OWNER-FLAG --><script>try{sessionStorage.setItem('ww_owner','1');}catch(e){}</script><!-- /OWNER-FLAG -->
@@ -284,12 +284,14 @@
       <div class="stat-number" id="vac-remaining">--</div>
       <div class="stat-label">Vacation Days Left</div>
       <div class="stat-sub" id="vac-used">of 10 used: --</div>
+      <div class="stat-sub" id="vac-upcoming">0 approved upcoming</div>
       <div class="pto-bar-wrap"><div class="pto-bar" id="vac-bar" style="width:0%"></div></div>
     </div>
     <div class="stat-block">
       <div class="stat-number" id="sick-remaining">--</div>
       <div class="stat-label">Sick Days Left</div>
       <div class="stat-sub" id="sick-used">of 5 used: --</div>
+      <div class="stat-sub" id="sick-upcoming">0 approved upcoming</div>
       <div class="pto-bar-wrap"><div class="pto-bar" id="sick-bar" style="width:0%"></div></div>
     </div>
   </div>
@@ -1114,6 +1116,9 @@ async function loadMyRequests(employee){
     const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
     if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
     if(tableEl)tableEl.style.display='table';
+    let __vacUp=0,__sickUp=0;
+    rows.forEach(r=>{const st=(r[c('Status')]||'').trim();const ed=(r[c('End Date')]||r[c('Start Date')]||'').toString().trim();if(st==='Approved'&&ed>=today){const dy=Number(r[c('Days')])||0;const tp=(r[c('Type')]||'').toLowerCase();if(tp.indexOf('sick')>=0)__sickUp+=dy;else __vacUp+=dy;}});
+    {const su=(id,v,n)=>{const el=document.getElementById(id);if(el){el.textContent=v;el.style.color=n>0?'#c4581f':'';}};su('vac-upcoming',__vacUp+' approved upcoming',__vacUp);su('sick-upcoming',__sickUp+' approved upcoming',__sickUp);}
     const tbody=document.getElementById('my-requests-body');
     if(tbody)tbody.innerHTML=rows.slice().reverse().map(r=>{
       const status=(r[c('Status')]||'Pending').trim();
