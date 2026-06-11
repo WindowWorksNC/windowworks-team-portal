@@ -7,9 +7,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Keith Howze | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=100">
+<link rel="stylesheet" href="portal.css?v=102">
 </head>
 <body>
+<script>window.WW_EMPLOYEE='Keith Howze';</script>
+<script src="gate.js?v=102"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -232,7 +234,18 @@
   </div>
   <div id="equip-empty" class="empty-state" style="display:none">No equipment on record.</div>
   
-</div></div><div class="tab-content" id="tab-training"><div class="card">
+</div>  <div class="card">
+    <div class="card-title">Change PIN</div>
+    <div style="font-size:13px;color:#888;margin-bottom:12px">Update the PIN you use to open your dashboard.</div>
+    <div id="chpin-alert"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Current PIN</label><input type="password" inputmode="numeric" class="form-input" id="chpin-current"></div>
+      <div class="form-group"><label class="form-label">New PIN</label><input type="password" inputmode="numeric" class="form-input" id="chpin-new"></div>
+      <div class="form-group"><label class="form-label">Confirm New PIN</label><input type="password" inputmode="numeric" class="form-input" id="chpin-confirm"></div>
+    </div>
+    <button class="submit-btn" onclick="wwChangePin()">Update PIN</button>
+  </div>
+</div><div class="tab-content" id="tab-training"><div class="card">
   <div class="card-title">Training</div>
   <div class="sub-tabs">
     <button class="sub-tab active" data-group="training" onclick="switchSubTab('training-links',this,'training')">Role Training</button>

@@ -6,9 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Justin Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=100">
+<link rel="stylesheet" href="portal.css?v=102">
 </head>
 <body>
+<!-- OWNER-FLAG --><script>try{sessionStorage.setItem('ww_owner','1');}catch(e){}</script><!-- /OWNER-FLAG -->
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -38,7 +39,6 @@
     <button class="tab" onclick="switchTab('incentive',this)">Incentive Pay</button>
     <button class="tab" onclick="switchTab('pto-admin',this)">PTO Requests</button>
     <button class="tab" onclick="switchTab('records-admin',this)">Employee Records</button>
-    <button class="tab" onclick="switchTab('team-dashboard',this)">Team Dashboard</button>
   </div>
 </div>
 <div id="view-me" style="display:none">
@@ -104,6 +104,18 @@
   </div>
   <div id="incentive-approved-empty" class="empty-state" style="display:none">Nothing approved yet this quarter.</div>
 </div>
+<!-- CONSISTENT-PERF-START -->
+<div class="card">
+  <div class="card-title">Consistent Performance <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Brandon McClure, scorecard domain 3</span></div>
+  <div style="font-size:13px;color:#888;margin-bottom:14px">Set the current quarter result for Brandon's Consistent Performance domain. This feeds his scorecard. Only Rose or Justin can set this.</div>
+  <div id="consistent-status" style="margin-bottom:16px"></div>
+  <div style="display:flex;gap:10px">
+    <button class="action-btn btn-approve" onclick="setConsistent('Pass')">Mark Pass</button>
+    <button class="action-btn btn-deny" onclick="setConsistent('Fail')">Mark Fail</button>
+  </div>
+  <div id="consistent-alert" style="margin-top:14px"></div>
+</div>
+<!-- CONSISTENT-PERF-END -->
 </div>
 
 <!-- ========================= TEAM: PTO REQUESTS ========================= -->
@@ -236,63 +248,6 @@
     </div>
     <div style="margin-bottom:12px"><div class="eq-lbl">Notes</div><input id="equip-admin-notes" class="eq-inp" style="width:100%;box-sizing:border-box" placeholder="Optional"></div>
     <button class="submit-btn" id="equip-admin-btn" onclick="assignEquip()">Assign Equipment</button>
-  </div>
-</div>
-</div>
-
-<!-- ========================= TEAM: TEAM DASHBOARD ========================= -->
-<div class="tab-content" id="tab-team-dashboard">
-<div class="sub-tabs" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-  <button class="tab active" data-group="td" onclick="switchSubTab('td-commissions',this,'td')">Commissions</button>
-  <button class="tab" data-group="td" onclick="switchSubTab('td-bonuses',this,'td')">Bonuses</button>
-  <button class="tab" data-group="td" onclick="switchSubTab('td-pto',this,'td')">PTO</button>
-  <button class="tab" data-group="td" onclick="switchSubTab('td-consistent',this,'td')">Consistent Performance</button>
-</div>
-
-<div class="sub-tab-content active" data-group="td" id="stab-td-commissions">
-  <div class="card">
-    <div class="card-title">Commission YTD by Rep <span style="font-size:12px;color:#888;font-weight:400;text-transform:none" id="td-comm-year">--</span></div>
-    <div id="td-comm-loading" class="loading">Loading...</div>
-    <div class="stat-grid" id="td-comm-stats" style="display:none"></div>
-  </div>
-</div>
-
-<div class="sub-tab-content" data-group="td" id="stab-td-bonuses">
-  <div class="card">
-    <div class="card-title">Incentive Pay YTD by Employee</div>
-    <div id="td-bonus-loading" class="loading">Loading...</div>
-    <div class="table-wrap">
-      <table class="data-table" id="td-bonus-table" style="display:none">
-        <thead><tr><th>Employee</th><th>Approved</th><th>Pending</th><th>Total Earned</th></tr></thead>
-        <tbody id="td-bonus-body"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<div class="sub-tab-content" data-group="td" id="stab-td-pto">
-  <div class="card">
-    <div class="card-title">PTO Usage</div>
-    <div id="td-pto-loading" class="loading">Loading...</div>
-    <div class="table-wrap">
-      <table class="data-table" id="td-pto-table" style="display:none">
-        <thead><tr><th>Employee</th><th>Vacation Used</th><th>Vacation Left</th><th>Sick Used</th><th>Sick Left</th></tr></thead>
-        <tbody id="td-pto-body"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<div class="sub-tab-content" data-group="td" id="stab-td-consistent">
-  <div class="card">
-    <div class="card-title">Consistent Performance <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Brandon McClure, scorecard domain 3</span></div>
-    <div style="font-size:13px;color:#888;margin-bottom:14px">Set the current quarter result for Brandon's Consistent Performance domain. This feeds his scorecard. Only Rose or Justin can set this.</div>
-    <div id="consistent-status" style="margin-bottom:16px"></div>
-    <div style="display:flex;gap:10px">
-      <button class="action-btn btn-approve" onclick="setConsistent('Pass')">Mark Pass</button>
-      <button class="action-btn btn-deny" onclick="setConsistent('Fail')">Mark Fail</button>
-    </div>
-    <div id="consistent-alert" style="margin-top:14px"></div>
   </div>
 </div>
 </div>
@@ -1055,54 +1010,7 @@ async function reactivateEmployee(name,rowIndex){
 }
 
 // ---------- Team Dashboard ----------
-async function loadTeamDashboard(){
-  // Commissions YTD by rep
-  try{
-    const d=await api({action:'read',tab:'Commissions'});
-    document.getElementById('td-comm-loading').style.display='none';
-    if(d.success){
-      const c=cols(d.data[0]);
-      const year=new Date().getFullYear();
-      document.getElementById('td-comm-year').textContent=year;
-      const rows=d.data.slice(1).filter(r=>r.some(x=>x));
-      const stats={};COMMISSION_REPS.forEach(e=>stats[e]=0);
-      rows.forEach(r=>{
-        const dt=new Date(r[c('Date')]);const emp=(r[c('Employee')]||'').trim();
-        if(emp in stats&&(isNaN(dt)||dt.getFullYear()===year))stats[emp]+=Number(r[c('Commission')])||0;
-      });
-      const el=document.getElementById('td-comm-stats');el.style.display='grid';
-      el.innerHTML=COMMISSION_REPS.map(e=>`<div class="stat-block"><div class="stat-number orange">${fmtMoney(stats[e])}</div><div class="stat-label">${e}</div></div>`).join('')+`<div class="stat-block"><div class="stat-number">${fmtMoney(Object.values(stats).reduce((a,b)=>a+b,0))}</div><div class="stat-label">Team Total</div></div>`;
-    }
-  }catch(e){console.error(e);}
-  // Incentive pay YTD by employee
-  try{
-    let dBook={success:false},dBounty={success:false},dBonus={success:false};
-    try{dBook=await api({action:'read',tab:'B2B_Booking_Bonuses'});}catch(e){}
-    try{dBounty=await api({action:'read',tab:'B2B_Partner_Bounties'});}catch(e){}
-    try{dBonus=await api({action:'read',tab:'Bonuses'});}catch(e){}
-    document.getElementById('td-bonus-loading').style.display='none';
-    const agg={};
-    const add=(emp,amt,approved)=>{if(!emp)return;if(!agg[emp])agg[emp]={approved:0,pending:0};if(approved)agg[emp].approved+=amt;else agg[emp].pending+=amt;};
-    if(dBook.success){const c=cols(dBook.data[0]);dBook.data.slice(1).filter(r=>r.some(x=>x)).forEach(r=>add((r[c('Employee')]||'').trim(),75,!!r[c('Approved By')]));}
-    if(dBounty.success){const c=cols(dBounty.data[0]);dBounty.data.slice(1).filter(r=>r.some(x=>x)).forEach(r=>add((r[c('Employee')]||'').trim(),Number(r[c('Amount')])||0,!!r[c('Approved By')]));}
-    if(dBonus.success){const c=cols(dBonus.data[0]);dBonus.data.slice(1).filter(r=>r.some(x=>x)).forEach(r=>{const type=(r[c('Type')]||'').trim();if(type==='Consistent Performance')return;const status=(r[c('Status')]||'').trim();const approved=!!r[c('Approved By')]||status==='Approved';if(status==='Earned'||approved)add((r[c('Employee')]||'').trim(),Number(r[c('Amount')])||0,approved);});}
-    const emps=Object.keys(agg).sort();
-    const table=document.getElementById('td-bonus-table');const body=document.getElementById('td-bonus-body');
-    if(emps.length){table.style.display='table';body.innerHTML=emps.map(e=>`<tr><td><strong>${e}</strong></td><td><strong style="color:#28a745">${fmtMoney(agg[e].approved)}</strong></td><td style="color:#888">${fmtMoney(agg[e].pending)}</td><td><strong style="color:#c4581f">${fmtMoney(agg[e].approved)}</strong></td></tr>`).join('');}
-  }catch(e){console.error(e);}
-  // PTO usage
-  try{
-    const d=await api({action:'read',tab:'PTO_Balances'});
-    document.getElementById('td-pto-loading').style.display='none';
-    if(d.success){
-      const c=cols(d.data[0]);
-      const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim());
-      const table=document.getElementById('td-pto-table');const body=document.getElementById('td-pto-body');
-      if(rows.length){table.style.display='table';body.innerHTML=rows.map(r=>{const vu=Number(r[c('Vacation Used')])||0,su=Number(r[c('Sick Used')])||0;const vb=c('Vacation Balance')>=0?Number(r[c('Vacation Balance')])||0:Math.max(0,10-vu);const sb=c('Sick Balance')>=0?Number(r[c('Sick Balance')])||0:Math.max(0,5-su);return `<tr><td><strong>${r[c('Employee')]}</strong></td><td>${vu}</td><td>${vb}</td><td>${su}</td><td>${sb}</td></tr>`;}).join('');}
-    }
-  }catch(e){console.error(e);}
-  loadConsistentStatus();
-}
+async function loadTeamDashboard(){ loadConsistentStatus(); }
 
 async function loadConsistentStatus(){
   const el=document.getElementById('consistent-status');
