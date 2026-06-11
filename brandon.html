@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=105">
+<link rel="stylesheet" href="portal.css?v=106">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Brandon McClure';</script>
-<script src="gate.js?v=105"></script>
+<script src="gate.js?v=106"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -318,6 +318,7 @@
     <div style="font-size:13px;color:#888;margin-bottom:12px">Archives this quarter's results and emails Rose and Justin a summary.</div>
     <div id="close-qtr-alert-brandon"></div>
     <button class="submit-btn" id="close-qtr-btn-brandon" onclick="closeQuarterBrandon()">Close Quarter</button>
+    <div id="close-qtr-hint-brandon" style="font-size:12px;color:#888;margin-top:8px"></div>
   </div>
   <div class="card">
     <div class="card-title">Past Quarters</div>
@@ -478,7 +479,11 @@ function expiryClass(dateStr){const d=expiryDays(dateStr);if(d===null)return '';
 function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return `Expired ${Math.abs(d)}d ago`;return `Expires in ${d}d`;}
 
 function cols(headers){const trimmed=headers.map(h=>(h||'').toString().trim());return name=>trimmed.indexOf(name.trim());}
-function getCurrentQuarter(){const m=new Date().getMonth();return Math.floor(m/3)+1;}
+function getActiveQuarter(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qs=new Date(cy,(cq-1)*3,1);var ds=Math.round((n-qs)/86400000);if(ds<14){return cq===1?{q:4,year:cy-1}:{q:cq-1,year:cy};}return {q:cq,year:cy};}
+function getActiveYear(){return getActiveQuarter().year;}
+function getCloseEnabled(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qs=new Date(cy,(cq-1)*3,1),qe=new Date(cy,cq*3,0);var ds=Math.round((n-qs)/86400000),du=Math.round((qe-n)/86400000);return ds<14||du<=14;}
+function getCloseOpenDate(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qe=new Date(cy,cq*3,0);return new Date(qe.getTime()-14*86400000);}
+function getCurrentQuarter(){return getActiveQuarter().q;}
 
 function switchTab(name,btn){
   btn.closest('.body').querySelectorAll('.tab[onclick^="switchTab"]').forEach(t=>t.classList.remove('active'));
@@ -1351,6 +1356,21 @@ function updateBTotal(){
   ['domain-pipedrive','domain-ar','domain-consistent'].forEach(d=>{const el=document.getElementById(d);if(el&&el.classList.contains('pass'))total+=QTR_BONUS_B;});
   const t=document.getElementById('sc-total');if(t)t.textContent=fmtMoney(total);
 }
+async function applyCloseGateBrandon(){
+  var btn=document.getElementById('close-qtr-btn-brandon'); if(!btn)return;
+  var hint=document.getElementById('close-qtr-hint-brandon');
+  var aq=getActiveQuarter();
+  btn.textContent='Close Quarter '+aq.q;
+  if(!getCloseEnabled()){ btn.disabled=true; if(hint)hint.textContent='Opens '+getCloseOpenDate().toLocaleDateString('en-US',{month:'long',day:'numeric'})+'. This is where you close Quarter '+aq.q+' once the quarter ends.'; return; }
+  try{
+    var d=await api({action:'read',tab:'Scorecard_Archive'});
+    if(d&&d.success){
+      var done=d.data.slice(1).some(function(r){return (r[0]||'').toString().trim()==='Brandon McClure'&&String(r[1])===String(aq.q)&&String(r[2])===String(aq.year);});
+      if(done){ btn.disabled=true; if(hint)hint.textContent='Quarter '+aq.q+', '+aq.year+' is already closed.'; return; }
+    }
+  }catch(e){}
+  btn.disabled=false; if(hint)hint.textContent='Ready to close Quarter '+aq.q+', '+aq.year+'.';
+}
 
 async function processARFile(){
   const file=document.getElementById('ar-file').files[0];
@@ -1395,13 +1415,13 @@ async function processARFile(){
       alertEl.innerHTML='<div class="alert alert-success">File processed.</div>';
       updateBTotal();
       try{
-        const qLabel='Q'+getCurrentQuarter()+' '+new Date().getFullYear();
+        const qLabel='Q'+getCurrentQuarter()+' '+getActiveYear();
         const arRow=[new Date().toLocaleDateString('en-US'),0,0,p31_60,p61_90,p91,total,past30,pct.toFixed(2),qLabel];
         await api({action:'append',tab:'AR_Tracking',row:JSON.stringify(arRow)});
       }catch(err){console.error('AR save:',err);}
       // Save snapshot to AR_Tracking
       try{
-        const qLabel='Q'+getCurrentQuarter()+' '+new Date().getFullYear();
+        const qLabel='Q'+getCurrentQuarter()+' '+getActiveYear();
         const arRow=[
           new Date().toLocaleDateString('en-US'),
           0,0,p31_60,p61_90,p91,total,
@@ -1426,7 +1446,7 @@ async function loadBrandonScorecard(){
     if(d.success){
       const c=cols((d.data&&d.data[0])||[]);
       const di=c('Date'),ei=c('Employee'),oi=c('Overdue Count');
-      const _now=new Date(),_cq=getCurrentQuarter(),_cy=_now.getFullYear();
+      const _now=new Date(),_cq=getCurrentQuarter(),_cy=getActiveYear();
       const pql=function(s){s=String(s||'').trim();if(!s)return null;if(s.indexOf('-')===4){var p=s.split('-');return new Date(+p[0],(+p[1])-1,parseInt((p[2]||'1'),10),12,0,0);}var x=new Date(s);if(!isNaN(x)){x.setHours(12,0,0,0);return x;}return null;};
       const inQ=function(s){var x=pql(s);return !!x&&x.getFullYear()===_cy&&(Math.floor(x.getMonth()/3)+1)===_cq;};
       const rows=d.data.slice(1).filter(r=>r[ei]&&inQ(r[di]));
@@ -1462,7 +1482,7 @@ async function closeQuarterBrandon() {
   btn.disabled = true; btn.textContent = 'Closing...';
   try {
     const q = getCurrentQuarter();
-    const year = new Date().getFullYear();
+    const year = getActiveYear();
 
     // Gather domain results
     const d1pass = document.getElementById('domain-pipedrive').classList.contains('pass');
@@ -1533,7 +1553,7 @@ async function closeQuarterBrandon() {
   } catch(e) {
     document.getElementById('close-qtr-alert-brandon').innerHTML = '<div class="alert alert-error">Error closing quarter. Please try again.</div>';
   }
-  btn.disabled = false; btn.textContent = 'Close Quarter';
+  applyCloseGateBrandon();
 }
 async function loadScorecardArchiveBrandon() {
   try {
@@ -1564,7 +1584,7 @@ async function loadARHistory() {
     if (loadEl) loadEl.style.display = 'none';
     if (!d.success || !d.data.slice(1).length) return;
     const q = getCurrentQuarter();
-    const year = new Date().getFullYear();
+    const year = getActiveYear();
     const qLabel = 'Q' + q + ' ' + year;
     const arc=cols(d.data[0]);
     const rows = d.data.slice(1).filter(r => (r[arc('Pay Period')]||'').trim() === qLabel);
@@ -1608,6 +1628,7 @@ loadEquipment(EMPLOYEE);
 loadBrandonScorecard();
 loadScorecardArchiveBrandon();
 loadARHistory();
+applyCloseGateBrandon();
 </script>
 
 <script src="taskboard.js"></script>

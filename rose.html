@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rose Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=105">
+<link rel="stylesheet" href="portal.css?v=106">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Rose Reif';</script>
-<script src="gate.js?v=105"></script>
+<script src="gate.js?v=106"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -428,7 +428,11 @@ function expiryClass(dateStr){const d=expiryDays(dateStr);if(d===null)return '';
 function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return `Expired ${Math.abs(d)}d ago`;return `Expires in ${d}d`;}
 
 function cols(headers){const trimmed=headers.map(h=>(h||'').toString().trim());return name=>trimmed.indexOf(name.trim());}
-function getCurrentQuarter(){const m=new Date().getMonth();return Math.floor(m/3)+1;}
+function getActiveQuarter(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qs=new Date(cy,(cq-1)*3,1);var ds=Math.round((n-qs)/86400000);if(ds<14){return cq===1?{q:4,year:cy-1}:{q:cq-1,year:cy};}return {q:cq,year:cy};}
+function getActiveYear(){return getActiveQuarter().year;}
+function getCloseEnabled(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qs=new Date(cy,(cq-1)*3,1),qe=new Date(cy,cq*3,0);var ds=Math.round((n-qs)/86400000),du=Math.round((qe-n)/86400000);return ds<14||du<=14;}
+function getCloseOpenDate(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qe=new Date(cy,cq*3,0);return new Date(qe.getTime()-14*86400000);}
+function getCurrentQuarter(){return getActiveQuarter().q;}
 
 function switchTab(name,btn){
   btn.closest('.body').querySelectorAll('.tab[onclick^="switchTab"]').forEach(t=>t.classList.remove('active'));

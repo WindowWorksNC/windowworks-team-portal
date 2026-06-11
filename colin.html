@@ -7,11 +7,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=105">
+<link rel="stylesheet" href="portal.css?v=106">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Colin Glenn';</script>
-<script src="gate.js?v=105"></script>
+<script src="gate.js?v=106"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -192,6 +192,7 @@
     <div style="font-size:13px;color:#888;margin-bottom:12px">Emails Rose and Justin a year-end summary of this year's approved bounties.</div>
     <div id="close-year-alert-colin"></div>
     <button class="submit-btn" id="close-year-btn-colin" onclick="closeYearColin()">Close Year</button>
+    <div id="close-year-hint-colin" style="font-size:12px;color:#888;margin-top:8px"></div>
   </div>
   <div class="card">
     <div class="card-title">Bonuses by Year</div>
@@ -1197,9 +1198,19 @@ async function submitBonusesForApproval() {
 
 loadColinBonuses();
 
+function colinCloseState(){var n=new Date();n.setHours(0,0,0,0);var cy=n.getFullYear();var ys=new Date(cy,0,1),ye=new Date(cy,11,31);var ds=Math.round((n-ys)/86400000),du=Math.round((ye-n)/86400000);if(ds<14)return{active:true,year:cy-1};if(du<=14)return{active:true,year:cy};return{active:false,year:cy,open:new Date(ye.getTime()-14*86400000)};}
+function applyCloseGateColinYear(){
+  var btn=document.getElementById('close-year-btn-colin'); if(!btn)return;
+  var hint=document.getElementById('close-year-hint-colin');
+  var st=colinCloseState();
+  btn.textContent='Close Year '+st.year;
+  if(!st.active){ btn.disabled=true; if(hint)hint.textContent='Opens '+st.open.toLocaleDateString('en-US',{month:'long',day:'numeric'})+'. This is where you close the year for bounties once it ends.'; return; }
+  btn.disabled=false; if(hint)hint.textContent='Ready to close '+st.year+'.';
+}
+
 async function closeYearColin(){
   const btn=document.getElementById('close-year-btn-colin');
-  const year=new Date().getFullYear();
+  const year=colinCloseState().year;
   if(!confirm('Close '+year+'? This emails Rose and Justin a summary of this year\'s approved bounties.'))return;
   if(btn){btn.disabled=true;btn.textContent='Closing...';}
   const al=document.getElementById('close-year-alert-colin');
@@ -1234,7 +1245,7 @@ async function closeYearColin(){
     if(al)al.innerHTML='<div class="alert alert-success">'+year+' summary sent to Rose and Justin. '+rows.length+' approved '+(rows.length===1?'bounty':'bounties')+' totaling $'+total.toLocaleString('en-US',{minimumFractionDigits:2})+'.</div>';
     loadBountyYearsColin();
   }catch(e){ if(al)al.innerHTML='<div class="alert alert-error">Error closing year. Please try again.</div>'; }
-  if(btn){btn.disabled=false;btn.textContent='Close Year';}
+  applyCloseGateColinYear();
 }
 
 async function loadBountyYearsColin(){
@@ -1261,6 +1272,7 @@ async function loadBountyYearsColin(){
   }catch(e){ el.innerHTML='<div class="empty-state">Error loading.</div>'; }
 }
 loadBountyYearsColin();
+applyCloseGateColinYear();
 </script>
 </body>
 </html>
