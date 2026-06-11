@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rose Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=107">
+<link rel="stylesheet" href="portal.css?v=109">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Rose Reif';</script>
-<script src="gate.js?v=107"></script>
+<script src="gate.js?v=109"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -145,7 +145,7 @@
     </div>
     <div class="form-group">
       <label class="form-label">Type</label>
-      <select class="form-input" id="admin-pto-type"><option>Vacation</option><option>Sick</option><option>Personal</option></select>
+      <select class="form-input" id="admin-pto-type"><option>Vacation</option><option>Sick</option></select>
     </div>
     <div class="form-group">
       <label class="form-label">Start Date</label>
@@ -303,7 +303,7 @@
   <div class="form-row">
     <div class="form-group">
       <label class="form-label">Type</label>
-      <select class="form-input" id="pto-type"><option>Vacation</option><option>Sick</option><option>Personal</option></select>
+      <select class="form-input" id="pto-type"><option>Vacation</option><option>Sick</option></select>
     </div>
     <div class="form-group">
       <label class="form-label">Start Date</label>
@@ -1073,7 +1073,7 @@ async function submitPTO(employee,approver){
   try{
     const row=[`PTO-${Date.now()}`,employee,type,start,end,Number(days),notes,'Pending',new Date().toLocaleDateString('en-US'),''];
     await api({action:'append',tab:'PTO_Requests',row:JSON.stringify(row)});
-    alertEl.innerHTML=`<div class="alert alert-success">Request submitted.</div>`;
+    alertEl.innerHTML=`<div class="alert alert-success">Request submitted. You'll be notified once it's reviewed.</div>`;
     ['pto-start','pto-end','pto-days','pto-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     if(typeof loadMyRequests==='function')loadMyRequests(employee);
   }catch(e){alertEl.innerHTML='<div class="alert alert-error">Error submitting. Please try again.</div>';}
