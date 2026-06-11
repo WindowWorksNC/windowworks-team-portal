@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Justin Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=106">
+<link rel="stylesheet" href="portal.css?v=107">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Justin Reif';</script>
-<script src="gate.js?v=106"></script>
+<script src="gate.js?v=107"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -30,7 +30,7 @@
 </div>
 
 <div style="display:flex;gap:10px;margin-bottom:20px">
-  <button class="submit-btn" id="view-team-btn" onclick="switchView('team')" style="background:#1a1a1a">Team Management</button>
+  <button class="submit-btn" id="view-team-btn" onclick="switchView('team')" style="background:#1a1a1a">Team Management <span id="badge-total" class="nav-badge"></span></button>
   <button class="submit-btn" id="view-me-btn" onclick="switchView('me')" style="background:#e4dbd0;color:#1a1a1a">My Dashboard</button>
 </div>
 
@@ -38,8 +38,8 @@
   <div class="tabs" id="tabs-team">
     <button class="tab active" onclick="switchTab('commission-admin',this)">Commission</button>
     <button class="tab" onclick="switchTab('incentive',this)">Incentive Pay</button>
-    <button class="tab" onclick="switchTab('pto-admin',this)">PTO Requests</button>
-    <button class="tab" onclick="switchTab('records-admin',this)">Employee Records</button>
+    <button class="tab" onclick="switchTab('pto-admin',this)">PTO Requests <span id="badge-pto" class="nav-badge"></span></button>
+    <button class="tab" onclick="switchTab('records-admin',this)">Employee Records <span id="badge-records" class="nav-badge"></span></button>
   </div>
 </div>
 <div id="view-me" style="display:none">
@@ -1330,6 +1330,32 @@ async function collectEquip(rowIndex){
   }catch(e){alert('Error updating. Please try again.');}
 }
 
+function ywd_(s){s=String(s||'').trim();if(!s)return null;var p=s.split('T')[0].split('-');var d;if(p.length===3){d=new Date(+p[0],(+p[1])-1,+p[2]);}else{d=new Date(s);}return isNaN(d)?null:d;}
+function daysUntil_(s){var d=ywd_(s);if(!d)return null;d.setHours(0,0,0,0);var t=new Date();t.setHours(0,0,0,0);return Math.round((d-t)/86400000);}
+function setBadge_(id,n){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>99?'99+':n;el.classList.add('show');}else{el.classList.remove('show');}}
+async function computeOwnerAlerts(){
+  try{
+    var pto=0,ids=0,revs=0;
+    var p=await api({action:'read',tab:'PTO_Requests'});
+    if(p&&p.success){var pc=cols(p.data[0]);pto=p.data.slice(1).filter(function(r){return r.some(function(x){return x;})&&((r[pc('Status')]||'Pending')==='Pending'||!r[pc('Status')]);}).length;}
+    var e=await api({action:'read',tab:'Employee_Records'});
+    if(e&&e.success){
+      var ec=cols(e.data[0]);
+      var docsIdx=ec('Documents')>=0?ec('Documents'):8;
+      var ni=ec('Next Review'),n9=ec('Review Due 90Day'),si=ec('Status'),eiName=ec('Employee');
+      e.data.slice(1).forEach(function(r){
+        if(!r[eiName])return;
+        if(si>=0&&(r[si]||'').toString().trim()==='Inactive')return;
+        var exp='';if(r[docsIdx]){try{var doc=JSON.parse(r[docsIdx]);exp=doc['Government ID - Expiry']||'';}catch(_){}}
+        if(exp){var de=daysUntil_(exp);if(de!==null&&de<=30)ids++;}
+        var dn=daysUntil_(ni>=0?r[ni]:'');var d9=daysUntil_(n9>=0?r[n9]:'');
+        if(dn!==null&&dn<=30)revs++;else if(d9!==null&&d9>=0&&d9<=30)revs++;
+      });
+    }
+    setBadge_('badge-pto',pto);setBadge_('badge-records',ids+revs);setBadge_('badge-total',pto+ids+revs);
+  }catch(e){}
+}
+
 // ---------- Init ----------
 document.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
@@ -1344,6 +1370,7 @@ loadAdminPTO();
 loadAllBalances();
 loadExpiryAlerts();
 loadRecordsAdmin();
+computeOwnerAlerts();
 loadEquipAdminEmployees();
 loadTeamDashboard();
 loadPTOBalances(EMPLOYEE);
