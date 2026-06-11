@@ -60,15 +60,17 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadPins);
   else loadPins();
 
+  var OWNER_NAMES = ['Rose Reif','Justin Reif'];
+  function doUnlock(asOwner){ ssSet(UNLOCK_KEY,'1'); if (asOwner) ssSet(OWNER_KEY,'1'); removeOverlay(); }
   function tryUnlock(){
     var inp = document.getElementById('ww-gate-pin'); if (!inp) return;
     var pin = (inp.value || '').trim();
     if (!pin) { setErr('Enter your PIN'); return; }
     if (!loaded) { setErr('One moment...'); return; }
-    if (pins.emp && pin === pins.emp) { ssSet(UNLOCK_KEY,'1'); removeOverlay(); return; }
-    if ((pins.rose && pin === pins.rose) || (pins.justin && pin === pins.justin)) {
-      ssSet(UNLOCK_KEY,'1'); ssSet(OWNER_KEY,'1'); removeOverlay(); return;
-    }
+    // Own PIN: grants owner roam only if this page belongs to Rose or Justin.
+    if (pins.emp && pin === pins.emp) { doUnlock(OWNER_NAMES.indexOf(EMP) >= 0); return; }
+    // Rose's or Justin's PIN unlocks any page and grants owner roam for the session.
+    if ((pins.rose && pin === pins.rose) || (pins.justin && pin === pins.justin)) { doUnlock(true); return; }
     setErr('Incorrect PIN'); inp.value=''; inp.focus();
   }
   document.addEventListener('click', function(e){ if (e.target && e.target.id === 'ww-gate-btn') tryUnlock(); });
