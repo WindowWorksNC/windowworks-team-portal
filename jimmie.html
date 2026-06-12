@@ -7,11 +7,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jimmie Coleman | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=117">
+<link rel="stylesheet" href="portal.css?v=119">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Jimmie Coleman';</script>
-<script src="gate.js?v=117"></script>
+<script src="gate.js?v=119"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -568,7 +568,7 @@ async function loadCommission_jimmie() {
     else{
       if(tableWrap)tableWrap.style.display='block';
       const tbody=document.getElementById('comm-body');
-      if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>`<tr><td>${fmtDate(r[cc('Date')])}</td><td>${r[cc('Deal Name')]||''}</td><td>${fmtMoney(r[cc('Deal Value')])}</td><td>${(r[cc('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(r[cc('Commission')])}</strong></td><td>${(ai>=0&&r[ai])?r[ai]:'<span style="color:#aaa">Pending</span>'}</td><td>${adi>=0?fmtDate(r[adi]):''}</td></tr>`).join('');
+      if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>`<tr><td>${fmtDate(r[cc('Date')])}</td><td>${r[cc('Deal Name')]||''}${wwDealLink(r[cc('Deal ID')])}</td><td>${fmtMoney(r[cc('Deal Value')])}</td><td>${(r[cc('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(r[cc('Commission')])}</strong></td><td>${(ai>=0&&r[ai])?r[ai]:'<span style="color:#aaa">Pending</span>'}</td><td>${adi>=0?fmtDate(r[adi]):''}</td></tr>`).join('');
     }
     loadPrevPeriods_jimmie(rows,currentPeriod,cc,ai,adi);
   }catch(e){if(loadEl)loadEl.style.display='none';console.error('loadCommission_jimmie',e);}
@@ -589,7 +589,7 @@ function loadPrevPeriods_jimmie(rows,currentPeriod,cc,ai,adi){
     const pRows=periods[period];
     const total=pRows.reduce((s,r)=>s+(Number(r[cc('Commission')])||0),0);
     const id='pp-'+period.replace(/[^a-z0-9]/gi,'');
-    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Deal</th><th>Amount</th><th>Rate</th><th>Commission</th><th>Approved By</th><th>Approved</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[cc('Date')])}</td><td>${r[cc('Deal Name')]||''}</td><td>${fmtMoney(r[cc('Deal Value')])}</td><td>${(r[cc('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(r[cc('Commission')])}</strong></td><td>${(ai>=0&&r[ai])?r[ai]:'<span style="color:#aaa">Pending</span>'}</td><td>${adi>=0?fmtDate(r[adi]):''}</td></tr>`).join('')}</tbody></table></div></div></div>`;
+    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Deal</th><th>Amount</th><th>Rate</th><th>Commission</th><th>Approved By</th><th>Approved</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[cc('Date')])}</td><td>${r[cc('Deal Name')]||''}${wwDealLink(r[cc('Deal ID')])}</td><td>${fmtMoney(r[cc('Deal Value')])}</td><td>${(r[cc('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(r[cc('Commission')])}</strong></td><td>${(ai>=0&&r[ai])?r[ai]:'<span style="color:#aaa">Pending</span>'}</td><td>${adi>=0?fmtDate(r[adi]):''}</td></tr>`).join('')}</tbody></table></div></div></div>`;
   }).join('');
 }
 

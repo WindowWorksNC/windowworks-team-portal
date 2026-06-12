@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Justin Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=117">
+<link rel="stylesheet" href="portal.css?v=119">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Justin Reif';</script>
-<script src="gate.js?v=117"></script>
+<script src="gate.js?v=119"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -541,7 +541,7 @@ async function loadTeamCommission(){
       const approvedBy=r[c('Approved By')]||r[c('Approved by')]||'';
       const emp=(r[c('Employee')]||'').trim();
       const amt=Number(r[c('Commission')])||0;
-      return `<tr><td>${fmtDate(r[c('Date')])}</td><td>${emp}</td><td>${r[c('Deal Name')]||''}</td><td>${fmtMoney(r[c('Deal Value')])}</td><td>${(r[c('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(amt)}</strong></td><td style="font-size:11px">${(r[c('Pay Period')]||'').trim()}</td><td>${approvedBy}</td><td>${approvedBy?'<span class="pill pill-approved">Approved</span>':`<button class="action-btn btn-approve" onclick="showApprovalConfirm('Commissions',${rowIdx},'${emp.replace(/'/g,"\\'")}','Commission',${amt})">Approve</button>`}</td></tr>`;
+      return `<tr><td>${fmtDate(r[c('Date')])}</td><td>${emp}</td><td>${r[c('Deal Name')]||''}${wwDealLink(r[c('Deal ID')])}</td><td>${fmtMoney(r[c('Deal Value')])}</td><td>${(r[c('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(amt)}</strong></td><td style="font-size:11px">${(r[c('Pay Period')]||'').trim()}</td><td>${approvedBy}</td><td>${approvedBy?'<span class="pill pill-approved">Approved</span>':`<button class="action-btn btn-approve" onclick="showApprovalConfirm('Commissions',${rowIdx},'${emp.replace(/'/g,"\\'")}','Commission',${amt})">Approve</button>`}</td></tr>`;
     }).join('');
     loadPrevComm(rows,currentPeriod);
   }catch(e){if(loadEl)loadEl.style.display='none';console.error(e);}
@@ -561,7 +561,7 @@ function loadPrevComm(rows,currentPeriod){
     const pRows=periods[period];
     const total=pRows.reduce((s,r)=>s+(Number(r[window.__cCommission])||0),0);
     const id='pp-'+period.replace(/[^a-z0-9]/gi,'');
-    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="var x=document.getElementById('${id}');x.style.display=x.style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Commission</th><th>Approved By</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[window.__cDate])}</td><td>${r[window.__cEmployee]||''}</td><td>${r[window.__cDeal]||''}</td><td><strong style="color:#c4581f">${fmtMoney(r[window.__cCommission])}</strong></td><td>${r[window.__cApprovedBy]||'<span style="color:#aaa">Pending</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="var x=document.getElementById('${id}');x.style.display=x.style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Commission</th><th>Approved By</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[window.__cDate])}</td><td>${r[window.__cEmployee]||''}</td><td>${r[window.__cDeal]||''}${wwDealLink(r[window.__cDealId])}</td><td><strong style="color:#c4581f">${fmtMoney(r[window.__cCommission])}</strong></td><td>${r[window.__cApprovedBy]||'<span style="color:#aaa">Pending</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
   }).join('');
 }
 
@@ -1262,7 +1262,7 @@ async function cacheCommissionHeaders(){
     if(d.success){
       const c=cols(d.data[0]);
       window.__commHeaders=d.data[0];
-      window.__cPayPeriod=c('Pay Period');window.__cCommission=c('Commission');window.__cDate=c('Date');window.__cEmployee=c('Employee');window.__cDeal=c('Deal Name');window.__cApprovedBy=c('Approved By')>=0?c('Approved By'):c('Approved by');
+      window.__cPayPeriod=c('Pay Period');window.__cCommission=c('Commission');window.__cDate=c('Date');window.__cEmployee=c('Employee');window.__cDeal=c('Deal Name');window.__cDealId=c('Deal ID');window.__cApprovedBy=c('Approved By')>=0?c('Approved By'):c('Approved by');
     }
   }catch(e){}
 }
