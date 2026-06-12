@@ -7,11 +7,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ashley | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=110">
+<link rel="stylesheet" href="portal.css?v=115">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Ashley Ball';</script>
-<script src="gate.js?v=110"></script>
+<script src="gate.js?v=115"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -224,7 +224,8 @@ function presentPill(){return '<span class="pill pill-approved">On File</span>';
 
 function expiryDays(dateStr){if(!dateStr)return null;return Math.floor((new Date(dateStr)-new Date())/(1000*60*60*24));}
 function expiryClass(dateStr){const d=expiryDays(dateStr);if(d===null)return '';if(d<0)return 'expiry-danger';if(d<30)return 'expiry-danger';if(d<60)return 'expiry-warn';return 'expiry-ok';}
-function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return `Expired ${Math.abs(d)}d ago`;return `Expires in ${d}d`;}
+function humanizeDays(d){d=Math.abs(d);if(d===0)return '0 days';if(d<45)return d+' day'+(d===1?'':'s');if(d<365){var m=Math.max(1,Math.round(d/30));return m+' month'+(m===1?'':'s');}var y=Math.floor(d/365);var mo=Math.round((d-y*365)/30);if(mo>=12){y+=1;mo=0;}return y+' year'+(y===1?'':'s')+(mo>0?' '+mo+' month'+(mo===1?'':'s'):'');}
+function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return 'Expired '+humanizeDays(d)+' ago';if(d===0)return 'Expires today';return 'Expires in '+humanizeDays(d);}
 
 
 // Header-based column lookup
@@ -377,8 +378,9 @@ async function loadDocs(employee,hasCommissionDoc){
     const loadEl=document.getElementById('docs-loading');if(loadEl)loadEl.style.display='none';
     let docData={};
     if(d.success){
+      const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
       const row=d.data.slice(1).find(r=>r[0]===employee);
-      if(row&&row[8]){try{docData=JSON.parse(row[8]);}catch(e){}}
+      if(row&&row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
     }
     const container=document.getElementById('docs-list');
     if(!container)return;
@@ -394,8 +396,9 @@ async function loadDocs(employee,hasCommissionDoc){
       return `<div class="doc-row">
         <div>${doc==='Government ID'?`<div class="doc-name">${doc}</div>${expirySection}`:`<div class="doc-name">${doc}</div>`}</div>
         <div class="doc-actions">
-          ${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:missingPill()}
+          <span id="docstatus-${safeDoc}">${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:missingPill()}</span>
           <input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${employee}','${doc}',this.value)">
+          <span id="docsaved-${safeDoc}" style="font-size:11px;color:#28a745;font-weight:600;opacity:0;transition:opacity .2s"></span>
         </div>
       </div>`;
     }).join('');
@@ -403,16 +406,27 @@ async function loadDocs(employee,hasCommissionDoc){
 }
 
 async function saveDocLink(employee,doc,url){
+  const safeDoc=doc.replace(/[^a-zA-Z0-9]/g,'-');
+  const statusEl=document.getElementById('docstatus-'+safeDoc);
+  const savedEl=document.getElementById('docsaved-'+safeDoc);
+  url=(url||'').trim();
+  if(savedEl){savedEl.textContent='Saving...';savedEl.style.color='#aaa';savedEl.style.opacity='1';}
   try{
     const d=await api({action:'read',tab:'Employee_Records'});
-    if(!d.success)return;
+    if(!d.success)throw new Error('read failed');
     const rowIdx=d.data.findIndex(r=>r[0]===employee);
-    if(rowIdx<0)return;
+    if(rowIdx<0)throw new Error('no row');
+    const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
     const row=[...d.data[rowIdx]];
-    let docData={};if(row[8]){try{docData=JSON.parse(row[8]);}catch(e){}}
-    docData[doc]=url;row[8]=JSON.stringify(docData);
+    let docData={};if(row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
+    docData[doc]=url;row[docsIdx]=JSON.stringify(docData);
     await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
-  }catch(e){console.error(e);}
+    if(statusEl)statusEl.innerHTML=url?(presentPill()+' <a class="doc-link" href="'+url+'" target="_blank">View</a>'):missingPill();
+    if(savedEl){savedEl.textContent='Saved';savedEl.style.color='#28a745';savedEl.style.opacity='1';setTimeout(function(){savedEl.style.opacity='0';},2000);}
+  }catch(e){
+    console.error(e);
+    if(savedEl){savedEl.textContent='Not saved, try again';savedEl.style.color='#c0392b';savedEl.style.opacity='1';}
+  }
 }
 
 async function saveExpiry(employee){
@@ -423,9 +437,10 @@ async function saveExpiry(employee){
     const d=await api({action:'read',tab:'Employee_Records'});
     if(!d.success)return;
     const rowIdx=d.data.findIndex(r=>r[0]===employee);if(rowIdx<0)return;
+    const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
     const row=[...d.data[rowIdx]];
-    let docData={};if(row[8]){try{docData=JSON.parse(row[8]);}catch(e){}}
-    docData['Government ID - Expiry']=val;row[8]=JSON.stringify(docData);
+    let docData={};if(row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
+    docData['Government ID - Expiry']=val;row[docsIdx]=JSON.stringify(docData);
     await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
   }catch(e){console.error(e);}
 }

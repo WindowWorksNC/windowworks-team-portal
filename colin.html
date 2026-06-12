@@ -7,11 +7,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=110">
+<link rel="stylesheet" href="portal.css?v=115">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Colin Glenn';</script>
-<script src="gate.js?v=110"></script>
+<script src="gate.js?v=115"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -376,7 +376,8 @@ function presentPill(){return '<span class="pill pill-approved">On File</span>';
 
 function expiryDays(dateStr){if(!dateStr)return null;return Math.floor((new Date(dateStr)-new Date())/(1000*60*60*24));}
 function expiryClass(dateStr){const d=expiryDays(dateStr);if(d===null)return '';if(d<0)return 'expiry-danger';if(d<30)return 'expiry-danger';if(d<60)return 'expiry-warn';return 'expiry-ok';}
-function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return `Expired ${Math.abs(d)}d ago`;return `Expires in ${d}d`;}
+function humanizeDays(d){d=Math.abs(d);if(d===0)return '0 days';if(d<45)return d+' day'+(d===1?'':'s');if(d<365){var m=Math.max(1,Math.round(d/30));return m+' month'+(m===1?'':'s');}var y=Math.floor(d/365);var mo=Math.round((d-y*365)/30);if(mo>=12){y+=1;mo=0;}return y+' year'+(y===1?'':'s')+(mo>0?' '+mo+' month'+(mo===1?'':'s'):'');}
+function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return 'Expired '+humanizeDays(d)+' ago';if(d===0)return 'Expires today';return 'Expires in '+humanizeDays(d);}
 
 
 // Header-based column lookup
@@ -473,6 +474,7 @@ async function loadMyRequests(employee){
   }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
 }
 
+function wwDealLink(id){var s=(id==null?'':String(id).trim());return s?` <a href="https://windowworksco.pipedrive.com/deal/${encodeURIComponent(s)}" target="_blank" rel="noopener" style="color:#c4581f;text-decoration:none;font-size:11px;font-weight:600;white-space:nowrap">See Deal</a>`:'';}
 async function loadCommissions(employee){
   try{
     const d=await api({action:'read',tab:'Commissions'});
@@ -491,7 +493,8 @@ const hasAny=rows.length>0;
 if(!hasAny){if(emptyEl)emptyEl.style.display='block';return;}
     if(tableEl)tableEl.style.display='table';
     const tbody=document.getElementById('ledger-body');
-    if(tbody)tbody.innerHTML=rows.reverse().map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[2]||''}</td><td>${fmtMoney(r[3])}</td><td>${r[4]||''}</td><td>${r[5]||''}</td><td>${r[6]?r[6]+'%':''}</td><td><strong>${fmtMoney(r[7])}</strong></td><td>${r[8]||''}</td></tr>`).join('');
+    const cc=cols(d.data[0]);
+    if(tbody)tbody.innerHTML=rows.reverse().map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[2]||''}${wwDealLink(r[cc('Deal ID')])}</td><td>${fmtMoney(r[3])}</td><td>${r[4]||''}</td><td>${r[5]||''}</td><td>${r[6]?r[6]+'%':''}</td><td><strong>${fmtMoney(r[7])}</strong></td><td>${r[8]||''}</td></tr>`).join('');
   }catch(e){console.error(e);}
 }
 
@@ -529,8 +532,9 @@ async function loadDocs(employee,hasCommissionDoc){
     const loadEl=document.getElementById('docs-loading');if(loadEl)loadEl.style.display='none';
     let docData={};
     if(d.success){
+      const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
       const row=d.data.slice(1).find(r=>r[0]===employee);
-      if(row&&row[8]){try{docData=JSON.parse(row[8]);}catch(e){}}
+      if(row&&row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
     }
     const container=document.getElementById('docs-list');
     if(!container)return;
@@ -546,8 +550,9 @@ async function loadDocs(employee,hasCommissionDoc){
       return `<div class="doc-row">
         <div>${doc==='Government ID'?`<div class="doc-name">${doc}</div>${expirySection}`:`<div class="doc-name">${doc}</div>`}</div>
         <div class="doc-actions">
-          ${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:missingPill()}
+          <span id="docstatus-${safeDoc}">${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:missingPill()}</span>
           <input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${employee}','${doc}',this.value)">
+          <span id="docsaved-${safeDoc}" style="font-size:11px;color:#28a745;font-weight:600;opacity:0;transition:opacity .2s"></span>
         </div>
       </div>`;
     }).join('');
@@ -555,16 +560,27 @@ async function loadDocs(employee,hasCommissionDoc){
 }
 
 async function saveDocLink(employee,doc,url){
+  const safeDoc=doc.replace(/[^a-zA-Z0-9]/g,'-');
+  const statusEl=document.getElementById('docstatus-'+safeDoc);
+  const savedEl=document.getElementById('docsaved-'+safeDoc);
+  url=(url||'').trim();
+  if(savedEl){savedEl.textContent='Saving...';savedEl.style.color='#aaa';savedEl.style.opacity='1';}
   try{
     const d=await api({action:'read',tab:'Employee_Records'});
-    if(!d.success)return;
+    if(!d.success)throw new Error('read failed');
     const rowIdx=d.data.findIndex(r=>r[0]===employee);
-    if(rowIdx<0)return;
+    if(rowIdx<0)throw new Error('no row');
+    const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
     const row=[...d.data[rowIdx]];
-    let docData={};if(row[8]){try{docData=JSON.parse(row[8]);}catch(e){}}
-    docData[doc]=url;row[8]=JSON.stringify(docData);
+    let docData={};if(row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
+    docData[doc]=url;row[docsIdx]=JSON.stringify(docData);
     await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
-  }catch(e){console.error(e);}
+    if(statusEl)statusEl.innerHTML=url?(presentPill()+' <a class="doc-link" href="'+url+'" target="_blank">View</a>'):missingPill();
+    if(savedEl){savedEl.textContent='Saved';savedEl.style.color='#28a745';savedEl.style.opacity='1';setTimeout(function(){savedEl.style.opacity='0';},2000);}
+  }catch(e){
+    console.error(e);
+    if(savedEl){savedEl.textContent='Not saved, try again';savedEl.style.color='#c0392b';savedEl.style.opacity='1';}
+  }
 }
 
 async function saveExpiry(employee){
@@ -575,9 +591,10 @@ async function saveExpiry(employee){
     const d=await api({action:'read',tab:'Employee_Records'});
     if(!d.success)return;
     const rowIdx=d.data.findIndex(r=>r[0]===employee);if(rowIdx<0)return;
+    const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
     const row=[...d.data[rowIdx]];
-    let docData={};if(row[8]){try{docData=JSON.parse(row[8]);}catch(e){}}
-    docData['Government ID - Expiry']=val;row[8]=JSON.stringify(docData);
+    let docData={};if(row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
+    docData['Government ID - Expiry']=val;row[docsIdx]=JSON.stringify(docData);
     await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
   }catch(e){console.error(e);}
 }
@@ -746,7 +763,7 @@ function oppRow(name, detail, progress) {
   </div>`;
 }
 
-function bonusRow(type, account, amount, detail, approved, approvedBy, approvedDate, payDate) {
+function bonusRow(type, account, amount, detail, approved, approvedBy, approvedDate, payDate, dealId) {
   if (!account || !String(account).trim()) return '';
   const pill = approved
     ? '<span class="pill pill-approved">Approved</span>'
@@ -758,7 +775,7 @@ function bonusRow(type, account, amount, detail, approved, approvedBy, approvedD
     <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">${type}</div>
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap">
       <div>
-        <div style="font-size:14px;font-weight:600;color:#1a1a1a">${account}</div>
+        <div style="font-size:14px;font-weight:600;color:#1a1a1a">${account}${wwDealLink(dealId)}</div>
         <div style="font-size:13px;color:#888;margin-top:2px">${detail}</div>
         ${dateInfo}
       </div>
@@ -875,16 +892,17 @@ function updateBonusSummary() {
     const amt = bc3 ? (Number(r[bc3('Amount')])||250) : 250;
     const approvedDate = bc3 ? (r[bc3('Approved Date')]||'') : '';
     const payDate = bc3 ? (r[bc3('Pay Date')]||'') : '';
+    const dealId = bc3 ? (r[bc3('Deal ID')]||'') : '';
     let btype = ((bc3 ? (r[bc3('Bonus Type')]||r[bc3('Deal Name')]||'') : '').toString().trim()) || 'New Partner';
     btype = btype.replace(/\s*Bounty$/i,'').trim(); // "New Partner Bounty" -> "New Partner"
-    const entry = { type: btype, account:orgName, amount:amt, detail: (btype==='New Partner'?'First B2B sale - $250 bounty':''), approvedBy:approvedBy, approvedDate:approvedDate, payDate:payDate };
+    const entry = { type: btype, account:orgName, amount:amt, detail: (btype==='New Partner'?'First B2B sale - $250 bounty':''), approvedBy:approvedBy, approvedDate:approvedDate, payDate:payDate, dealId:dealId };
     if(approvedBy) approved.push(entry);
     else pending.push(entry);
   });
 
   // B2B earned from Pipedrive
   _b2bEarned.forEach(b => {
-    pending.push({ type: b.label, account: b.account, amount: b.amount, detail: b.detail, approvedBy:'' });
+    pending.push({ type: b.label, account: b.account, amount: b.amount, detail: b.detail, approvedBy:'', dealId:'' });
   });
   // Show submit button if there are B2B calculated bonuses pending
   const submitBtn = document.getElementById('submit-bonuses-btn');
@@ -915,12 +933,12 @@ function updateBonusSummary() {
 
   if(pendingBody) {
     if(!pendingClean.length) { pendingBody.innerHTML='<div class="empty-state" id="bonus-pending-empty">No pending bonuses.</div>'; }
-    else { pendingBody.innerHTML = pendingClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, false, '', '', '')).join(''); }
+    else { pendingBody.innerHTML = pendingClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, false, '', '', '', e.dealId)).join(''); }
   }
   const approvedSection = document.getElementById('bonus-approved-section');
   if (approvedSection) approvedSection.style.display = approvedClean.length ? 'block' : 'none';
   if(approvedBody && approvedClean.length) {
-    approvedBody.innerHTML = approvedClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy, e.approvedDate||'', e.payDate||'')).join('');
+    approvedBody.innerHTML = approvedClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy, e.approvedDate||'', e.payDate||'', e.dealId)).join('');
   }
 }
 

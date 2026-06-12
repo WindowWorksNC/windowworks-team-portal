@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Justin Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=110">
+<link rel="stylesheet" href="portal.css?v=115">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Justin Reif';</script>
-<script src="gate.js?v=110"></script>
+<script src="gate.js?v=115"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -425,7 +425,8 @@ function presentPill(){return '<span class="pill pill-approved">On File</span>';
 
 function expiryDays(dateStr){if(!dateStr)return null;return Math.floor((new Date(dateStr)-new Date())/(1000*60*60*24));}
 function expiryClass(dateStr){const d=expiryDays(dateStr);if(d===null)return '';if(d<0)return 'expiry-danger';if(d<30)return 'expiry-danger';if(d<60)return 'expiry-warn';return 'expiry-ok';}
-function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return `Expired ${Math.abs(d)}d ago`;return `Expires in ${d}d`;}
+function humanizeDays(d){d=Math.abs(d);if(d===0)return '0 days';if(d<45)return d+' day'+(d===1?'':'s');if(d<365){var m=Math.max(1,Math.round(d/30));return m+' month'+(m===1?'':'s');}var y=Math.floor(d/365);var mo=Math.round((d-y*365)/30);if(mo>=12){y+=1;mo=0;}return y+' year'+(y===1?'':'s')+(mo>0?' '+mo+' month'+(mo===1?'':'s'):'');}
+function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return 'Expired '+humanizeDays(d)+' ago';if(d===0)return 'Expires today';return 'Expires in '+humanizeDays(d);}
 
 function cols(headers){const trimmed=headers.map(h=>(h||'').toString().trim());return name=>trimmed.indexOf(name.trim());}
 function getActiveQuarter(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qs=new Date(cy,(cq-1)*3,1);var ds=Math.round((n-qs)/86400000);if(ds<14){return cq===1?{q:4,year:cy-1}:{q:cq-1,year:cy};}return {q:cq,year:cy};}
@@ -621,10 +622,10 @@ async function loadIncentivePay(){
       const c=cols(dBounty.data[0]);
       dBounty.data.slice(1).filter(r=>r.some(x=>x)).forEach(r=>{
         const employee=(r[c('Employee')]||'').trim();
-        const detail=(r[c('Org Name')]||r[c('Account')]||r[c('Deal Name')]||'').toString().trim();
+        const detail=(r[c('Org name')]||r[c('Org Name')]||r[c('Account')]||r[c('Deal Name')]||'').toString().trim();
         if(!employee||!detail)return; // drop blank/partial rows
         const rowIdx=dBounty.data.indexOf(r)+1;
-        const label=(r[c('Bonus Type')]||r[c('Deal Name')]||'').toString().trim()||'New Partner Bounty';
+        const label=((r[c('Bonus Type')]||r[c('Deal Name')]||'').toString().trim()||'New Partner Bounty').replace(/\s*Bounty$/i,'').trim();
         const item={sheet:'B2B_Partner_Bounties',rowIdx,employee,date:fmtDate(r[c('Date')]),detail,type:label,amount:inferBountyAmount(label,r[c('Amount')]),approvedBy:(r[c('Approved By')]||'').trim(),payDate:r[c('Pay Date')]||''};
         if(item.approvedBy)approved.push(item);else pending.push(item);
       });
@@ -808,6 +809,7 @@ async function reviewPTO(rowIndex,status){
     await api({action:'update',tab:'PTO_Requests',rowIndex:rowIndex,row:JSON.stringify(row)});
     loadAdminPTO();
     if(typeof loadAllBalances==='function')loadAllBalances();
+    if(typeof computeOwnerAlerts==='function')computeOwnerAlerts();
   }catch(e){alert('Error updating request');}
 }
 
@@ -1184,23 +1186,33 @@ async function loadDocs(employee,hasCommissionDoc){
       const isID=doc==='Government ID';
       const expirySection=isID?`<div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap"><span class="${expiryClass(idExpiry)}" id="expiry-label">${expiryLabel(idExpiry)}</span><input type="date" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" id="expiry-input" value="${idExpiry}" onchange="saveExpiry('${employee.replace(/'/g,"\\'")}')"></div>`:'';
       const safeDoc=doc.replace(/[^a-zA-Z0-9]/g,'-');
-      return `<div class="doc-row"><div>${isID?`<div class="doc-name">${doc}</div>${expirySection}`:`<div class="doc-name">${doc}</div>`}</div><div class="doc-actions">${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:missingPill()}<input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${employee.replace(/'/g,"\\'")}','${doc.replace(/'/g,"\\'")}',this.value)"></div></div>`;
+      return `<div class="doc-row"><div>${isID?`<div class="doc-name">${doc}</div>${expirySection}`:`<div class="doc-name">${doc}</div>`}</div><div class="doc-actions"><span id="docstatus-${safeDoc}">${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:missingPill()}</span><input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${employee.replace(/'/g,"\\'")}','${doc.replace(/'/g,"\\'")}',this.value)"><span id="docsaved-${safeDoc}" style="font-size:11px;color:#28a745;font-weight:600;opacity:0;transition:opacity .2s"></span></div></div>`;
     }).join('');
   }catch(e){console.error(e);}
 }
 
 async function saveDocLink(employee,doc,url){
+  const safeDoc=doc.replace(/[^a-zA-Z0-9]/g,'-');
+  const statusEl=document.getElementById('docstatus-'+safeDoc);
+  const savedEl=document.getElementById('docsaved-'+safeDoc);
+  url=(url||'').trim();
+  if(savedEl){savedEl.textContent='Saving...';savedEl.style.color='#aaa';savedEl.style.opacity='1';}
   try{
     const d=await api({action:'read',tab:'Employee_Records'});
-    if(!d.success)return;
+    if(!d.success)throw new Error('read failed');
     const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
     const rowIdx=d.data.findIndex(r=>(r[c('Employee')]||'').trim()===employee);
-    if(rowIdx<0)return;
+    if(rowIdx<0)throw new Error('no row');
     const row=[...d.data[rowIdx]];
     let docData={};if(row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
     docData[doc]=url;row[docsIdx]=JSON.stringify(docData);
     await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
-  }catch(e){console.error(e);}
+    if(statusEl)statusEl.innerHTML=url?(presentPill()+' <a class="doc-link" href="'+url+'" target="_blank">View</a>'):missingPill();
+    if(savedEl){savedEl.textContent='Saved';savedEl.style.color='#28a745';savedEl.style.opacity='1';setTimeout(function(){savedEl.style.opacity='0';},2000);}
+  }catch(e){
+    console.error(e);
+    if(savedEl){savedEl.textContent='Not saved, try again';savedEl.style.color='#c0392b';savedEl.style.opacity='1';}
+  }
 }
 
 async function saveExpiry(employee){
@@ -1383,5 +1395,18 @@ loadEquipment(EMPLOYEE);
 <script src="taskboard.js"></script>
 <script>initTaskBoard("justin");</script>
 <script src="resources.js"></script>
+<script>
+(function(){
+  if(window.WW_EMPLOYEE!=='Rose Reif')return;
+  var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]');
+  var ver='';
+  if(el){var m=(el.getAttribute('href')||el.getAttribute('src')||'').match(/v=(\d+)/);if(m)ver=m[1];}
+  var b=document.createElement('div');
+  b.textContent='v'+(ver||'?');
+  b.title='Deployed portal build';
+  b.style.cssText='position:fixed;bottom:8px;right:10px;font-family:Barlow,Arial,sans-serif;font-size:11px;font-weight:600;color:#999;background:rgba(245,237,224,0.92);border:1px solid #e0d8c8;padding:2px 8px;border-radius:10px;z-index:99999;pointer-events:none';
+  document.body.appendChild(b);
+})();
+</script>
 </body>
 </html>
