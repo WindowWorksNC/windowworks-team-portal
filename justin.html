@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Justin Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=116">
+<link rel="stylesheet" href="portal.css?v=117">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Justin Reif';</script>
-<script src="gate.js?v=116"></script>
+<script src="gate.js?v=117"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -36,7 +36,7 @@
 
 <div id="view-team" style="display:block">
   <div class="tabs" id="tabs-team">
-    <button class="tab active" onclick="switchTab('commission-admin',this)">Commission</button>
+    <button class="tab active" onclick="switchTab('commission-admin',this)">Commission <span id="badge-commission" class="nav-badge"></span></button>
     <button class="tab" onclick="switchTab('incentive',this)">Incentive Pay <span id="badge-incentive" class="nav-badge"></span></button>
     <button class="tab" onclick="switchTab('pto-admin',this)">PTO Requests <span id="badge-pto" class="nav-badge"></span></button>
     <button class="tab" onclick="switchTab('records-admin',this)">Employee Records <span id="badge-records" class="nav-badge"></span></button>
@@ -517,6 +517,7 @@ async function loadTeamCommission(){
     if(!d.success)return;
     const c=cols(d.data[0]);
     const rows=d.data.slice(1).filter(r=>r.some(x=>x));
+    if(typeof setBadge_==='function'){window._alertCommission=rows.filter(r=>(r[c('Employee')]||'').trim()&&(Number(r[c('Commission')])||0)>0&&!((r[c('Approved By')]||r[c('Approved by')]||'').toString().trim())).length;setBadge_('badge-commission',window._alertCommission);if(typeof updateTotalBadge==='function')updateTotalBadge();}
     let currentPeriod=getCurrentPeriod();
     let currentRows=rows.filter(r=>normPeriod(r[c('Pay Period')])===normPeriod(currentPeriod));
     if(!currentRows.length&&rows.length){
@@ -1347,7 +1348,7 @@ async function collectEquip(rowIndex){
 function ywd_(s){s=String(s||'').trim();if(!s)return null;var p=s.split('T')[0].split('-');var d;if(p.length===3){d=new Date(+p[0],(+p[1])-1,+p[2]);}else{d=new Date(s);}return isNaN(d)?null:d;}
 function daysUntil_(s){var d=ywd_(s);if(!d)return null;d.setHours(0,0,0,0);var t=new Date();t.setHours(0,0,0,0);return Math.round((d-t)/86400000);}
 function setBadge_(id,n){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>99?'99+':n;el.classList.add('show');}else{el.classList.remove('show');}}
-function updateTotalBadge(){if(typeof setBadge_!=='function')return;var t=(window._alertPTO||0)+(window._alertRecords||0)+(window._alertIncentive||0);setBadge_('badge-total',t);}
+function updateTotalBadge(){if(typeof setBadge_!=='function')return;var t=(window._alertPTO||0)+(window._alertRecords||0)+(window._alertIncentive||0)+(window._alertCommission||0);setBadge_('badge-total',t);}
 async function computeOwnerAlerts(){
   try{
     var pto=0,ids=0,revs=0;
