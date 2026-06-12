@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Justin Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=115">
+<link rel="stylesheet" href="portal.css?v=116">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Justin Reif';</script>
-<script src="gate.js?v=115"></script>
+<script src="gate.js?v=116"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -37,7 +37,7 @@
 <div id="view-team" style="display:block">
   <div class="tabs" id="tabs-team">
     <button class="tab active" onclick="switchTab('commission-admin',this)">Commission</button>
-    <button class="tab" onclick="switchTab('incentive',this)">Incentive Pay</button>
+    <button class="tab" onclick="switchTab('incentive',this)">Incentive Pay <span id="badge-incentive" class="nav-badge"></span></button>
     <button class="tab" onclick="switchTab('pto-admin',this)">PTO Requests <span id="badge-pto" class="nav-badge"></span></button>
     <button class="tab" onclick="switchTab('records-admin',this)">Employee Records <span id="badge-records" class="nav-badge"></span></button>
   </div>
@@ -626,7 +626,7 @@ async function loadIncentivePay(){
         if(!employee||!detail)return; // drop blank/partial rows
         const rowIdx=dBounty.data.indexOf(r)+1;
         const label=((r[c('Bonus Type')]||r[c('Deal Name')]||'').toString().trim()||'New Partner Bounty').replace(/\s*Bounty$/i,'').trim();
-        const item={sheet:'B2B_Partner_Bounties',rowIdx,employee,date:fmtDate(r[c('Date')]),detail,type:label,amount:inferBountyAmount(label,r[c('Amount')]),approvedBy:(r[c('Approved By')]||'').trim(),payDate:r[c('Pay Date')]||''};
+        const item={sheet:'B2B_Partner_Bounties',rowIdx,employee,date:fmtDate(r[c('Date')]),detail,type:label,amount:inferBountyAmount(label,r[c('Amount')]),approvedBy:(r[c('Approved By')]||'').trim(),payDate:r[c('Pay Date')]||'',dealId:(r[c('Deal ID')]||'').toString().trim()};
         if(item.approvedBy)approved.push(item);else pending.push(item);
       });
     }
@@ -647,6 +647,7 @@ async function loadIncentivePay(){
       });
     }
     INCENTIVE_PENDING=dedupeIncentive(pending);
+    if(typeof setBadge_==='function'){window._alertIncentive=INCENTIVE_PENDING.length;setBadge_('badge-incentive',window._alertIncentive);if(typeof updateTotalBadge==='function')updateTotalBadge();}
     const approvedDeduped=dedupeIncentive(approved);
     const filter=document.getElementById('incentive-filter');
     if(filter){
@@ -665,6 +666,7 @@ async function loadIncentivePay(){
   }catch(e){if(loadEl)loadEl.style.display='none';console.error(e);}
 }
 
+function wwDealLink(id){var s=(id==null?'':String(id).trim());return s?` <a href="https://windowworksco.pipedrive.com/deal/${encodeURIComponent(s)}" target="_blank" rel="noopener" style="color:#c4581f;text-decoration:none;font-size:11px;font-weight:600;white-space:nowrap">See Deal</a>`:'';}
 function renderIncentive(){
   const filter=document.getElementById('incentive-filter');
   const val=filter?filter.value:'all';
@@ -673,7 +675,7 @@ function renderIncentive(){
   const list=INCENTIVE_PENDING.filter(i=>val==='all'||i.employee===val);
   if(!list.length){if(tbody)tbody.innerHTML='';if(emptyEl)emptyEl.style.display='block';return;}
   if(emptyEl)emptyEl.style.display='none';
-  if(tbody)tbody.innerHTML=list.map(i=>`<tr><td>${i.employee}</td><td>${i.date}</td><td style="font-size:12px;color:#888">${i.detail}</td><td><span class="pill pill-orange">${i.type}</span></td><td><strong style="color:#c4581f">${fmtMoney(i.amount)}</strong></td><td><button class="action-btn btn-approve" onclick="showApprovalConfirm('${i.sheet}',${i.rowIdx},'${i.employee.replace(/'/g,"\\'")}','${i.type.replace(/'/g,"\\'")}',${i.amount})">Approve</button></td></tr>`).join('');
+  if(tbody)tbody.innerHTML=list.map(i=>`<tr><td>${i.employee}</td><td>${i.date}</td><td style="font-size:12px;color:#888">${i.detail}${wwDealLink(i.dealId)}</td><td><span class="pill pill-orange">${i.type}</span></td><td><strong style="color:#c4581f">${fmtMoney(i.amount)}</strong></td><td><button class="action-btn btn-approve" onclick="showApprovalConfirm('${i.sheet}',${i.rowIdx},'${i.employee.replace(/'/g,"\\'")}','${i.type.replace(/'/g,"\\'")}',${i.amount})">Approve</button></td></tr>`).join('');
 }
 
 // ---------- Approval modal ----------
@@ -1345,6 +1347,7 @@ async function collectEquip(rowIndex){
 function ywd_(s){s=String(s||'').trim();if(!s)return null;var p=s.split('T')[0].split('-');var d;if(p.length===3){d=new Date(+p[0],(+p[1])-1,+p[2]);}else{d=new Date(s);}return isNaN(d)?null:d;}
 function daysUntil_(s){var d=ywd_(s);if(!d)return null;d.setHours(0,0,0,0);var t=new Date();t.setHours(0,0,0,0);return Math.round((d-t)/86400000);}
 function setBadge_(id,n){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>99?'99+':n;el.classList.add('show');}else{el.classList.remove('show');}}
+function updateTotalBadge(){if(typeof setBadge_!=='function')return;var t=(window._alertPTO||0)+(window._alertRecords||0)+(window._alertIncentive||0);setBadge_('badge-total',t);}
 async function computeOwnerAlerts(){
   try{
     var pto=0,ids=0,revs=0;
@@ -1364,7 +1367,8 @@ async function computeOwnerAlerts(){
         if(dn!==null&&dn<=30)revs++;else if(d9!==null&&d9>=0&&d9<=30)revs++;
       });
     }
-    setBadge_('badge-pto',pto);setBadge_('badge-records',ids+revs);setBadge_('badge-total',pto+ids+revs);
+    window._alertPTO=pto;window._alertRecords=ids+revs;
+    setBadge_('badge-pto',pto);setBadge_('badge-records',ids+revs);updateTotalBadge();
   }catch(e){}
 }
 
