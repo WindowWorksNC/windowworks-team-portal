@@ -76,13 +76,46 @@
   // ----------------------------------------------------------------------------
   var DB = {};
 
+  // Document blobs stored in the Employee_Records "Documents" column as a JSON
+  // string, exactly like the live sheet. Keys are the document names the page
+  // lists, each mapped to a OneDrive style link (these are harmless example.com
+  // placeholders). The special key "Government ID - Expiry" drives the expiry
+  // badges. Wally is set to expire soon and Polly is already expired so the
+  // Expiring IDs panel and the Employee Records badge both light up; Able is far
+  // out so it shows as healthy.
+  var ableDocs = JSON.stringify({
+    'Signed Offer Letter': 'https://example.com/onedrive/able-admin/signed-offer-letter',
+    'Employee Handbook Acknowledgment': 'https://example.com/onedrive/able-admin/handbook-acknowledgment',
+    'Government ID': 'https://example.com/onedrive/able-admin/government-id',
+    'Government ID - Expiry': addDaysISO(TODAY_ISO, 240),
+    'Direct Deposit Authorization': 'https://example.com/onedrive/able-admin/direct-deposit',
+    'W-4': 'https://example.com/onedrive/able-admin/w4',
+    'I-9 Verification': 'https://example.com/onedrive/able-admin/i9-verification',
+    'Emergency Contact': 'https://example.com/onedrive/able-admin/emergency-contact'
+  });
+  var wallyDocs = JSON.stringify({
+    'Signed Offer Letter': 'https://example.com/onedrive/wally-windowsalesguy/signed-offer-letter',
+    'Government ID': 'https://example.com/onedrive/wally-windowsalesguy/government-id',
+    'Government ID - Expiry': addDaysISO(TODAY_ISO, 18),
+    'Direct Deposit Authorization': 'https://example.com/onedrive/wally-windowsalesguy/direct-deposit',
+    'I-9 Verification': 'https://example.com/onedrive/wally-windowsalesguy/i9-verification',
+    'Commission / Incentive Outline': 'https://example.com/onedrive/wally-windowsalesguy/commission-outline'
+  });
+  var pollyDocs = JSON.stringify({
+    'Signed Offer Letter': 'https://example.com/onedrive/polly-projectmanager/signed-offer-letter',
+    'Government ID': 'https://example.com/onedrive/polly-projectmanager/government-id',
+    'Government ID - Expiry': addDaysISO(TODAY_ISO, -6),
+    'W-4': 'https://example.com/onedrive/polly-projectmanager/w4',
+    'Emergency Contact': 'https://example.com/onedrive/polly-projectmanager/emergency-contact'
+  });
+
   DB.Employee_Records = [
     ['Employee', 'Role', 'Hire Date', 'Email', 'Status', 'PIN', 'Review Due 90Day', 'Review Due Annual', 'Last Review', 'Next Review', 'Documents', 'Notes'],
     ['Olivia Owner', 'Co-Owner', '2007-03-01', 'olivia@example.com', 'Active', '1111', '', '', '', '', '', 'Demo owner account'],
     ['Owen Owner', 'Co-Owner', '2007-03-01', 'owen@example.com', 'Active', '2222', '', '', '', '', '', 'Demo owner account'],
-    ['Able Admin', 'Admin / Payroll', '2021-06-14', 'able@example.com', 'Active', '3333', addDaysISO('2021-06-14', 90), addDaysISO('2021-06-14', 365), '2025-06-14', '2026-06-14', '', ''],
-    ['Wally Windowsalesguy', 'In-Home Sales', '2022-02-01', 'wally@example.com', 'Active', '4444', addDaysISO('2022-02-01', 90), addDaysISO('2022-02-01', 365), '2025-02-01', '2026-02-01', '', ''],
-    ['Polly Projectmanager', 'Project Manager', '2020-09-15', 'polly@example.com', 'Active', '5555', addDaysISO('2020-09-15', 90), addDaysISO('2020-09-15', 365), '2025-09-15', '2026-09-15', '', '']
+    ['Able Admin', 'Admin / Payroll', '2021-06-14', 'able@example.com', 'Active', '3333', addDaysISO('2021-06-14', 90), addDaysISO('2021-06-14', 365), addDaysISO(TODAY_ISO, -200), addDaysISO(TODAY_ISO, 165), ableDocs, ''],
+    ['Wally Windowsalesguy', 'In-Home Sales', '2022-02-01', 'wally@example.com', 'Active', '4444', addDaysISO('2022-02-01', 90), addDaysISO('2022-02-01', 365), addDaysISO(TODAY_ISO, -100), addDaysISO(TODAY_ISO, 265), wallyDocs, ''],
+    ['Polly Projectmanager', 'Project Manager', '2020-09-15', 'polly@example.com', 'Active', '5555', addDaysISO('2020-09-15', 90), addDaysISO('2020-09-15', 365), addDaysISO(TODAY_ISO, -60), addDaysISO(TODAY_ISO, 305), pollyDocs, '']
   ];
 
   DB.PTO_Balances = [
@@ -117,15 +150,15 @@
 
   DB.B2B_Booking_Bonuses = [
     ['Employee', 'Date', 'Customer', 'Appointment Date', 'Approved By', 'Notes', 'Pay Period'],
-    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 2 * 86400000)), 'Maple Street Contractors', addDaysISO(TODAY_ISO, 4), 'Olivia Owner', 'Builder referral measure', PERIOD],
-    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 1 * 86400000)), 'Triangle Property Group', addDaysISO(TODAY_ISO, 6), '', 'New B2B lead', PERIOD],
-    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 15 * 86400000)), 'Oakwood Renovations', addDaysISO(TODAY_ISO, -10), 'Owen Owner', '', PREV_PERIOD]
+    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 2 * 86400000)), 'The Hendersons', addDaysISO(TODAY_ISO, 4), 'Olivia Owner', 'In-home estimate booked', PERIOD],
+    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 1 * 86400000)), 'Priya Raman', addDaysISO(TODAY_ISO, 6), '', 'In-home estimate booked', PERIOD],
+    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 15 * 86400000)), 'The Okafor Family', addDaysISO(TODAY_ISO, -10), 'Owen Owner', 'In-home estimate booked', PREV_PERIOD]
   ];
 
   DB.B2B_Partner_Bounties = [
     ['Employee', 'Date', 'Account', 'Org Name', 'Deal ID', 'Deal Name', 'Status', 'Amount', 'Bonus Type', 'Approved By', 'Approved Date', 'Pay Date'],
-    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 30 * 86400000)), 'Apex Builders Group', 'Apex Builders Group', '4801', '', 'Approved', 150, 'New Partner', 'Olivia Owner', usDate(new Date(TODAY.getTime() - 25 * 86400000)), ''],
-    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 10 * 86400000)), 'Cary Home Renovators', 'Cary Home Renovators', '4802', '', 'Pending', 150, 'New Partner', '', '', '']
+    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 30 * 86400000)), 'Apex Builders Group', 'Apex Builders Group', '4801', '', 'Approved', 250, 'New Partner', 'Olivia Owner', usDate(new Date(TODAY.getTime() - 25 * 86400000)), ''],
+    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 10 * 86400000)), 'Cary Home Renovators', 'Cary Home Renovators', '4802', '', 'Pending', 250, 'New Partner', '', '', '']
   ];
 
   // Bonuses: Polly has a current quarter scorecard in progress (with saved field
@@ -184,7 +217,20 @@
     { id: 4810, value: 16750, org_id: { value: 9101, name: 'Apex Builders Group' }, won_time: pdWon(12) },
     { id: 4802, value: 9800, org_id: { value: 9102, name: 'Cary Home Renovators' }, won_time: pdWon(10) },
     { id: 4901, value: 11300, org_id: { value: 9103, name: 'Oakwood Renovations' }, won_time: pdWon(60) },
-    { id: 5050, value: 8700, org_id: { value: 9104, name: 'Maple Street Contractors' }, won_time: pdWon(5) }
+    { id: 5050, value: 8700, org_id: { value: 9104, name: 'Maple Street Contractors' }, won_time: pdWon(5) },
+
+    // ---- Close to ANCHOR ACCOUNT (3 contracts + $150k inside first 12 months) ----
+    // Hatcher: 2 contracts, $115k, inside its first year. Closest to anchor.
+    { id: 5203, value: 60000, org_id: { value: 9202, name: 'Hatcher Construction' }, won_time: pdWon(150) },
+    { id: 5204, value: 55000, org_id: { value: 9202, name: 'Hatcher Construction' }, won_time: pdWon(40) },
+    // Crestline: 2 contracts, $80k, inside its first year.
+    { id: 5201, value: 42000, org_id: { value: 9201, name: 'Crestline Builders' }, won_time: pdWon(90) },
+    { id: 5202, value: 38000, org_id: { value: 9201, name: 'Crestline Builders' }, won_time: pdWon(20) },
+
+    // ---- Close to WALLET SHARE (20% growth over prior year, $60k+ this year) ----
+    // Birchwood: $70k last year, $72k this year, just shy of the 20% growth target.
+    { id: 5205, value: 70000, org_id: { value: 9203, name: 'Birchwood Homes LLC' }, won_time: '2025-05-10 14:30:00' },
+    { id: 5206, value: 72000, org_id: { value: 9203, name: 'Birchwood Homes LLC' }, won_time: pdWon(30) }
   ];
 
   // ----------------------------------------------------------------------------
