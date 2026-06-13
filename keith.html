@@ -7,11 +7,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Keith Howze | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=119">
+<link rel="stylesheet" href="portal.css?v=121">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Keith Howze';</script>
-<script src="gate.js?v=119"></script>
+<script src="gate.js?v=121"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -81,6 +81,10 @@
         <div class="incentive-row-right">
           <div class="incentive-amount" id="d2-avg">--</div>
         </div>
+      </div>
+      <div style="margin-top:12px;border-top:1px solid #f0ece6;padding-top:10px">
+        <span onclick="var w=document.getElementById('d2-breakdown');w.style.display=w.style.display==='none'?'block':'none'" style="font-size:11px;color:#c4581f;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.05em">View daily breakdown</span>
+        <div id="d2-breakdown" style="display:none;margin-top:10px"></div>
       </div>
     </div>
 
@@ -715,14 +719,24 @@ async function loadScorecard(){
       const inQ=function(s){var x=pql(s);return !!x&&x.getFullYear()===_cy&&(Math.floor(x.getMonth()/3)+1)===_cq;};
       const rows=d.data.slice(1).filter(r=>(r[ei]||'').trim()==='Keith Howze'&&inQ(r[di]));
       const el=document.getElementById('d2-avg');
+      const bd=document.getElementById('d2-breakdown');
       if(rows.length){
-        const avg=rows.reduce((s,r)=>s+Number(r[oi]||0),0)/rows.length;
+        const total=rows.reduce((s,r)=>s+Number(r[oi]||0),0);
+        const avg=total/rows.length;
         if(el)el.textContent=avg.toFixed(1)+' avg';
         updateDomainUI('domain-data','d2-pill',avg===0,false);
         updateTotal();
+        if(bd){
+          const srt=rows.slice().sort(function(a,b){return String(a[di]).localeCompare(String(b[di]));});
+          bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">Every weeknight the portal records how many of your Pipedrive activities are overdue. The score is the average across every logged day this quarter, including days at zero: <strong>'+total+' total overdue over '+rows.length+' logged days = '+avg.toFixed(1)+' average</strong>. The domain pays out only when that average is 0. This shows how many were overdue each day, not which specific activities (the tracker logs a daily count only).</div>'
+            +'<div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th style="text-align:right">Overdue activities</th></tr></thead><tbody>'
+            +srt.map(function(r){var n=Number(r[oi]||0);return '<tr><td>'+fmtDate(r[di])+'</td><td style="text-align:right;font-weight:700;color:'+(n>0?'#c0392b':'#bbb')+'">'+n+'</td></tr>';}).join('')
+            +'</tbody><tfoot><tr style="border-top:2px solid #e4dbd0;font-weight:700"><td>'+rows.length+' logged days</td><td style="text-align:right">'+total+' total / '+avg.toFixed(1)+' avg</td></tr></tfoot></table></div>';
+        }
       } else {
         if(el)el.textContent='No data this quarter';
         updateDomainUI('domain-data','d2-pill',false,true);
+        if(bd)bd.innerHTML='<div style="font-size:12px;color:#888">No overdue activity has been logged for you yet this quarter.</div>';
       }
     }
   }catch(e){console.error(e);}

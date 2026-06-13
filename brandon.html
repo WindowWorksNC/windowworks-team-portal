@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=119">
+<link rel="stylesheet" href="portal.css?v=121">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Brandon McClure';</script>
-<script src="gate.js?v=119"></script>
+<script src="gate.js?v=121"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -282,6 +282,10 @@
       </div>
       <div class="sc-domain-desc">Average daily overdue activities across the team must stay at 0.</div>
       <div class="sc-domain-note">Fed automatically from Pipedrive overdue activity tracking.</div>
+      <div style="margin-top:12px;border-top:1px solid #efe9e1;padding-top:10px">
+        <span onclick="var w=document.getElementById('d1-breakdown');w.style.display=w.style.display==='none'?'block':'none'" style="font-size:11px;color:#c4581f;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.05em">View team breakdown</span>
+        <div id="d1-breakdown" style="display:none;margin-top:10px"></div>
+      </div>
     </div>
 
     <div class="sc-domain" id="domain-ar">
@@ -1399,6 +1403,30 @@ function updateBTotal(){
   ['domain-pipedrive','domain-ar','domain-consistent'].forEach(d=>{const el=document.getElementById(d);if(el&&el.classList.contains('pass'))total+=QTR_BONUS_B;});
   const t=document.getElementById('sc-total');if(t)t.textContent=fmtMoney(total);
 }
+function toggleD1(id){var e=document.getElementById(id);if(e)e.style.display=(e.style.display==='none'?'table-row':'none');}
+function renderD1Pivot(rows,di,ei,oi){
+  var bd=document.getElementById('d1-breakdown'); if(!bd)return;
+  var map={};
+  rows.forEach(function(r){
+    var n=(r[ei]||'').toString().trim(); if(!n)return;
+    if(!map[n])map[n]={days:0,total:0,detail:[]};
+    var v=Number(r[oi]||0);
+    map[n].days++; map[n].total+=v; map[n].detail.push([r[di],v]);
+  });
+  var names=Object.keys(map).sort(function(a,b){return (map[b].total/map[b].days)-(map[a].total/map[a].days);});
+  var gTotal=rows.reduce(function(s,r){return s+Number(r[oi]||0);},0);
+  var gAvg=rows.length?gTotal/rows.length:0;
+  var rowsHtml=names.map(function(n){
+    var m=map[n]; var a=m.days?m.total/m.days:0; var id='d1d-'+n.replace(/[^a-z0-9]/gi,'');
+    var det=m.detail.slice().sort(function(x,y){return String(x[0]).localeCompare(String(y[0]));}).map(function(p){var v=Number(p[1]||0);return '<tr><td style="padding:3px 8px;color:#888">'+fmtDate(p[0])+'</td><td style="padding:3px 8px;text-align:right;font-weight:700;color:'+(v>0?'#c0392b':'#bbb')+'">'+v+'</td></tr>';}).join('');
+    return '<tr style="cursor:pointer" onclick="toggleD1(\''+id+'\')"><td>'+n+'</td><td style="text-align:right">'+m.days+'</td><td style="text-align:right;font-weight:700;color:'+(m.total>0?'#c0392b':'#bbb')+'">'+m.total+'</td><td style="text-align:right;font-weight:700">'+a.toFixed(1)+'</td></tr>'
+      +'<tr id="'+id+'" style="display:none"><td colspan="4" style="padding:0 0 8px 0"><table style="width:100%;border-collapse:collapse;font-size:12px;background:#faf7f2">'+det+'</table></td></tr>';
+  }).join('');
+  bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">This domain averages overdue Pipedrive activities for every team member across every logged day this quarter, including days at zero: <strong>'+gTotal+' total overdue over '+rows.length+' logged employee-days = '+gAvg.toFixed(1)+' team average</strong>. It pays out only when that average is 0. Tap a name to see the daily counts for that person. The tracker logs a daily count per person, not which specific activities.</div>'
+    +'<div class="table-wrap"><table class="data-table"><thead><tr><th>Team member</th><th style="text-align:right">Logged days</th><th style="text-align:right">Total overdue</th><th style="text-align:right">Avg/day</th></tr></thead><tbody>'+rowsHtml
+    +'<tr style="border-top:2px solid #e4dbd0;font-weight:700"><td>Team</td><td style="text-align:right">'+rows.length+'</td><td style="text-align:right">'+gTotal+'</td><td style="text-align:right">'+gAvg.toFixed(1)+'</td></tr>'
+    +'</tbody></table></div>';
+}
 async function applyCloseGateBrandon(){
   var btn=document.getElementById('close-qtr-btn-brandon'); if(!btn)return;
   var hint=document.getElementById('close-qtr-hint-brandon');
@@ -1499,6 +1527,7 @@ async function loadBrandonScorecard(){
         if(el)el.textContent=avg.toFixed(1)+' team avg';
         updateDomainUI('domain-pipedrive','d1-pill',avg===0,false);
         updateBTotal();
+        renderD1Pivot(rows,di,ei,oi);
       } else {
         if(el)el.textContent='No data this quarter';
         updateDomainUI('domain-pipedrive','d1-pill',false,true);

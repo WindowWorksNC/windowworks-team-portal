@@ -7,11 +7,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=119">
+<link rel="stylesheet" href="portal.css?v=121">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Colin Glenn';</script>
-<script src="gate.js?v=119"></script>
+<script src="gate.js?v=121"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -991,7 +991,7 @@ async function loadB2BTracker() {
       if (!deal.org_id) return;
       const orgId = deal.org_id.value;
       const orgName = deal.org_id.name;
-      if (!orgs[orgId]) orgs[orgId] = { name: orgName, deals: [] };
+      if (!orgs[orgId]) orgs[orgId] = { name: orgName, id: orgId, deals: [] };
       orgs[orgId].deals.push({
         id: deal.id,
         value: deal.value || 0,
@@ -999,9 +999,35 @@ async function loadB2BTracker() {
       });
     });
 
+    // Frozen anchor-clock start: earliest New Partner bounty date per org.
+    // The bounty row is written once at first win and never overwritten (dedup by Deal ID),
+    // so it is immune to a deal being marked unwon and re-won later.
+    let bountyFirstWon = {};
+    try {
+      const bd = await api({action:'read', tab:'B2B_Partner_Bounties'});
+      if (bd.success && bd.data.length) {
+        const bc = cols(bd.data[0]);
+        const acctI = bc('Account'), dateI = bc('Date');
+        bd.data.slice(1).forEach(r => {
+          const acct = (r[acctI]!=null ? String(r[acctI]) : '').trim();
+          const dstr = r[dateI];
+          if (!acct || !dstr) return;
+          const dt = new Date(dstr);
+          if (isNaN(dt.getTime())) return;
+          if (!bountyFirstWon[acct] || dt < bountyFirstWon[acct]) bountyFirstWon[acct] = dt;
+        });
+      }
+    } catch(e) { /* fall back to live won_time below */ }
+
     const orgData = Object.values(orgs).map(org => {
       const deals = org.deals.sort((a,b) => a.wonDate - b.wonDate);
-      const firstSale = deals[0]?.wonDate;
+      // Anchor clock starts from the immutable bounty date when available; if both exist,
+      // use the earlier, since a re-win only ever pushes the live won_time later.
+      const liveFirst = deals[0]?.wonDate || null;
+      const frozenFirst = bountyFirstWon[String(org.id)] || null;
+      let firstSale;
+      if (frozenFirst && liveFirst) firstSale = (frozenFirst <= liveFirst) ? frozenFirst : liveFirst;
+      else firstSale = frozenFirst || liveFirst;
 
       const revThisYear = deals.filter(d => d.wonDate && d.wonDate >= thisYearStart).reduce((s,d) => s+d.value, 0);
       const revLastYear = deals.filter(d => d.wonDate && d.wonDate >= lastYearStart && d.wonDate <= lastYearEnd).reduce((s,d) => s+d.value, 0);
