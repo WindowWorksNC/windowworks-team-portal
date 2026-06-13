@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wally Windowsalesguy | Window Works Team Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="portal.css?v=121">
+</head>
+<body>
+<script>window.WW_EMPLOYEE='Wally Windowsalesguy';</script>
+<script src="mock-api.js?v=demo1"></script>
+<script src="gate.js?v=demo1"></script>
+    
+    <div class="header">
+  <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
+  <div class="header-right">
+    <a class="back-link" href="index.html" style="color:#ccc;font-size:13px;font-weight:500">&#8592; All Team</a>
+    <div class="header-tag">Team Portal</div>
+  </div>
+</div>
+<div class="orange-bar"></div>
+<div class="body">
+<div class="employee-header">
+  <div>
+    <div class="employee-name">Wally Windowsalesguy</div>
+    <div class="employee-role">Professional Sales</div>
+    <div class="employee-meta" id="hire-meta"></div>
+  </div>
+</div><div class="tabs">
+  <button class="tab active" onclick="switchTab('tasks',this)">My Tasks</button>
+  <button class="tab" onclick="switchTab('commission',this)">Commission</button>
+  <button class="tab" onclick="switchTab('bonuses',this)">Bonuses</button>
+  <button class="tab" onclick="switchTab('pto',this)">PTO</button>
+  <button class="tab" onclick="switchTab('records',this)">My Record</button>
+  <button class="tab" onclick="switchTab('training',this)">Training</button>
+  <button class="tab" onclick="switchTab('resources',this);requestAnimationFrame(function(){requestAnimationFrame(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){}})});">Resources</button>
+</div>
+<div class="tab-content" id="tab-commission">
+<div class="card">
+  <div class="card-title" style="justify-content:space-between"><span>Commission</span><span style="font-size:12px;color:#888;font-weight:400;text-transform:none">4.5% flat</span></div>
+  <div style="margin-bottom:12px">
+    <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:20px;font-weight:700;color:#1a1a1a" id="comm-period-label">Loading...</div>
+    <div style="font-size:13px;color:#888;margin-top:2px">Period Total: <strong style="color:#c4581f" id="comm-period-total">$0.00</strong> &nbsp;&bull;&nbsp; YTD: <strong id="comm-ytd-total">$0.00</strong></div>
+  </div>
+  <div id="comm-loading" class="loading">Loading...</div>
+  <div id="comm-empty" class="empty-state" style="display:none">No commissions this period.</div>
+  <div class="table-wrap" id="comm-table-wrap" style="display:none">
+    <table class="data-table"><thead><tr><th>Date</th><th>Deal</th><th>Amount</th><th>Rate</th><th>Commission</th><th>Approved By</th><th>Approved</th></tr></thead>
+    <tbody id="comm-body"></tbody></table>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title" style="cursor:pointer" onclick="togglePrevPeriods_wally(this)">Previous Periods <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="prev-toggle-label_wally">(click to expand)</span></div>
+  <div id="prev-periods-wrap_wally" style="display:none">
+    <div id="prev-periods-loading_wally" class="loading">Loading...</div>
+    <div id="prev-periods-body_wally"></div>
+  </div>
+</div>
+</div></div><div class="tab-content" id="tab-bonuses">
+
+<!-- BONUS SUMMARY -->
+<div class="card">
+  <div class="card-title" style="justify-content:space-between">
+    <span>Bonuses</span>
+    <span style="font-size:12px;color:#888;font-weight:400;text-transform:none" id="bonus-summary-sub">Loading...</span>
+  </div>
+  <div id="bonus-summary-loading" class="loading">Loading...</div>
+  <div id="bonus-summary-content" style="display:none">
+    <div class="stat-grid" style="margin-bottom:20px">
+      <div class="stat-block">
+        <div class="stat-number orange" id="bonus-pending-total">$0</div>
+        <div class="stat-label">Pending Approval</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-number" style="color:#28a745" id="bonus-approved-total">$0</div>
+        <div class="stat-label">Approved &amp; Paid</div>
+      </div>
+    </div>
+
+    <!-- PENDING APPROVAL -->
+    <div style="margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#c4581f">Earned - Pending Approval</div><button class="action-btn btn-approve" id="submit-bonuses-btn" onclick="submitBonusesForApproval()" style="display:none">Submit for Approval</button></div>
+      <div id="bonus-pending-body">
+        <div class="empty-state" id="bonus-pending-empty" style="display:none">No pending bonuses.</div>
+      </div>
+    </div>
+
+    <!-- APPROVED -->
+    <div id="bonus-approved-section" style="border-top:1px solid #f0ece6;padding-top:16px;margin-top:8px;display:none">
+      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#28a745;margin-bottom:10px">Approved</div>
+      <div id="bonus-approved-body">
+        <div class="empty-state" id="bonus-approved-empty" style="display:none">No approved bonuses yet.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OPPORTUNITIES -->
+<div class="card">
+  <div class="card-title">Opportunities</div>
+  <div style="font-size:12px;color:#aaa;margin-bottom:16px">Accounts closest to earning a bonus. Top 3 per category.</div>
+  <div id="opp-loading" class="loading">Loading...</div>
+  <div id="opp-content" style="display:none">
+
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">Anchor Account <span style="font-size:11px;color:#888;font-weight:400;text-transform:none">$2,500</span></div>
+      <div style="font-size:12px;color:#aaa;margin-bottom:10px">3 contracts + $150,000 in revenue within the first 12 months</div>
+      <div id="opp-anchor"></div>
+    </div>
+
+    <div style="border-top:1px solid #f0ece6;padding-top:16px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">Wallet Share <span style="font-size:11px;color:#888;font-weight:400;text-transform:none">$2,500</span></div>
+      <div style="font-size:12px;color:#aaa;margin-bottom:10px">Existing account grows spend by 20%+ year over year, minimum $60,000 this year</div>
+      <div id="opp-wallet"></div>
+    </div>
+
+    <div style="border-top:1px solid #f0ece6;padding-top:16px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">Account Retention <span style="font-size:11px;color:#888;font-weight:400;text-transform:none">$2,500</span></div>
+      <div style="font-size:12px;color:#aaa;margin-bottom:10px">Any account that hits $200,000 in revenue in a single calendar year</div>
+      <div id="opp-retention"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ALL OTHER B2B ACCOUNTS -->
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleAllAccounts()">
+    <div class="card-title" style="margin-bottom:0">All Other B2B Accounts</div>
+    <span style="font-size:12px;color:#aaa" id="all-accounts-toggle">(click to expand)</span>
+  </div>
+  <div id="all-accounts-wrap" style="display:none;margin-top:16px">
+    <div id="all-accounts-body"></div>
+  </div>
+</div>
+
+<!-- BOOKING BONUSES -->
+<div class="card">
+  <div class="card-title" style="justify-content:space-between">
+    <span>Booking Bonuses <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">$75 per in-home lead booked for outside sales</span></span>
+  </div>
+  <div id="booking-loading" class="loading">Loading...</div>
+  <div id="booking-content" style="display:none">
+    <div class="stat-grid" style="margin-bottom:16px">
+      <div class="stat-block">
+        <div class="stat-number orange" id="booking-period-count">0</div>
+        <div class="stat-label">This Period</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-number orange" id="booking-period-total">$0</div>
+        <div class="stat-label">Period Total</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-number" id="booking-ytd-total">$0</div>
+        <div class="stat-label">YTD Total</div>
+      </div>
+    </div>
+    <div class="table-wrap" id="booking-table-wrap" style="display:none">
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Customer</th><th>Appt Date</th><th>Bonus</th><th>Approved By</th><th>Notes</th></tr></thead>
+        <tbody id="booking-body"></tbody>
+      </table>
+    </div>
+    <div id="booking-empty" class="empty-state" style="display:none">No booking bonuses this period.</div>
+  </div>
+  <div style="margin-top:16px;border-top:1px solid #f0ece6;padding-top:16px">
+    <div class="card-title" style="margin-bottom:12px">Log a Booking</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Customer Name</label>
+        <input type="text" class="form-input" id="booking-customer" placeholder="Customer name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Appointment Date</label>
+        <input type="date" class="form-input" id="booking-appt-date">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Notes (optional)</label>
+        <input type="text" class="form-input" id="booking-notes" placeholder="e.g. referred by contractor">
+      </div>
+    </div>
+    <button class="submit-btn" onclick="submitBooking()" id="booking-submit-btn">Log Booking Bonus</button>
+    <div id="booking-submit-msg" style="margin-top:8px;font-size:13px"></div>
+  </div>
+</div>
+  <div class="card">
+    <div class="card-title">Close Year</div>
+    <div style="font-size:13px;color:#888;margin-bottom:12px">Emails Olivia and Owen a year-end summary of this year's approved bounties.</div>
+    <div id="close-year-alert-wally"></div>
+    <button class="submit-btn" id="close-year-btn-wally" onclick="closeYearWally()">Close Year</button>
+    <div id="close-year-hint-wally" style="font-size:12px;color:#888;margin-top:8px"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Bonuses by Year</div>
+    <div id="bounty-years-wally"><div class="loading">Loading...</div></div>
+  </div>
+</div>
+<div class="tab-content" id="tab-pto"><div class="card">
+  <div class="card-title">Leave Balances</div>
+  <div class="stat-grid">
+    <div class="stat-block">
+      <div class="stat-number" id="vac-remaining">--</div>
+      <div class="stat-label">Vacation Days Left</div>
+      <div class="stat-sub" id="vac-used">of 10 used: --</div>
+      <div class="stat-sub" id="vac-upcoming">0 approved upcoming</div>
+      <div class="pto-bar-wrap"><div class="pto-bar" id="vac-bar" style="width:0%"></div></div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-number" id="sick-remaining">--</div>
+      <div class="stat-label">Sick Days Left</div>
+      <div class="stat-sub" id="sick-used">of 5 used: --</div>
+      <div class="stat-sub" id="sick-upcoming">0 approved upcoming</div>
+      <div class="pto-bar-wrap"><div class="pto-bar" id="sick-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+</div><div class="card">
+  <div class="card-title">Request Time Off</div>
+  <div id="pto-form-alert"></div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select class="form-input" id="pto-type">
+        <option>Vacation</option><option>Sick</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Start Date</label>
+      <input type="date" class="form-input" id="pto-start" onchange="calcWorkingDays()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">End Date</label>
+      <input type="date" class="form-input" id="pto-end" onchange="calcWorkingDays()">
+    </div>
+    <div class="form-group" style="max-width:90px">
+      <label class="form-label">Days</label>
+      <input type="number" class="form-input" id="pto-days" min="1" step="1" placeholder="1" readonly style="background:#f0ede8;color:#888">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group" style="flex:3">
+      <label class="form-label">Notes (optional)</label>
+      <textarea class="form-input form-textarea" id="pto-notes" placeholder="Any relevant details..."></textarea>
+    </div>
+  </div>
+  <button class="submit-btn" id="pto-submit-btn" onclick="submitPTO(EMPLOYEE, 'Able Admin')">Submit Request</button>
+</div><div class="card">
+  <div class="card-title">My Requests</div>
+  <div id="my-requests-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="my-requests-table" style="display:none">
+      <thead><tr><th>Submitted</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Notes</th></tr></thead>
+      <tbody id="my-requests-body"></tbody>
+    </table>
+  </div>
+  <div id="my-requests-empty" class="empty-state" style="display:none">No requests yet.</div>
+
+</div>
+</div></div><div class="tab-content" id="tab-records"><div class="card">
+  <div class="card-title">Employee Record</div>
+  <div id="record-loading" class="loading">Loading...</div>
+  <div id="record-content" style="display:none">
+    <table class="data-table"><tbody id="record-body"></tbody></table>
+  </div>
+</div><div class="card">
+  <div class="card-title">Documents</div>
+  <div id="docs-loading" class="loading">Loading...</div>
+  <div id="docs-list"></div>
+</div>
+<div class="card">
+  <div class="card-title">Company Equipment</div>
+  <div id="equip-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="equip-table" style="display:none">
+      <thead><tr><th>Type</th><th>Make / Model</th><th>Serial / Plate</th><th>Issued</th><th>Notes</th></tr></thead>
+      <tbody id="equip-body"></tbody>
+    </table>
+  </div>
+  <div id="equip-empty" class="empty-state" style="display:none">No equipment on record.</div>
+  
+</div>  <div class="card">
+    <div class="card-title">Change PIN</div>
+    <div style="font-size:13px;color:#888;margin-bottom:12px">Update the PIN you use to open your dashboard.</div>
+    <div id="chpin-alert"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Current PIN</label><input type="password" inputmode="numeric" class="form-input" id="chpin-current"></div>
+      <div class="form-group"><label class="form-label">New PIN</label><input type="password" inputmode="numeric" class="form-input" id="chpin-new"></div>
+      <div class="form-group"><label class="form-label">Confirm New PIN</label><input type="password" inputmode="numeric" class="form-input" id="chpin-confirm"></div>
+    </div>
+    <button class="submit-btn" onclick="wwChangePin()">Update PIN</button>
+  </div>
+</div><div class="tab-content" id="tab-training"><div class="card">
+  <div class="card-title">Training</div>
+  <div class="alert alert-info" style="font-size:13px">
+    Sales training is delivered through Ingage on your iPad. Open the Ingage app to access your training modules, videos, articles, and exit quizzes.
+  </div>
+</div></div></div>
+<div class="tab-content active" id="tab-tasks">
+<div class="tb-wrap">
+  <p class="tb-hint">Your personal task board. Data saves in your browser. Click bucket names to rename them (except Recurring).</p>
+  <div class="tb-add-bar">
+    <input type="text" class="tb-add-inp" id="tb-add-inp" placeholder="Add a task...">
+    <select class="tb-add-bucket" id="tb-add-bucket">
+      <option value="this-week">This Week</option>
+      <option value="recurring">Recurring</option>
+      <option value="projects">Larger Projects</option>
+      <option value="waiting">Waiting On</option>
+    </select>
+    <button class="tb-add-btn" onclick="tbAdd_wally()">+ Add</button>
+  </div>
+  <div class="tb-grid">
+    <div class="tb-col" data-bucket="this-week"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-this-week" onclick="tbRenameBucket_wally('this-week')">This Week</span></span><span class="tb-col-count" id="tc-this-week">0</span></div><div class="tb-list" id="tl-this-week"></div></div>
+    <div class="tb-col" data-bucket="recurring"><div class="tb-col-header"><span class="tb-col-label"><span id="th-recurring">Recurring</span></span><span class="tb-col-count" id="tc-recurring">0</span></div><div class="tb-list" id="tl-recurring"></div></div>
+    <div class="tb-col" data-bucket="projects"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-projects" onclick="tbRenameBucket_wally('projects')">Larger Projects</span></span><span class="tb-col-count" id="tc-projects">0</span></div><div class="tb-list" id="tl-projects"></div></div>
+    <div class="tb-col" data-bucket="waiting"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-waiting" onclick="tbRenameBucket_wally('waiting')">Waiting On</span></span><span class="tb-col-count" id="tc-waiting">0</span></div><div class="tb-list" id="tl-waiting"></div></div>
+  </div>
+</div>
+</div>
+<div class="tab-content" id="tab-resources">
+<div>
+  <div class="card">
+    <div class="card-title">
+      Payroll Schedule
+      <select class="year-sel" id="year-sel" onchange="renderPayroll()">
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+      </select>
+    </div>
+    <div id="next-pay-wrap"></div>
+    <div>
+      <table class="data-table payroll-table" style="width:100%;max-width:100%">
+        <thead><tr><th>#</th><th>Pay Period</th><th>Due Date</th><th>Pay Date</th></tr></thead>
+        <tbody id="payroll-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      Company Paid Holidays
+      <select class="year-sel" id="hol-yr" onchange="renderHolidays()">
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+      </select>
+    </div>
+    <div id="holidays-body"></div>
+  </div>
+
+</div>
+<div class="footer">
+  <div class="footer-l">Window Works Co. &nbsp;&bull;&nbsp; windowworksnc.com</div>
+  <div class="footer-r">(919) 854-6121</div>
+</div>
+
+
+<script>// portal_shared.js - Window Works Team Portal
+const PROXY = 'DEMO_MODE_NO_PROXY'; // demo build: api() comes from mock-api.js
+
+// api() is provided by mock-api.js in the demo build (in-memory, no network).
+
+function fmtMoney(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtDate(d){if(!d)return '';try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}catch(e){return d}}
+function statusPill(s){const map={Pending:'pill-pending',Approved:'pill-approved',Denied:'pill-denied'};return `<span class="pill ${map[s]||'pill-pending'}">${s||'Pending'}</span>`;}
+function passFailPill(pass,pending){if(pending)return '<span class="pill pill-gray">Pending Data</span>';return pass?'<span class="pill pill-approved">Pass</span>':'<span class="pill pill-denied">Fail</span>';}
+function missingPill(){return '<span class="pill pill-denied">Missing</span>';}
+function presentPill(){return '<span class="pill pill-approved">On File</span>';}
+
+function expiryDays(dateStr){if(!dateStr)return null;return Math.floor((new Date(dateStr)-new Date())/(1000*60*60*24));}
+function expiryClass(dateStr){const d=expiryDays(dateStr);if(d===null)return '';if(d<0)return 'expiry-danger';if(d<30)return 'expiry-danger';if(d<60)return 'expiry-warn';return 'expiry-ok';}
+function humanizeDays(d){d=Math.abs(d);if(d===0)return '0 days';if(d<45)return d+' day'+(d===1?'':'s');if(d<365){var m=Math.max(1,Math.round(d/30));return m+' month'+(m===1?'':'s');}var y=Math.floor(d/365);var mo=Math.round((d-y*365)/30);if(mo>=12){y+=1;mo=0;}return y+' year'+(y===1?'':'s')+(mo>0?' '+mo+' month'+(mo===1?'':'s'):'');}
+function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return 'Expired '+humanizeDays(d)+' ago';if(d===0)return 'Expires today';return 'Expires in '+humanizeDays(d);}
+
+
+// Header-based column lookup
+function cols(headers) {
+  const trimmed = headers.map(h => (h||'').toString().trim());
+  return name => trimmed.indexOf(name.trim());
+}
+
+function switchTab(name,btn){
+  btn.closest('.body').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const el=document.getElementById('tab-'+name);
+  if(el)el.classList.add('active');
+}
+
+function switchSubTab(name,btn,group){
+  document.querySelectorAll(`.sub-tab[data-group="${group}"]`).forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll(`.sub-tab-content[data-group="${group}"]`).forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const el=document.getElementById('stab-'+name);
+  if(el)el.classList.add('active');
+}
+
+async function submitPTO(employee,approver){
+  const type=document.getElementById('pto-type').value;
+  const start=document.getElementById('pto-start').value;
+  const end=document.getElementById('pto-end').value||start;
+  const days=document.getElementById('pto-days').value;
+  const notes=document.getElementById('pto-notes').value;
+  const alertEl=document.getElementById('pto-form-alert');
+  if(!start||!days){alertEl.innerHTML='<div class="alert alert-error">Start date and number of days are required.</div>';return;}
+  const btn=document.getElementById('pto-submit-btn');
+  btn.disabled=true;btn.textContent='Submitting...';
+  try{
+    const row=[`PTO-${Date.now()}`,employee,type,start,end,Number(days),notes,'Pending',new Date().toLocaleDateString('en-US'),''];
+    await api({action:'append',tab:'PTO_Requests',row:JSON.stringify(row)});
+    alertEl.innerHTML=`<div class="alert alert-success">Request submitted. You'll be notified once it's reviewed.</div>`;
+    ['pto-start','pto-end','pto-days','pto-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    if(typeof loadMyRequests==='function')loadMyRequests(employee);
+  }catch(e){alertEl.innerHTML='<div class="alert alert-error">Error submitting. Please try again.</div>';}
+  btn.disabled=false;btn.textContent='Submit Request';
+}
+
+async function loadPTOBalances(employee){
+  try{
+    const d=await api({action:'read',tab:'PTO_Balances'});
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
+    if(!row)return;
+    const vacUsed=Number(row[c('Vacation Used')])||0;
+    const sickUsed=Number(row[c('Sick Used')])||0;
+    const vacBal=Number(row[c('Vacation Balance')])||0;
+    const sickBal=Number(row[c('Sick Balance')])||0;
+    const hireDate=row[c('Hire Date')]||'';
+    const vacTotal=vacUsed+vacBal;
+    const sickTotal=sickUsed+sickBal;
+    const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+    const sw=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=v;};
+    s('vac-remaining',vacBal);s('vac-used',`of ${vacTotal} used: ${vacUsed}`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsed/vacTotal)*100)+'%':'0%');
+    s('sick-remaining',sickBal);s('sick-used',`of ${sickTotal} used: ${sickUsed}`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsed/sickTotal)*100)+'%':'0%');
+    if(hireDate){const hm=document.getElementById('hire-meta');if(hm)hm.textContent='Hire date: '+fmtDate(hireDate);}
+  }catch(e){console.error(e);}
+}
+
+async function loadMyRequests(employee){
+  const loadEl=document.getElementById('my-requests-loading');
+  const tableEl=document.getElementById('my-requests-table');
+  const emptyEl=document.getElementById('my-requests-empty');
+  try{
+    const d=await api({action:'read',tab:'PTO_Requests'});
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
+    const c=cols(d.data[0]);
+    const today=new Date().toISOString().split('T')[0];
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
+    if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
+    if(tableEl)tableEl.style.display='table';
+    let __vacUp=0,__sickUp=0;
+    rows.forEach(r=>{const st=(r[c('Status')]||'').trim();const ed=(r[c('End Date')]||r[c('Start Date')]||'').toString().trim();if(st==='Approved'&&ed>=today){const dy=Number(r[c('Days')])||0;const tp=(r[c('Type')]||'').toLowerCase();if(tp.indexOf('sick')>=0)__sickUp+=dy;else __vacUp+=dy;}});
+    {const su=(id,v,n)=>{const el=document.getElementById(id);if(el){el.textContent=v;el.style.color=n>0?'#c4581f':'';}};su('vac-upcoming',__vacUp+' approved upcoming',__vacUp);su('sick-upcoming',__sickUp+' approved upcoming',__sickUp);}
+    const tbody=document.getElementById('my-requests-body');
+    if(tbody)tbody.innerHTML=rows.slice().reverse().map(r=>{
+      const status=(r[c('Status')]||'Pending').trim();
+      const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
+      let pill;
+      if(status==='Approved'&&endDate>=today){pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';}
+      else if(status==='Approved'){pill='<span class="pill pill-approved">Approved</span>';}
+      else if(status==='Denied'){pill='<span class="pill pill-denied">Denied</span>';}
+      else{pill='<span class="pill pill-pending">Pending</span>';}
+      return `<tr><td>${fmtDate(r[c('Submitted')])}</td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${pill}</td><td>${r[c('Reason')]||''}</td></tr>`;
+    }).join('');
+  }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
+}
+
+function wwDealLink(id){var s=(id==null?'':String(id).trim());return s?` <a href="https://windowworksco.pipedrive.com/deal/${encodeURIComponent(s)}" target="_blank" rel="noopener" style="color:#c4581f;text-decoration:none;font-size:11px;font-weight:600;white-space:nowrap">See Deal</a>`:'';}
+async function loadCommissions(employee){
+  try{
+    const d=await api({action:'read',tab:'Commissions'});
+    ['comm-loading','ledger-loading'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+    const contentEl=document.getElementById('comm-content');
+    const tableEl=document.getElementById('ledger-table');
+    const emptyEl=document.getElementById('ledger-empty');
+    if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
+    const rows=d.data.slice(1).filter(r=>(r[1]||'').toString().trim()===employee);
+    let ytd=0;rows.forEach(r=>ytd+=Number(r[7]||0));
+    if(contentEl)contentEl.style.display='block';
+    const ytdEl=document.getElementById('comm-ytd');if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
+    // Only show empty if no active AND no history
+const today2=new Date().toISOString().split('T')[0];
+const hasAny=rows.length>0;
+if(!hasAny){if(emptyEl)emptyEl.style.display='block';return;}
+    if(tableEl)tableEl.style.display='table';
+    const tbody=document.getElementById('ledger-body');
+    const cc=cols(d.data[0]);
+    if(tbody)tbody.innerHTML=rows.reverse().map(r=>`<tr><td>${fmtDate(r[0])}</td><td>${r[2]||''}${wwDealLink(r[cc('Deal ID')])}</td><td>${fmtMoney(r[3])}</td><td>${r[4]||''}</td><td>${r[5]||''}</td><td>${r[6]?r[6]+'%':''}</td><td><strong>${fmtMoney(r[7])}</strong></td><td>${r[8]||''}</td></tr>`).join('');
+  }catch(e){console.error(e);}
+}
+
+async function loadRecord(employee){
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    const loadEl=document.getElementById('record-loading');
+    const contentEl=document.getElementById('record-content');
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success){if(contentEl)contentEl.style.display='block';return;}
+    const c=cols(d.data[0]);
+    const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
+    if(contentEl)contentEl.style.display='block';
+    const tbody=document.getElementById('record-body');
+    if(!row){if(tbody)tbody.innerHTML='<tr><td colspan="2" class="empty-state">No record on file yet.</td></tr>';return;}
+    const fields=[
+      ['Role',row[c('Role')]],
+      ['Hire Date',fmtDate(row[c('Hire Date')])],
+      ['90-Day Review',fmtDate(row[c('Review Due 90Day')])],
+      ['Annual Review Due',fmtDate(row[c('Review Due Annual')])],
+      ['Last Review',fmtDate(row[c('Last Review')])],
+      ['Next Review',fmtDate(row[c('Next Review')])],
+      ['Status',row[c('Status')]]
+    ];
+    if(tbody)tbody.innerHTML=fields.map(([label,val])=>`<tr><td style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;width:160px">${label}</td><td>${val||'<span style="color:#ddd">-</span>'}</td></tr>`).join('');
+  }catch(e){}
+}
+
+const ALL_DOCS_BASE=['Signed Offer Letter','Employee Handbook Acknowledgment','Government ID','Direct Deposit Authorization','W-4','I-9 Verification','Emergency Contact'];
+async function loadDocs(employee,hasCommissionDoc){
+  const docs=[...ALL_DOCS_BASE];
+  if(hasCommissionDoc)docs.push('Commission / Incentive Outline');
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    const loadEl=document.getElementById('docs-loading');if(loadEl)loadEl.style.display='none';
+    let docData={};
+    if(d.success){
+      const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
+      const row=d.data.slice(1).find(r=>r[0]===employee);
+      if(row&&row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
+    }
+    const container=document.getElementById('docs-list');
+    if(!container)return;
+    const idExpiry=docData['Government ID - Expiry']||'';
+    container.innerHTML=docs.map(doc=>{
+      const url=docData[doc]||'';
+      const isID=doc==='Government ID';
+      const expirySection=isID?`<div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
+        <span class="${expiryClass(idExpiry)}" id="expiry-label">${expiryLabel(idExpiry)}</span>
+        <input type="date" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" id="expiry-input" value="${idExpiry}" onchange="saveExpiry('${employee}')">
+      </div>`:'';
+      const safeDoc=doc.replace(/[^a-zA-Z0-9]/g,'-');
+      return `<div class="doc-row">
+        <div>${doc==='Government ID'?`<div class="doc-name">${doc}</div>${expirySection}`:`<div class="doc-name">${doc}</div>`}</div>
+        <div class="doc-actions">
+          <span id="docstatus-${safeDoc}">${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:missingPill()}</span>
+          <input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${employee}','${doc}',this.value)">
+          <span id="docsaved-${safeDoc}" style="font-size:11px;color:#28a745;font-weight:600;opacity:0;transition:opacity .2s"></span>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){console.error(e);}
+}
+
+async function saveDocLink(employee,doc,url){
+  const safeDoc=doc.replace(/[^a-zA-Z0-9]/g,'-');
+  const statusEl=document.getElementById('docstatus-'+safeDoc);
+  const savedEl=document.getElementById('docsaved-'+safeDoc);
+  url=(url||'').trim();
+  if(savedEl){savedEl.textContent='Saving...';savedEl.style.color='#aaa';savedEl.style.opacity='1';}
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success)throw new Error('read failed');
+    const rowIdx=d.data.findIndex(r=>r[0]===employee);
+    if(rowIdx<0)throw new Error('no row');
+    const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
+    const row=[...d.data[rowIdx]];
+    let docData={};if(row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
+    docData[doc]=url;row[docsIdx]=JSON.stringify(docData);
+    await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
+    if(statusEl)statusEl.innerHTML=url?(presentPill()+' <a class="doc-link" href="'+url+'" target="_blank">View</a>'):missingPill();
+    if(savedEl){savedEl.textContent='Saved';savedEl.style.color='#28a745';savedEl.style.opacity='1';setTimeout(function(){savedEl.style.opacity='0';},2000);}
+  }catch(e){
+    console.error(e);
+    if(savedEl){savedEl.textContent='Not saved, try again';savedEl.style.color='#c0392b';savedEl.style.opacity='1';}
+  }
+}
+
+async function saveExpiry(employee){
+  const val=document.getElementById('expiry-input').value;
+  const label=document.getElementById('expiry-label');
+  if(label){label.className=expiryClass(val);label.textContent=expiryLabel(val);}
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success)return;
+    const rowIdx=d.data.findIndex(r=>r[0]===employee);if(rowIdx<0)return;
+    const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
+    const row=[...d.data[rowIdx]];
+    let docData={};if(row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
+    docData['Government ID - Expiry']=val;row[docsIdx]=JSON.stringify(docData);
+    await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
+  }catch(e){console.error(e);}
+}
+
+async function loadEquipment(employee){
+  const loadEl=document.getElementById('equip-loading');
+  const tableEl=document.getElementById('equip-table');
+  const bodyEl=document.getElementById('equip-body');
+  const emptyEl=document.getElementById('equip-empty');
+  try{
+    const d=await api({action:'read',tab:'Equipment'});
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
+    const c=cols(d.data[0]);
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
+    if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
+    const typeI=c('Item Type')>=0?c('Item Type'):c('Type');
+    const mmI=c('Make Model')>=0?c('Make Model'):c('Make / Model');
+    if(tableEl)tableEl.style.display='table';
+    if(bodyEl)bodyEl.innerHTML=rows.map(r=>{
+      const ret=c('Date Returned')>=0?r[c('Date Returned')]:'';
+      return `<tr${ret?' style="color:#aaa"':''}><td>${(typeI>=0?r[typeI]:'')||''}</td><td>${(mmI>=0?r[mmI]:'')||''}</td><td>${r[c('Serial Number')]||''}</td><td>${fmtDate(r[c('Date Issued')])||''}${ret?' (returned '+fmtDate(ret)+')':''}</td><td>${r[c('Notes')]||''}</td></tr>`;
+    }).join('');
+  }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
+}
+
+async function addEquipment(employee){
+  const type=document.getElementById('equip-type').value;
+  const makeModel=document.getElementById('equip-makemodel').value;
+  const serial=document.getElementById('equip-serial').value;
+  const issued=document.getElementById('equip-issued').value;
+  const notes=document.getElementById('equip-notes').value;
+  const alertEl=document.getElementById('equip-alert');
+  if(!type||!issued){alertEl.innerHTML='<div class="alert alert-error">Type and issue date are required.</div>';return;}
+  const btn=document.getElementById('equip-submit-btn');
+  btn.disabled=true;btn.textContent='Saving...';
+  try{
+    await api({action:'append',tab:'Equipment',row:JSON.stringify([employee,type,makeModel,serial,issued,'',notes])});
+    alertEl.innerHTML='<div class="alert alert-success">Equipment added.</div>';
+    ['equip-makemodel','equip-serial','equip-issued','equip-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    loadEquipment(employee);
+  }catch(e){alertEl.innerHTML='<div class="alert alert-error">Error saving. Please try again.</div>';}
+  btn.disabled=false;btn.textContent='Add Equipment';
+}
+
+
+const EMPLOYEE='Wally Windowsalesguy';
+loadPTOBalances(EMPLOYEE);
+loadMyRequests(EMPLOYEE);
+loadCommissions(EMPLOYEE);
+loadRecord(EMPLOYEE);
+loadDocs(EMPLOYEE, true);
+loadEquipment(EMPLOYEE);
+</script>
+<script>
+// Auto-calculate working days when dates change
+function calcWorkingDays() {
+  const start = document.getElementById('pto-start').value;
+  const end = document.getElementById('pto-end').value || start;
+  if (!start) return;
+  let count = 0;
+  let cur = new Date(start + 'T12:00:00');
+  const endD = new Date((end || start) + 'T12:00:00');
+  while (cur <= endD) {
+    const d = cur.getDay();
+    if (d !== 0 && d !== 6) count++;
+    cur.setDate(cur.getDate() + 1);
+  }
+  const daysEl = document.getElementById('pto-days');
+  if (daysEl) daysEl.value = count;
+}
+</script>
+
+<script src="taskboard.js"></script>
+<script>initTaskBoard("wally");</script>
+<script src="resources.js"></script>
+<script>
+function getCurrentPayPeriodLabel_wally() {
+  const startMs=Date.UTC(2025,11,18);
+  const now=new Date();
+  const todayMs=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());
+  const periodNum=Math.floor((todayMs-startMs)/(14*86400000));
+  const psMs=startMs+periodNum*14*86400000;
+  const peMs=psMs+13*86400000;
+  const fmt=ms=>{const d=new Date(ms);return String(d.getUTCMonth()+1).padStart(2,'0')+'/'+String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCFullYear()).slice(2);};
+  return fmt(psMs)+' - '+fmt(peMs);
+}
+
+async function loadCommission_wally() {
+  const loadEl=document.getElementById('comm-loading');
+  const emptyEl=document.getElementById('comm-empty');
+  const tableWrap=document.getElementById('comm-table-wrap');
+  try {
+    const d=await api({action:'read',tab:'Commissions'});
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success)return;
+    const cc=cols(d.data[0]);
+    const ai=cc('Approved By')>=0?cc('Approved By'):cc('Approved by');
+    const adi=cc('Approved Date')>=0?cc('Approved Date'):cc('Date Approved');
+    const np=s=>(s||'').toString().replace(/[\u2013\u2014]/g,'-').trim();
+    const rows=d.data.slice(1).filter(r=>(r[cc('Employee')]||'').toString().trim()==='Wally Windowsalesguy'&&r.some(c=>c));
+    const currentPeriod=getCurrentPayPeriodLabel_wally();
+    const periodLabel=document.getElementById('comm-period-label');
+    if(periodLabel)periodLabel.textContent=currentPeriod;
+    const currentRows=rows.filter(r=>np(r[cc('Pay Period')])===np(currentPeriod));
+    const ytd=rows.reduce((s,r)=>s+(Number(r[cc('Commission')])||0),0);
+    const periodTotal=currentRows.reduce((s,r)=>s+(Number(r[cc('Commission')])||0),0);
+    const ytdEl=document.getElementById('comm-ytd-total');
+    const ptEl=document.getElementById('comm-period-total');
+    if(ytdEl)ytdEl.textContent=fmtMoney(ytd);
+    if(ptEl)ptEl.textContent=fmtMoney(periodTotal);
+    if(!currentRows.length){if(emptyEl)emptyEl.style.display='block';}
+    else{
+      if(tableWrap)tableWrap.style.display='block';
+      const tbody=document.getElementById('comm-body');
+      if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>`<tr><td>${fmtDate(r[cc('Date')])}</td><td>${r[cc('Deal Name')]||''}${wwDealLink(r[cc('Deal ID')])}</td><td>${fmtMoney(r[cc('Deal Value')])}</td><td>${(r[cc('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(r[cc('Commission')])}</strong></td><td>${(ai>=0&&r[ai])?r[ai]:'<span style="color:#aaa">Pending</span>'}</td><td>${adi>=0?fmtDate(r[adi]):''}</td></tr>`).join('');
+    }
+    loadPrevPeriods_wally(rows,currentPeriod,cc,ai,adi);
+  }catch(e){if(loadEl)loadEl.style.display='none';console.error('loadCommission_wally',e);}
+}
+
+function loadPrevPeriods_wally(rows,currentPeriod,cc,ai,adi){
+  const body=document.getElementById('prev-periods-body_wally');
+  const loading=document.getElementById('prev-periods-loading_wally');
+  if(loading)loading.style.display='none';
+  if(!body)return;
+  const np=s=>(s||'').toString().replace(/[\u2013\u2014]/g,'-').trim();
+  const cur=np(currentPeriod);
+  const periods={};
+  rows.forEach(r=>{const p=np(r[cc('Pay Period')]);if(!p||p===cur)return;if(!periods[p])periods[p]=[];periods[p].push(r);});
+  const keys=Object.keys(periods).sort().reverse();
+  if(!keys.length){body.innerHTML='<div class="empty-state">No previous periods.</div>';return;}
+  body.innerHTML=keys.map(period=>{
+    const pRows=periods[period];
+    const total=pRows.reduce((s,r)=>s+(Number(r[cc('Commission')])||0),0);
+    const id='pp-'+period.replace(/[^a-z0-9]/gi,'');
+    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="document.getElementById('${id}').style.display=document.getElementById('${id}').style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Deal</th><th>Amount</th><th>Rate</th><th>Commission</th><th>Approved By</th><th>Approved</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[cc('Date')])}</td><td>${r[cc('Deal Name')]||''}${wwDealLink(r[cc('Deal ID')])}</td><td>${fmtMoney(r[cc('Deal Value')])}</td><td>${(r[cc('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(r[cc('Commission')])}</strong></td><td>${(ai>=0&&r[ai])?r[ai]:'<span style="color:#aaa">Pending</span>'}</td><td>${adi>=0?fmtDate(r[adi]):''}</td></tr>`).join('')}</tbody></table></div></div></div>`;
+  }).join('');
+}
+
+function togglePrevPeriods_wally(el){
+  const wrap=document.getElementById('prev-periods-wrap_wally');
+  const label=document.getElementById('prev-toggle-label_wally');
+  if(!wrap)return;
+  const isOpen=wrap.style.display!=='none';
+  wrap.style.display=isOpen?'none':'block';
+  if(label)label.textContent=isOpen?'(click to expand)':'(click to collapse)';
+}
+
+loadCommission_wally();
+</script>
+<script>
+// ============================================================
+// WALLY BONUSES
+// ============================================================
+const PIPEDRIVE_TOKEN = 'demo-token-not-used';
+const WALLY_PD_ID = 14869709;
+
+function oppRow(name, detail, progress) {
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0ece6;gap:12px">
+    <div>
+      <div style="font-size:14px;font-weight:600;color:#1a1a1a">${name}</div>
+      <div style="font-size:13px;color:#888;margin-top:2px">${detail}</div>
+    </div>
+    <div style="font-size:13px;color:#c4581f;font-weight:600;white-space:nowrap">${progress}</div>
+  </div>`;
+}
+
+function bonusRow(type, account, amount, detail, approved, approvedBy, approvedDate, payDate, dealId) {
+  if (!account || !String(account).trim()) return '';
+  const pill = approved
+    ? '<span class="pill pill-approved">Approved</span>'
+    : '<span class="pill pill-pending">Pending</span>';
+  const dateInfo = approved && (approvedDate || payDate)
+    ? `<div style="font-size:11px;color:#aaa;margin-top:4px">${approvedDate ? 'Approved: '+approvedDate : ''}${approvedDate && payDate ? ' · ' : ''}${payDate ? 'Pay date: <strong style="color:#28a745">'+payDate+'</strong>' : ''}</div>`
+    : '';
+  return `<div style="padding:12px 0;border-bottom:1px solid #f0ece6">
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">${type}</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:14px;font-weight:600;color:#1a1a1a">${account}${wwDealLink(dealId)}</div>
+        <div style="font-size:13px;color:#888;margin-top:2px">${detail}</div>
+        ${dateInfo}
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <strong style="color:#c4581f;font-size:15px">${fmtMoney(amount)}</strong>
+        ${pill}
+      </div>
+    </div>
+  </div>`;
+}
+
+async function loadWallyBonuses() {
+  loadBookingBonuses();
+  loadBounties();
+  loadB2BTracker();
+}
+
+// --- BOOKING BONUSES ---
+async function loadBookingBonuses() {
+  const loadEl = document.getElementById('booking-loading');
+  const contentEl = document.getElementById('booking-content');
+  try {
+    const d = await api({action:'read', tab:'B2B_Booking_Bonuses'});
+    if (loadEl) loadEl.style.display = 'none';
+    if (contentEl) contentEl.style.display = 'block';
+    if (!d.success) return;
+    const rows = d.data.slice(1).filter(r => r[0]==='Wally Windowsalesguy' && r.some(c => c));
+    const currentPeriod = getCurrentPayPeriodLabel_wally();
+    const periodRows = rows.filter(r => r[6] === currentPeriod);
+    document.getElementById('booking-period-count').textContent = periodRows.length;
+    document.getElementById('booking-period-total').textContent = fmtMoney(periodRows.length * 75);
+    document.getElementById('booking-ytd-total').textContent = fmtMoney(rows.length * 75);
+    const tableWrap = document.getElementById('booking-table-wrap');
+    const emptyEl = document.getElementById('booking-empty');
+    if (!periodRows.length) { if(emptyEl) emptyEl.style.display='block'; }
+    else {
+      if(tableWrap) tableWrap.style.display='block';
+      const tbody = document.getElementById('booking-body');
+      if(tbody) tbody.innerHTML = periodRows.slice().reverse().map(r => `<tr>
+        <td>${fmtDate(r[1])}</td><td>${r[2]||''}</td><td>${fmtDate(r[3])}</td>
+        <td><strong style="color:#c4581f">$75.00</strong></td>
+        <td>${r[4]||'<span style="color:#aaa">Pending</span>'}</td>
+        <td>${r[5]||''}</td>
+      </tr>`).join('');
+    }
+    updateBonusSummary();
+  } catch(e) {
+    if(loadEl) loadEl.style.display='none';
+    if(contentEl) contentEl.style.display='block';
+  }
+}
+
+async function submitBooking() {
+  const btn = document.getElementById('booking-submit-btn');
+  const msg = document.getElementById('booking-submit-msg');
+  const customer = document.getElementById('booking-customer').value.trim();
+  const apptDate = document.getElementById('booking-appt-date').value;
+  if (!customer) { msg.textContent='Please enter a customer name.'; msg.style.color='#dc3545'; return; }
+  if (!apptDate) { msg.textContent='Please enter an appointment date.'; msg.style.color='#dc3545'; return; }
+  btn.disabled=true; btn.textContent='Saving...';
+  try {
+    const today = new Date().toLocaleDateString('en-US');
+    const period = getCurrentPayPeriodLabel_wally();
+    const notes = document.getElementById('booking-notes').value.trim();
+    const row = ['Wally Windowsalesguy', today, customer, apptDate, '', notes, period];
+    await api({action:'append', tab:'B2B_Booking_Bonuses', row: JSON.stringify(row)});
+    msg.textContent='Booking bonus logged!'; msg.style.color='#28a745';
+    document.getElementById('booking-customer').value='';
+    document.getElementById('booking-appt-date').value='';
+    document.getElementById('booking-notes').value='';
+    loadBookingBonuses();
+  } catch(e) { msg.textContent='Error saving. Please try again.'; msg.style.color='#dc3545'; }
+  btn.disabled=false; btn.textContent='Log Booking Bonus';
+}
+
+// --- PARTNER BOUNTIES ---
+let _bountyRows = [];
+async function loadBounties() {
+  try {
+    const d = await api({action:'read', tab:'B2B_Partner_Bounties'});
+    if (!d.success) return;
+    const bc2=cols(d.data[0]);
+    window._bountyColLookup = bc2;
+    _bountyRows = d.data.slice(1).filter(r => (r[bc2('Employee')]||'').trim()==='Wally Windowsalesguy' && r.some(x => x));
+    updateBonusSummary();
+  } catch(e) { console.error('loadBounties error:', e); }
+}
+
+// --- BONUS SUMMARY (combines booking + bounties + B2B earned) ---
+let _b2bEarned = []; // set by loadB2BTracker
+function updateBonusSummary() {
+  const loadEl = document.getElementById('bonus-summary-loading');
+  const contentEl = document.getElementById('bonus-summary-content');
+  if(loadEl) loadEl.style.display='none';
+  if(contentEl) contentEl.style.display='block';
+
+  const pendingBody = document.getElementById('bonus-pending-body');
+  const approvedBody = document.getElementById('bonus-approved-body');
+  const pendingEmpty = document.getElementById('bonus-pending-empty');
+  const approvedEmpty = document.getElementById('bonus-approved-empty');
+
+  const pending = [];
+  const approved = [];
+
+  // Booking bonuses
+  const bookingRows = document.getElementById('booking-body') ? 
+    [] : []; // loaded separately, get from sheet
+  
+  // Partner bounties from sheet
+  _bountyRows.forEach(r => {
+    const bc3=window._bountyColLookup;
+    const orgName = bc3 ? (r[bc3('Org name')]||r[bc3('Org Name')]||r[bc3('Account')]||r[bc3('Deal Name')]||'').toString().trim() : (r[3]||r[2]||'');
+    const approvedBy = bc3 ? (r[bc3('Approved By')]||'').toString().trim() : (r[9]||'').trim();
+    const amt = bc3 ? (Number(r[bc3('Amount')])||250) : 250;
+    const approvedDate = bc3 ? (r[bc3('Approved Date')]||'') : '';
+    const payDate = bc3 ? (r[bc3('Pay Date')]||'') : '';
+    const dealId = bc3 ? (r[bc3('Deal ID')]||'') : '';
+    let btype = ((bc3 ? (r[bc3('Bonus Type')]||r[bc3('Deal Name')]||'') : '').toString().trim()) || 'New Partner';
+    btype = btype.replace(/\s*Bounty$/i,'').trim(); // "New Partner Bounty" -> "New Partner"
+    const entry = { type: btype, account:orgName, amount:amt, detail: (btype==='New Partner'?'First B2B sale - $250 bounty':''), approvedBy:approvedBy, approvedDate:approvedDate, payDate:payDate, dealId:dealId };
+    if(approvedBy) approved.push(entry);
+    else pending.push(entry);
+  });
+
+  // B2B earned from Pipedrive
+  _b2bEarned.forEach(b => {
+    pending.push({ type: b.label, account: b.account, amount: b.amount, detail: b.detail, approvedBy:'', dealId:'' });
+  });
+  // Show submit button if there are B2B calculated bonuses pending
+  const submitBtn = document.getElementById('submit-bonuses-btn');
+  if (submitBtn) submitBtn.style.display = _b2bEarned.length > 0 ? 'inline-block' : 'none';
+
+  // Collapse duplicates from repeated submissions / live-calc overlap, and drop blanks.
+  // A New Partner bounty is once per account, so keying on account is correct.
+  function dedupeByAccount(list) {
+    const seen = new Set(); const out = [];
+    list.forEach(e => {
+      const acct = (e.account||'').trim().toLowerCase();
+      if (!acct) return;
+      const key = acct + '|' + (e.type||'').trim().toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key); out.push(e);
+    });
+    return out;
+  }
+  const pendingClean = dedupeByAccount(pending);
+  const approvedClean = dedupeByAccount(approved);
+
+  const pendingTotal = pendingClean.reduce((s,e) => s+e.amount, 0);
+  const approvedTotal = approvedClean.reduce((s,e) => s+e.amount, 0);
+
+  document.getElementById('bonus-pending-total').textContent = fmtMoney(pendingTotal);
+  document.getElementById('bonus-approved-total').textContent = fmtMoney(approvedTotal);
+  document.getElementById('bonus-summary-sub').textContent = pendingTotal > 0 ? `${fmtMoney(pendingTotal)} pending approval` : 'No pending bonuses';
+
+  if(pendingBody) {
+    if(!pendingClean.length) { pendingBody.innerHTML='<div class="empty-state" id="bonus-pending-empty">No pending bonuses.</div>'; }
+    else { pendingBody.innerHTML = pendingClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, false, '', '', '', e.dealId)).join(''); }
+  }
+  const approvedSection = document.getElementById('bonus-approved-section');
+  if (approvedSection) approvedSection.style.display = approvedClean.length ? 'block' : 'none';
+  if(approvedBody && approvedClean.length) {
+    approvedBody.innerHTML = approvedClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy, e.approvedDate||'', e.payDate||'', e.dealId)).join('');
+  }
+}
+
+function toggleAllAccounts() {
+  const wrap = document.getElementById('all-accounts-wrap');
+  const toggle = document.getElementById('all-accounts-toggle');
+  if(!wrap) return;
+  const isOpen = wrap.style.display !== 'none';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  if(toggle) toggle.textContent = isOpen ? '(click to expand)' : '(click to collapse)';
+}
+
+// --- B2B ACCOUNT TRACKER ---
+async function loadB2BTracker() {
+  const loadEl = document.getElementById('b2b-loading');
+  const emptyEl = document.getElementById('b2b-empty');
+  const earnedEl = document.getElementById('b2b-earned');
+  const accountsSection = document.getElementById('b2b-accounts-section');
+  const oppLoadEl = document.getElementById('opp-loading');
+  const oppContent = document.getElementById('opp-content');
+
+  try {
+    let allDeals = [];
+    let start = 0;
+    while (true) {
+      const resp = await fetch(`https://api.pipedrive.com/v1/deals?api_token=${PIPEDRIVE_TOKEN}&user_id=${WALLY_PD_ID}&status=won&limit=500&start=${start}`);
+      const data = await resp.json();
+      if (!data.success || !data.data) break;
+      allDeals = allDeals.concat(data.data);
+      if (!data.additional_data?.pagination?.more_items_in_collection) break;
+      start += 500;
+    }
+
+    if(loadEl) loadEl.style.display='none';
+    if(oppLoadEl) oppLoadEl.style.display='none';
+
+    if (!allDeals.length) {
+      if(emptyEl) emptyEl.style.display='block';
+      return;
+    }
+
+    const orgs = {};
+    const now = new Date();
+    const thisYear = now.getFullYear();
+    const thisYearStart = new Date(thisYear, 0, 1);
+    const lastYearStart = new Date(thisYear - 1, 0, 1);
+    const lastYearEnd = new Date(thisYear - 1, 11, 31);
+
+    allDeals.forEach(deal => {
+      if (!deal.org_id) return;
+      const orgId = deal.org_id.value;
+      const orgName = deal.org_id.name;
+      if (!orgs[orgId]) orgs[orgId] = { name: orgName, id: orgId, deals: [] };
+      orgs[orgId].deals.push({
+        id: deal.id,
+        value: deal.value || 0,
+        wonDate: deal.won_time ? new Date(deal.won_time.replace(' ','T') + (deal.won_time.includes('Z') ? '' : 'Z')) : null
+      });
+    });
+
+    // Frozen anchor-clock start: earliest New Partner bounty date per org.
+    // The bounty row is written once at first win and never overwritten (dedup by Deal ID),
+    // so it is immune to a deal being marked unwon and re-won later.
+    let bountyFirstWon = {};
+    try {
+      const bd = await api({action:'read', tab:'B2B_Partner_Bounties'});
+      if (bd.success && bd.data.length) {
+        const bc = cols(bd.data[0]);
+        const acctI = bc('Account'), dateI = bc('Date');
+        bd.data.slice(1).forEach(r => {
+          const acct = (r[acctI]!=null ? String(r[acctI]) : '').trim();
+          const dstr = r[dateI];
+          if (!acct || !dstr) return;
+          const dt = new Date(dstr);
+          if (isNaN(dt.getTime())) return;
+          if (!bountyFirstWon[acct] || dt < bountyFirstWon[acct]) bountyFirstWon[acct] = dt;
+        });
+      }
+    } catch(e) { /* fall back to live won_time below */ }
+
+    const orgData = Object.values(orgs).map(org => {
+      const deals = org.deals.sort((a,b) => a.wonDate - b.wonDate);
+      // Anchor clock starts from the immutable bounty date when available; if both exist,
+      // use the earlier, since a re-win only ever pushes the live won_time later.
+      const liveFirst = deals[0]?.wonDate || null;
+      const frozenFirst = bountyFirstWon[String(org.id)] || null;
+      let firstSale;
+      if (frozenFirst && liveFirst) firstSale = (frozenFirst <= liveFirst) ? frozenFirst : liveFirst;
+      else firstSale = frozenFirst || liveFirst;
+
+      const revThisYear = deals.filter(d => d.wonDate && d.wonDate >= thisYearStart).reduce((s,d) => s+d.value, 0);
+      const revLastYear = deals.filter(d => d.wonDate && d.wonDate >= lastYearStart && d.wonDate <= lastYearEnd).reduce((s,d) => s+d.value, 0);
+
+      const bonuses = [];
+      const alerts = [];
+
+      // New Partner bounty is fired in real time by the Pipedrive to Zapier zap,
+      // which writes the row straight to the sheet. The portal no longer calculates
+      // or submits New Partner here; it only displays the rows the zap writes.
+      // (Anchor / Wallet Share / Retention stay portal-calculated below.)
+
+      // Anchor Account: 3 contracts + $150k in first 12 months
+      let anchorProgress = null;
+      if (firstSale) {
+        const firstSalePlusYear = new Date(firstSale);
+        firstSalePlusYear.setFullYear(firstSalePlusYear.getFullYear() + 1);
+        const dealsFirstYear = deals.filter(d => d.wonDate && d.wonDate >= firstSale && d.wonDate <= firstSalePlusYear);
+        const revFirstYear = dealsFirstYear.reduce((s,d) => s+d.value, 0);
+        const contractsFirstYear = dealsFirstYear.length;
+
+        if (contractsFirstYear >= 3 && revFirstYear >= 150000) {
+          bonuses.push({label:'Anchor Account', amount:2500, detail:`${contractsFirstYear} contracts, ${fmtMoney(revFirstYear)} in first 12mo`, account:org.name});
+        } else if (firstSalePlusYear > now) {
+          // Still in first 12 months -- show alert only if meaningful progress
+          // Must have $100k+ OR 2+ contracts with $50k+
+          const worthAlerting = revFirstYear >= 100000 || (contractsFirstYear >= 2 && revFirstYear >= 50000);
+          if (worthAlerting) {
+            const parts = [];
+            if (contractsFirstYear < 3) parts.push(`${3 - contractsFirstYear} more contract${3-contractsFirstYear>1?'s':''}`);
+            if (revFirstYear < 150000) parts.push(`${fmtMoney(150000 - revFirstYear)} more revenue`);
+            const deadline = firstSalePlusYear.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+            alerts.push(`Anchor Account: ${parts.join(' and ')} needed by ${deadline}`);
+            anchorProgress = { name: org.name, gap: (150000 - revFirstYear) + (3 - contractsFirstYear) * 10000, detail: `${contractsFirstYear}/3 contracts, ${fmtMoney(revFirstYear)}/$150k by ${deadline}`, contracts: contractsFirstYear, rev: revFirstYear, deadline: deadline };
+          }
+        }
+      }
+
+      // Wallet Share: 20% YOY growth, $60k+ this year
+      let walletProgress = null;
+      if (revLastYear > 0) {
+        const target = revLastYear * 1.2;
+        if (revThisYear >= target && revThisYear >= 60000) {
+          bonuses.push({label:'Wallet Share', amount:2500, detail:`${fmtMoney(revThisYear)} this year vs ${fmtMoney(revLastYear)} last year`, account:org.name});
+        } else if (revThisYear >= target * 0.75 && revThisYear < target) {
+          const needed = target - revThisYear;
+          alerts.push(`Wallet Share: ${fmtMoney(needed)} more to hit 20% growth`);
+          walletProgress = { name: org.name, gap: needed, detail: `${fmtMoney(revThisYear)} of ${fmtMoney(target)} needed (${fmtMoney(revLastYear)} last year)` };
+        }
+      }
+
+      // Account Retention: $200k this year
+      let retentionProgress = null;
+      if (revThisYear >= 200000) {
+        bonuses.push({label:'Account Retention', amount:2500, detail:`${fmtMoney(revThisYear)} this year`, account:org.name});
+      } else if (revThisYear >= 150000) {
+        const needed = 200000 - revThisYear;
+        alerts.push(`Account Retention: ${fmtMoney(needed)} away from $200k`);
+        retentionProgress = { name: org.name, gap: needed, detail: `${fmtMoney(revThisYear)} of $200,000 this year` };
+      }
+
+      // New Partner opportunities: orgs with 1 deal under $1k, sorted by closest to $1k
+      let newPartnerProgress = null;
+      if (deals.length === 1 && deals[0].value < 1000 && deals[0].wonDate && deals[0].wonDate.getFullYear() === thisYear) {
+        newPartnerProgress = { name: org.name, gap: 1000 - deals[0].value, detail: `${fmtMoney(deals[0].value)} / $1,000 minimum` };
+      }
+
+      return { name: org.name, bonuses, alerts, revThisYear, revLastYear, totalDeals: deals.length,
+               anchorProgress, walletProgress, retentionProgress, newPartnerProgress };
+    }).filter(o => o.totalDeals > 0);
+
+    // Collect all earned bonuses for summary
+    _b2bEarned = orgData.flatMap(o => o.bonuses);
+    updateBonusSummary();
+
+    // OPPORTUNITIES section
+    if(oppContent) oppContent.style.display = 'block';
+
+    // Anchor opps - ONLY accounts still within first 12 months, sorted by gap (closest first)
+    const anchorAll = orgData.filter(o => !o.bonuses.find(b=>b.label==='Anchor Account') && o.anchorProgress)
+      .sort((a,b) => a.anchorProgress.gap - b.anchorProgress.gap)
+      .slice(0,3);
+    const anchorEl = document.getElementById('opp-anchor');
+    if(anchorEl) anchorEl.innerHTML = anchorAll.length
+      ? `<table class="data-table" style="margin-top:4px">
+          <thead><tr><th>Account</th><th style="text-align:right">Contracts</th><th style="text-align:right">Revenue (12mo)</th><th style="text-align:right">Deadline</th></tr></thead>
+          <tbody>${anchorAll.map(o => {
+            const detail = o.anchorProgress ? o.anchorProgress.detail : '';
+            const deadline = o.anchorProgress ? o.anchorProgress.deadline||'' : 'N/A';
+            return `<tr>
+              <td><strong>${o.name}</strong></td>
+              <td style="text-align:right">${o.anchorProgress?o.anchorProgress.contracts:'0'}/3</td>
+              <td style="text-align:right">${o.anchorProgress?fmtMoney(o.anchorProgress.rev):fmtMoney(o.revThisYear)}</td>
+              <td style="text-align:right;font-size:11px;color:#aaa">${deadline}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>`
+      : '<div style="font-size:12px;color:#bbb;padding:8px 0">No accounts in progress.</div>';
+
+    // Wallet Share opps - top 3 with prior year revenue, not yet earned
+    const walletAll = orgData.filter(o => !o.bonuses.find(b=>b.label==='Wallet Share') && o.revLastYear > 0)
+      .map(o => ({...o, yoyGrowth: (o.revThisYear - o.revLastYear) / o.revLastYear}))
+      .sort((a,b) => b.yoyGrowth - a.yoyGrowth).slice(0,3);
+    const walletEl = document.getElementById('opp-wallet');
+    if(walletEl) walletEl.innerHTML = walletAll.length
+      ? `<table class="data-table" style="margin-top:4px">
+          <thead><tr><th>Account</th><th style="text-align:right">Last Year</th><th style="text-align:right">This Year</th><th style="text-align:right">Growth</th><th style="text-align:right">Need for Bonus</th></tr></thead>
+          <tbody>${walletAll.map(o => {
+            const pct = ((o.revThisYear - o.revLastYear) / o.revLastYear * 100).toFixed(0);
+            const target = Math.max(o.revLastYear * 1.2, 60000);
+            const needed = Math.max(0, target - o.revThisYear);
+            const revenueNeeded = Math.max(0, o.revLastYear * 1.2 - o.revThisYear);
+            const minNeeded = Math.max(0, 60000 - o.revThisYear);
+            const actualNeeded = Math.max(revenueNeeded, minNeeded);
+            return `<tr>
+              <td><strong>${o.name}</strong></td>
+              <td style="text-align:right">${fmtMoney(o.revLastYear)}</td>
+              <td style="text-align:right">${fmtMoney(o.revThisYear)}</td>
+              <td style="text-align:right;color:${pct>0?'#28a745':'#dc3545'}">${pct>0?'+':''}${pct}%</td>
+              <td style="text-align:right;color:#c4581f">${actualNeeded>0?fmtMoney(actualNeeded)+' more':'<span style=\"color:#28a745\">Eligible!</span>'}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>`
+      : '<div style="font-size:12px;color:#bbb;padding:8px 0">No accounts with prior year data.</div>';
+
+    // Retention opps - top 3 by this year revenue, not yet at $200k
+    const retentionAll = orgData.filter(o => !o.bonuses.find(b=>b.label==='Account Retention') && o.revThisYear > 0)
+      .sort((a,b) => b.revThisYear - a.revThisYear).slice(0,3);
+    const retentionEl = document.getElementById('opp-retention');
+    if(retentionEl) retentionEl.innerHTML = retentionAll.length
+      ? `<table class="data-table" style="margin-top:4px">
+          <thead><tr><th>Account</th><th style="text-align:right">This Year</th><th style="text-align:right">Need for Bonus</th></tr></thead>
+          <tbody>${retentionAll.map(o => {
+            const needed = Math.max(0, 200000 - o.revThisYear);
+            return `<tr>
+              <td><strong>${o.name}</strong></td>
+              <td style="text-align:right">${fmtMoney(o.revThisYear)}</td>
+              <td style="text-align:right;color:#c4581f">${needed>0?fmtMoney(needed)+' away':'<span style=\"color:#28a745\">Eligible!</span>'}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>`
+      : '<div style="font-size:12px;color:#bbb;padding:8px 0">No active accounts this year.</div>';
+
+    // ALL OTHER ACCOUNTS (no bonuses earned, not already in opps or earned)
+    const earnedNames = new Set(orgData.filter(o => o.bonuses.length).map(o => o.name));
+    const otherOrgs = orgData.filter(o => !o.bonuses.length).sort((a,b) => b.revThisYear - a.revThisYear);
+    const allAccountsBody = document.getElementById('all-accounts-body');
+    if(allAccountsBody) allAccountsBody.innerHTML = otherOrgs.length
+      ? otherOrgs.map(org => `
+        <div style="padding:10px 0;border-bottom:1px solid #f0ece6">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-size:13px;font-weight:600">${org.name}</div>
+              <div style="font-size:11px;color:#aaa">${org.totalDeals} deal${org.totalDeals!==1?'s':''}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:13px;font-weight:600">${fmtMoney(org.revThisYear)} <span style="font-size:11px;color:#aaa;font-weight:400">this year</span></div>
+              ${org.revLastYear>0?`<div style="font-size:11px;color:#aaa">${fmtMoney(org.revLastYear)} last year</div>`:''}
+            </div>
+          </div>
+          ${org.alerts.length?`<div style="margin-top:6px">${org.alerts.map(a=>`<div style="font-size:12px;color:#856404;background:#fff3cd;border:1px solid #ffeeba;border-radius:4px;padding:4px 8px;margin-top:4px">⚠ ${a}</div>`).join('')}</div>`:''}
+        </div>`).join('')
+      : '<div class="empty-state">All accounts have earned bonuses.</div>';
+
+  } catch(e) {
+    if(loadEl) loadEl.style.display='none';
+    if(oppLoadEl) oppLoadEl.style.display='none';
+    console.error('B2B tracker error:', e);
+  }
+}
+
+async function submitBonusesForApproval() {
+  const btn = document.getElementById('submit-bonuses-btn');
+  if (!btn) return;
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    // Build a set of bounties already on the sheet so we never double-submit.
+    // Keyed by account + bonus type. Legacy rows stored the type in Deal Name, so fall back to that.
+    const existing = new Set();
+    try {
+      const d = await api({action:'read', tab:'B2B_Partner_Bounties'});
+      if (d.success && d.data && d.data.length) {
+        const c = cols(d.data[0]);
+        d.data.slice(1).forEach(r => {
+          const acct = (r[c('Account')] || r[c('Org name')] || r[c('Org Name')] || r[c('Deal Name')] || '').toString().trim().toLowerCase();
+          const type = (r[c('Bonus Type')] || r[c('Deal Name')] || '').toString().trim().toLowerCase();
+          if (acct) existing.add(acct + '|' + type);
+        });
+      }
+    } catch(e) {}
+    // Submit only earned bounties not already on the sheet, in the correct column order.
+    // Columns: Employee, Date, Account, Org name, Deal Name, Deal Value, Deal ID, Amount, Bonus Type, Approved By, Approved Date, Pay Date
+    const today = new Date().toLocaleDateString('en-US');
+    const seen = new Set();
+    let submitted = 0;
+    for (const b of _b2bEarned) {
+      const acct = (b.account || '').trim();
+      if (!acct) continue;
+      const key = acct.toLowerCase() + '|' + (b.label || '').trim().toLowerCase();
+      if (seen.has(key) || existing.has(key)) continue;
+      seen.add(key);
+      const row = ['Wally Windowsalesguy', today, acct, acct, '', '', '', b.amount, b.label, '', '', ''];
+      await api({action:'append', tab:'B2B_Partner_Bounties', row:JSON.stringify(row)});
+      submitted++;
+    }
+    btn.textContent = submitted > 0 ? ('Submitted ' + submitted + '!') : 'Already submitted';
+    btn.style.background = '#d4edda'; btn.style.color = '#155724'; btn.style.borderColor = '#28a745';
+    setTimeout(() => { btn.disabled = false; btn.textContent = 'Submit for Approval'; btn.style = ''; }, 3000);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Submit for Approval';
+    alert('Error submitting. Please try again.');
+  }
+}
+
+loadWallyBonuses();
+
+function wallyCloseState(){var n=new Date();n.setHours(0,0,0,0);var cy=n.getFullYear();var ys=new Date(cy,0,1),ye=new Date(cy,11,31);var ds=Math.round((n-ys)/86400000),du=Math.round((ye-n)/86400000);if(ds<14)return{active:true,year:cy-1};if(du<=14)return{active:true,year:cy};return{active:false,year:cy,open:new Date(ye.getTime()-14*86400000)};}
+function applyCloseGateWallyYear(){
+  var btn=document.getElementById('close-year-btn-wally'); if(!btn)return;
+  var hint=document.getElementById('close-year-hint-wally');
+  var st=wallyCloseState();
+  btn.textContent='Close Year '+st.year;
+  if(!st.active){ btn.disabled=true; if(hint)hint.textContent='Opens '+st.open.toLocaleDateString('en-US',{month:'long',day:'numeric'})+'. This is where you close the year for bounties once it ends.'; return; }
+  btn.disabled=false; if(hint)hint.textContent='Ready to close '+st.year+'.';
+}
+
+async function closeYearWally(){
+  const btn=document.getElementById('close-year-btn-wally');
+  const year=wallyCloseState().year;
+  if(!confirm('Close '+year+'? This emails Olivia and Owen a summary of this year\'s approved bounties.'))return;
+  if(btn){btn.disabled=true;btn.textContent='Closing...';}
+  const al=document.getElementById('close-year-alert-wally');
+  try{
+    const d=await api({action:'read',tab:'B2B_Partner_Bounties'});
+    if(!d.success)throw new Error('read');
+    const c=cols(d.data[0]);
+    const ai=c('Account'),oi=c('Org name'),amI=c('Amount'),tyI=c('Bonus Type'),abI=c('Approved By'),adI=c('Approved Date'),dtI=c('Date');
+    const yrOf=function(r){const s=(adI>=0&&r[adI])?r[adI]:(dtI>=0?r[dtI]:'');const x=new Date(s);return isNaN(x)?null:x.getFullYear();};
+    const rows=d.data.slice(1).filter(r=>(r[abI]||'').toString().trim() && yrOf(r)===year);
+    const total=rows.reduce((s,r)=>s+(Number(r[amI])||0),0);
+    const rowsHtml=rows.map(r=>`<tr style="border-bottom:1px solid #f0ece6">
+      <td style="padding:8px 10px;color:#333">${(r[oi]||r[ai]||'').toString()}</td>
+      <td style="padding:8px 10px;color:#555">${(r[tyI]||'').toString()}</td>
+      <td style="padding:8px 10px;text-align:right;color:#c4581f;font-weight:bold">$${(Number(r[amI])||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+      <td style="padding:8px 10px;color:#888;font-size:12px">${(adI>=0&&r[adI])?fmtDate(r[adI]):''}</td>
+    </tr>`).join('');
+    const emailBody=`
+      <div style="font-family:Arial,sans-serif;max-width:600px;padding:20px">
+        <div style="background:#1a1a1a;padding:16px 20px"><span style="font-family:Arial Black,Arial;font-size:18px;color:#fff;letter-spacing:2px;text-transform:uppercase">WINDOW <span style="color:#c4581f">WORKS</span> CO.</span></div>
+        <div style="background:#c4581f;height:3px;margin-bottom:24px"></div>
+        <h2 style="font-family:Arial Black,Arial;text-transform:uppercase;letter-spacing:1px;color:#1a1a1a">${year} B2B Bounties - Wally Windowsalesguy</h2>
+        <p style="color:#555;margin:8px 0 20px;font-size:14px">Approved bounties for ${year} &nbsp;|&nbsp; Closed ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</p>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+          <tr style="background:#f5ede0"><th style="text-align:left;padding:8px 10px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#888">Account</th><th style="text-align:left;padding:8px 10px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#888">Type</th><th style="text-align:right;padding:8px 10px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#888">Amount</th><th style="text-align:left;padding:8px 10px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#888">Approved</th></tr>
+          ${rowsHtml||'<tr><td colspan="4" style="padding:10px;color:#888">No approved bounties this year.</td></tr>'}
+          <tr style="background:#1a1a1a"><td colspan="2" style="padding:12px 10px;font-family:Arial Black,Arial;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#fff">Total Approved</td><td style="padding:12px 10px;text-align:right;font-family:Arial Black,Arial;font-size:18px;color:#c4581f">$${total.toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style="background:#1a1a1a"></td></tr>
+        </table>
+        <p style="font-size:12px;color:#aaa">Window Works Co. &bull; windowworksnc.com &bull; (919) 854-6121</p>
+      </div>`;
+    await api({action:'send_email', subject:`${year} B2B Bounties - Wally Windowsalesguy - $${total.toLocaleString('en-US',{minimumFractionDigits:2})} approved`, body:emailBody});
+    if(al)al.innerHTML='<div class="alert alert-success">'+year+' summary sent to Olivia and Owen. '+rows.length+' approved '+(rows.length===1?'bounty':'bounties')+' totaling $'+total.toLocaleString('en-US',{minimumFractionDigits:2})+'.</div>';
+    loadBountyYearsWally();
+  }catch(e){ if(al)al.innerHTML='<div class="alert alert-error">Error closing year. Please try again.</div>'; }
+  applyCloseGateWallyYear();
+}
+
+async function loadBountyYearsWally(){
+  const el=document.getElementById('bounty-years-wally'); if(!el)return;
+  try{
+    const d=await api({action:'read',tab:'B2B_Partner_Bounties'});
+    if(!d.success){el.innerHTML='<div class="empty-state">No data.</div>';return;}
+    const c=cols(d.data[0]);
+    const amI=c('Amount'),abI=c('Approved By'),adI=c('Approved Date'),dtI=c('Date');
+    const byYear={};
+    d.data.slice(1).forEach(r=>{
+      if(!(r[abI]||'').toString().trim())return;
+      const sv=(adI>=0&&r[adI])?r[adI]:(dtI>=0?r[dtI]:'');
+      const x=new Date(sv); if(isNaN(x))return;
+      const y=x.getFullYear();
+      if(!byYear[y])byYear[y]={count:0,total:0};
+      byYear[y].count++; byYear[y].total+=Number(r[amI])||0;
+    });
+    const years=Object.keys(byYear).sort((a,b)=>b-a);
+    if(!years.length){el.innerHTML='<div class="empty-state">No approved bounties yet.</div>';return;}
+    el.innerHTML='<table class="data-table"><thead><tr><th>Year</th><th>Approved Bounties</th><th>Total Approved</th></tr></thead><tbody>'+
+      years.map(y=>`<tr><td>${y}</td><td>${byYear[y].count}</td><td><strong style="color:#c4581f">$${byYear[y].total.toLocaleString('en-US',{minimumFractionDigits:2})}</strong></td></tr>`).join('')+
+      '</tbody></table>';
+  }catch(e){ el.innerHTML='<div class="empty-state">Error loading.</div>'; }
+}
+loadBountyYearsWally();
+applyCloseGateWallyYear();
+</script>
+</body>
+</html>

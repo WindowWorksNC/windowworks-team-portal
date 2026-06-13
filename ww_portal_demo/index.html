@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Window Works Team Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Barlow',Arial,sans-serif;background:#edeae4;color:#1a1a1a;min-height:100vh;font-size:14px}
+
+.header{background:#1a1a1a;padding:18px 32px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Barlow Condensed',Arial,sans-serif;font-weight:700;font-size:22px;letter-spacing:0.12em;text-transform:uppercase;color:#fff}
+.logo span{color:#c4581f}
+.header-tag{font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#c4581f;border:1px solid #c4581f;padding:3px 10px;border-radius:2px}
+.orange-bar{background:#c4581f;height:3px}
+
+.demo-banner{background:#fae8df;border-bottom:1px solid #f0cbb8;padding:8px 32px;text-align:center;font-size:12px;color:#a33f12;font-weight:600;letter-spacing:0.02em}
+
+.body{padding:40px 32px;max-width:1100px;margin:0 auto}
+.page-title{font-family:'Barlow Condensed',Arial,sans-serif;font-size:28px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#1a1a1a;margin-bottom:6px}
+.page-sub{font-size:13px;color:#888;margin-bottom:36px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+
+.tile{background:#fff;border:1px solid #e4dbd0;border-radius:8px;padding:24px 20px;cursor:pointer;text-decoration:none;display:block;transition:border-color 0.15s,transform 0.15s;position:relative;overflow:hidden}
+.tile:hover{border-color:#c4581f;transform:translateY(-2px)}
+.tile-accent{position:absolute;top:0;left:0;width:4px;height:100%;background:#c4581f}
+.tile-role{font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#aaa;margin-bottom:6px}
+.tile-name{font-family:'Barlow Condensed',Arial,sans-serif;font-size:22px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#1a1a1a;margin-bottom:12px}
+.tile-tags{display:flex;flex-wrap:wrap;gap:5px}
+.tile-tag{font-size:11px;padding:2px 8px;border-radius:99px;background:#f0ece6;color:#888;font-family:'Barlow',sans-serif}
+.tile-tag.orange{background:#fae8df;color:#c4581f}
+
+.section-label{font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#aaa;margin-bottom:14px;margin-top:36px}
+
+.pin-note{background:#fff;border:1px solid #e4dbd0;border-radius:8px;padding:18px 20px;margin-top:40px;font-size:13px;color:#666}
+.pin-note b{color:#1a1a1a;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:0.04em;text-transform:uppercase;font-size:13px}
+.pin-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pin-chip{background:#f0ece6;border-radius:6px;padding:5px 10px;font-size:12px}
+.pin-chip b{color:#c4581f}
+
+.footer{background:#1a1a1a;padding:12px 32px;display:flex;align-items:center;justify-content:space-between;margin-top:60px}
+.footer-l{font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#ccc !important}
+.footer-r{font-size:11px;color:#ccc !important}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Window <span>Works</span> Co.</div>
+  <div class="header-tag">Team Portal</div>
+</div>
+<div class="orange-bar"></div>
+<div class="demo-banner">Training demo. All names and data are fictional. Changes you make reset when the page reloads.</div>
+
+<div class="body">
+  <div class="page-title">Team Portal</div>
+  <div class="page-sub">Select a team member to view their dashboard</div>
+
+  <div class="section-label">Leadership</div>
+  <div class="grid">
+    <a class="tile" href="olivia.html">
+      <div class="tile-accent"></div>
+      <div class="tile-role">Co-Owner</div>
+      <div class="tile-name">Olivia Owner</div>
+      <div class="tile-tags">
+        <span class="tile-tag orange">Admin</span>
+        <span class="tile-tag">PTO</span>
+      </div>
+    </a>
+    <a class="tile" href="owen.html">
+      <div class="tile-accent"></div>
+      <div class="tile-role">Co-Owner</div>
+      <div class="tile-name">Owen Owner</div>
+      <div class="tile-tags">
+        <span class="tile-tag orange">Admin</span>
+        <span class="tile-tag">PTO</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="section-label">Sales</div>
+  <div class="grid">
+    <a class="tile" href="wally.html">
+      <div class="tile-accent"></div>
+      <div class="tile-role">Sales Consultant</div>
+      <div class="tile-name">Wally Windowsalesguy</div>
+      <div class="tile-tags">
+        <span class="tile-tag orange">Commission</span>
+        <span class="tile-tag orange">Bounties</span>
+        <span class="tile-tag">PTO</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="section-label">Operations</div>
+  <div class="grid">
+    <a class="tile" href="polly.html">
+      <div class="tile-accent"></div>
+      <div class="tile-role">Project Manager</div>
+      <div class="tile-name">Polly Projectmanager</div>
+      <div class="tile-tags">
+        <span class="tile-tag orange">Scorecard</span>
+        <span class="tile-tag orange">Bonuses</span>
+        <span class="tile-tag">PTO</span>
+      </div>
+    </a>
+    <a class="tile admin-tile" href="able.html">
+      <div class="tile-accent"></div>
+      <div class="tile-role">Admin / Payroll</div>
+      <div class="tile-name">Able Admin</div>
+      <div class="tile-tags">
+        <span class="tile-tag orange">Scorecard</span>
+        <span class="tile-tag orange">Payroll View</span>
+        <span class="tile-tag">PTO</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="pin-note">
+    <b>Demo PINs</b>
+    <div class="pin-row">
+      <span class="pin-chip">Olivia Owner <b>1111</b></span>
+      <span class="pin-chip">Owen Owner <b>2222</b></span>
+      <span class="pin-chip">Able Admin <b>3333</b></span>
+      <span class="pin-chip">Wally Windowsalesguy <b>4444</b></span>
+      <span class="pin-chip">Polly Projectmanager <b>5555</b></span>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-l">Window Works Co. &nbsp;&bull;&nbsp; Team Portal Training Demo</div>
+  <div class="footer-r">Demo data only. Resets on reload.</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Owen Owner | Window Works Team Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="portal.css?v=121">
+</head>
+<body>
+<script>window.WW_EMPLOYEE='Owen Owner';</script>
+<script src="mock-api.js?v=demo1"></script>
+<script src="gate.js?v=demo1"></script>
+
+<div class="header">
+  <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
+  <div class="header-right">
+    <a class="back-link" href="index.html" style="color:#ccc;font-size:13px;font-weight:500">&#8592; All Team</a>
+    <div class="header-tag">Team Portal</div>
+  </div>
+</div>
+<div class="orange-bar"></div>
+<div class="body">
+<div class="employee-header">
+  <div>
+    <div class="employee-name">Owen Owner</div>
+    <div class="employee-role">Co-Owner</div>
+    <div class="employee-meta" id="hire-meta"></div>
+  </div>
+</div>
+
+<div style="display:flex;gap:10px;margin-bottom:20px">
+  <button class="submit-btn" id="view-team-btn" onclick="switchView('team')" style="background:#1a1a1a">Team Management <span id="badge-total" class="nav-badge"></span></button>
+  <button class="submit-btn" id="view-me-btn" onclick="switchView('me')" style="background:#e4dbd0;color:#1a1a1a">My Dashboard</button>
+</div>
+
+<div id="view-team" style="display:block">
+  <div class="tabs" id="tabs-team">
+    <button class="tab active" onclick="switchTab('commission-admin',this)">Commission <span id="badge-commission" class="nav-badge"></span></button>
+    <button class="tab" onclick="switchTab('incentive',this)">Incentive Pay <span id="badge-incentive" class="nav-badge"></span></button>
+    <button class="tab" onclick="switchTab('pto-admin',this)">PTO Requests <span id="badge-pto" class="nav-badge"></span></button>
+    <button class="tab" onclick="switchTab('records-admin',this)">Employee Records <span id="badge-records" class="nav-badge"></span></button>
+  </div>
+</div>
+<div id="view-me" style="display:none">
+  <div class="tabs" id="tabs-me">
+    <button class="tab active" onclick="switchTab('tasks',this)">My Tasks</button>
+    <button class="tab" onclick="switchTab('pto',this)">My PTO</button>
+    <button class="tab" onclick="switchTab('my-record',this)">My Record</button>
+    <button class="tab" onclick="switchTab('resources',this);requestAnimationFrame(function(){requestAnimationFrame(function(){try{document.getElementById('year-sel').value=new Date().getFullYear();document.getElementById('hol-yr').value=new Date().getFullYear();renderPayroll();renderHolidays();}catch(e){}})});">Resources</button>
+  </div>
+</div>
+
+<!-- ========================= TEAM: COMMISSION ========================= -->
+<div class="tab-content active" id="tab-commission-admin">
+<div class="card">
+  <div class="card-title" style="justify-content:space-between"><span>Commission</span><span style="font-size:12px;color:#888;font-weight:400;text-transform:none" id="comm-period-display">Loading...</span></div>
+  <div id="team-comm-loading" class="loading">Loading...</div>
+  <div id="team-comm-content" style="display:none">
+    <div class="stat-grid" style="margin-bottom:16px" id="team-comm-stats"></div>
+    <div class="table-wrap">
+      <table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Value</th><th>Rate</th><th>Commission</th><th>Pay Period</th><th>Approved By</th><th>Action</th></tr></thead>
+      <tbody id="team-comm-body"></tbody></table>
+    </div>
+  </div>
+  <div id="team-comm-empty" class="empty-state" style="display:none">No commission entries this period.</div>
+</div>
+<div class="card">
+  <div class="card-title" style="cursor:pointer" onclick="togglePrevComm(this)">Previous Periods <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="prev-comm-toggle">(click to expand)</span></div>
+  <div id="prev-comm-wrap" style="display:none">
+    <div id="prev-comm-loading" class="loading">Loading...</div>
+    <div id="prev-comm-body"></div>
+  </div>
+</div>
+</div>
+
+<!-- ========================= TEAM: INCENTIVE PAY ========================= -->
+<div class="tab-content" id="tab-incentive">
+<div class="card">
+  <div class="card-title">Pending Incentive Pay <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Booking bonuses, partner bounties, performance and scorecard bonuses</span></div>
+  <div id="incentive-loading" class="loading">Loading...</div>
+  <div id="incentive-content" style="display:none">
+    <div style="margin-bottom:14px">
+      <select class="form-input" id="incentive-filter" style="max-width:240px" onchange="renderIncentive()">
+        <option value="all">All employees</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Employee</th><th>Date</th><th>Detail</th><th>Type</th><th>Amount</th><th>Action</th></tr></thead>
+        <tbody id="incentive-body"></tbody>
+      </table>
+    </div>
+    <div id="incentive-empty" class="empty-state" style="display:none">No pending incentive pay.</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title">Approved This Quarter</div>
+  <div id="incentive-approved-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="incentive-approved-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Type</th><th>Amount</th><th>Approved By</th><th>Pay Date</th></tr></thead>
+      <tbody id="incentive-approved-body"></tbody>
+    </table>
+  </div>
+  <div id="incentive-approved-empty" class="empty-state" style="display:none">Nothing approved yet this quarter.</div>
+</div>
+<!-- CONSISTENT-PERF-START -->
+<div class="card">
+  <div class="card-title">Consistent Performance <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Able Admin, scorecard domain 3</span></div>
+  <div style="font-size:13px;color:#888;margin-bottom:14px">Set the current quarter result for Able's Consistent Performance domain. This feeds his scorecard. Only Owen or Olivia can set this.</div>
+  <div id="consistent-status" style="margin-bottom:16px"></div>
+  <div style="display:flex;gap:10px">
+    <button class="action-btn btn-approve" onclick="setConsistent('Pass')">Mark Pass</button>
+    <button class="action-btn btn-deny" onclick="setConsistent('Fail')">Mark Fail</button>
+  </div>
+  <div id="consistent-alert" style="margin-top:14px"></div>
+</div>
+<!-- CONSISTENT-PERF-END -->
+</div>
+
+<!-- ========================= TEAM: PTO REQUESTS ========================= -->
+<div class="tab-content" id="tab-pto-admin">
+<div class="card">
+  <div class="card-title">
+    Pending PTO Requests
+    <span id="pending-count" class="pill pill-pending">0 pending</span>
+  </div>
+  <div id="pending-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="pending-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Type</th><th>Dates</th><th>Days</th><th>Notes</th><th>Action</th></tr></thead>
+      <tbody id="pending-body"></tbody>
+    </table>
+  </div>
+  <div id="pending-empty" class="empty-state" style="display:none">No pending requests.</div>
+</div>
+<div class="card">
+  <div class="card-title">Log Time Off For an Employee <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Auto-approved</span></div>
+  <div id="admin-pto-alert"></div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Employee</label>
+      <select class="form-input" id="admin-pto-emp"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select class="form-input" id="admin-pto-type"><option>Vacation</option><option>Sick</option></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Start Date</label>
+      <input type="date" class="form-input" id="admin-pto-start" onchange="adminCalcDays()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">End Date</label>
+      <input type="date" class="form-input" id="admin-pto-end" onchange="adminCalcDays()">
+    </div>
+    <div class="form-group" style="max-width:90px">
+      <label class="form-label">Days</label>
+      <input type="number" class="form-input" id="admin-pto-days" min="0" step="0.5" placeholder="0">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group" style="flex:3">
+      <label class="form-label">Notes (optional)</label>
+      <input type="text" class="form-input" id="admin-pto-notes" placeholder="Any relevant details...">
+    </div>
+  </div>
+  <button class="submit-btn" id="admin-pto-btn" onclick="adminCreatePTO()">Log and Approve</button>
+</div>
+<div class="card">
+  <div class="card-title">All Requests</div>
+  <div id="all-requests-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="all-requests-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Submitted</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Reviewed By</th></tr></thead>
+      <tbody id="all-requests-body"></tbody>
+    </table>
+  </div>
+  <div id="all-requests-empty" class="empty-state" style="display:none">No requests found.</div>
+</div>
+<div class="card" id="archive-section" style="display:none">
+  <div class="card-title">Past Denied Requests <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none">Ready to archive</span></div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Employee</th><th>Dates</th><th>Days</th><th>Submitted</th><th>Action</th></tr></thead>
+      <tbody id="archive-body"></tbody>
+    </table>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title">PTO Balances</div>
+  <div id="balances-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="balances-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Vacation Used</th><th>Vacation Left</th><th>Sick Used</th><th>Sick Left</th></tr></thead>
+      <tbody id="balances-body"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ========================= TEAM: EMPLOYEE RECORDS ========================= -->
+<div class="tab-content" id="tab-records-admin">
+<div class="card">
+  <div class="card-title">Expiring IDs</div>
+  <div id="expiry-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="expiry-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Expiry Date</th><th>Status</th></tr></thead>
+      <tbody id="expiry-body"></tbody>
+    </table>
+  </div>
+  <div id="expiry-empty" class="empty-state" style="display:none">No expiry data on file.</div>
+</div>
+<div class="card">
+  <div class="card-title">Add Employee</div>
+  <div id="add-emp-alert"></div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="add-emp-name" placeholder="First Last"></div>
+    <div class="form-group"><label class="form-label">Role</label><input type="text" class="form-input" id="add-emp-role" placeholder="e.g. Professional Sales"></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Hire Date</label><input type="date" class="form-input" id="add-emp-hire"></div>
+    <div class="form-group"><label class="form-label">Email</label><input type="text" class="form-input" id="add-emp-email" placeholder="name@windowworksnc.com"></div>
+  </div>
+  <button class="submit-btn" id="add-emp-btn" onclick="addEmployee()">Add Employee</button>
+</div>
+<div class="card">
+  <div class="card-title">Employee Records <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Edit and save per employee</span></div>
+  <div id="records-admin-loading" class="loading">Loading...</div>
+  <div id="records-admin-list"></div>
+</div>
+<div class="card">
+  <div class="card-title">Equipment <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Assign and collect company equipment</span></div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+    <span style="font-size:11px;color:#888;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:0.1em;text-transform:uppercase">Employee</span>
+    <select id="equip-admin-emp" onchange="loadEquipAdmin(this.value)" style="font-size:14px;font-family:'Barlow',Arial,sans-serif;padding:7px 10px;border:1px solid #ddd;border-radius:4px;background:#faf8f5;color:#1a1a1a;min-width:220px"></select>
+  </div>
+  <div id="equip-admin-list"><div class="loading">Loading...</div></div>
+  <div style="border-top:1px solid #f0ece6;margin-top:18px;padding-top:16px">
+    <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:12px">Assign New Equipment</div>
+    <div id="equip-admin-alert"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div><div class="eq-lbl">Item</div><select id="equip-admin-type" class="eq-inp"></select></div>
+      <div><div class="eq-lbl">Description / Make &amp; Model</div><input id="equip-admin-desc" class="eq-inp" placeholder="e.g. Dell Latitude 5540"></div>
+      <div><div class="eq-lbl">Serial / Plate</div><input id="equip-admin-serial" class="eq-inp" placeholder="Optional"></div>
+      <div><div class="eq-lbl">Date Issued</div><input type="date" id="equip-admin-issued" class="eq-inp"></div>
+    </div>
+    <div style="margin-bottom:12px"><div class="eq-lbl">Notes</div><input id="equip-admin-notes" class="eq-inp" style="width:100%;box-sizing:border-box" placeholder="Optional"></div>
+    <button class="submit-btn" id="equip-admin-btn" onclick="assignEquip()">Assign Equipment</button>
+  </div>
+</div>
+</div>
+
+<!-- ========================= ME: TASKS ========================= -->
+<div class="tab-content" id="tab-tasks">
+<div class="tb-wrap">
+  <p class="tb-hint">Your personal task board. Data saves in your browser. Click bucket names to rename them (except Recurring).</p>
+  <div class="tb-add-bar">
+    <input type="text" class="tb-add-inp" id="tb-add-inp" placeholder="Add a task...">
+    <select class="tb-add-bucket" id="tb-add-bucket">
+      <option value="this-week">This Week</option>
+      <option value="recurring">Recurring</option>
+      <option value="projects">Larger Projects</option>
+      <option value="waiting">Waiting On</option>
+    </select>
+    <button class="tb-add-btn" onclick="tbAdd_owen()">+ Add</button>
+  </div>
+  <div class="tb-grid">
+    <div class="tb-col" data-bucket="this-week"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-this-week" onclick="tbRenameBucket_owen('this-week')">This Week</span></span><span class="tb-col-count" id="tc-this-week">0</span></div><div class="tb-list" id="tl-this-week"></div></div>
+    <div class="tb-col" data-bucket="recurring"><div class="tb-col-header"><span class="tb-col-label"><span id="th-recurring">Recurring</span></span><span class="tb-col-count" id="tc-recurring">0</span></div><div class="tb-list" id="tl-recurring"></div></div>
+    <div class="tb-col" data-bucket="projects"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-projects" onclick="tbRenameBucket_owen('projects')">Larger Projects</span></span><span class="tb-col-count" id="tc-projects">0</span></div><div class="tb-list" id="tl-projects"></div></div>
+    <div class="tb-col" data-bucket="waiting"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-waiting" onclick="tbRenameBucket_owen('waiting')">Waiting On</span></span><span class="tb-col-count" id="tc-waiting">0</span></div><div class="tb-list" id="tl-waiting"></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ========================= ME: PTO ========================= -->
+<div class="tab-content" id="tab-pto">
+<div class="card">
+  <div class="card-title">Leave Balances</div>
+  <div class="stat-grid">
+    <div class="stat-block">
+      <div class="stat-number" id="vac-remaining">--</div>
+      <div class="stat-label">Vacation Days Left</div>
+      <div class="stat-sub" id="vac-used">of 10 used: --</div>
+      <div class="stat-sub" id="vac-upcoming">0 approved upcoming</div>
+      <div class="pto-bar-wrap"><div class="pto-bar" id="vac-bar" style="width:0%"></div></div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-number" id="sick-remaining">--</div>
+      <div class="stat-label">Sick Days Left</div>
+      <div class="stat-sub" id="sick-used">of 5 used: --</div>
+      <div class="stat-sub" id="sick-upcoming">0 approved upcoming</div>
+      <div class="pto-bar-wrap"><div class="pto-bar" id="sick-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title">Request Time Off</div>
+  <div id="pto-form-alert"></div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select class="form-input" id="pto-type"><option>Vacation</option><option>Sick</option></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Start Date</label>
+      <input type="date" class="form-input" id="pto-start" onchange="calcWorkingDays()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">End Date</label>
+      <input type="date" class="form-input" id="pto-end" onchange="calcWorkingDays()">
+    </div>
+    <div class="form-group" style="max-width:90px">
+      <label class="form-label">Days</label>
+      <input type="number" class="form-input" id="pto-days" min="1" step="1" placeholder="1" readonly style="background:#f0ede8;color:#888">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group" style="flex:3">
+      <label class="form-label">Notes (optional)</label>
+      <textarea class="form-input form-textarea" id="pto-notes" placeholder="Any relevant details..."></textarea>
+    </div>
+  </div>
+  <button class="submit-btn" id="pto-submit-btn" onclick="submitPTO(EMPLOYEE, 'the office')">Submit Request</button>
+</div>
+<div class="card">
+  <div class="card-title">My Requests</div>
+  <div id="my-requests-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="my-requests-table" style="display:none">
+      <thead><tr><th>Submitted</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Notes</th></tr></thead>
+      <tbody id="my-requests-body"></tbody>
+    </table>
+  </div>
+  <div id="my-requests-empty" class="empty-state" style="display:none">No requests yet.</div>
+</div>
+</div>
+
+<!-- ========================= ME: RECORD ========================= -->
+<div class="tab-content" id="tab-my-record">
+<div class="card">
+  <div class="card-title">Employee Record</div>
+  <div id="record-loading" class="loading">Loading...</div>
+  <div id="record-content" style="display:none">
+    <table class="data-table"><tbody id="record-body"></tbody></table>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title">Documents</div>
+  <div id="docs-loading" class="loading">Loading...</div>
+  <div id="docs-list"></div>
+</div>
+<div class="card">
+  <div class="card-title">My Equipment</div>
+  <div id="equip-loading" class="loading">Loading...</div>
+  <div id="equip-list"></div>
+  <div id="equip-empty" class="empty-state" style="display:none">No equipment on record.</div>
+</div>
+</div>
+
+<!-- ========================= ME: RESOURCES ========================= -->
+<div class="tab-content" id="tab-resources">
+<div>
+  <div class="card">
+    <div class="card-title">
+      Payroll Schedule
+      <select class="year-sel" id="year-sel" onchange="renderPayroll()">
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+      </select>
+    </div>
+    <div id="next-pay-wrap"></div>
+    <div class="table-wrap">
+      <table class="data-table payroll-table" style="width:100%;max-width:100%">
+        <thead><tr><th>#</th><th>Pay Period</th><th>Due Date</th><th>Pay Date</th></tr></thead>
+        <tbody id="payroll-body"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">
+      Company Paid Holidays
+      <select class="year-sel" id="hol-yr" onchange="renderHolidays()">
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+      </select>
+    </div>
+    <div id="holidays-body"></div>
+  </div>
+</div>
+</div>
+
+<div class="footer">
+  <div class="footer-l">Window Works Co. &nbsp;&bull;&nbsp; windowworksnc.com</div>
+  <div class="footer-r">(919) 854-6121</div>
+</div>
+</div>
+
+<script>
+// Window Works Team Portal - owner page (Team Management + My Dashboard)
+const PROXY = 'DEMO_MODE_NO_PROXY'; // demo build: api() comes from mock-api.js
+const EMPLOYEE = 'Owen Owner';
+const APPROVER = 'Owen Owner';
+const ROSTER = ['Able Admin','Wally Windowsalesguy','Polly Projectmanager'];
+const COMMISSION_REPS = ['Wally Windowsalesguy'];
+const ALL_DOCS_BASE = ['Signed Offer Letter','Employee Handbook Acknowledgment','Government ID','Direct Deposit Authorization','W-4','I-9 Verification','Emergency Contact'];
+
+// api() is provided by mock-api.js in the demo build (in-memory, no network).
+
+function fmtMoney(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtDate(d){if(!d)return '';try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}catch(e){return d}}
+function statusPill(s){const map={Pending:'pill-pending',Approved:'pill-approved',Denied:'pill-denied'};return `<span class="pill ${map[s]||'pill-pending'}">${s||'Pending'}</span>`;}
+function passFailPill(pass,pending){if(pending)return '<span class="pill pill-gray">Pending Data</span>';return pass?'<span class="pill pill-approved">Pass</span>':'<span class="pill pill-denied">Fail</span>';}
+function missingPill(){return '<span class="pill pill-denied">Missing</span>';}
+function presentPill(){return '<span class="pill pill-approved">On File</span>';}
+
+function expiryDays(dateStr){if(!dateStr)return null;return Math.floor((new Date(dateStr)-new Date())/(1000*60*60*24));}
+function expiryClass(dateStr){const d=expiryDays(dateStr);if(d===null)return '';if(d<0)return 'expiry-danger';if(d<30)return 'expiry-danger';if(d<60)return 'expiry-warn';return 'expiry-ok';}
+function humanizeDays(d){d=Math.abs(d);if(d===0)return '0 days';if(d<45)return d+' day'+(d===1?'':'s');if(d<365){var m=Math.max(1,Math.round(d/30));return m+' month'+(m===1?'':'s');}var y=Math.floor(d/365);var mo=Math.round((d-y*365)/30);if(mo>=12){y+=1;mo=0;}return y+' year'+(y===1?'':'s')+(mo>0?' '+mo+' month'+(mo===1?'':'s'):'');}
+function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No expiry set';if(d<0)return 'Expired '+humanizeDays(d)+' ago';if(d===0)return 'Expires today';return 'Expires in '+humanizeDays(d);}
+
+function cols(headers){const trimmed=headers.map(h=>(h||'').toString().trim());return name=>trimmed.indexOf(name.trim());}
+function getActiveQuarter(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qs=new Date(cy,(cq-1)*3,1);var ds=Math.round((n-qs)/86400000);if(ds<14){return cq===1?{q:4,year:cy-1}:{q:cq-1,year:cy};}return {q:cq,year:cy};}
+function getActiveYear(){return getActiveQuarter().year;}
+function getCloseEnabled(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qs=new Date(cy,(cq-1)*3,1),qe=new Date(cy,cq*3,0);var ds=Math.round((n-qs)/86400000),du=Math.round((qe-n)/86400000);return ds<14||du<=14;}
+function getCloseOpenDate(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qe=new Date(cy,cq*3,0);return new Date(qe.getTime()-14*86400000);}
+function getCurrentQuarter(){return getActiveQuarter().q;}
+
+function switchTab(name,btn){
+  btn.closest('.body').querySelectorAll('.tab[onclick^="switchTab"]').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const el=document.getElementById('tab-'+name);
+  if(el)el.classList.add('active');
+}
+
+function switchSubTab(name,btn,group){
+  document.querySelectorAll(`.tab[data-group="${group}"]`).forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll(`.sub-tab-content[data-group="${group}"]`).forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const el=document.getElementById('stab-'+name);
+  if(el)el.classList.add('active');
+}
+
+function switchView(view){
+  const teamDiv=document.getElementById('view-team');
+  const meDiv=document.getElementById('view-me');
+  const teamBtn=document.getElementById('view-team-btn');
+  const meBtn=document.getElementById('view-me-btn');
+  const showTabFromGroup=(sel,fallback)=>{
+    const active=document.querySelector(sel+' .tab.active');
+    let tabName=fallback;
+    if(active){const m=active.getAttribute('onclick').match(/switchTab\('([^']+)'/);if(m)tabName=m[1];}
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    const el=document.getElementById('tab-'+tabName);
+    if(el)el.classList.add('active');
+  };
+  if(view==='team'){
+    teamDiv.style.display='block';meDiv.style.display='none';
+    teamBtn.style.background='#1a1a1a';teamBtn.style.color='#fff';
+    meBtn.style.background='#e4dbd0';meBtn.style.color='#1a1a1a';
+    showTabFromGroup('#tabs-team','commission-admin');
+  }else{
+    teamDiv.style.display='none';meDiv.style.display='block';
+    teamBtn.style.background='#e4dbd0';teamBtn.style.color='#1a1a1a';
+    meBtn.style.background='#1a1a1a';meBtn.style.color='#fff';
+    showTabFromGroup('#tabs-me','tasks');
+  }
+}
+
+// ---------- Pay period / pay date helpers ----------
+function getCurrentPeriod(){
+  const startMs=Date.UTC(2025,11,18);
+  const now=new Date();
+  const todayMs=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());
+  const periodNum=Math.floor((todayMs-startMs)/(14*86400000));
+  const psMs=startMs+periodNum*14*86400000;
+  const peMs=psMs+13*86400000;
+  const fmt=ms=>{const d=new Date(ms);return String(d.getUTCMonth()+1).padStart(2,'0')+'/'+String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCFullYear()).slice(2);};
+  return fmt(psMs)+' - '+fmt(peMs);
+}
+// Normalize pay-period strings: collapse any en/em dash to a plain hyphen and trim,
+// so a stray dash from an upstream source can never hide a row.
+function normPeriod(s){return (s||'').toString().replace(/[\u2013\u2014]/g,'-').trim();}
+function getNextPayDateFromApproval(approvalDate){
+  const startMs=Date.UTC(2025,11,18);
+  const d=approvalDate||new Date();
+  const todayMs=Date.UTC(d.getFullYear(),d.getMonth(),d.getDate());
+  const periodNum=Math.floor((todayMs-startMs)/(14*86400000));
+  const payMs=startMs+(periodNum*14+15)*86400000; // end of approval's period + 2 days (Friday)
+  const u=new Date(payMs);
+  return new Date(u.getUTCFullYear(),u.getUTCMonth(),u.getUTCDate(),12);
+}
+function fmtPayDate(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+
+// ===================================================================
+//  TEAM MANAGEMENT
+// ===================================================================
+
+// ---------- Commission ----------
+async function loadTeamCommission(){
+  const loadEl=document.getElementById('team-comm-loading');
+  const content=document.getElementById('team-comm-content');
+  const emptyEl=document.getElementById('team-comm-empty');
+  try{
+    const d=await api({action:'read',tab:'Commissions'});
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const rows=d.data.slice(1).filter(r=>r.some(x=>x));
+    if(typeof setBadge_==='function'){window._alertCommission=rows.filter(r=>(r[c('Employee')]||'').trim()&&(Number(r[c('Commission')])||0)>0&&!((r[c('Approved By')]||r[c('Approved by')]||'').toString().trim())).length;setBadge_('badge-commission',window._alertCommission);if(typeof updateTotalBadge==='function')updateTotalBadge();}
+    let currentPeriod=getCurrentPeriod();
+    let currentRows=rows.filter(r=>normPeriod(r[c('Pay Period')])===normPeriod(currentPeriod));
+    if(!currentRows.length&&rows.length){
+      const allPeriods=[...new Set(rows.map(r=>normPeriod(r[c('Pay Period')])).filter(Boolean))];
+      if(allPeriods.length){currentPeriod=allPeriods[allPeriods.length-1];currentRows=rows.filter(r=>normPeriod(r[c('Pay Period')])===normPeriod(currentPeriod));}
+    }
+    const disp=document.getElementById('comm-period-display');if(disp)disp.textContent=currentPeriod;
+    const stats={};
+    COMMISSION_REPS.forEach(e=>{stats[e]=currentRows.filter(r=>(r[c('Employee')]||'').trim()===e).reduce((s,r)=>s+(Number(r[c('Commission')])||0),0);});
+    const statsEl=document.getElementById('team-comm-stats');
+    if(statsEl){
+      statsEl.innerHTML=COMMISSION_REPS.map(e=>`<div class="stat-block"><div class="stat-number orange">${fmtMoney(stats[e])}</div><div class="stat-label">${e}</div></div>`).join('')+
+        `<div class="stat-block"><div class="stat-number">${fmtMoney(Object.values(stats).reduce((a,b)=>a+b,0))}</div><div class="stat-label">Period Total</div></div>`;
+    }
+    if(content)content.style.display='block';
+    const tbody=document.getElementById('team-comm-body');
+    if(!currentRows.length){if(emptyEl)emptyEl.style.display='block';if(tbody)tbody.innerHTML='';loadPrevComm(rows,currentPeriod);return;}
+    if(emptyEl)emptyEl.style.display='none';
+    if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>{
+      const rowIdx=d.data.indexOf(r)+1;
+      const approvedBy=r[c('Approved By')]||r[c('Approved by')]||'';
+      const emp=(r[c('Employee')]||'').trim();
+      const amt=Number(r[c('Commission')])||0;
+      return `<tr><td>${fmtDate(r[c('Date')])}</td><td>${emp}</td><td>${r[c('Deal Name')]||''}${wwDealLink(r[c('Deal ID')])}</td><td>${fmtMoney(r[c('Deal Value')])}</td><td>${(r[c('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(amt)}</strong></td><td style="font-size:11px">${(r[c('Pay Period')]||'').trim()}</td><td>${approvedBy}</td><td>${approvedBy?'<span class="pill pill-approved">Approved</span>':`<button class="action-btn btn-approve" onclick="showApprovalConfirm('Commissions',${rowIdx},'${emp.replace(/'/g,"\\'")}','Commission',${amt})">Approve</button>`}</td></tr>`;
+    }).join('');
+    loadPrevComm(rows,currentPeriod);
+  }catch(e){if(loadEl)loadEl.style.display='none';console.error(e);}
+}
+
+function loadPrevComm(rows,currentPeriod){
+  const body=document.getElementById('prev-comm-body');
+  const loading=document.getElementById('prev-comm-loading');
+  if(loading)loading.style.display='none';
+  if(!body||!rows.length)return;
+  const c=cols(window.__commHeaders||[]);
+  const periods={};
+  rows.forEach(r=>{const p=normPeriod(r[window.__cPayPeriod]);if(!p||p===normPeriod(currentPeriod))return;if(!periods[p])periods[p]=[];periods[p].push(r);});
+  const keys=Object.keys(periods).sort().reverse();
+  if(!keys.length){body.innerHTML='<div class="empty-state">No previous periods.</div>';return;}
+  body.innerHTML=keys.map(period=>{
+    const pRows=periods[period];
+    const total=pRows.reduce((s,r)=>s+(Number(r[window.__cCommission])||0),0);
+    const id='pp-'+period.replace(/[^a-z0-9]/gi,'');
+    return `<div style="border-top:1px solid #f0ece6;padding:10px 0"><div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="var x=document.getElementById('${id}');x.style.display=x.style.display==='none'?'block':'none'"><span style="font-size:13px;font-weight:600">${period}</span><span style="font-size:13px;color:#c4581f;font-weight:700">${fmtMoney(total)}</span></div><div id="${id}" style="display:none;margin-top:8px"><table class="data-table"><thead><tr><th>Date</th><th>Employee</th><th>Deal</th><th>Commission</th><th>Approved By</th></tr></thead><tbody>${pRows.map(r=>`<tr><td>${fmtDate(r[window.__cDate])}</td><td>${r[window.__cEmployee]||''}</td><td>${r[window.__cDeal]||''}${wwDealLink(r[window.__cDealId])}</td><td><strong style="color:#c4581f">${fmtMoney(r[window.__cCommission])}</strong></td><td>${r[window.__cApprovedBy]||'<span style="color:#aaa">Pending</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+  }).join('');
+}
+
+function togglePrevComm(el){
+  const wrap=document.getElementById('prev-comm-wrap');
+  const toggle=document.getElementById('prev-comm-toggle');
+  if(!wrap)return;
+  const isOpen=wrap.style.display!=='none';
+  wrap.style.display=isOpen?'none':'block';
+  if(toggle)toggle.textContent=isOpen?'(click to expand)':'(click to collapse)';
+}
+
+// ---------- Incentive Pay (unified pending bonuses) ----------
+let INCENTIVE_PENDING=[];
+// Infer a bounty amount when the sheet cell is blank (rows written by older code paths
+// left Amount/Bonus Type empty). Mirrors the resilient logic on the sales rep's own page.
+function inferBountyAmount(label,rawAmount){
+  const n=Number(rawAmount);
+  if(n>0)return n;
+  const t=(label||'').toLowerCase();
+  if(t.indexOf('anchor')>=0)return 2500;
+  if(t.indexOf('wallet')>=0)return 2500;
+  if(t.indexOf('retention')>=0)return 2500;
+  if(t.indexOf('booking')>=0)return 75;
+  return 250;
+}
+function dedupeIncentive(list){
+  const seen=new Set();const out=[];
+  list.forEach(i=>{
+    const key=(i.employee||'')+'|'+(i.type||'')+'|'+(i.detail||'');
+    if(seen.has(key))return;
+    seen.add(key);out.push(i);
+  });
+  return out;
+}
+async function loadIncentivePay(){
+  const loadEl=document.getElementById('incentive-loading');
+  const contentEl=document.getElementById('incentive-content');
+  try{
+    let dBook={success:false},dBounty={success:false},dBonus={success:false};
+    try{dBook=await api({action:'read',tab:'B2B_Booking_Bonuses'});}catch(e){}
+    try{dBounty=await api({action:'read',tab:'B2B_Partner_Bounties'});}catch(e){}
+    try{dBonus=await api({action:'read',tab:'Bonuses'});}catch(e){}
+    if(loadEl)loadEl.style.display='none';
+    if(contentEl)contentEl.style.display='block';
+    const pending=[];
+    const approved=[];
+    if(dBook.success){
+      const c=cols(dBook.data[0]);
+      dBook.data.slice(1).filter(r=>r.some(x=>x)).forEach(r=>{
+        const employee=(r[c('Employee')]||'').trim();
+        if(!employee)return;
+        const rowIdx=dBook.data.indexOf(r)+1;
+        const item={sheet:'B2B_Booking_Bonuses',rowIdx,employee,date:fmtDate(r[c('Date')]),detail:r[c('Customer Name')]||'',type:'Booking Bonus',amount:75,approvedBy:(r[c('Approved By')]||'').trim(),payDate:r[c('Pay Date')]||''};
+        if(item.approvedBy)approved.push(item);else pending.push(item);
+      });
+    }
+    if(dBounty.success){
+      const c=cols(dBounty.data[0]);
+      dBounty.data.slice(1).filter(r=>r.some(x=>x)).forEach(r=>{
+        const employee=(r[c('Employee')]||'').trim();
+        const detail=(r[c('Org name')]||r[c('Org Name')]||r[c('Account')]||r[c('Deal Name')]||'').toString().trim();
+        if(!employee||!detail)return; // drop blank/partial rows
+        const rowIdx=dBounty.data.indexOf(r)+1;
+        const label=((r[c('Bonus Type')]||r[c('Deal Name')]||'').toString().trim()||'New Partner Bounty').replace(/\s*Bounty$/i,'').trim();
+        const item={sheet:'B2B_Partner_Bounties',rowIdx,employee,date:fmtDate(r[c('Date')]),detail,type:label,amount:inferBountyAmount(label,r[c('Amount')]),approvedBy:(r[c('Approved By')]||'').trim(),payDate:r[c('Pay Date')]||'',dealId:(r[c('Deal ID')]||'').toString().trim()};
+        if(item.approvedBy)approved.push(item);else pending.push(item);
+      });
+    }
+    if(dBonus.success){
+      const c=cols(dBonus.data[0]);
+      dBonus.data.slice(1).filter(r=>r.some(x=>x)).forEach(r=>{
+        const employee=(r[c('Employee')]||'').trim();
+        const status=(r[c('Status')]||'').trim();
+        const type=(r[c('Type')]||'').trim();
+        if(!employee||type==='Consistent Performance')return;
+        const amount=Number(r[c('Amount')])||0;
+        if(amount<=0)return; // nothing to pay
+        const approvedBy=(r[c('Approved By')]||'').trim();
+        const rowIdx=dBonus.data.indexOf(r)+1;
+        const item={sheet:'Bonuses',rowIdx,employee,date:fmtDate(r[c('Date Approved')]||r[c('Quarter')]),detail:`Q${r[c('Quarter')]||''} ${r[c('Year')]||''}`.trim(),type:type||'Bonus',amount,approvedBy,payDate:r[c('Pay Date')]||''};
+        if(status==='Earned'&&!approvedBy)pending.push(item);
+        else if(approvedBy||status==='Approved')approved.push(item);
+      });
+    }
+    INCENTIVE_PENDING=dedupeIncentive(pending);
+    if(typeof setBadge_==='function'){window._alertIncentive=INCENTIVE_PENDING.length;setBadge_('badge-incentive',window._alertIncentive);if(typeof updateTotalBadge==='function')updateTotalBadge();}
+    const approvedDeduped=dedupeIncentive(approved);
+    const filter=document.getElementById('incentive-filter');
+    if(filter){
+      const emps=[...new Set(INCENTIVE_PENDING.concat(approvedDeduped).map(i=>i.employee).filter(Boolean))].sort();
+      const cur=filter.value;
+      filter.innerHTML='<option value="all">All employees</option>'+emps.map(e=>`<option value="${e}">${e}</option>`).join('');
+      if(cur&&[...filter.options].some(o=>o.value===cur))filter.value=cur;
+    }
+    renderIncentive();
+    const aLoad=document.getElementById('incentive-approved-loading');if(aLoad)aLoad.style.display='none';
+    const aTable=document.getElementById('incentive-approved-table');
+    const aEmpty=document.getElementById('incentive-approved-empty');
+    const aBody=document.getElementById('incentive-approved-body');
+    if(!approvedDeduped.length){if(aEmpty)aEmpty.style.display='block';if(aTable)aTable.style.display='none';}
+    else{if(aEmpty)aEmpty.style.display='none';if(aTable)aTable.style.display='table';if(aBody)aBody.innerHTML=approvedDeduped.map(i=>`<tr><td>${i.employee}</td><td>${i.type}</td><td><strong style="color:#c4581f">${fmtMoney(i.amount)}</strong></td><td>${i.approvedBy}</td><td>${i.payDate||''}</td></tr>`).join('');}
+  }catch(e){if(loadEl)loadEl.style.display='none';console.error(e);}
+}
+
+function wwDealLink(id){var s=(id==null?'':String(id).trim());return s?` <a href="https://windowworksco.pipedrive.com/deal/${encodeURIComponent(s)}" target="_blank" rel="noopener" style="color:#c4581f;text-decoration:none;font-size:11px;font-weight:600;white-space:nowrap">See Deal</a>`:'';}
+function renderIncentive(){
+  const filter=document.getElementById('incentive-filter');
+  const val=filter?filter.value:'all';
+  const tbody=document.getElementById('incentive-body');
+  const emptyEl=document.getElementById('incentive-empty');
+  const list=INCENTIVE_PENDING.filter(i=>val==='all'||i.employee===val);
+  if(!list.length){if(tbody)tbody.innerHTML='';if(emptyEl)emptyEl.style.display='block';return;}
+  if(emptyEl)emptyEl.style.display='none';
+  if(tbody)tbody.innerHTML=list.map(i=>`<tr><td>${i.employee}</td><td>${i.date}</td><td style="font-size:12px;color:#888">${i.detail}${wwDealLink(i.dealId)}</td><td><span class="pill pill-orange">${i.type}</span></td><td><strong style="color:#c4581f">${fmtMoney(i.amount)}</strong></td><td><button class="action-btn btn-approve" onclick="showApprovalConfirm('${i.sheet}',${i.rowIdx},'${i.employee.replace(/'/g,"\\'")}','${i.type.replace(/'/g,"\\'")}',${i.amount})">Approve</button></td></tr>`).join('');
+}
+
+// ---------- Approval modal ----------
+function showApprovalConfirm(sheet,rowIndex,employeeName,bonusType,amount){
+  const today=new Date();
+  const nextPay=getNextPayDateFromApproval(today);
+  const approvalDateStr=today.toLocaleDateString('en-US');
+  const payDateStr=fmtPayDate(nextPay);
+  const existing=document.getElementById('approval-modal');if(existing)existing.remove();
+  const modal=document.createElement('div');
+  modal.id='approval-modal';
+  modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML=`
+    <div style="background:#fff;border-radius:8px;padding:28px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18)">
+      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#1a1a1a;margin-bottom:16px">Confirm Approval</div>
+      <div style="font-size:14px;color:#555;margin-bottom:16px"><strong>${employeeName}</strong> - ${bonusType}<br><strong style="color:#c4581f;font-size:16px">${fmtMoney(amount)}</strong></div>
+      <div style="background:#f5f0eb;border-radius:6px;padding:14px;margin-bottom:20px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#888">Approval date</span><span style="font-weight:600">${approvalDateStr}</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:#888">Pay date</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-weight:600;color:#c4581f" id="modal-pay-date-display">${payDateStr}</span>
+            <input type="date" id="modal-pay-date-input" value="${nextPay.toISOString().split('T')[0]}" style="font-size:12px;border:1px solid #ddd;border-radius:4px;padding:2px 6px;display:none" onchange="document.getElementById('modal-pay-date-display').textContent=new Date(this.value+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})">
+            <button onclick="togglePayDateInput()" style="font-size:11px;color:#c4581f;background:none;border:none;cursor:pointer;text-decoration:underline">change</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onclick="confirmApproval('${sheet}',${rowIndex},'${approvalDateStr}',${Number(amount)||0})" style="flex:1;background:#1a1a1a;color:#fff;border:none;border-radius:6px;padding:10px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer">Confirm</button>
+        <button onclick="document.getElementById('approval-modal').remove()" style="flex:1;background:#f0ece6;color:#1a1a1a;border:none;border-radius:6px;padding:10px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer">Cancel</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+function togglePayDateInput(){const input=document.getElementById('modal-pay-date-input');input.style.display=input.style.display==='none'?'inline-block':'none';}
+async function confirmApproval(sheet,rowIndex,approvalDateStr,amount){
+  const modal=document.getElementById('approval-modal');
+  const payDateDisplay=document.getElementById('modal-pay-date-display');
+  const payDateStr=payDateDisplay?payDateDisplay.textContent:'';
+  modal.querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{
+    const d=await api({action:'read',tab:sheet});
+    if(!d.success)throw new Error('Read failed');
+    const c=cols(d.data[0]);
+    const row=[...d.data[rowIndex-1]];
+    const approvedByIdx=c('Approved By')>=0?c('Approved By'):c('Approved by');
+    if(approvedByIdx>=0)row[approvedByIdx]=APPROVER;
+    const approvedDateIdx=c('Approved Date')>=0?c('Approved Date'):c('Date Approved');
+    if(approvedDateIdx>=0)row[approvedDateIdx]=approvalDateStr;
+    const payDateIdx=c('Pay Date');
+    if(payDateIdx>=0)row[payDateIdx]=payDateStr;
+    // Backfill the Amount cell if the sheet left it blank, so payroll has the figure
+    const amtIdx=c('Amount');
+    if(amtIdx>=0&&amount&&!(Number(row[amtIdx])>0))row[amtIdx]=amount;
+    const statusIdx=c('Status');
+    if(statusIdx>=0&&sheet==='Bonuses')row[statusIdx]='Approved';
+    await api({action:'update',tab:sheet,rowIndex:rowIndex,row:JSON.stringify(row)});
+    modal.remove();
+    loadTeamCommission();
+    loadIncentivePay();
+  }catch(e){console.error('confirmApproval error:',e);modal.querySelectorAll('button').forEach(b=>b.disabled=false);alert('Error saving approval. Please try again.');}
+}
+
+// ---------- PTO admin ----------
+async function loadAdminPTO(){
+  try{
+    const d=await api({action:'read',tab:'PTO_Requests'});
+    document.getElementById('pending-loading').style.display='none';
+    document.getElementById('all-requests-loading').style.display='none';
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const today=new Date().toISOString().split('T')[0];
+    let rows=d.data.slice(1).filter(r=>r.some(x=>x));
+    const pending=rows.filter(r=>(r[c('Status')]||'Pending')==='Pending'||!r[c('Status')]);
+    document.getElementById('pending-count').textContent=pending.length+' pending';
+    const pendingBody=document.getElementById('pending-body');
+    if(pending.length){
+      document.getElementById('pending-table').style.display='table';
+      document.getElementById('pending-empty').style.display='none';
+      pendingBody.innerHTML=pending.map(r=>{
+        const idx=d.data.indexOf(r)+1;
+        return `<tr><td><strong>${r[c('Employee')]||''}</strong></td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${r[c('Reason')]||r[c('Notes')]||''}</td><td><button class="action-btn btn-approve" onclick="reviewPTO(${idx},'Approved')">Approve</button> <button class="action-btn btn-deny" onclick="reviewPTO(${idx},'Denied')">Deny</button></td></tr>`;
+      }).join('');
+    }else{document.getElementById('pending-table').style.display='none';document.getElementById('pending-empty').style.display='block';if(pendingBody)pendingBody.innerHTML='';}
+    const active=rows.filter(r=>{
+      const status=(r[c('Status')]||'Pending').trim();
+      const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
+      if(status==='Pending')return true;
+      return endDate>=today;
+    });
+    const archivable=rows.filter(r=>{
+      const status=(r[c('Status')]||'').trim();
+      const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
+      return status==='Denied'&&endDate<today;
+    });
+    const allTable=document.getElementById('all-requests-table');
+    const allEmpty=document.getElementById('all-requests-empty');
+    if(active.length){
+      allTable.style.display='table';allEmpty.style.display='none';
+      document.getElementById('all-requests-body').innerHTML=active.slice().reverse().map(r=>`<tr><td>${r[c('Employee')]||''}</td><td>${fmtDate(r[c('Submitted')])}</td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${statusPill(r[c('Status')])}</td><td>${r[c('Reviewed By')]||''}</td></tr>`).join('');
+    }else{allTable.style.display='none';allEmpty.style.display='block';}
+    const archiveSection=document.getElementById('archive-section');
+    if(archiveSection){
+      if(archivable.length){
+        archiveSection.style.display='block';
+        document.getElementById('archive-body').innerHTML=archivable.map(r=>{
+          const idx=d.data.indexOf(r)+1;
+          return `<tr><td>${r[c('Employee')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${fmtDate(r[c('Submitted')])}</td><td><button class="action-btn btn-edit" onclick="archiveRequest(${idx})">Archive</button></td></tr>`;
+        }).join('');
+      }else archiveSection.style.display='none';
+    }
+  }catch(e){console.error(e);}
+}
+
+async function archiveRequest(rowIndex){
+  try{
+    const d=await api({action:'read',tab:'PTO_Requests'});
+    if(!d.success)return;
+    const row=[...d.data[rowIndex-1]];
+    await api({action:'append',tab:'PTO_Archive',row:JSON.stringify(row)});
+    await api({action:'delete',tab:'PTO_Requests',rowIndex:rowIndex});
+    loadAdminPTO();loadAllBalances();
+  }catch(e){alert('Error archiving request');}
+}
+
+async function reviewPTO(rowIndex,status){
+  try{
+    const d=await api({action:'read',tab:'PTO_Requests'});
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const row=[...d.data[rowIndex-1]];
+    row[c('Status')]=status;
+    row[c('Reviewed By')]=APPROVER;
+    await api({action:'update',tab:'PTO_Requests',rowIndex:rowIndex,row:JSON.stringify(row)});
+    loadAdminPTO();
+    if(typeof loadAllBalances==='function')loadAllBalances();
+    if(typeof computeOwnerAlerts==='function')computeOwnerAlerts();
+  }catch(e){alert('Error updating request');}
+}
+
+function adminCalcDays(){
+  const start=document.getElementById('admin-pto-start').value;
+  const end=document.getElementById('admin-pto-end').value||start;
+  if(!start)return;
+  let count=0;let cur=new Date(start+'T12:00:00');const endD=new Date((end||start)+'T12:00:00');
+  while(cur<=endD){const dd=cur.getDay();if(dd!==0&&dd!==6)count++;cur.setDate(cur.getDate()+1);}
+  const el=document.getElementById('admin-pto-days');if(el)el.value=count;
+}
+
+async function adminCreatePTO(){
+  const emp=document.getElementById('admin-pto-emp').value;
+  const type=document.getElementById('admin-pto-type').value;
+  const start=document.getElementById('admin-pto-start').value;
+  const end=document.getElementById('admin-pto-end').value||start;
+  const days=document.getElementById('admin-pto-days').value;
+  const notes=document.getElementById('admin-pto-notes').value;
+  const alertEl=document.getElementById('admin-pto-alert');
+  if(!emp||!start||!days){alertEl.innerHTML='<div class="alert alert-error">Employee, start date, and days are required.</div>';return;}
+  const btn=document.getElementById('admin-pto-btn');btn.disabled=true;btn.textContent='Saving...';
+  try{
+    const row=[`PTO-${Date.now()}`,emp,type,start,end,Number(days),notes,'Approved',new Date().toLocaleDateString('en-US'),APPROVER];
+    await api({action:'append',tab:'PTO_Requests',row:JSON.stringify(row)});
+    alertEl.innerHTML=`<div class="alert alert-success">Logged and approved for ${emp}.</div>`;
+    ['admin-pto-start','admin-pto-end','admin-pto-days','admin-pto-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    loadAdminPTO();loadAllBalances();
+  }catch(e){alertEl.innerHTML='<div class="alert alert-error">Error saving. Please try again.</div>';}
+  btn.disabled=false;btn.textContent='Log and Approve';
+}
+
+async function loadAllBalances(){
+  try{
+    const d=await api({action:'read',tab:'PTO_Balances'});
+    document.getElementById('balances-loading').style.display='none';
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim());
+    if(!rows.length)return;
+    document.getElementById('balances-table').style.display='table';
+    document.getElementById('balances-body').innerHTML=rows.map(r=>{
+      const vu=Number(r[c('Vacation Used')])||0,su=Number(r[c('Sick Used')])||0;
+      const vb=c('Vacation Balance')>=0?Number(r[c('Vacation Balance')])||0:Math.max(0,10-vu);
+      const sb=c('Sick Balance')>=0?Number(r[c('Sick Balance')])||0:Math.max(0,5-su);
+      return `<tr><td><strong>${r[c('Employee')]}</strong></td><td>${vu}</td><td>${vb}</td><td>${su}</td><td>${sb}</td></tr>`;
+    }).join('');
+  }catch(e){console.error(e);}
+}
+
+async function loadExpiryAlerts(){
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    document.getElementById('expiry-loading').style.display='none';
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const docsIdx=c('Documents')>=0?c('Documents'):8;
+    const rows=d.data.slice(1).filter(r=>r[c('Employee')]);
+    const withExpiry=rows.map(r=>{
+      let expiry='';
+      if(r[docsIdx]){try{const doc=JSON.parse(r[docsIdx]);expiry=doc['Government ID - Expiry']||'';}catch(e){}}
+      return {name:r[c('Employee')],expiry};
+    }).filter(r=>r.expiry);
+    if(!withExpiry.length){document.getElementById('expiry-empty').style.display='block';return;}
+    document.getElementById('expiry-table').style.display='table';
+    document.getElementById('expiry-body').innerHTML=withExpiry.sort((a,b)=>new Date(a.expiry)-new Date(b.expiry)).map(r=>`<tr><td><strong>${r.name}</strong></td><td>${fmtDate(r.expiry)}</td><td><span class="${expiryClass(r.expiry)}">${expiryLabel(r.expiry)}</span></td></tr>`).join('');
+  }catch(e){console.error(e);}
+}
+
+// ---------- Employee Records admin (editable) ----------
+function addDays(dateStr,n){if(!dateStr)return '';const d=new Date(dateStr+'T12:00:00');if(isNaN(d))return '';d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];}
+function toInputDate(d){if(!d)return '';try{const x=new Date(d);if(isNaN(x))return '';return x.toISOString().split('T')[0];}catch(e){return '';}}
+
+async function loadRecordsAdmin(){
+  const loadEl=document.getElementById('records-admin-loading');
+  const listEl=document.getElementById('records-admin-list');
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success||!listEl)return;
+    const c=cols(d.data[0]);
+    const hasPin=c('PIN')>=0;
+    const rows=d.data.slice(1).map((r,i)=>({r,rowIndex:i+2})).filter(o=>(o.r[c('Employee')]||'').trim());
+    if(!rows.length){listEl.innerHTML='<div class="empty-state">No employee records found.</div>';return;}
+    listEl.innerHTML=rows.map(o=>{
+      const r=o.r;const name=(r[c('Employee')]||'').trim();
+      const status=(r[c('Status')]||'').trim();
+      const safe='rec-'+name.replace(/[^a-z0-9]/gi,'');
+      const hire=toInputDate(r[c('Hire Date')]);
+      const ninety=r[c('Review Due 90Day')]?fmtDate(r[c('Review Due 90Day')]):(hire?fmtDate(addDays(hire,90)):'--');
+      const pinField=hasPin?`<div class="form-group" style="max-width:120px"><label class="form-label">PIN</label><input type="text" class="form-input" id="${safe}-pin" value="${r[c('PIN')]||''}"></div>`:'';
+      return `<div class="card" style="background:#faf8f5;margin-bottom:14px">
+        <div class="card-title" style="font-size:15px">${name}${status==='Inactive'?' <span style="font-size:10px;background:#e9e4dc;color:#888;padding:2px 9px;border-radius:99px;letter-spacing:0.08em;text-transform:uppercase;margin-left:8px;vertical-align:middle">Inactive</span>':''}</div>
+        <div id="${safe}-alert"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Role</label><input type="text" class="form-input" id="${safe}-role" value="${r[c('Role')]||''}"></div>
+          <div class="form-group"><label class="form-label">Hire Date</label><input type="date" class="form-input" id="${safe}-hire" value="${hire}"></div>
+          <div class="form-group"><label class="form-label">Status</label><select class="form-input" id="${safe}-status"><option ${(r[c('Status')]||'')==='Active'?'selected':''}>Active</option><option ${(r[c('Status')]||'')==='Inactive'?'selected':''}>Inactive</option></select></div>
+          ${pinField}
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Last Review</label><input type="date" class="form-input" id="${safe}-last" value="${toInputDate(r[c('Last Review')])}"></div>
+          <div class="form-group"><label class="form-label">Next Review</label><input type="date" class="form-input" id="${safe}-next" value="${toInputDate(r[c('Next Review')])}"></div>
+          <div class="form-group"><label class="form-label">90-Day Review</label><input type="text" class="form-input" value="${ninety}" readonly style="background:#f0ede8;color:#888"></div>
+        </div>
+        <button class="action-btn btn-approve" onclick="saveRecord('${name.replace(/'/g,"\\'")}',${o.rowIndex},'${safe}')">Save</button>
+        ${status!=='Inactive'?`<button class="action-btn" style="background:#fff;color:#c4581f;border:1px solid #c4581f;margin-left:8px" onclick="terminateEmployee('${name.replace(/'/g,"\\'")}',${o.rowIndex})">Terminate</button>`:`<button class="action-btn" style="background:#fff;color:#28a745;border:1px solid #28a745;margin-left:8px" onclick="reactivateEmployee('${name.replace(/'/g,"\\'")}',${o.rowIndex})">Reactivate</button>`}
+      </div>`;
+    }).join('');
+  }catch(e){if(loadEl)loadEl.style.display='none';console.error(e);}
+}
+
+async function saveRecord(name,rowIndex,safe){
+  const alertEl=document.getElementById(safe+'-alert');
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success)throw new Error('read');
+    const c=cols(d.data[0]);
+    const row=[...d.data[rowIndex-1]];
+    const setIf=(col,val)=>{const i=c(col);if(i>=0)row[i]=val;};
+    const g=id=>{const el=document.getElementById(safe+'-'+id);return el?el.value:'';};
+    setIf('Role',g('role'));
+    const hire=g('hire');
+    setIf('Hire Date',hire);
+    setIf('Status',g('status'));
+    setIf('Last Review',g('last'));
+    setIf('Next Review',g('next'));
+    if(c('PIN')>=0)setIf('PIN',g('pin'));
+    if(c('Review Due 90Day')>=0&&hire)row[c('Review Due 90Day')]=addDays(hire,90);
+    await api({action:'update',tab:'Employee_Records',rowIndex:rowIndex,row:JSON.stringify(row)});
+    if(alertEl)alertEl.innerHTML='<div class="alert alert-success">Saved.</div>';
+    loadExpiryAlerts();
+  }catch(e){if(alertEl)alertEl.innerHTML='<div class="alert alert-error">Error saving.</div>';}
+}
+
+async function addEmployee(){
+  const a=document.getElementById('add-emp-alert');
+  const g=id=>{const el=document.getElementById(id);return el?el.value.trim():'';};
+  const name=g('add-emp-name'), role=g('add-emp-role'), hire=g('add-emp-hire'), email=g('add-emp-email');
+  if(!name||!hire){ if(a)a.innerHTML='<div class="alert alert-error">Name and hire date are required.</div>'; return; }
+  const btn=document.getElementById('add-emp-btn'); if(btn){btn.disabled=true;btn.textContent='Adding...';}
+  try{
+    const er=await api({action:'read',tab:'Employee_Records'});
+    if(!er.success)throw new Error('read');
+    const c=cols(er.data[0]);
+    if(er.data.slice(1).some(r=>(r[c('Employee')]||'').trim().toLowerCase()===name.toLowerCase())){
+      if(a)a.innerHTML='<div class="alert alert-error">An employee named '+name+' already exists.</div>';
+      if(btn){btn.disabled=false;btn.textContent='Add Employee';} return;
+    }
+    const erRow=new Array(er.data[0].length).fill('');
+    const set=(col,v)=>{const i=c(col);if(i>=0)erRow[i]=v;};
+    set('Employee',name); set('Role',role); set('Hire Date',hire); set('Email',email);
+    set('Review Due 90Day',addDays(hire,90)); set('Review Due Annual',addDays(hire,365)); set('Status','Active');
+    await api({action:'append',tab:'Employee_Records',row:JSON.stringify(erRow)});
+    try{
+      const pb=await api({action:'read',tab:'PTO_Balances'});
+      if(pb.success){
+        const pc=cols(pb.data[0]);
+        if(!pb.data.slice(1).some(r=>(r[pc('Employee')]||'').trim().toLowerCase()===name.toLowerCase())){
+          const pbRow=new Array(pb.data[0].length).fill('');
+          const setp=(col,v)=>{const i=pc(col);if(i>=0)pbRow[i]=v;};
+          setp('Employee',name); setp('Vacation Used',0); setp('Sick Used',0); setp('Hire Date',hire); setp('Vacation Balance',10); setp('Sick Balance',5);
+          await api({action:'append',tab:'PTO_Balances',row:JSON.stringify(pbRow)});
+        }
+      }
+    }catch(e){}
+    const first=name.split(/\s+/)[0].toLowerCase().replace(/[^a-z0-9]/g,'');
+    if(a)a.innerHTML='<div class="alert alert-success"><strong>'+name+'</strong> added as Active. PTO balance started (10 vacation, 5 sick) and the 90-day review is set for '+fmtDate(addDays(hire,90))+'.<br><br><strong>One manual step:</strong> the dashboard cannot create their portal page in GitHub. Copy an existing employee file (for example wally.html) to <strong>'+first+'.html</strong>, update the displayed name and the EMPLOYEE constant inside it, then commit it to the repo.</div>';
+    ['add-emp-name','add-emp-role','add-emp-hire','add-emp-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    loadRecordsAdmin(); if(typeof loadEquipAdminEmployees==='function')loadEquipAdminEmployees();
+  }catch(e){ if(a)a.innerHTML='<div class="alert alert-error">Error adding employee. Please try again.</div>'; }
+  if(btn){btn.disabled=false;btn.textContent='Add Employee';}
+}
+
+async function setEmployeeStatus(rowIndex,newStatus){
+  const d=await api({action:'read',tab:'Employee_Records'});
+  if(!d.success)throw new Error('read');
+  const c=cols(d.data[0]);
+  const row=[...d.data[rowIndex-1]];
+  if(c('Status')>=0)row[c('Status')]=newStatus;
+  await api({action:'update',tab:'Employee_Records',rowIndex:rowIndex,row:JSON.stringify(row)});
+}
+
+async function terminateEmployee(name,rowIndex){
+  if(!confirm('Mark '+name+' as Inactive? Their records are kept, not deleted, and you can reactivate later.'))return;
+  try{
+    await setEmployeeStatus(rowIndex,'Inactive');
+    let msg='';
+    try{
+      const e=await api({action:'read',tab:'Equipment'});
+      if(e.success&&e.data.length){
+        const ec=cols(e.data[0]);
+        const ti=ec('Item Type')>=0?ec('Item Type'):ec('Type');
+        const open=e.data.slice(1).filter(r=>(r[ec('Employee')]||'').trim()===name && !(r[ec('Date Returned')]||'').toString().trim());
+        if(open.length){ msg='\n\nStill assigned and needs collecting: '+open.map(r=>(ti>=0?r[ti]:'')||'item').join(', ')+'.\nUse the Equipment section below to mark each item returned.'; }
+      }
+    }catch(_){}
+    alert(name+' is now Inactive.'+msg);
+    loadRecordsAdmin();
+  }catch(e){ alert('Error updating status. Please try again.'); }
+}
+
+async function reactivateEmployee(name,rowIndex){
+  if(!confirm('Reactivate '+name+'?'))return;
+  try{ await setEmployeeStatus(rowIndex,'Active'); loadRecordsAdmin(); }
+  catch(e){ alert('Error updating status. Please try again.'); }
+}
+
+// ---------- Team Dashboard ----------
+async function loadTeamDashboard(){ loadConsistentStatus(); }
+
+async function loadConsistentStatus(){
+  const el=document.getElementById('consistent-status');
+  if(!el)return;
+  try{
+    const q=getCurrentQuarter();const year=new Date().getFullYear();
+    const d=await api({action:'read',tab:'Bonuses'});
+    let current='Not set';
+    if(d.success){
+      const c=cols(d.data[0]);
+      const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()==='Able Admin'&&(r[c('Type')]||'').trim()==='Consistent Performance'&&String(r[c('Quarter')]||'').trim()===String(q)&&(!r[c('Year')]||String(r[c('Year')]).trim()===String(year)));
+      if(row)current=(row[c('Status')]||'Not set').trim();
+    }
+    const pill=current==='Pass'?'<span class="pill pill-approved">Pass</span>':current==='Fail'?'<span class="pill pill-denied">Fail</span>':'<span class="pill pill-gray">Not set</span>';
+    el.innerHTML=`Q${q} ${year} current status: ${pill}`;
+  }catch(e){el.innerHTML='<span style="color:#aaa">Could not load status.</span>';}
+}
+
+async function setConsistent(result){
+  const alertEl=document.getElementById('consistent-alert');
+  try{
+    const q=getCurrentQuarter();const year=new Date().getFullYear();
+    const d=await api({action:'read',tab:'Bonuses'});
+    if(!d.success)throw new Error('read');
+    const c=cols(d.data[0]);
+    const headerLen=d.data[0].length;
+    const idx=d.data.slice(1).findIndex(r=>(r[c('Employee')]||'').trim()==='Able Admin'&&(r[c('Type')]||'').trim()==='Consistent Performance'&&String(r[c('Quarter')]||'').trim()===String(q)&&(!r[c('Year')]||String(r[c('Year')]).trim()===String(year)));
+    const buildRow=base=>{
+      const row=base?[...base]:new Array(headerLen).fill('');
+      const set=(col,val)=>{const i=c(col);if(i>=0)row[i]=val;};
+      set('Employee','Able Admin');set('Type','Consistent Performance');set('Description',`Q${q} ${year} consistent performance`);set('Amount',1500);set('Quarter',q);set('Status',result);set('Year',year);set('Approved By',APPROVER);set('Date Approved',new Date().toLocaleDateString('en-US'));
+      return row;
+    };
+    if(idx>=0){await api({action:'update',tab:'Bonuses',rowIndex:idx+2,row:JSON.stringify(buildRow(d.data[idx+1]))});}
+    else{await api({action:'append',tab:'Bonuses',row:JSON.stringify(buildRow(null))});}
+    alertEl.innerHTML=`<div class="alert alert-success">Consistent Performance set to ${result} for Q${q}.</div>`;
+    loadConsistentStatus();
+  }catch(e){alertEl.innerHTML='<div class="alert alert-error">Error saving. Please try again.</div>';}
+}
+
+// ===================================================================
+//  MY DASHBOARD (personal)
+// ===================================================================
+async function submitPTO(employee,approver){
+  const type=document.getElementById('pto-type').value;
+  const start=document.getElementById('pto-start').value;
+  const end=document.getElementById('pto-end').value||start;
+  const days=document.getElementById('pto-days').value;
+  const notes=document.getElementById('pto-notes').value;
+  const alertEl=document.getElementById('pto-form-alert');
+  if(!start||!days){alertEl.innerHTML='<div class="alert alert-error">Start date and number of days are required.</div>';return;}
+  const btn=document.getElementById('pto-submit-btn');btn.disabled=true;btn.textContent='Submitting...';
+  try{
+    const row=[`PTO-${Date.now()}`,employee,type,start,end,Number(days),notes,'Pending',new Date().toLocaleDateString('en-US'),''];
+    await api({action:'append',tab:'PTO_Requests',row:JSON.stringify(row)});
+    alertEl.innerHTML=`<div class="alert alert-success">Request submitted. You'll be notified once it's reviewed.</div>`;
+    ['pto-start','pto-end','pto-days','pto-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    if(typeof loadMyRequests==='function')loadMyRequests(employee);
+  }catch(e){alertEl.innerHTML='<div class="alert alert-error">Error submitting. Please try again.</div>';}
+  btn.disabled=false;btn.textContent='Submit Request';
+}
+
+function calcWorkingDays(){
+  const start=document.getElementById('pto-start').value;
+  const end=document.getElementById('pto-end').value||start;
+  if(!start)return;
+  let count=0;let cur=new Date(start+'T12:00:00');const endD=new Date((end||start)+'T12:00:00');
+  while(cur<=endD){const dd=cur.getDay();if(dd!==0&&dd!==6)count++;cur.setDate(cur.getDate()+1);}
+  const daysEl=document.getElementById('pto-days');if(daysEl)daysEl.value=count;
+}
+
+async function loadPTOBalances(employee){
+  try{
+    const d=await api({action:'read',tab:'PTO_Balances'});
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
+    if(!row)return;
+    const vacUsed=Number(row[c('Vacation Used')])||0;
+    const sickUsed=Number(row[c('Sick Used')])||0;
+    const vacBal=c('Vacation Balance')>=0?Number(row[c('Vacation Balance')])||0:Math.max(0,10-vacUsed);
+    const sickBal=c('Sick Balance')>=0?Number(row[c('Sick Balance')])||0:Math.max(0,5-sickUsed);
+    const vacTotal=vacUsed+vacBal,sickTotal=sickUsed+sickBal;
+    const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+    const sw=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=v;};
+    s('vac-remaining',vacBal);s('vac-used',`of ${vacTotal} used: ${vacUsed}`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsed/vacTotal)*100)+'%':'0%');
+    s('sick-remaining',sickBal);s('sick-used',`of ${sickTotal} used: ${sickUsed}`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsed/sickTotal)*100)+'%':'0%');
+  }catch(e){console.error(e);}
+}
+
+async function loadMyRequests(employee){
+  const loadEl=document.getElementById('my-requests-loading');
+  const tableEl=document.getElementById('my-requests-table');
+  const emptyEl=document.getElementById('my-requests-empty');
+  try{
+    const d=await api({action:'read',tab:'PTO_Requests'});
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
+    const c=cols(d.data[0]);
+    const today=new Date().toISOString().split('T')[0];
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
+    if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
+    if(tableEl)tableEl.style.display='table';
+    let __vacUp=0,__sickUp=0;
+    rows.forEach(r=>{const st=(r[c('Status')]||'').trim();const ed=(r[c('End Date')]||r[c('Start Date')]||'').toString().trim();if(st==='Approved'&&ed>=today){const dy=Number(r[c('Days')])||0;const tp=(r[c('Type')]||'').toLowerCase();if(tp.indexOf('sick')>=0)__sickUp+=dy;else __vacUp+=dy;}});
+    {const su=(id,v,n)=>{const el=document.getElementById(id);if(el){el.textContent=v;el.style.color=n>0?'#c4581f':'';}};su('vac-upcoming',__vacUp+' approved upcoming',__vacUp);su('sick-upcoming',__sickUp+' approved upcoming',__sickUp);}
+    const tbody=document.getElementById('my-requests-body');
+    if(tbody)tbody.innerHTML=rows.slice().reverse().map(r=>{
+      const status=(r[c('Status')]||'Pending').trim();
+      const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
+      let pill;
+      if(status==='Approved'&&endDate>=today)pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';
+      else if(status==='Approved')pill='<span class="pill pill-approved">Approved</span>';
+      else if(status==='Denied')pill='<span class="pill pill-denied">Denied</span>';
+      else pill='<span class="pill pill-pending">Pending</span>';
+      return `<tr><td>${fmtDate(r[c('Submitted')])}</td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${pill}</td><td>${r[c('Reason')]||r[c('Notes')]||''}</td></tr>`;
+    }).join('');
+  }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
+}
+
+async function loadRecord(employee){
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    const loadEl=document.getElementById('record-loading');
+    const contentEl=document.getElementById('record-content');
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success){if(contentEl)contentEl.style.display='block';return;}
+    const c=cols(d.data[0]);
+    const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
+    if(contentEl)contentEl.style.display='block';
+    const tbody=document.getElementById('record-body');
+    if(!row){if(tbody)tbody.innerHTML='<tr><td colspan="2" class="empty-state">No record on file yet.</td></tr>';return;}
+    const hire=row[c('Hire Date')];
+    const fields=[
+      ['Role',row[c('Role')]],
+      ['Hire Date',fmtDate(hire)],
+      ['90-Day Review',row[c('Review Due 90Day')]?fmtDate(row[c('Review Due 90Day')]):(hire?fmtDate(addDays(toInputDate(hire),90)):'')],
+      ['Last Review',fmtDate(row[c('Last Review')])],
+      ['Next Review',fmtDate(row[c('Next Review')])],
+      ['Status',row[c('Status')]]
+    ];
+    if(tbody)tbody.innerHTML=fields.map(([label,val])=>`<tr><td style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;width:160px">${label}</td><td>${val||'<span style="color:#ddd">-</span>'}</td></tr>`).join('');
+  }catch(e){console.error(e);}
+}
+
+async function loadDocs(employee,hasCommissionDoc){
+  const docs=[...ALL_DOCS_BASE];
+  if(hasCommissionDoc)docs.push('Commission / Incentive Outline');
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    const loadEl=document.getElementById('docs-loading');if(loadEl)loadEl.style.display='none';
+    const c=cols(d.data&&d.data[0]?d.data[0]:[]);
+    const docsIdx=c('Documents')>=0?c('Documents'):8;
+    let docData={};
+    if(d.success){
+      const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
+      if(row&&row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
+    }
+    const container=document.getElementById('docs-list');
+    if(!container)return;
+    const idExpiry=docData['Government ID - Expiry']||'';
+    container.innerHTML=docs.map(doc=>{
+      const url=docData[doc]||'';
+      const isID=doc==='Government ID';
+      const expirySection=isID?`<div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap"><span class="${expiryClass(idExpiry)}" id="expiry-label">${expiryLabel(idExpiry)}</span><input type="date" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" id="expiry-input" value="${idExpiry}" onchange="saveExpiry('${employee.replace(/'/g,"\\'")}')"></div>`:'';
+      const safeDoc=doc.replace(/[^a-zA-Z0-9]/g,'-');
+      return `<div class="doc-row"><div>${isID?`<div class="doc-name">${doc}</div>${expirySection}`:`<div class="doc-name">${doc}</div>`}</div><div class="doc-actions"><span id="docstatus-${safeDoc}">${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:missingPill()}</span><input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${employee.replace(/'/g,"\\'")}','${doc.replace(/'/g,"\\'")}',this.value)"><span id="docsaved-${safeDoc}" style="font-size:11px;color:#28a745;font-weight:600;opacity:0;transition:opacity .2s"></span></div></div>`;
+    }).join('');
+  }catch(e){console.error(e);}
+}
+
+async function saveDocLink(employee,doc,url){
+  const safeDoc=doc.replace(/[^a-zA-Z0-9]/g,'-');
+  const statusEl=document.getElementById('docstatus-'+safeDoc);
+  const savedEl=document.getElementById('docsaved-'+safeDoc);
+  url=(url||'').trim();
+  if(savedEl){savedEl.textContent='Saving...';savedEl.style.color='#aaa';savedEl.style.opacity='1';}
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success)throw new Error('read failed');
+    const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
+    const rowIdx=d.data.findIndex(r=>(r[c('Employee')]||'').trim()===employee);
+    if(rowIdx<0)throw new Error('no row');
+    const row=[...d.data[rowIdx]];
+    let docData={};if(row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
+    docData[doc]=url;row[docsIdx]=JSON.stringify(docData);
+    await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
+    if(statusEl)statusEl.innerHTML=url?(presentPill()+' <a class="doc-link" href="'+url+'" target="_blank">View</a>'):missingPill();
+    if(savedEl){savedEl.textContent='Saved';savedEl.style.color='#28a745';savedEl.style.opacity='1';setTimeout(function(){savedEl.style.opacity='0';},2000);}
+  }catch(e){
+    console.error(e);
+    if(savedEl){savedEl.textContent='Not saved, try again';savedEl.style.color='#c0392b';savedEl.style.opacity='1';}
+  }
+}
+
+async function saveExpiry(employee){
+  const val=document.getElementById('expiry-input').value;
+  const label=document.getElementById('expiry-label');
+  if(label){label.className=expiryClass(val);label.textContent=expiryLabel(val);}
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success)return;
+    const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
+    const rowIdx=d.data.findIndex(r=>(r[c('Employee')]||'').trim()===employee);if(rowIdx<0)return;
+    const row=[...d.data[rowIdx]];
+    let docData={};if(row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
+    docData['Government ID - Expiry']=val;row[docsIdx]=JSON.stringify(docData);
+    await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
+  }catch(e){console.error(e);}
+}
+
+async function loadEquipment(employee){
+  const loadEl=document.getElementById('equip-loading');
+  const listEl=document.getElementById('equip-list');
+  const emptyEl=document.getElementById('equip-empty');
+  try{
+    const d=await api({action:'read',tab:'Equipment'});
+    if(loadEl)loadEl.style.display='none';
+    if(!d.success){if(emptyEl)emptyEl.style.display='block';return;}
+    const c=cols(d.data[0]);
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
+    if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
+    if(listEl)listEl.innerHTML=rows.map(r=>`<div class="bonus-row"><div class="bonus-name">${r[c('Make Model')]||r[c('Make / Model')]||''}<div class="bonus-criteria">${r[c('Item Type')]||r[c('Type')]||''} ${r[c('Serial Number')]?'&bull; S/N: '+r[c('Serial Number')]:''}</div></div><div style="font-size:12px;color:#aaa;text-align:right">Issued ${fmtDate(r[c('Date Issued')])||''}${r[c('Date Returned')]?' &bull; Returned '+fmtDate(r[c('Date Returned')]):''}</div></div>`).join('');
+  }catch(e){if(loadEl)loadEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
+}
+
+// ---------- Populate admin selects ----------
+function populateAdminSelects(){
+  const sel=document.getElementById('admin-pto-emp');
+  if(sel)sel.innerHTML=ROSTER.map(e=>`<option>${e}</option>`).join('');
+}
+
+// ---------- Stash commission header indices for prev-comm ----------
+async function cacheCommissionHeaders(){
+  try{
+    const d=await api({action:'read',tab:'Commissions'});
+    if(d.success){
+      const c=cols(d.data[0]);
+      window.__commHeaders=d.data[0];
+      window.__cPayPeriod=c('Pay Period');window.__cCommission=c('Commission');window.__cDate=c('Date');window.__cEmployee=c('Employee');window.__cDeal=c('Deal Name');window.__cDealId=c('Deal ID');window.__cApprovedBy=c('Approved By')>=0?c('Approved By'):c('Approved by');
+    }
+  }catch(e){}
+}
+
+// ---------- Equipment manager (admin) ----------
+const EQUIP_TYPES=['Computer','Computer case / backpack','iPad','Store keys','Company vehicle','Phone','V1CE card','Other'];
+async function loadEquipAdminEmployees(){
+  const sel=document.getElementById('equip-admin-emp');
+  const ts=document.getElementById('equip-admin-type');
+  if(ts)ts.innerHTML=EQUIP_TYPES.map(t=>`<option value="${t}">${t}</option>`).join('');
+  if(!sel)return;
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const emps=[...new Set(d.data.slice(1).map(r=>(r[c('Employee')]||'').trim()).filter(Boolean))].sort();
+    sel.innerHTML=emps.map(e=>`<option value="${e}">${e}</option>`).join('');
+    if(emps.length)loadEquipAdmin(emps[0]);
+  }catch(e){}
+}
+async function loadEquipAdmin(emp){
+  const wrap=document.getElementById('equip-admin-list');
+  if(!wrap)return;
+  wrap.innerHTML='<div class="loading">Loading...</div>';
+  try{
+    const d=await api({action:'read',tab:'Equipment'});
+    if(!d.success){wrap.innerHTML='<div class="empty-state">Could not load equipment.</div>';return;}
+    const c=cols(d.data[0]);
+    const typeI=c('Item Type')>=0?c('Item Type'):c('Type');
+    const mmI=c('Make Model')>=0?c('Make Model'):c('Make / Model');
+    const rows=d.data.map((r,i)=>({r,idx:i+1})).slice(1).filter(o=>(o.r[c('Employee')]||'').trim()===emp&&o.r.some(x=>x));
+    if(!rows.length){wrap.innerHTML='<div class="empty-state">No equipment assigned.</div>';return;}
+    wrap.innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>Item</th><th>Description</th><th>Serial</th><th>Issued</th><th>Status</th><th></th></tr></thead><tbody>${rows.map(o=>{
+      const r=o.r;const returned=c('Date Returned')>=0?r[c('Date Returned')]:'';
+      return `<tr><td>${(typeI>=0?r[typeI]:'')||''}</td><td>${(mmI>=0?r[mmI]:'')||''}</td><td>${r[c('Serial Number')]||''}</td><td>${fmtDate(r[c('Date Issued')])||''}</td><td>${returned?'<span class="pill pill-gray">Returned '+fmtDate(returned)+'</span>':'<span class="pill pill-approved">Assigned</span>'}</td><td>${returned?'':`<button class="action-btn btn-approve" onclick="collectEquip(${o.idx})">Collect</button>`}</td></tr>`;
+    }).join('')}</tbody></table></div>`;
+  }catch(e){wrap.innerHTML='<div class="empty-state">Could not load equipment.</div>';}
+}
+async function assignEquip(){
+  const emp=document.getElementById('equip-admin-emp').value;
+  const type=document.getElementById('equip-admin-type').value;
+  const desc=document.getElementById('equip-admin-desc').value.trim();
+  const serial=document.getElementById('equip-admin-serial').value.trim();
+  const issued=document.getElementById('equip-admin-issued').value;
+  const notes=document.getElementById('equip-admin-notes').value.trim();
+  const alertEl=document.getElementById('equip-admin-alert');
+  if(!emp||!type||!issued){if(alertEl)alertEl.innerHTML='<div class="alert alert-error">Employee, item, and date issued are required.</div>';return;}
+  const btn=document.getElementById('equip-admin-btn');btn.disabled=true;btn.textContent='Saving...';
+  try{
+    const d=await api({action:'read',tab:'Equipment'});
+    const headers=d.data[0];const c=cols(headers);
+    const row=new Array(headers.length).fill('');
+    const set=(name,alt,val)=>{let i=c(name);if(i<0&&alt)i=c(alt);if(i>=0)row[i]=val;};
+    set('Employee',null,emp);
+    set('Item Type','Type',type);
+    set('Make Model','Make / Model',desc);
+    set('Serial Number',null,serial);
+    set('Date Issued',null,issued);
+    set('Notes',null,notes);
+    await api({action:'append',tab:'Equipment',row:JSON.stringify(row)});
+    if(alertEl)alertEl.innerHTML='<div class="alert alert-success">Equipment assigned.</div>';
+    document.getElementById('equip-admin-desc').value='';
+    document.getElementById('equip-admin-serial').value='';
+    document.getElementById('equip-admin-issued').value='';
+    document.getElementById('equip-admin-notes').value='';
+    loadEquipAdmin(emp);
+  }catch(e){if(alertEl)alertEl.innerHTML='<div class="alert alert-error">Error saving. Please try again.</div>';}
+  btn.disabled=false;btn.textContent='Assign Equipment';
+}
+async function collectEquip(rowIndex){
+  if(!confirm('Mark this item as collected and returned today?'))return;
+  try{
+    const d=await api({action:'read',tab:'Equipment'});
+    const headers=d.data[0];const c=cols(headers);
+    const row=[...d.data[rowIndex-1]];
+    const ri=c('Date Returned');
+    if(ri>=0)row[ri]=new Date().toLocaleDateString('en-US');
+    await api({action:'update',tab:'Equipment',rowIndex:rowIndex,row:JSON.stringify(row)});
+    loadEquipAdmin(document.getElementById('equip-admin-emp').value);
+  }catch(e){alert('Error updating. Please try again.');}
+}
+
+function ywd_(s){s=String(s||'').trim();if(!s)return null;var p=s.split('T')[0].split('-');var d;if(p.length===3){d=new Date(+p[0],(+p[1])-1,+p[2]);}else{d=new Date(s);}return isNaN(d)?null:d;}
+function daysUntil_(s){var d=ywd_(s);if(!d)return null;d.setHours(0,0,0,0);var t=new Date();t.setHours(0,0,0,0);return Math.round((d-t)/86400000);}
+function setBadge_(id,n){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>99?'99+':n;el.classList.add('show');}else{el.classList.remove('show');}}
+function updateTotalBadge(){if(typeof setBadge_!=='function')return;var t=(window._alertPTO||0)+(window._alertRecords||0)+(window._alertIncentive||0)+(window._alertCommission||0);setBadge_('badge-total',t);}
+async function computeOwnerAlerts(){
+  try{
+    var pto=0,ids=0,revs=0;
+    var p=await api({action:'read',tab:'PTO_Requests'});
+    if(p&&p.success){var pc=cols(p.data[0]);pto=p.data.slice(1).filter(function(r){return r.some(function(x){return x;})&&((r[pc('Status')]||'Pending')==='Pending'||!r[pc('Status')]);}).length;}
+    var e=await api({action:'read',tab:'Employee_Records'});
+    if(e&&e.success){
+      var ec=cols(e.data[0]);
+      var docsIdx=ec('Documents')>=0?ec('Documents'):8;
+      var ni=ec('Next Review'),n9=ec('Review Due 90Day'),si=ec('Status'),eiName=ec('Employee');
+      e.data.slice(1).forEach(function(r){
+        if(!r[eiName])return;
+        if(si>=0&&(r[si]||'').toString().trim()==='Inactive')return;
+        var exp='';if(r[docsIdx]){try{var doc=JSON.parse(r[docsIdx]);exp=doc['Government ID - Expiry']||'';}catch(_){}}
+        if(exp){var de=daysUntil_(exp);if(de!==null&&de<=30)ids++;}
+        var dn=daysUntil_(ni>=0?r[ni]:'');var d9=daysUntil_(n9>=0?r[n9]:'');
+        if(dn!==null&&dn<=30)revs++;else if(d9!==null&&d9>=0&&d9<=30)revs++;
+      });
+    }
+    window._alertPTO=pto;window._alertRecords=ids+revs;
+    setBadge_('badge-pto',pto);setBadge_('badge-records',ids+revs);updateTotalBadge();
+  }catch(e){}
+}
+
+// ---------- Init ----------
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  const el=document.getElementById('tab-commission-admin');
+  if(el)el.classList.add('active');
+});
+
+populateAdminSelects();
+cacheCommissionHeaders().then(loadTeamCommission);
+loadIncentivePay();
+loadAdminPTO();
+loadAllBalances();
+loadExpiryAlerts();
+loadRecordsAdmin();
+computeOwnerAlerts();
+loadEquipAdminEmployees();
+loadTeamDashboard();
+loadPTOBalances(EMPLOYEE);
+loadMyRequests(EMPLOYEE);
+loadRecord(EMPLOYEE);
+loadDocs(EMPLOYEE,false);
+loadEquipment(EMPLOYEE);
+</script>
+
+<script src="taskboard.js"></script>
+<script>initTaskBoard("owen");</script>
+<script src="resources.js"></script>
+<script>
+(function(){
+  if(window.WW_EMPLOYEE!=='Owen Owner')return;
+  var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]');
+  var ver='';
+  if(el){var m=(el.getAttribute('href')||el.getAttribute('src')||'').match(/v=(\d+)/);if(m)ver=m[1];}
+  var b=document.createElement('div');
+  b.textContent='v'+(ver||'?');
+  b.title='Deployed portal build';
+  b.style.cssText='position:fixed;bottom:8px;right:10px;font-family:Barlow,Arial,sans-serif;font-size:11px;font-weight:600;color:#999;background:rgba(245,237,224,0.92);border:1px solid #e0d8c8;padding:2px 8px;border-radius:10px;z-index:99999;pointer-events:none';
+  document.body.appendChild(b);
+})();
+</script>
+</body>
+</html>
