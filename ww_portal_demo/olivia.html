@@ -613,7 +613,7 @@ async function loadIncentivePay(){
         const employee=(r[c('Employee')]||'').trim();
         if(!employee)return;
         const rowIdx=dBook.data.indexOf(r)+1;
-        const item={sheet:'B2B_Booking_Bonuses',rowIdx,employee,date:fmtDate(r[c('Date')]),detail:r[c('Customer Name')]||'',type:'Booking Bonus',amount:75,approvedBy:(r[c('Approved By')]||'').trim(),payDate:r[c('Pay Date')]||''};
+        const item={sheet:'B2B_Booking_Bonuses',rowIdx,employee,date:fmtDate(r[c('Date')]),detail:(r[c('Customer Name')]||r[c('Customer')]||''),type:'Booking Bonus',amount:75,approvedBy:(r[c('Approved By')]||'').trim(),payDate:r[c('Pay Date')]||'',dealId:(r[c('Deal ID')]||'').toString().trim()};
         if(item.approvedBy)approved.push(item);else pending.push(item);
       });
     }

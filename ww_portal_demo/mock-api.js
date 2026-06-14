@@ -149,10 +149,10 @@
   ];
 
   DB.B2B_Booking_Bonuses = [
-    ['Employee', 'Date', 'Customer', 'Appointment Date', 'Approved By', 'Notes', 'Pay Period'],
-    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 2 * 86400000)), 'The Hendersons', addDaysISO(TODAY_ISO, 4), 'Olivia Owner', 'In-home estimate booked', PERIOD],
-    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 1 * 86400000)), 'Priya Raman', addDaysISO(TODAY_ISO, 6), '', 'In-home estimate booked', PERIOD],
-    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 15 * 86400000)), 'The Okafor Family', addDaysISO(TODAY_ISO, -10), 'Owen Owner', 'In-home estimate booked', PREV_PERIOD]
+    ['Employee', 'Date', 'Customer', 'Appointment Date', 'Approved By', 'Notes', 'Pay Period', 'Deal ID'],
+    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 2 * 86400000)), 'The Hendersons', addDaysISO(TODAY_ISO, 4), 'Olivia Owner', 'In-home estimate booked', PERIOD, '5301'],
+    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 1 * 86400000)), 'Priya Raman', addDaysISO(TODAY_ISO, 6), '', 'In-home estimate booked', PERIOD, '5302'],
+    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 15 * 86400000)), 'The Okafor Family', addDaysISO(TODAY_ISO, -10), 'Owen Owner', 'In-home estimate booked', PREV_PERIOD, '5303']
   ];
 
   DB.B2B_Partner_Bounties = [
