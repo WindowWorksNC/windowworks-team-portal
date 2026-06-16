@@ -122,16 +122,27 @@
     ['Employee', 'Hire Date', 'Vacation Balance', 'Vacation Used', 'Sick Balance', 'Sick Used'],
     ['Olivia Owner', '2007-03-01', 0, 0, 0, 0],
     ['Owen Owner', '2007-03-01', 0, 0, 0, 0],
-    ['Able Admin', '2021-06-14', 7, 3, 4, 1],
-    ['Wally Windowsalesguy', '2022-02-01', 9, 1, 5, 0],
-    ['Polly Projectmanager', '2020-09-15', 5, 5, 3, 2]
+    ['Able Admin', '2021-06-14', 7, 5, 5, 0],
+    ['Wally Windowsalesguy', '2022-02-01', 9, 3, 5, 0],
+    ['Polly Projectmanager', '2020-09-15', 10, 5, 5, 1]
   ];
 
   DB.PTO_Requests = [
     ['Request ID', 'Employee', 'Type', 'Start Date', 'End Date', 'Days', 'Notes', 'Status', 'Submitted', 'Approved By', 'Reviewed By'],
-    ['PTO-1001', 'Wally Windowsalesguy', 'Vacation', addDaysISO(TODAY_ISO, 12), addDaysISO(TODAY_ISO, 14), 3, 'Long weekend trip', 'Pending', usDate(new Date(TODAY.getTime() - 2 * 86400000)), '', ''],
-    ['PTO-1002', 'Polly Projectmanager', 'Sick', addDaysISO(TODAY_ISO, -5), addDaysISO(TODAY_ISO, -5), 1, 'Doctor visit', 'Approved', usDate(new Date(TODAY.getTime() - 7 * 86400000)), 'Olivia Owner', 'Olivia Owner'],
-    ['PTO-1003', 'Able Admin', 'Vacation', addDaysISO(TODAY_ISO, 20), addDaysISO(TODAY_ISO, 21), 2, 'Family visit', 'Pending', usDate(new Date(TODAY.getTime() - 1 * 86400000)), '', '']
+    // Wally: past approved, past denied, upcoming approved, upcoming pending (all four on one page)
+    ['PTO-2001', 'Wally Windowsalesguy', 'Vacation', addDaysISO(TODAY_ISO, -45), addDaysISO(TODAY_ISO, -43), 3, 'Spring trip', 'Approved', usDate(new Date(TODAY.getTime() - 55 * 86400000)), 'Owen Owner', 'Owen Owner'],
+    ['PTO-2002', 'Wally Windowsalesguy', 'Vacation', addDaysISO(TODAY_ISO, -70), addDaysISO(TODAY_ISO, -69), 2, 'Concert weekend', 'Denied', usDate(new Date(TODAY.getTime() - 78 * 86400000)), '', 'Olivia Owner'],
+    ['PTO-2003', 'Wally Windowsalesguy', 'Vacation', addDaysISO(TODAY_ISO, 30), addDaysISO(TODAY_ISO, 32), 3, 'Anniversary trip', 'Approved', usDate(new Date(TODAY.getTime() - 3 * 86400000)), 'Olivia Owner', 'Olivia Owner'],
+    ['PTO-2004', 'Wally Windowsalesguy', 'Sick', addDaysISO(TODAY_ISO, 5), addDaysISO(TODAY_ISO, 5), 1, 'Medical appointment', 'Pending', usDate(new Date(TODAY.getTime() - 1 * 86400000)), '', ''],
+    // Polly: past approved vacation, past approved sick, upcoming approved, upcoming pending
+    ['PTO-2010', 'Polly Projectmanager', 'Vacation', addDaysISO(TODAY_ISO, -120), addDaysISO(TODAY_ISO, -114), 5, 'Family vacation', 'Approved', usDate(new Date(TODAY.getTime() - 130 * 86400000)), 'Olivia Owner', 'Olivia Owner'],
+    ['PTO-2011', 'Polly Projectmanager', 'Sick', addDaysISO(TODAY_ISO, -30), addDaysISO(TODAY_ISO, -30), 1, 'Doctor visit', 'Approved', usDate(new Date(TODAY.getTime() - 32 * 86400000)), 'Owen Owner', 'Owen Owner'],
+    ['PTO-2012', 'Polly Projectmanager', 'Vacation', addDaysISO(TODAY_ISO, 10), addDaysISO(TODAY_ISO, 12), 3, 'Long weekend', 'Approved', usDate(new Date(TODAY.getTime() - 4 * 86400000)), 'Olivia Owner', 'Olivia Owner'],
+    ['PTO-2013', 'Polly Projectmanager', 'Sick', addDaysISO(TODAY_ISO, 18), addDaysISO(TODAY_ISO, 18), 1, 'Procedure recovery', 'Pending', usDate(new Date(TODAY.getTime() - 1 * 86400000)), '', ''],
+    // Able: past approved vacation, past denied sick, upcoming pending vacation
+    ['PTO-2020', 'Able Admin', 'Vacation', addDaysISO(TODAY_ISO, -200), addDaysISO(TODAY_ISO, -196), 5, 'Holiday week', 'Approved', usDate(new Date(TODAY.getTime() - 210 * 86400000)), 'Olivia Owner', 'Olivia Owner'],
+    ['PTO-2021', 'Able Admin', 'Sick', addDaysISO(TODAY_ISO, -60), addDaysISO(TODAY_ISO, -60), 1, 'Cold', 'Denied', usDate(new Date(TODAY.getTime() - 65 * 86400000)), '', 'Owen Owner'],
+    ['PTO-2022', 'Able Admin', 'Vacation', addDaysISO(TODAY_ISO, 20), addDaysISO(TODAY_ISO, 21), 2, 'Family visit', 'Pending', usDate(new Date(TODAY.getTime() - 1 * 86400000)), '', '']
   ];
 
   // PTO_Archive starts empty but carries the same header so reads are well formed.
