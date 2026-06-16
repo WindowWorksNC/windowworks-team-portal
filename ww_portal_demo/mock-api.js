@@ -118,13 +118,18 @@
     ['Polly Projectmanager', 'Project Manager', '2020-09-15', 'polly@example.com', 'Active', '5555', addDaysISO('2020-09-15', 90), addDaysISO('2020-09-15', 365), addDaysISO(TODAY_ISO, -60), addDaysISO(TODAY_ISO, 305), pollyDocs, '']
   ];
 
+  // Every employee accrues 10 vacation and 5 sick per year. The balance card
+  // shows total as (Used + Balance), so for each person Used + Balance must be
+  // 10 for vacation and 5 for sick. "Used" equals days already taken (past
+  // approved requests); upcoming approved time is shown separately and is part
+  // of the remaining balance until it is taken.
   DB.PTO_Balances = [
     ['Employee', 'Hire Date', 'Vacation Balance', 'Vacation Used', 'Sick Balance', 'Sick Used'],
     ['Olivia Owner', '2007-03-01', 0, 0, 0, 0],
     ['Owen Owner', '2007-03-01', 0, 0, 0, 0],
-    ['Able Admin', '2021-06-14', 7, 5, 5, 0],
-    ['Wally Windowsalesguy', '2022-02-01', 9, 3, 5, 0],
-    ['Polly Projectmanager', '2020-09-15', 10, 5, 5, 1]
+    ['Able Admin', '2021-06-14', 5, 5, 5, 0],
+    ['Wally Windowsalesguy', '2022-02-01', 7, 3, 5, 0],
+    ['Polly Projectmanager', '2020-09-15', 5, 5, 4, 1]
   ];
 
   DB.PTO_Requests = [
