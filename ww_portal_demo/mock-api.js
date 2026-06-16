@@ -173,8 +173,21 @@
 
   DB.B2B_Partner_Bounties = [
     ['Employee', 'Date', 'Account', 'Org Name', 'Deal ID', 'Deal Name', 'Status', 'Amount', 'Bonus Type', 'Approved By', 'Approved Date', 'Pay Date'],
-    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 30 * 86400000)), 'Apex Builders Group', 'Apex Builders Group', '4801', '', 'Approved', 250, 'New Partner', 'Olivia Owner', usDate(new Date(TODAY.getTime() - 25 * 86400000)), ''],
-    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 10 * 86400000)), 'Cary Home Renovators', 'Cary Home Renovators', '4802', '', 'Pending', 250, 'New Partner', '', '', '']
+    // Approved and paid
+    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 35 * 86400000)), 'Greenworks LLC', 'Greenworks LLC', '4803', '', 'Approved', 250, 'New Partner', 'Olivia Owner', usDate(new Date(TODAY.getTime() - 30 * 86400000)), usDate(new Date(TODAY.getTime() - 23 * 86400000))],
+    // Submitted, waiting on owner approval
+    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 12 * 86400000)), 'Apex Builders Group', 'Apex Builders Group', '4801', '', 'Submitted', 250, 'New Partner', '', '', ''],
+    ['Wally Windowsalesguy', usDate(new Date(TODAY.getTime() - 8 * 86400000)), 'Cary Home Renovators', 'Cary Home Renovators', '4802', '', 'Submitted', 250, 'New Partner', '', '', '']
+  ];
+
+  // Earned but not yet submitted for payout. A bounty sits here for up to 15 days.
+  // The rep can submit any of them early with "Submit for Payout"; anything still
+  // here 15 days after it is earned submits itself automatically. Earned Date
+  // drives the countdown shown on the page.
+  DB.B2B_Earned_Log = [
+    ['Employee', 'Earned Date', 'Account', 'Bonus Type', 'Amount', 'Deal ID', 'Detail'],
+    ['Wally Windowsalesguy', addDaysISO(TODAY_ISO, -3), 'JBF Construction', 'New Partner', 250, '5410', 'First B2B sale - $250 bounty'],
+    ['Wally Windowsalesguy', addDaysISO(TODAY_ISO, -10), 'Triangle Custom Homes', 'New Partner', 250, '5411', 'First B2B sale - $250 bounty']
   ];
 
   // Bonuses: Polly has a current quarter scorecard in progress (with saved field

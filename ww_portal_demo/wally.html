@@ -81,20 +81,23 @@
       </div>
     </div>
 
-    <!-- PENDING APPROVAL -->
-    <div style="margin-bottom:8px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#c4581f">Earned - Pending Approval</div><button class="action-btn btn-approve" id="submit-bonuses-btn" onclick="submitBonusesForApproval()" style="display:none">Submit for Approval</button></div>
-      <div id="bonus-pending-body">
-        <div class="empty-state" id="bonus-pending-empty" style="display:none">No pending bonuses.</div>
-      </div>
+    <!-- EARNED - SUBMIT FOR PAYOUT -->
+    <div id="bonus-earned-section" style="margin-bottom:8px;display:none">
+      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">Earned - Submit for Payout</div>
+      <div style="font-size:12px;color:#888;margin-bottom:10px">Submit any of these whenever you want the payout. Anything still here 15 days after it is earned submits itself automatically.</div>
+      <div id="bonus-earned-body"></div>
     </div>
 
-    <!-- APPROVED -->
+    <!-- SUBMITTED - PENDING APPROVAL -->
+    <div id="bonus-submitted-section" style="border-top:1px solid #f0ece6;padding-top:16px;margin-top:8px;display:none">
+      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#c4581f;margin-bottom:10px">Submitted - Pending Approval</div>
+      <div id="bonus-submitted-body"></div>
+    </div>
+
+    <!-- APPROVED & PAID -->
     <div id="bonus-approved-section" style="border-top:1px solid #f0ece6;padding-top:16px;margin-top:8px;display:none">
-      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#28a745;margin-bottom:10px">Approved</div>
-      <div id="bonus-approved-body">
-        <div class="empty-state" id="bonus-approved-empty" style="display:none">No approved bonuses yet.</div>
-      </div>
+      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#28a745;margin-bottom:10px">Approved &amp; Paid</div>
+      <div id="bonus-approved-body"></div>
     </div>
   </div>
 </div>
@@ -851,13 +854,24 @@ async function submitBooking() {
 
 // --- PARTNER BOUNTIES ---
 let _bountyRows = [];
+let _earnedRows = [];
 async function loadBounties() {
   try {
     const d = await api({action:'read', tab:'B2B_Partner_Bounties'});
-    if (!d.success) return;
-    const bc2=cols(d.data[0]);
-    window._bountyColLookup = bc2;
-    _bountyRows = d.data.slice(1).filter(r => (r[bc2('Employee')]||'').trim()==='Wally Windowsalesguy' && r.some(x => x));
+    if (d.success) {
+      const bc2=cols(d.data[0]);
+      window._bountyColLookup = bc2;
+      _bountyRows = d.data.slice(1).filter(r => (r[bc2('Employee')]||'').trim()==='Wally Windowsalesguy' && r.some(x => x));
+    }
+    let e={success:false};
+    try { e = await api({action:'read', tab:'B2B_Earned_Log'}); } catch(_){}
+    if (e.success && e.data && e.data.length) {
+      const ec=cols(e.data[0]);
+      window._earnedColLookup = ec;
+      _earnedRows = e.data.slice(1)
+        .map((r,i)=>({r:r, rowIndex:i+2}))
+        .filter(o => (o.r[ec('Employee')]||'').trim()==='Wally Windowsalesguy' && o.r.some(x=>x));
+    } else { _earnedRows = []; }
     updateBonusSummary();
   } catch(e) { console.error('loadBounties error:', e); }
 }
@@ -870,19 +884,35 @@ function updateBonusSummary() {
   if(loadEl) loadEl.style.display='none';
   if(contentEl) contentEl.style.display='block';
 
-  const pendingBody = document.getElementById('bonus-pending-body');
-  const approvedBody = document.getElementById('bonus-approved-body');
-  const pendingEmpty = document.getElementById('bonus-pending-empty');
-  const approvedEmpty = document.getElementById('bonus-approved-empty');
+  const ec = window._earnedColLookup;
+  const now = new Date();
 
-  const pending = [];
+  // EARNED but not yet submitted (from the earned log). Each shows a 15-day
+  // auto-submit countdown and a per-row "Submit for Payout" button.
+  const earned = _earnedRows.map(o => {
+    const r = o.r;
+    const earnedStr = ec ? (r[ec('Earned Date')]||'') : '';
+    const ed = earnedStr ? new Date(earnedStr) : null;
+    let daysLeft = null;
+    if (ed && !isNaN(ed.getTime())) {
+      const age = Math.floor((now - ed)/86400000);
+      daysLeft = Math.max(0, 15 - age);
+    }
+    return {
+      rowIndex: o.rowIndex,
+      type: (ec ? (r[ec('Bonus Type')]||'') : '') || 'New Partner',
+      account: ec ? (r[ec('Account')]||'').toString().trim() : '',
+      amount: ec ? (Number(r[ec('Amount')])||250) : 250,
+      detail: ec ? (r[ec('Detail')]||'') : '',
+      dealId: ec ? (r[ec('Deal ID')]||'') : '',
+      daysLeft: daysLeft
+    };
+  }).filter(e => e.account);
+
+  // SUBMITTED (pending approval) and APPROVED come from the bounties sheet,
+  // split by whether an owner has approved the row yet.
+  const submitted = [];
   const approved = [];
-
-  // Booking bonuses
-  const bookingRows = document.getElementById('booking-body') ? 
-    [] : []; // loaded separately, get from sheet
-  
-  // Partner bounties from sheet
   _bountyRows.forEach(r => {
     const bc3=window._bountyColLookup;
     const orgName = bc3 ? (r[bc3('Org name')]||r[bc3('Org Name')]||r[bc3('Account')]||r[bc3('Deal Name')]||'').toString().trim() : (r[3]||r[2]||'');
@@ -895,19 +925,10 @@ function updateBonusSummary() {
     btype = btype.replace(/\s*Bounty$/i,'').trim(); // "New Partner Bounty" -> "New Partner"
     const entry = { type: btype, account:orgName, amount:amt, detail: (btype==='New Partner'?'First B2B sale - $250 bounty':''), approvedBy:approvedBy, approvedDate:approvedDate, payDate:payDate, dealId:dealId };
     if(approvedBy) approved.push(entry);
-    else pending.push(entry);
+    else submitted.push(entry);
   });
 
-  // B2B earned from Pipedrive
-  _b2bEarned.forEach(b => {
-    pending.push({ type: b.label, account: b.account, amount: b.amount, detail: b.detail, approvedBy:'', dealId:'' });
-  });
-  // Show submit button if there are B2B calculated bonuses pending
-  const submitBtn = document.getElementById('submit-bonuses-btn');
-  if (submitBtn) submitBtn.style.display = _b2bEarned.length > 0 ? 'inline-block' : 'none';
-
-  // Collapse duplicates from repeated submissions / live-calc overlap, and drop blanks.
-  // A New Partner bounty is once per account, so keying on account is correct.
+  // Collapse duplicates and drop blanks. A New Partner bounty is once per account.
   function dedupeByAccount(list) {
     const seen = new Set(); const out = [];
     list.forEach(e => {
@@ -919,25 +940,83 @@ function updateBonusSummary() {
     });
     return out;
   }
-  const pendingClean = dedupeByAccount(pending);
+  const submittedClean = dedupeByAccount(submitted);
   const approvedClean = dedupeByAccount(approved);
 
-  const pendingTotal = pendingClean.reduce((s,e) => s+e.amount, 0);
+  const pendingTotal = submittedClean.reduce((s,e) => s+e.amount, 0);
   const approvedTotal = approvedClean.reduce((s,e) => s+e.amount, 0);
+  const earnedTotal = earned.reduce((s,e) => s+e.amount, 0);
 
   document.getElementById('bonus-pending-total').textContent = fmtMoney(pendingTotal);
   document.getElementById('bonus-approved-total').textContent = fmtMoney(approvedTotal);
-  document.getElementById('bonus-summary-sub').textContent = pendingTotal > 0 ? `${fmtMoney(pendingTotal)} pending approval` : 'No pending bonuses';
+  const subEl = document.getElementById('bonus-summary-sub');
+  if (subEl) subEl.textContent = pendingTotal > 0 ? `${fmtMoney(pendingTotal)} pending` : (earnedTotal > 0 ? `${fmtMoney(earnedTotal)} earned` : 'No bonuses yet');
 
-  if(pendingBody) {
-    if(!pendingClean.length) { pendingBody.innerHTML='<div class="empty-state" id="bonus-pending-empty">No pending bonuses.</div>'; }
-    else { pendingBody.innerHTML = pendingClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, false, '', '', '', e.dealId)).join(''); }
-  }
+  // EARNED section
+  const earnedSection = document.getElementById('bonus-earned-section');
+  const earnedBody = document.getElementById('bonus-earned-body');
+  if (earnedSection) earnedSection.style.display = earned.length ? 'block' : 'none';
+  if (earnedBody) earnedBody.innerHTML = earned.map(e => earnedBonusRow(e)).join('');
+
+  // SUBMITTED - PENDING APPROVAL section
+  const submittedSection = document.getElementById('bonus-submitted-section');
+  const submittedBody = document.getElementById('bonus-submitted-body');
+  if (submittedSection) submittedSection.style.display = submittedClean.length ? 'block' : 'none';
+  if (submittedBody) submittedBody.innerHTML = submittedClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, false, '', '', '', e.dealId)).join('');
+
+  // APPROVED & PAID section
   const approvedSection = document.getElementById('bonus-approved-section');
+  const approvedBody = document.getElementById('bonus-approved-body');
   if (approvedSection) approvedSection.style.display = approvedClean.length ? 'block' : 'none';
-  if(approvedBody && approvedClean.length) {
-    approvedBody.innerHTML = approvedClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy, e.approvedDate||'', e.payDate||'', e.dealId)).join('');
-  }
+  if (approvedBody) approvedBody.innerHTML = approvedClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy, e.approvedDate||'', e.payDate||'', e.dealId)).join('');
+}
+
+// One earned-but-unsubmitted bounty row, with the auto-submit countdown and the
+// Submit for Payout action.
+function earnedBonusRow(e) {
+  const cd = (e.daysLeft==null) ? '' :
+    `<span style="display:inline-block;background:#fdf6d8;color:#8a6d1a;border-radius:99px;padding:3px 10px;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin-top:6px">Auto-submits in ${e.daysLeft} ${e.daysLeft===1?'day':'days'}</span>`;
+  return `<div style="padding:12px 0;border-bottom:1px solid #f0ece6">
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">${e.type}</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:14px;font-weight:600;color:#1a1a1a">${e.account}${wwDealLink(e.dealId)}</div>
+        <div style="font-size:13px;color:#888;margin-top:2px">${e.detail}</div>
+        <div>${cd}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <strong style="color:#c4581f;font-size:15px">${fmtMoney(e.amount)}</strong>
+        <button class="action-btn btn-approve" onclick="submitBountyForPayout(${e.rowIndex})">Submit for Payout</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// Submit an earned bounty for payout: move it off the earned log and onto the
+// bounties sheet as a submitted (pending approval) row.
+async function submitBountyForPayout(rowIndex) {
+  try {
+    const e = await api({action:'read', tab:'B2B_Earned_Log'});
+    if (!e.success || !e.data) return;
+    const ec = cols(e.data[0]);
+    const src = e.data[rowIndex-1];
+    if (!src) return;
+    const bRow = [
+      src[ec('Employee')]||'',
+      new Date().toLocaleDateString('en-US'),
+      src[ec('Account')]||'',
+      src[ec('Account')]||'',
+      src[ec('Deal ID')]||'',
+      '',
+      'Submitted',
+      Number(src[ec('Amount')])||250,
+      src[ec('Bonus Type')]||'New Partner',
+      '', '', ''
+    ];
+    await api({action:'append', tab:'B2B_Partner_Bounties', row:JSON.stringify(bRow)});
+    await api({action:'delete', tab:'B2B_Earned_Log', rowIndex:rowIndex});
+    loadBounties();
+  } catch(err) { console.error('submitBountyForPayout error:', err); }
 }
 
 function toggleAllAccounts() {
