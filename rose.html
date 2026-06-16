@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rose Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=127">
+<link rel="stylesheet" href="portal.css?v=128">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Rose Reif';</script>
@@ -309,14 +309,14 @@
     <div class="stat-block">
       <div class="stat-number" id="vac-remaining">--</div>
       <div class="stat-label">Vacation Days Left</div>
-      <div class="stat-sub" id="vac-used">of 10 used: --</div>
+      <div class="stat-sub" id="vac-used">-- days used YTD</div>
       <div class="stat-sub" id="vac-upcoming">0 approved upcoming</div>
       <div class="pto-bar-wrap"><div class="pto-bar" id="vac-bar" style="width:0%"></div></div>
     </div>
     <div class="stat-block">
       <div class="stat-number" id="sick-remaining">--</div>
       <div class="stat-label">Sick Days Left</div>
-      <div class="stat-sub" id="sick-used">of 5 used: --</div>
+      <div class="stat-sub" id="sick-used">-- days used YTD</div>
       <div class="stat-sub" id="sick-upcoming">0 approved upcoming</div>
       <div class="pto-bar-wrap"><div class="pto-bar" id="sick-bar" style="width:0%"></div></div>
     </div>
@@ -1180,8 +1180,8 @@ async function loadPTOBalances(employee){
     const vacTotal=vacUsed+vacBal,sickTotal=sickUsed+sickBal;
     const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
     const sw=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=v;};
-    s('vac-remaining',vacBal);s('vac-used',`of ${vacTotal} used: ${vacUsed}`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsed/vacTotal)*100)+'%':'0%');
-    s('sick-remaining',sickBal);s('sick-used',`of ${sickTotal} used: ${sickUsed}`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsed/sickTotal)*100)+'%':'0%');
+    s('vac-remaining',vacBal);s('vac-used',`${vacUsed} day${vacUsed===1?'':'s'} used YTD`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsed/vacTotal)*100)+'%':'0%');
+    s('sick-remaining',sickBal);s('sick-used',`${sickUsed} day${sickUsed===1?'':'s'} used YTD`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsed/sickTotal)*100)+'%':'0%');
   }catch(e){console.error(e);}
 }
 
