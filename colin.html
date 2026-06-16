@@ -7,11 +7,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=126">
+<link rel="stylesheet" href="portal.css?v=127">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Colin Glenn';</script>
-<script src="gate.js?v=126"></script>
+<script src="gate.js?v=127"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -1181,20 +1181,47 @@ async function markEarnedSubmitted(key){
 }
 
 // Won deals not yet marked Job Complete: shown so Colin can chase completion.
+let _awaitDeals=[];
+let _awaitSort={col:'value', dir:'desc'};
+
 function renderAwaitingCompletion(deals){
   const card=document.getElementById('await-completion-card');
   const body=document.getElementById('await-completion-body');
   if(!card||!body) return;
-  const list=(deals||[]).filter(d=>d.account).sort((a,b)=>(b.value||0)-(a.value||0));
-  if(!list.length){ card.style.display='none'; return; }
+  _awaitDeals=(deals||[]).filter(d=>d.account);
+  if(!_awaitDeals.length){ card.style.display='none'; return; }
   card.style.display='block';
+  renderAwaitingTable();
+}
+
+// Toggle direction when re-clicking the active column; otherwise pick a sensible
+// default (A-Z for names, high-to-low for value, newest-first for date).
+function sortAwaiting(col){
+  if(_awaitSort.col===col){ _awaitSort.dir = _awaitSort.dir==='asc' ? 'desc' : 'asc'; }
+  else { _awaitSort.col=col; _awaitSort.dir = (col==='account') ? 'asc' : 'desc'; }
+  renderAwaitingTable();
+}
+
+function renderAwaitingTable(){
+  const body=document.getElementById('await-completion-body');
+  if(!body) return;
+  const col=_awaitSort.col, mul=(_awaitSort.dir==='asc')?1:-1;
+  const list=_awaitDeals.slice().sort((a,b)=>{
+    if(col==='account'){ const x=(a.account||'').toLowerCase(), y=(b.account||'').toLowerCase(); return x<y?-mul:x>y?mul:0; }
+    if(col==='date'){ const x=a.wonDate?new Date(a.wonDate).getTime():0, y=b.wonDate?new Date(b.wonDate).getTime():0; return (x-y)*mul; }
+    return ((a.value||0)-(b.value||0))*mul; // value
+  });
   const total=list.reduce((s,d)=>s+(d.value||0),0);
+  const arrow=c => col===c ? (_awaitSort.dir==='asc' ? ' \u25B2' : ' \u25BC') : '';
+  const th=(label,c,align)=>`<th style="cursor:pointer;user-select:none;${align?'text-align:'+align+';':''}" onclick="sortAwaiting('${c}')">${label}${arrow(c)}</th>`;
   body.innerHTML =
     `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#1a1a1a;border-radius:6px;margin-bottom:12px">
        <span style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#f5ede0">${list.length} deal${list.length===1?'':'s'} waiting on completion</span>
        <strong style="color:#c4581f;font-size:16px">${fmtMoney(total)}</strong>
      </div>`
-    + '<table class="data-table"><thead><tr><th>Account</th><th style="text-align:right">Deal Value</th><th style="text-align:right">Won</th></tr></thead><tbody>'
+    + '<table class="data-table"><thead><tr>'
+    + th('Account','account','') + th('Deal Value','value','right') + th('Won','date','right')
+    + '</tr></thead><tbody>'
     + list.map(d=>`<tr><td><strong>${d.account}</strong>${wwDealLink(d.id)}</td><td style="text-align:right;font-weight:600">${fmtMoney(d.value||0)}</td><td style="text-align:right;font-size:11px;color:#aaa">${d.wonDate?new Date(d.wonDate).toLocaleDateString('en-US'):''}</td></tr>`).join('')
     + '</tbody></table>';
 }
