@@ -69,6 +69,7 @@ body{font-family:'Barlow',Arial,sans-serif;background:#edeae4;color:#1a1a1a;min-
 .pill-pending{background:#fef3cd;color:#856404}
 .pill-approved{background:#d4edda;color:#155724}
 .pill-denied{background:#f8d7da;color:#721c24}
+.pill-blue{background:#cce5ff;color:#004085}
 .pill-orange{background:#fae8df;color:#c4581f}
 .pill-gray{background:#e9ecef;color:#666}
 .pill-yellow{background:#fff3cd;color:#856404}
