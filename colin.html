@@ -7,11 +7,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=129">
+<link rel="stylesheet" href="portal.css?v=124">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Colin Glenn';</script>
-<script src="gate.js?v=127"></script>
+<script src="gate.js?v=124"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -79,25 +79,11 @@
       </div>
     </div>
 
-    <!-- EARNED - SUBMIT FOR PAYOUT (60-day window) -->
-    <div id="bonus-earned-section" style="margin-bottom:8px;display:none">
-      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">Earned - Submit for Payout</div>
-      <div style="font-size:12px;color:#aaa;margin-bottom:10px">Submit any of these whenever you want the payout. Anything still here 15 days after it is earned submits itself automatically.</div>
-      <div id="bonus-earned-body"></div>
-    </div>
-
-    <!-- EARNED, PENDING JOB COMPLETION (won but not yet submittable) -->
-    <div id="bonus-inprogress-section" style="margin-bottom:8px;display:none">
-      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#856404;margin-bottom:4px">Earned, Pending Job Completion</div>
-      <div style="font-size:12px;color:#aaa;margin-bottom:10px">You have hit the threshold on won deals. These become submittable once the jobs are marked Job Complete.</div>
-      <div id="bonus-inprogress-body"></div>
-    </div>
-
-    <!-- SUBMITTED - PENDING APPROVAL -->
-    <div id="bonus-pending-section" style="margin-bottom:8px;border-top:1px solid #f0ece6;padding-top:16px">
-      <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#c4581f;margin-bottom:10px">Submitted - Pending Approval</div>
+    <!-- PENDING APPROVAL -->
+    <div style="margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#c4581f">Earned - Pending Approval</div><button class="action-btn btn-approve" id="submit-bonuses-btn" onclick="submitBonusesForApproval()" style="display:none">Submit for Approval</button></div>
       <div id="bonus-pending-body">
-        <div class="empty-state" id="bonus-pending-empty">No pending bonuses.</div>
+        <div class="empty-state" id="bonus-pending-empty" style="display:none">No pending bonuses.</div>
       </div>
     </div>
 
@@ -137,13 +123,6 @@
     </div>
 
   </div>
-</div>
-
-<!-- WON, AWAITING JOB COMPLETION -->
-<div class="card" id="await-completion-card" style="display:none">
-  <div class="card-title">Won, Awaiting Job Completion</div>
-  <div style="font-size:12px;color:#aaa;margin-bottom:16px">Won deals not yet marked Job Complete in Pipedrive. Each one starts counting toward your bounties the moment its job is marked complete.</div>
-  <div id="await-completion-body"></div>
 </div>
 
 <!-- ALL OTHER B2B ACCOUNTS -->
@@ -226,14 +205,14 @@
     <div class="stat-block">
       <div class="stat-number" id="vac-remaining">--</div>
       <div class="stat-label">Vacation Days Left</div>
-      <div class="stat-sub" id="vac-used">-- days used YTD</div>
+      <div class="stat-sub" id="vac-used">of 10 used: --</div>
       <div class="stat-sub" id="vac-upcoming">0 approved upcoming</div>
       <div class="pto-bar-wrap"><div class="pto-bar" id="vac-bar" style="width:0%"></div></div>
     </div>
     <div class="stat-block">
       <div class="stat-number" id="sick-remaining">--</div>
       <div class="stat-label">Sick Days Left</div>
-      <div class="stat-sub" id="sick-used">-- days used YTD</div>
+      <div class="stat-sub" id="sick-used">of 5 used: --</div>
       <div class="stat-sub" id="sick-upcoming">0 approved upcoming</div>
       <div class="pto-bar-wrap"><div class="pto-bar" id="sick-bar" style="width:0%"></div></div>
     </div>
@@ -321,7 +300,7 @@
 </div></div></div>
 <div class="tab-content active" id="tab-tasks">
 <div class="tb-wrap">
-  <p class="tb-hint">Your personal task board. Data saves in your browser. Click bucket names to rename them (except Recurring).</p>
+  <p class="tb-hint">Your personal task board, synced across your devices. Click bucket names to rename them (except Recurring).</p>
   <div class="tb-add-bar">
     <input type="text" class="tb-add-inp" id="tb-add-inp" placeholder="Add a task...">
     <select class="tb-add-bucket" id="tb-add-bucket">
@@ -459,8 +438,8 @@ async function loadPTOBalances(employee){
     const sickTotal=sickUsed+sickBal;
     const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
     const sw=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=v;};
-    s('vac-remaining',vacBal);s('vac-used',`${vacUsed} day${vacUsed===1?'':'s'} used YTD`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsed/vacTotal)*100)+'%':'0%');
-    s('sick-remaining',sickBal);s('sick-used',`${sickUsed} day${sickUsed===1?'':'s'} used YTD`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsed/sickTotal)*100)+'%':'0%');
+    s('vac-remaining',vacBal);s('vac-used',`of ${vacTotal} used: ${vacUsed}`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsed/vacTotal)*100)+'%':'0%');
+    s('sick-remaining',sickBal);s('sick-used',`of ${sickTotal} used: ${sickUsed}`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsed/sickTotal)*100)+'%':'0%');
     if(hireDate){const hm=document.getElementById('hire-meta');if(hm)hm.textContent='Hire date: '+fmtDate(hireDate);}
   }catch(e){console.error(e);}
 }
@@ -486,7 +465,7 @@ async function loadMyRequests(employee){
       const status=(r[c('Status')]||'Pending').trim();
       const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
       let pill;
-      if(status==='Approved'&&endDate>=today){pill='<span class="pill pill-blue">Upcoming</span>';}
+      if(status==='Approved'&&endDate>=today){pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';}
       else if(status==='Approved'){pill='<span class="pill pill-approved">Approved</span>';}
       else if(status==='Denied'){pill='<span class="pill pill-denied">Denied</span>';}
       else{pill='<span class="pill pill-pending">Pending</span>';}
@@ -689,9 +668,9 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js"></script>
+<script src="taskboard.js?v=124"></script>
 <script>initTaskBoard("colin");</script>
-<script src="resources.js"></script>
+<script src="resources.js?v=124"></script>
 <script>
 function getCurrentPayPeriodLabel_colin() {
   const startMs=Date.UTC(2025,11,18);
@@ -886,53 +865,26 @@ async function loadBounties() {
 }
 
 // --- BONUS SUMMARY (combines booking + bounties + B2B earned) ---
-let _b2bEarned = []; // ready bounties (deals complete) -- submittable
-let _b2bInProgress = []; // bounties crossed on won deals but jobs not yet complete
-
-// Days an earned bounty can sit before it auto-submits. Colin can submit any of
-// them sooner; anything still unsubmitted at this age submits itself.
-// Change this one number to widen or tighten the window.
-const SUBMIT_WINDOW_DAYS = 15;
-
-// Bounty types that are once per account for their lifetime (no calendar year in
-// the key). Wallet Share and Retention can recur each year, so they include year.
-function oncePerAccount(type){const t=(type||'').toLowerCase(); return t==='anchor account'||t==='new partner';}
-function defaultAmount(type){return (type||'').toLowerCase()==='new partner' ? 250 : 2500;}
-function defaultDetail(type){return (type||'').toLowerCase()==='new partner' ? 'First B2B sale - $250 bounty' : '';}
-
-// Stable key from raw fields (works for both portal-stamped and zap-written rows).
-function keyFromFields(type, account, earnedDateStr){
-  const acct=(account||'').toString().trim().toLowerCase();
-  const t=(type||'').toString().replace(/\s*Bounty$/i,'').trim().toLowerCase();
-  if(oncePerAccount(t)) return acct+'|'+t;
-  let y=(new Date()).getFullYear();
-  const d=new Date(earnedDateStr); if(!isNaN(d)) y=d.getFullYear();
-  return acct+'|'+t+'|'+y;
-}
-// Same key, computed from a portal-calculated earned bounty object.
-function earnedKey(b){ return keyFromFields(b.label, b.account, b.year ? (b.year+'-06-15') : ''); }
-
-// Escape a value for safe use inside a single-quoted JS string in an inline handler.
-function escAttr(s){return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
-
+let _b2bEarned = []; // set by loadB2BTracker
 function updateBonusSummary() {
   const loadEl = document.getElementById('bonus-summary-loading');
   const contentEl = document.getElementById('bonus-summary-content');
   if(loadEl) loadEl.style.display='none';
   if(contentEl) contentEl.style.display='block';
 
-  const earnedSection = document.getElementById('bonus-earned-section');
-  const earnedBody = document.getElementById('bonus-earned-body');
   const pendingBody = document.getElementById('bonus-pending-body');
   const approvedBody = document.getElementById('bonus-approved-body');
-  const approvedSection = document.getElementById('bonus-approved-section');
+  const pendingEmpty = document.getElementById('bonus-pending-empty');
+  const approvedEmpty = document.getElementById('bonus-approved-empty');
 
-  const log = window._earnedLog || {};
-
-  // Submitted bounties already on the approval queue (B2B_Partner_Bounties).
-  const submittedKeys = new Set(); // keyed the same way as the log (year-aware)
   const pending = [];
   const approved = [];
+
+  // Booking bonuses
+  const bookingRows = document.getElementById('booking-body') ? 
+    [] : []; // loaded separately, get from sheet
+  
+  // Partner bounties from sheet
   _bountyRows.forEach(r => {
     const bc3=window._bountyColLookup;
     const orgName = bc3 ? (r[bc3('Org name')]||r[bc3('Org Name')]||r[bc3('Account')]||r[bc3('Deal Name')]||'').toString().trim() : (r[3]||r[2]||'');
@@ -941,289 +893,53 @@ function updateBonusSummary() {
     const approvedDate = bc3 ? (r[bc3('Approved Date')]||'') : '';
     const payDate = bc3 ? (r[bc3('Pay Date')]||'') : '';
     const dealId = bc3 ? (r[bc3('Deal ID')]||'') : '';
-    const rowDate = bc3 ? (r[bc3('Date')]||r[bc3('Approved Date')]||'') : '';
     let btype = ((bc3 ? (r[bc3('Bonus Type')]||r[bc3('Deal Name')]||'') : '').toString().trim()) || 'New Partner';
     btype = btype.replace(/\s*Bounty$/i,'').trim(); // "New Partner Bounty" -> "New Partner"
-    if(orgName) submittedKeys.add(keyFromFields(btype, orgName, rowDate));
     const entry = { type: btype, account:orgName, amount:amt, detail: (btype==='New Partner'?'First B2B sale - $250 bounty':''), approvedBy:approvedBy, approvedDate:approvedDate, payDate:payDate, dealId:dealId };
     if(approvedBy) approved.push(entry);
     else pending.push(entry);
   });
 
-  // Earned but not yet submitted -> submission window. Driven entirely by the log,
-  // which holds both portal-stamped bounties (Anchor/Wallet/Retention) and
-  // zap-written New Partner rows, so every type shares the same submit flow.
-  const earnedAwaiting = [];
-  Object.keys(log).forEach(k => {
-    const e = log[k];
-    if(!e || !e.account) return;
-    if(e.submitted) return;                 // log says submitted
-    if(submittedKeys.has(k)) return;        // already on the approval queue
-    earnedAwaiting.push({ label:e.type, account:e.account, amount:e.amount, detail:e.detail, key:k, daysLeft:e.daysLeft, expired:e.expired });
+  // B2B earned from Pipedrive
+  _b2bEarned.forEach(b => {
+    pending.push({ type: b.label, account: b.account, amount: b.amount, detail: b.detail, approvedBy:'', dealId:'' });
   });
+  // Show submit button if there are B2B calculated bonuses pending
+  const submitBtn = document.getElementById('submit-bonuses-btn');
+  if (submitBtn) submitBtn.style.display = _b2bEarned.length > 0 ? 'inline-block' : 'none';
 
-  const dedup=(list)=>{const s=new Set();const o=[];list.forEach(e=>{const a=(e.account||'').trim().toLowerCase();if(!a)return;const key=a+'|'+(e.type||'').trim().toLowerCase();if(s.has(key))return;s.add(key);o.push(e);});return o;};
-  const seenE=new Set(); const earnedClean=[];
-  earnedAwaiting.forEach(e=>{ if(seenE.has(e.key))return; seenE.add(e.key); earnedClean.push(e); });
-  const pendingClean = dedup(pending);
-  const approvedClean = dedup(approved);
+  // Collapse duplicates from repeated submissions / live-calc overlap, and drop blanks.
+  // A New Partner bounty is once per account, so keying on account is correct.
+  function dedupeByAccount(list) {
+    const seen = new Set(); const out = [];
+    list.forEach(e => {
+      const acct = (e.account||'').trim().toLowerCase();
+      if (!acct) return;
+      const key = acct + '|' + (e.type||'').trim().toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key); out.push(e);
+    });
+    return out;
+  }
+  const pendingClean = dedupeByAccount(pending);
+  const approvedClean = dedupeByAccount(approved);
 
-  const earnedTotal = earnedClean.filter(e=>!e.expired).reduce((s,e)=>s+e.amount,0);
   const pendingTotal = pendingClean.reduce((s,e) => s+e.amount, 0);
   const approvedTotal = approvedClean.reduce((s,e) => s+e.amount, 0);
 
-  const pendTotEl=document.getElementById('bonus-pending-total'); if(pendTotEl) pendTotEl.textContent=fmtMoney(earnedTotal+pendingTotal);
-  const apprTotEl=document.getElementById('bonus-approved-total'); if(apprTotEl) apprTotEl.textContent=fmtMoney(approvedTotal);
-  const subEl=document.getElementById('bonus-summary-sub'); if(subEl) subEl.textContent=(earnedTotal+pendingTotal)>0?`${fmtMoney(earnedTotal+pendingTotal)} pending`:'No pending bonuses';
-
-  if(earnedSection) earnedSection.style.display = earnedClean.length ? 'block' : 'none';
-  if(earnedBody) earnedBody.innerHTML = earnedClean.map(earnedAwaitingRow).join('');
-
-  // Earned-on-paper but pending job completion (won deals, not yet complete).
-  const ipSection = document.getElementById('bonus-inprogress-section');
-  const ipBody = document.getElementById('bonus-inprogress-body');
-  const ipSeen = new Set();
-  const inProgress = (_b2bInProgress||[]).filter(b=>{
-    const a=(b.account||'').trim().toLowerCase(); if(!a) return false;
-    const k=a+'|'+(b.label||'').trim().toLowerCase();
-    if(ipSeen.has(k)) return false; ipSeen.add(k); return true;
-  });
-  if(ipSection) ipSection.style.display = inProgress.length ? 'block' : 'none';
-  if(ipBody) ipBody.innerHTML = inProgress.map(inProgressRow).join('');
+  document.getElementById('bonus-pending-total').textContent = fmtMoney(pendingTotal);
+  document.getElementById('bonus-approved-total').textContent = fmtMoney(approvedTotal);
+  document.getElementById('bonus-summary-sub').textContent = pendingTotal > 0 ? `${fmtMoney(pendingTotal)} pending approval` : 'No pending bonuses';
 
   if(pendingBody) {
     if(!pendingClean.length) { pendingBody.innerHTML='<div class="empty-state" id="bonus-pending-empty">No pending bonuses.</div>'; }
     else { pendingBody.innerHTML = pendingClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, false, '', '', '', e.dealId)).join(''); }
   }
+  const approvedSection = document.getElementById('bonus-approved-section');
   if (approvedSection) approvedSection.style.display = approvedClean.length ? 'block' : 'none';
   if(approvedBody && approvedClean.length) {
     approvedBody.innerHTML = approvedClean.filter(e => e.account).map(e => bonusRow(e.type, e.account, e.amount, e.detail, true, e.approvedBy, e.approvedDate||'', e.payDate||'', e.dealId)).join('');
   }
-}
-
-// A bounty crossed on won deals but waiting on Job Complete: shown, not submittable.
-function inProgressRow(b){
-  return `<div style="padding:12px 0;border-bottom:1px solid #f0ece6;opacity:.85">
-    <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#856404;margin-bottom:4px">${b.label}</div>
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap">
-      <div>
-        <div style="font-size:14px;font-weight:600;color:#1a1a1a">${b.account}</div>
-        <div style="font-size:13px;color:#888;margin-top:2px">${b.detail||''}</div>
-        <div style="margin-top:6px"><span class="pill" style="background:#fff3cd;color:#856404">Job in progress</span></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-        <strong style="color:#c4581f;font-size:15px">${fmtMoney(b.amount)}</strong>
-      </div>
-    </div>
-  </div>`;
-}
-
-// One earned-but-unsubmitted bounty: its auto-submit countdown and submit button.
-// Nothing is ever forfeited; the button is always live, and the pill shows when it
-// will submit on its own. Overdue items are auto-submitted on load, so seeing one
-// here is transient (e.g. an auto-submit write that has not landed yet).
-function earnedAwaitingRow(e){
-  const left=e.daysLeft;
-  const clockText = left>1 ? `Auto-submits in ${left} days`
-                  : left===1 ? 'Auto-submits tomorrow'
-                  : left===0 ? 'Auto-submits today'
-                  : 'Submitting automatically...';
-  const clock = `<span class="pill" style="background:#fff3cd;color:#856404">${clockText}</span>`;
-  const btnId='submit-'+(e.key||'').replace(/[^a-z0-9]/gi,'');
-  const btn = `<button class="action-btn btn-approve" id="${btnId}" onclick="submitOneBounty('${btnId}','${escAttr(e.key)}','${escAttr(e.account)}','${escAttr(e.label)}',${Number(e.amount)||0})">Submit for Payout</button>`;
-  return `<div style="padding:12px 0;border-bottom:1px solid #f0ece6">
-    <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">${e.label}</div>
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap">
-      <div>
-        <div style="font-size:14px;font-weight:600;color:#1a1a1a">${e.account}</div>
-        <div style="font-size:13px;color:#888;margin-top:2px">${e.detail||''}</div>
-        <div style="margin-top:6px">${clock}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-        <strong style="color:#c4581f;font-size:15px">${fmtMoney(e.amount)}</strong>
-        ${btn}
-      </div>
-    </div>
-  </div>`;
-}
-
-// Read/refresh the earned log. The log holds two kinds of rows: portal-stamped
-// bounties (Anchor/Wallet/Retention), stamped here on first detection, and
-// zap-written New Partner rows whose Earned Date is the job-complete date.
-// Output (window._earnedLog) carries everything needed to render and submit.
-async function reconcileEarnedLog(earned){
-  const today=new Date(); today.setHours(0,0,0,0);
-  const todayStr=today.toLocaleDateString('en-US');
-  let header=null, dataRows=[], haveLog=false;
-  try{
-    const d=await api({action:'read', tab:'B2B_Earned_Log'});
-    if(d.success && d.data && d.data.length){ haveLog=true; header=d.data[0]; dataRows=d.data.slice(1); }
-  }catch(e){ haveLog=false; }
-
-  // Detail text for portal-calculated bounties, keyed so we can enrich the log row.
-  const detailByKey={};
-  earned.forEach(b=>{ detailByKey[earnedKey(b)]=b.detail||''; });
-
-  // Existing log rows -> entries keyed by a stable computed key.
-  const entries={};
-  if(haveLog){
-    const c=cols(header);
-    const tI=c('Bonus Type'), aI=c('Account'), amI=c('Amount'), eI=c('Earned Date'), sI=c('Submitted');
-    dataRows.forEach(r=>{
-      const type=(tI>=0?(r[tI]||''):'').toString().replace(/\s*Bounty$/i,'').trim();
-      const account=(aI>=0?(r[aI]||''):'').toString().trim();
-      if(!type || !account) return;
-      const earnedDateStr=(eI>=0?r[eI]:'');
-      const key=keyFromFields(type, account, earnedDateStr);
-      const ed=new Date(earnedDateStr);
-      const amt=Number(amI>=0?r[amI]:0)||defaultAmount(type);
-      entries[key]={ type, account, amount:amt, earnedDate:isNaN(ed)?today:ed, submitted:!!(sI>=0?(r[sI]||'').toString().trim():'') };
-    });
-  }
-
-  // Stamp portal-calculated earned bounties not yet logged (clock starts now).
-  for(const b of earned){
-    const key=earnedKey(b);
-    if(!entries[key]){
-      if(haveLog){
-        const vals={ Key:key, Employee:'Colin Glenn', 'Bonus Type':b.label, Account:b.account, Amount:b.amount, 'Earned Date':todayStr, Submitted:'', 'Submitted Date':'' };
-        const row=header.map(h=>{ const name=String(h).trim(); return (name in vals)?vals[name]:''; });
-        try{ await api({action:'append', tab:'B2B_Earned_Log', row:JSON.stringify(row)}); }catch(e){}
-      }
-      entries[key]={ type:b.label, account:b.account, amount:b.amount, earnedDate:today, submitted:false };
-    }
-  }
-
-  // Build display map with countdowns.
-  const out={};
-  Object.keys(entries).forEach(key=>{
-    const e=entries[key];
-    const daysLeft=SUBMIT_WINDOW_DAYS-Math.floor((today-e.earnedDate)/86400000);
-    out[key]={ key, type:e.type, account:e.account, amount:e.amount, earnedDate:e.earnedDate,
-               daysLeft, submitted:e.submitted, expired:daysLeft<0,
-               detail: detailByKey[key] || defaultDetail(e.type) };
-  });
-
-  // Auto-submit anything past the window that has not been submitted, so nothing
-  // is ever forfeited and the liability cannot sit unpaid indefinitely.
-  for(const key of Object.keys(out)){
-    const e=out[key];
-    if(e.submitted || e.daysLeft>=0) continue;
-    const ok=await autoSubmitOverdue(e);
-    if(ok) e.submitted=true;
-  }
-
-  window._earnedLog=out;
-  window._earnedLogAvailable=haveLog;
-}
-
-// Auto-submit a bounty whose window has elapsed. Guards against a double-write by
-// checking the approval queue first (year-aware key), so re-loads are safe.
-async function autoSubmitOverdue(entry){
-  try{
-    const d=await api({action:'read', tab:'B2B_Partner_Bounties'});
-    if(d.success && d.data && d.data.length){
-      const c=cols(d.data[0]);
-      const already=d.data.slice(1).some(r=>{
-        const acct=(r[c('Account')]||r[c('Org name')]||r[c('Org Name')]||r[c('Deal Name')]||'').toString().trim();
-        const type=(r[c('Bonus Type')]||r[c('Deal Name')]||'').toString();
-        const rowDate=(r[c('Date')]||r[c('Approved Date')]||'');
-        return keyFromFields(type, acct, rowDate)===entry.key;
-      });
-      if(already){ await markEarnedSubmitted(entry.key); return true; }
-    }
-    const today=new Date().toLocaleDateString('en-US');
-    const row=['Colin Glenn', today, entry.account, entry.account, '', '', '', entry.amount, entry.type, '', '', ''];
-    await api({action:'append', tab:'B2B_Partner_Bounties', row:JSON.stringify(row)});
-    await markEarnedSubmitted(entry.key);
-    return true;
-  }catch(e){ return false; }
-}
-
-// Submit a single earned bounty to the approval queue, then mark it in the log.
-async function submitOneBounty(btnId, key, account, type, amount){
-  const btn=document.getElementById(btnId);
-  if(btn){ btn.disabled=true; btn.textContent='Submitting...'; }
-  try{
-    const today=new Date().toLocaleDateString('en-US');
-    const row=['Colin Glenn', today, account, account, '', '', '', amount, type, '', '', ''];
-    await api({action:'append', tab:'B2B_Partner_Bounties', row:JSON.stringify(row)});
-    await markEarnedSubmitted(key);
-    if(btn){ btn.textContent='Submitted!'; btn.style.background='#d4edda'; btn.style.color='#155724'; btn.style.borderColor='#28a745'; }
-    await loadBounties();
-    await loadB2BTracker();
-  }catch(e){
-    if(btn){ btn.disabled=false; btn.textContent='Submit for Payout'; }
-    alert('Error submitting. Please try again.');
-  }
-}
-
-async function markEarnedSubmitted(key){
-  try{
-    const d=await api({action:'read', tab:'B2B_Earned_Log'});
-    if(!d.success || !d.data || !d.data.length) return;
-    const c=cols(d.data[0]);
-    const kI=c('Key'), tI=c('Bonus Type'), aI=c('Account'), eI=c('Earned Date'), sI=c('Submitted'), sdI=c('Submitted Date');
-    for(let i=1;i<d.data.length;i++){
-      const r=d.data[i];
-      const storedKey=(kI>=0?(r[kI]||'').toString().trim():'');
-      const compKey=keyFromFields((tI>=0?r[tI]:''),(aI>=0?r[aI]:''),(eI>=0?r[eI]:''));
-      if(storedKey===key || compKey===key){
-        const row=r.slice();
-        if(sI>=0) row[sI]='Yes';
-        if(sdI>=0) row[sdI]=new Date().toLocaleDateString('en-US');
-        if(kI>=0 && !storedKey) row[kI]=key; // backfill key on zap-written rows
-        await api({action:'update', tab:'B2B_Earned_Log', rowIndex:i+1, row:JSON.stringify(row)});
-        break;
-      }
-    }
-  }catch(e){}
-}
-
-// Won deals not yet marked Job Complete: shown so Colin can chase completion.
-let _awaitDeals=[];
-let _awaitSort={col:'value', dir:'desc'};
-
-function renderAwaitingCompletion(deals){
-  const card=document.getElementById('await-completion-card');
-  const body=document.getElementById('await-completion-body');
-  if(!card||!body) return;
-  _awaitDeals=(deals||[]).filter(d=>d.account);
-  if(!_awaitDeals.length){ card.style.display='none'; return; }
-  card.style.display='block';
-  renderAwaitingTable();
-}
-
-// Toggle direction when re-clicking the active column; otherwise pick a sensible
-// default (A-Z for names, high-to-low for value, newest-first for date).
-function sortAwaiting(col){
-  if(_awaitSort.col===col){ _awaitSort.dir = _awaitSort.dir==='asc' ? 'desc' : 'asc'; }
-  else { _awaitSort.col=col; _awaitSort.dir = (col==='account') ? 'asc' : 'desc'; }
-  renderAwaitingTable();
-}
-
-function renderAwaitingTable(){
-  const body=document.getElementById('await-completion-body');
-  if(!body) return;
-  const col=_awaitSort.col, mul=(_awaitSort.dir==='asc')?1:-1;
-  const list=_awaitDeals.slice().sort((a,b)=>{
-    if(col==='account'){ const x=(a.account||'').toLowerCase(), y=(b.account||'').toLowerCase(); return x<y?-mul:x>y?mul:0; }
-    if(col==='date'){ const x=a.wonDate?new Date(a.wonDate).getTime():0, y=b.wonDate?new Date(b.wonDate).getTime():0; return (x-y)*mul; }
-    return ((a.value||0)-(b.value||0))*mul; // value
-  });
-  const total=list.reduce((s,d)=>s+(d.value||0),0);
-  const arrow=c => col===c ? (_awaitSort.dir==='asc' ? ' \u25B2' : ' \u25BC') : '';
-  const th=(label,c,align)=>`<th style="cursor:pointer;user-select:none;${align?'text-align:'+align+';':''}" onclick="sortAwaiting('${c}')">${label}${arrow(c)}</th>`;
-  body.innerHTML =
-    `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#1a1a1a;border-radius:6px;margin-bottom:12px">
-       <span style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#f5ede0">${list.length} deal${list.length===1?'':'s'} waiting on completion</span>
-       <strong style="color:#c4581f;font-size:16px">${fmtMoney(total)}</strong>
-     </div>`
-    + '<table class="data-table"><thead><tr>'
-    + th('Account','account','') + th('Deal Value','value','right') + th('Won','date','right')
-    + '</tr></thead><tbody>'
-    + list.map(d=>`<tr><td><strong>${d.account}</strong>${wwDealLink(d.id)}</td><td style="text-align:right;font-weight:600">${fmtMoney(d.value||0)}</td><td style="text-align:right;font-size:11px;color:#aaa">${d.wonDate?new Date(d.wonDate).toLocaleDateString('en-US'):''}</td></tr>`).join('')
-    + '</tbody></table>';
 }
 
 function toggleAllAccounts() {
@@ -1271,25 +987,16 @@ async function loadB2BTracker() {
     const lastYearStart = new Date(thisYear - 1, 0, 1);
     const lastYearEnd = new Date(thisYear - 1, 11, 31);
 
-    // A bounty only becomes submittable once its deals are marked Job Complete,
-    // but won-but-incomplete deals still count toward progress and opportunities so
-    // Colin can see what is coming. Free-text field; tolerate the double-space
-    // variant and match on "complete" so an empty value reads as not complete.
-    const JOB_COMPLETE_FIELD = '4de3f85265244bcda17bc3422716c7fb08f436b7';
-    const isJobComplete = (deal) => String(deal[JOB_COMPLETE_FIELD]||'').replace(/\s+/g,' ').trim().toLowerCase().indexOf('complete') !== -1;
-
-    // Deal-level chase list of won deals still waiting on Job Complete.
-    const incompleteDeals = [];
-
     allDeals.forEach(deal => {
       if (!deal.org_id) return;
-      const orgName = deal.org_id.name;
-      const wonDate = deal.won_time ? new Date(deal.won_time.replace(' ','T') + (deal.won_time.includes('Z') ? '' : 'Z')) : null;
-      const complete = isJobComplete(deal);
-      if (!complete) incompleteDeals.push({ account: orgName, value: deal.value || 0, wonDate, id: deal.id });
       const orgId = deal.org_id.value;
+      const orgName = deal.org_id.name;
       if (!orgs[orgId]) orgs[orgId] = { name: orgName, id: orgId, deals: [] };
-      orgs[orgId].deals.push({ id: deal.id, value: deal.value || 0, wonDate, complete });
+      orgs[orgId].deals.push({
+        id: deal.id,
+        value: deal.value || 0,
+        wonDate: deal.won_time ? new Date(deal.won_time.replace(' ','T') + (deal.won_time.includes('Z') ? '' : 'Z')) : null
+      });
     });
 
     // Frozen anchor-clock start: earliest New Partner bounty date per org.
@@ -1314,7 +1021,6 @@ async function loadB2BTracker() {
 
     const orgData = Object.values(orgs).map(org => {
       const deals = org.deals.sort((a,b) => a.wonDate - b.wonDate);
-      const cDeals = deals.filter(d => d.complete); // job-complete subset
       // Anchor clock starts from the immutable bounty date when available; if both exist,
       // use the earlier, since a re-win only ever pushes the live won_time later.
       const liveFirst = deals[0]?.wonDate || null;
@@ -1323,14 +1029,8 @@ async function loadB2BTracker() {
       if (frozenFirst && liveFirst) firstSale = (frozenFirst <= liveFirst) ? frozenFirst : liveFirst;
       else firstSale = frozenFirst || liveFirst;
 
-      const inThisYear = d => d.wonDate && d.wonDate >= thisYearStart;
-      const inLastYear = d => d.wonDate && d.wonDate >= lastYearStart && d.wonDate <= lastYearEnd;
-      const sum = arr => arr.reduce((s,d) => s+d.value, 0);
-      const revThisYear = sum(deals.filter(inThisYear));
-      const revLastYear = sum(deals.filter(inLastYear));
-      // Complete-basis revenue decides whether a crossed threshold is actually payable.
-      const cRevThisYear = sum(cDeals.filter(inThisYear));
-      const cRevLastYear = sum(cDeals.filter(inLastYear));
+      const revThisYear = deals.filter(d => d.wonDate && d.wonDate >= thisYearStart).reduce((s,d) => s+d.value, 0);
+      const revLastYear = deals.filter(d => d.wonDate && d.wonDate >= lastYearStart && d.wonDate <= lastYearEnd).reduce((s,d) => s+d.value, 0);
 
       const bonuses = [];
       const alerts = [];
@@ -1345,16 +1045,12 @@ async function loadB2BTracker() {
       if (firstSale) {
         const firstSalePlusYear = new Date(firstSale);
         firstSalePlusYear.setFullYear(firstSalePlusYear.getFullYear() + 1);
-        const inWindow = d => d.wonDate && d.wonDate >= firstSale && d.wonDate <= firstSalePlusYear;
-        const dealsFirstYear = deals.filter(inWindow);
-        const revFirstYear = sum(dealsFirstYear);
+        const dealsFirstYear = deals.filter(d => d.wonDate && d.wonDate >= firstSale && d.wonDate <= firstSalePlusYear);
+        const revFirstYear = dealsFirstYear.reduce((s,d) => s+d.value, 0);
         const contractsFirstYear = dealsFirstYear.length;
-        const cFirstYear = cDeals.filter(inWindow);
-        const cContracts = cFirstYear.length, cRev = sum(cFirstYear);
 
         if (contractsFirstYear >= 3 && revFirstYear >= 150000) {
-          const ready = cContracts >= 3 && cRev >= 150000;
-          bonuses.push({label:'Anchor Account', amount:2500, detail:`${contractsFirstYear} contracts, ${fmtMoney(revFirstYear)} in first 12mo`, account:org.name, year:thisYear, ready});
+          bonuses.push({label:'Anchor Account', amount:2500, detail:`${contractsFirstYear} contracts, ${fmtMoney(revFirstYear)} in first 12mo`, account:org.name});
         } else if (firstSalePlusYear > now) {
           // Still in first 12 months -- show alert only if meaningful progress
           // Must have $100k+ OR 2+ contracts with $50k+
@@ -1375,8 +1071,7 @@ async function loadB2BTracker() {
       if (revLastYear > 0) {
         const target = revLastYear * 1.2;
         if (revThisYear >= target && revThisYear >= 60000) {
-          const ready = cRevLastYear > 0 && cRevThisYear >= cRevLastYear * 1.2 && cRevThisYear >= 60000;
-          bonuses.push({label:'Wallet Share', amount:2500, detail:`${fmtMoney(revThisYear)} this year vs ${fmtMoney(revLastYear)} last year`, account:org.name, year:thisYear, ready});
+          bonuses.push({label:'Wallet Share', amount:2500, detail:`${fmtMoney(revThisYear)} this year vs ${fmtMoney(revLastYear)} last year`, account:org.name});
         } else if (revThisYear >= target * 0.75 && revThisYear < target) {
           const needed = target - revThisYear;
           alerts.push(`Wallet Share: ${fmtMoney(needed)} more to hit 20% growth`);
@@ -1387,7 +1082,7 @@ async function loadB2BTracker() {
       // Account Retention: $200k this year
       let retentionProgress = null;
       if (revThisYear >= 200000) {
-        bonuses.push({label:'Account Retention', amount:2500, detail:`${fmtMoney(revThisYear)} this year`, account:org.name, year:thisYear, ready: cRevThisYear >= 200000});
+        bonuses.push({label:'Account Retention', amount:2500, detail:`${fmtMoney(revThisYear)} this year`, account:org.name});
       } else if (revThisYear >= 150000) {
         const needed = 200000 - revThisYear;
         alerts.push(`Account Retention: ${fmtMoney(needed)} away from $200k`);
@@ -1404,18 +1099,8 @@ async function loadB2BTracker() {
                anchorProgress, walletProgress, retentionProgress, newPartnerProgress };
     }).filter(o => o.totalDeals > 0);
 
-    // Ready bounties (deals complete) are submittable and get logged; the rest are
-    // earned-on-paper but pending job completion, shown but not submittable.
-    const allBonuses = orgData.flatMap(o => o.bonuses);
-    _b2bEarned = allBonuses.filter(b => b.ready);
-    _b2bInProgress = allBonuses.filter(b => !b.ready);
-
-    // Stamp / refresh the submission clock for newly earned (ready) bounties.
-    await reconcileEarnedLog(_b2bEarned);
-
-    // Show won deals still waiting on Job Complete (motivation + chase list).
-    renderAwaitingCompletion(incompleteDeals);
-
+    // Collect all earned bonuses for summary
+    _b2bEarned = orgData.flatMap(o => o.bonuses);
     updateBonusSummary();
 
     // OPPORTUNITIES section
@@ -1511,6 +1196,49 @@ async function loadB2BTracker() {
     if(loadEl) loadEl.style.display='none';
     if(oppLoadEl) oppLoadEl.style.display='none';
     console.error('B2B tracker error:', e);
+  }
+}
+
+async function submitBonusesForApproval() {
+  const btn = document.getElementById('submit-bonuses-btn');
+  if (!btn) return;
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    // Build a set of bounties already on the sheet so we never double-submit.
+    // Keyed by account + bonus type. Legacy rows stored the type in Deal Name, so fall back to that.
+    const existing = new Set();
+    try {
+      const d = await api({action:'read', tab:'B2B_Partner_Bounties'});
+      if (d.success && d.data && d.data.length) {
+        const c = cols(d.data[0]);
+        d.data.slice(1).forEach(r => {
+          const acct = (r[c('Account')] || r[c('Org name')] || r[c('Org Name')] || r[c('Deal Name')] || '').toString().trim().toLowerCase();
+          const type = (r[c('Bonus Type')] || r[c('Deal Name')] || '').toString().trim().toLowerCase();
+          if (acct) existing.add(acct + '|' + type);
+        });
+      }
+    } catch(e) {}
+    // Submit only earned bounties not already on the sheet, in the correct column order.
+    // Columns: Employee, Date, Account, Org name, Deal Name, Deal Value, Deal ID, Amount, Bonus Type, Approved By, Approved Date, Pay Date
+    const today = new Date().toLocaleDateString('en-US');
+    const seen = new Set();
+    let submitted = 0;
+    for (const b of _b2bEarned) {
+      const acct = (b.account || '').trim();
+      if (!acct) continue;
+      const key = acct.toLowerCase() + '|' + (b.label || '').trim().toLowerCase();
+      if (seen.has(key) || existing.has(key)) continue;
+      seen.add(key);
+      const row = ['Colin Glenn', today, acct, acct, '', '', '', b.amount, b.label, '', '', ''];
+      await api({action:'append', tab:'B2B_Partner_Bounties', row:JSON.stringify(row)});
+      submitted++;
+    }
+    btn.textContent = submitted > 0 ? ('Submitted ' + submitted + '!') : 'Already submitted';
+    btn.style.background = '#d4edda'; btn.style.color = '#155724'; btn.style.borderColor = '#28a745';
+    setTimeout(() => { btn.disabled = false; btn.textContent = 'Submit for Approval'; btn.style = ''; }, 3000);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Submit for Approval';
+    alert('Error submitting. Please try again.');
   }
 }
 

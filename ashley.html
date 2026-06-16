@@ -7,11 +7,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ashley | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=129">
+<link rel="stylesheet" href="portal.css?v=124">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Ashley Ball';</script>
-<script src="gate.js?v=127"></script>
+<script src="gate.js?v=124"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -41,14 +41,14 @@
     <div class="stat-block">
       <div class="stat-number" id="vac-remaining">--</div>
       <div class="stat-label">Vacation Days Left</div>
-      <div class="stat-sub" id="vac-used">-- days used YTD</div>
+      <div class="stat-sub" id="vac-used">of 10 used: --</div>
       <div class="stat-sub" id="vac-upcoming">0 approved upcoming</div>
       <div class="pto-bar-wrap"><div class="pto-bar" id="vac-bar" style="width:0%"></div></div>
     </div>
     <div class="stat-block">
       <div class="stat-number" id="sick-remaining">--</div>
       <div class="stat-label">Sick Days Left</div>
-      <div class="stat-sub" id="sick-used">-- days used YTD</div>
+      <div class="stat-sub" id="sick-used">of 5 used: --</div>
       <div class="stat-sub" id="sick-upcoming">0 approved upcoming</div>
       <div class="pto-bar-wrap"><div class="pto-bar" id="sick-bar" style="width:0%"></div></div>
     </div>
@@ -148,7 +148,7 @@
 </div></div></div>
 <div class="tab-content active" id="tab-tasks">
 <div class="tb-wrap">
-  <p class="tb-hint">Your personal task board. Data saves in your browser. Click bucket names to rename them (except Recurring).</p>
+  <p class="tb-hint">Your personal task board, synced across your devices. Click bucket names to rename them (except Recurring).</p>
   <div class="tb-add-bar">
     <input type="text" class="tb-add-inp" id="tb-add-inp" placeholder="Add a task...">
     <select class="tb-add-bucket" id="tb-add-bucket">
@@ -286,8 +286,8 @@ async function loadPTOBalances(employee){
     const sickTotal=sickUsed+sickBal;
     const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
     const sw=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=v;};
-    s('vac-remaining',vacBal);s('vac-used',`${vacUsed} day${vacUsed===1?'':'s'} used YTD`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsed/vacTotal)*100)+'%':'0%');
-    s('sick-remaining',sickBal);s('sick-used',`${sickUsed} day${sickUsed===1?'':'s'} used YTD`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsed/sickTotal)*100)+'%':'0%');
+    s('vac-remaining',vacBal);s('vac-used',`of ${vacTotal} used: ${vacUsed}`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsed/vacTotal)*100)+'%':'0%');
+    s('sick-remaining',sickBal);s('sick-used',`of ${sickTotal} used: ${sickUsed}`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsed/sickTotal)*100)+'%':'0%');
     if(hireDate){const hm=document.getElementById('hire-meta');if(hm)hm.textContent='Hire date: '+fmtDate(hireDate);}
   }catch(e){console.error(e);}
 }
@@ -313,7 +313,7 @@ async function loadMyRequests(employee){
       const status=(r[c('Status')]||'Pending').trim();
       const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
       let pill;
-      if(status==='Approved'&&endDate>=today){pill='<span class="pill pill-blue">Upcoming</span>';}
+      if(status==='Approved'&&endDate>=today){pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';}
       else if(status==='Approved'){pill='<span class="pill pill-approved">Approved</span>';}
       else if(status==='Denied'){pill='<span class="pill pill-denied">Denied</span>';}
       else{pill='<span class="pill pill-pending">Pending</span>';}
@@ -513,8 +513,8 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js"></script>
+<script src="taskboard.js?v=124"></script>
 <script>initTaskBoard("ashley");</script>
-<script src="resources.js"></script>
+<script src="resources.js?v=124"></script>
 </body>
 </html>

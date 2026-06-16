@@ -72,7 +72,6 @@ body{font-family:'Barlow',Arial,sans-serif;background:#edeae4;color:#1a1a1a;min-
 .pill-orange{background:#fae8df;color:#c4581f}
 .pill-gray{background:#e9ecef;color:#666}
 .pill-yellow{background:#fff3cd;color:#856404}
-.pill-blue{background:#cce5ff;color:#004085}
 
 /* ACTION BUTTONS */
 .action-btn{font-size:11px;padding:4px 10px;border-radius:4px;border:1px solid;cursor:pointer;font-family:'Barlow',sans-serif;white-space:nowrap}
@@ -110,10 +109,10 @@ body{font-family:'Barlow',Arial,sans-serif;background:#edeae4;color:#1a1a1a;min-
 .doc-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0ece6;flex-wrap:wrap;gap:8px}
 .doc-row:last-child{border-bottom:none}
 .doc-name{font-size:14px;color:#333;flex:1}
-.doc-actions{display:flex;align-items:center;gap:8px}
+.doc-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
 .doc-link{font-size:12px;color:#c4581f;text-decoration:none}
 .doc-link:hover{text-decoration:underline}
-.doc-input{font-size:12px;padding:4px 8px;border:1px solid #ddd;border-radius:4px;background:#f5f3f0;color:#1a1a1a;outline:none;width:280px}
+.doc-input{font-size:12px;padding:4px 8px;border:1px solid #ddd;border-radius:4px;background:#f5f3f0;color:#1a1a1a;outline:none;width:280px;max-width:100%}
 .doc-input:focus{border-color:#c4581f}
 
 /* EQUIPMENT */
@@ -160,7 +159,7 @@ body{font-family:'Barlow',Arial,sans-serif;background:#edeae4;color:#1a1a1a;min-
 .tb-add-btn{font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:8px 18px;border:none;border-radius:4px;background:#c4581f;color:#fff;cursor:pointer}
 .tb-add-btn:hover{background:#a8461a}
 .tb-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:700px){}
+/* Mobile rules live in the consolidated block at the end of this file. */
 .tb-col{border-radius:8px;padding:12px;min-height:200px;border:1px solid transparent}
 .tb-col[data-bucket="this-week"]{background:#c4581f;border-color:#a8461a}
 .tb-col[data-bucket="recurring"]{background:#1a1a1a;border-color:#333}
@@ -330,3 +329,34 @@ tr.cur td:first-child{border-left:3px solid #c4581f}
 
 .nav-badge{display:none;min-width:18px;height:18px;line-height:18px;padding:0 5px;margin-left:6px;border-radius:9px;background:#c4581f;color:#fff;font-size:11px;font-weight:700;text-align:center;vertical-align:middle}
 .nav-badge.show{display:inline-block}
+
+/* ============================================================
+   MOBILE / NARROW VIEWPORTS
+   Consolidated responsive rules. Kept at the end so they win the
+   cascade over the base rules above.
+   ============================================================ */
+@media(max-width:700px){
+  /* Tighter side padding so cards use the available screen width. */
+  .body{padding:20px 14px 0 14px}
+  .tab-content{padding:18px 14px}
+  .card{padding:16px 14px}
+
+  /* Multi-field forms (e.g. PTO request): stack each field full width so
+     date, type, and days inputs always have room and never overlap.
+     The !important overrides the inline max-width on the Days field. */
+  .form-row{gap:12px}
+  .form-group{flex-basis:100%;min-width:0;max-width:none !important}
+
+  /* Document / record rows: keep the paste-link box inside its tile by
+     letting it span the full row width instead of a fixed 280px. */
+  .doc-name{flex-basis:100%}
+  .doc-actions{width:100%}
+  .doc-input{width:100%;flex:1 1 100%}
+}
+
+/* Single-column task board on phones (two columns are cramped on a phone). */
+@media(max-width:560px){
+  .tb-grid{grid-template-columns:1fr}
+  .tb-add-inp{flex:1 1 100%}
+  .tb-add-bucket{flex:1 1 auto}
+}
