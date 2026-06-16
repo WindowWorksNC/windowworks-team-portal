@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Justin Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=124">
+<link rel="stylesheet" href="portal.css?v=126">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Justin Reif';</script>
-<script src="gate.js?v=124"></script>
+<script src="gate.js?v=126"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -53,6 +53,31 @@
 
 <!-- ========================= TEAM: COMMISSION ========================= -->
 <div class="tab-content active" id="tab-commission-admin">
+<!-- MANUAL COMMISSION PAYOUT (transition + special cases) -->
+<div class="card">
+  <div class="card-title" style="justify-content:space-between;cursor:pointer" onclick="toggleManualComm(this)"><span>Record Commission Payout</span><span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="manual-comm-toggle">(click to expand)</span></div>
+  <div id="manual-comm-wrap" style="display:none;margin-top:8px">
+    <div style="font-size:12px;color:#888;margin-bottom:12px">For deals started before the back-end-only switch, or other agreed partial payouts. New deals pay automatically on completion, so use this only for transition or special cases.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px">
+      <div style="flex:1;min-width:170px"><label class="form-label">Employee</label><select class="form-input" id="mc-employee" onchange="mcRecalc()"><option>Colin Glenn</option><option>Jimmie Coleman</option></select></div>
+      <div style="flex:1;min-width:170px"><label class="form-label">Payout type</label><select class="form-input" id="mc-type" onchange="mcRecalc()"><option value="custom">Custom amount</option><option value="full">Full commission</option></select></div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:10px">
+      <div style="flex:2;min-width:200px"><label class="form-label">Deal name</label><input class="form-input" id="mc-deal" placeholder="e.g. Cary Academy"></div>
+      <div style="flex:1;min-width:140px"><label class="form-label">Deal ID (optional)</label><input class="form-input" id="mc-dealid" placeholder="Pipedrive ID"></div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:10px">
+      <div style="flex:1;min-width:150px"><label class="form-label">Deal value (optional)</label><input class="form-input" id="mc-value" type="number" step="0.01" oninput="mcRecalc()" placeholder="0.00"></div>
+      <div style="flex:1;min-width:150px"><label class="form-label">Commission amount</label><input class="form-input" id="mc-amount" type="number" step="0.01" placeholder="0.00"></div>
+    </div>
+    <div style="margin-top:10px"><label class="form-label">Note (optional)</label><input class="form-input" id="mc-note" placeholder="e.g. Back-end portion, deposit already paid"></div>
+    <div style="margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <button class="action-btn btn-approve" id="mc-save" onclick="recordCommissionPayout()">Record Payout</button>
+      <span id="mc-msg" style="font-size:13px"></span>
+    </div>
+  </div>
+</div>
+
 <div class="card">
   <div class="card-title" style="justify-content:space-between"><span>Commission</span><span style="font-size:12px;color:#888;font-weight:400;text-transform:none" id="comm-period-display">Loading...</span></div>
   <div id="team-comm-loading" class="loading">Loading...</div>
@@ -507,6 +532,53 @@ function fmtPayDate(d){return d.toLocaleDateString('en-US',{month:'short',day:'n
 // ===================================================================
 
 // ---------- Commission ----------
+// ---------- Manual commission payout (transition + special cases) ----------
+function toggleManualComm(el){
+  const w=document.getElementById('manual-comm-wrap');
+  const t=document.getElementById('manual-comm-toggle');
+  if(!w)return; const open=w.style.display!=='none';
+  w.style.display=open?'none':'block';
+  if(t)t.textContent=open?'(click to expand)':'(click to collapse)';
+}
+function mcRate(emp){ return emp==='Jimmie Coleman'?0.08:0.045; }
+function mcRecalc(){
+  const typeEl=document.getElementById('mc-type'); if(!typeEl)return;
+  if(typeEl.value!=='full')return;
+  const emp=document.getElementById('mc-employee').value;
+  const val=parseFloat(document.getElementById('mc-value').value)||0;
+  document.getElementById('mc-amount').value=(Math.round(val*mcRate(emp)*100)/100).toFixed(2);
+}
+async function recordCommissionPayout(){
+  const btn=document.getElementById('mc-save'); const msg=document.getElementById('mc-msg');
+  const emp=document.getElementById('mc-employee').value;
+  const deal=document.getElementById('mc-deal').value.trim();
+  const dealId=document.getElementById('mc-dealid').value.trim();
+  const value=document.getElementById('mc-value').value.trim();
+  const amount=parseFloat(document.getElementById('mc-amount').value)||0;
+  const note=document.getElementById('mc-note').value.trim();
+  const type=document.getElementById('mc-type').value;
+  const setMsg=(t,ok)=>{ if(msg){msg.textContent=t;msg.style.color=ok?'#28a745':'#c0392b';} };
+  if(!deal){ setMsg('Enter a deal name.',false); return; }
+  if(!(amount>0)){ setMsg('Enter a commission amount greater than 0.',false); return; }
+  if(btn){btn.disabled=true;btn.textContent='Recording...';}
+  try{
+    const d=await api({action:'read',tab:'Commissions'});
+    const header=(d.success&&d.data&&d.data.length)?d.data[0]:['Date','Employee','Deal Name','Deal Value','Deal ID','Rate','Lead Type','Commission','Pay Period','Notes','Approved by','Approved date'];
+    const now=new Date();
+    const dateStr=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    const rateDisp=type==='full'?(emp==='Jimmie Coleman'?'8%':'4.5%'):'Manual';
+    const vals={'Date':dateStr,'Employee':emp,'Deal Name':deal,'Deal Value':value,'Deal ID':dealId,'Rate':rateDisp,'Lead Type':'','Commission':amount.toFixed(2),'Pay Period':getCurrentPeriod(),'Notes':note,'Approved by':'','Approved date':''};
+    const row=header.map(h=>{const n=String(h).trim();return (n in vals)?vals[n]:'';});
+    const w=await api({action:'append',tab:'Commissions',row:JSON.stringify(row)});
+    if(w&&w.success){
+      setMsg('Recorded. It will show in the list below for approval.',true);
+      ['mc-deal','mc-dealid','mc-value','mc-amount','mc-note'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+      if(typeof loadTeamCommission==='function')loadTeamCommission();
+    } else setMsg('Save failed. Please try again.',false);
+  }catch(e){ setMsg('Error saving. Please try again.',false); }
+  if(btn){btn.disabled=false;btn.textContent='Record Payout';}
+}
+
 async function loadTeamCommission(){
   const loadEl=document.getElementById('team-comm-loading');
   const content=document.getElementById('team-comm-content');
