@@ -5,19 +5,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=128">
-<link rel="manifest" href="site.webmanifest?v=128">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=130">
+<link rel="manifest" href="site.webmanifest?v=130">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Jimmie Coleman | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=128">
+<link rel="stylesheet" href="portal.css?v=130">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Jimmie Coleman';</script>
-<script src="gate.js?v=128"></script>
+<script src="gate.js?v=130"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -387,38 +387,46 @@ async function loadRecord(employee){
   }catch(e){}
 }
 
-const ALL_DOCS_BASE=['Signed Offer Letter','Employee Handbook Acknowledgment','Government ID','Direct Deposit Authorization','W-4','I-9 Verification','Emergency Contact'];
-async function loadDocs(employee,hasCommissionDoc){
-  const docs=[...ALL_DOCS_BASE];
-  if(hasCommissionDoc)docs.push('Commission / Incentive Outline');
+const EARNINGS_DOCS={sales:'Commission Earnings Agreement (Sales Consultant)',admin:'Performance Earnings Agreement (Admin Professional)',pm:'Performance Earnings Agreement (Project Manager)'};
+const OPTIONAL_DOCS=['Direct Deposit Form'];
+function buildDocList(earningsType){
+  const list=[{name:'Employment Contract'}];
+  if(earningsType&&EARNINGS_DOCS[earningsType])list.push({name:EARNINGS_DOCS[earningsType]});
+  list.push({name:'I-9 Authorization to Work in the US'});
+  list.push({name:'Government ID',expiry:true});
+  list.push({name:'Company Policies'});
+  list.push({name:'Company Dress Code'});
+  list.push({name:'PTO Policy'});
+  list.push({name:'W-4 Tax Form'});
+  list.push({name:'Direct Deposit Form',optional:true});
+  list.push({name:'Emergency Contact and Medical Information'});
+  return list;
+}
+async function loadDocs(employee,earningsType){
+  const docs=buildDocList(earningsType);
   try{
     const d=await api({action:'read',tab:'Employee_Records'});
     const loadEl=document.getElementById('docs-loading');if(loadEl)loadEl.style.display='none';
+    const c=cols(d.data&&d.data[0]?d.data[0]:[]);
+    const docsIdx=c('Documents')>=0?c('Documents'):8;
     let docData={};
     if(d.success){
-      const c=cols(d.data[0]);const docsIdx=c('Documents')>=0?c('Documents'):8;
-      const row=d.data.slice(1).find(r=>r[0]===employee);
+      const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
       if(row&&row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
     }
     const container=document.getElementById('docs-list');
     if(!container)return;
     const idExpiry=docData['Government ID - Expiry']||'';
     container.innerHTML=docs.map(doc=>{
-      const url=docData[doc]||'';
-      const isID=doc==='Government ID';
-      const expirySection=isID?`<div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
-        <span class="${expiryClass(idExpiry)}" id="expiry-label">${expiryLabel(idExpiry)}</span>
-        <input type="date" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" id="expiry-input" value="${idExpiry}" onchange="saveExpiry('${employee}')">
-      </div>`:'';
-      const safeDoc=doc.replace(/[^a-zA-Z0-9]/g,'-');
-      return `<div class="doc-row">
-        <div>${doc==='Government ID'?`<div class="doc-name">${doc}</div>${expirySection}`:`<div class="doc-name">${doc}</div>`}</div>
-        <div class="doc-actions">
-          <span id="docstatus-${safeDoc}">${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:missingPill()}</span>
-          <input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${employee}','${doc}',this.value)">
-          <span id="docsaved-${safeDoc}" style="font-size:11px;color:#28a745;font-weight:600;opacity:0;transition:opacity .2s"></span>
-        </div>
-      </div>`;
+      const name=doc.name;
+      let url=docData[name]||'';
+      const eEsc=employee.replace(/'/g,"\\'");
+      const nEsc=name.replace(/'/g,"\\'");
+      const expirySection=doc.expiry?`<div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap"><span class="${expiryClass(idExpiry)}" id="expiry-label">${expiryLabel(idExpiry)}</span><input type="date" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" id="expiry-input" value="${idExpiry}" onchange="saveExpiry('${eEsc}')"></div>`:'';
+      const safeDoc=name.replace(/[^a-zA-Z0-9]/g,'-');
+      const optTag=doc.optional?' <span style="font-size:11px;color:#aaa;font-weight:400">(optional)</span>':'';
+      const emptyPill=doc.optional?'<span class="pill pill-gray">Optional</span>':missingPill();
+      return `<div class="doc-row"><div><div class="doc-name">${name}${optTag}</div>${expirySection}</div><div class="doc-actions"><span id="docstatus-${safeDoc}">${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:emptyPill}</span><input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${eEsc}','${nEsc}',this.value)"><span id="docsaved-${safeDoc}" style="font-size:11px;color:#28a745;font-weight:600;opacity:0;transition:opacity .2s"></span></div></div>`;
     }).join('');
   }catch(e){console.error(e);}
 }
@@ -439,7 +447,7 @@ async function saveDocLink(employee,doc,url){
     let docData={};if(row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
     docData[doc]=url;row[docsIdx]=JSON.stringify(docData);
     await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
-    if(statusEl)statusEl.innerHTML=url?(presentPill()+' <a class="doc-link" href="'+url+'" target="_blank">View</a>'):missingPill();
+    if(statusEl)statusEl.innerHTML=url?(presentPill()+' <a class="doc-link" href="'+url+'" target="_blank">View</a>'):(OPTIONAL_DOCS.indexOf(doc)>=0?'<span class="pill pill-gray">Optional</span>':missingPill());
     if(savedEl){savedEl.textContent='Saved';savedEl.style.color='#28a745';savedEl.style.opacity='1';setTimeout(function(){savedEl.style.opacity='0';},2000);}
   }catch(e){
     console.error(e);
@@ -510,7 +518,7 @@ loadPTOBalances(EMPLOYEE);
 loadMyRequests(EMPLOYEE);
 loadCommissions(EMPLOYEE);
 loadRecord(EMPLOYEE);
-loadDocs(EMPLOYEE, true);
+loadDocs(EMPLOYEE, 'sales');
 loadEquipment(EMPLOYEE);
 </script>
 <script>
@@ -532,9 +540,9 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=128"></script>
+<script src="taskboard.js?v=130"></script>
 <script>initTaskBoard("jimmie");</script>
-<script src="resources.js?v=128"></script>
+<script src="resources.js?v=130"></script>
 <script>
 function getCurrentPayPeriodLabel_jimmie() {
   const startMs=Date.UTC(2025,11,18);
