@@ -4,7 +4,11 @@
    The naming convention lives here as the single source of truth. */
 (function(){
   function ssGet(k){ try { return sessionStorage.getItem(k); } catch(e){ return null; } }
-  function isAdmin(){ return ssGet('ww_admin') === '1'; }
+  function isAdmin(){
+    if (ssGet('ww_admin') === '1' || ssGet('ww_owner') === '1') return true;
+    var emp = (window.WW_EMPLOYEE || '').trim();
+    return ['Rose Reif','Justin Reif','Brandon McClure'].indexOf(emp) >= 0;
+  }
 
   var DOC_CODES = [
     ['Employment Contract','EmploymentContract'],
