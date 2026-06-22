@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=132">
-<link rel="manifest" href="site.webmanifest?v=132">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=133">
+<link rel="manifest" href="site.webmanifest?v=133">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Justin Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=132">
+<link rel="stylesheet" href="portal.css?v=133">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Justin Reif';</script>
-<script src="gate.js?v=132"></script>
+<script src="gate.js?v=133"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -1364,6 +1364,8 @@ async function cacheCommissionHeaders(){
 
 // ---------- Equipment manager (admin) ----------
 const EQUIP_TYPES=['Computer','Computer case / backpack','iPad','Store keys','Company vehicle','Phone','V1CE card','Other'];
+let _equipEdit=null;
+function eqAttr(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 async function loadEquipAdminEmployees(){
   const sel=document.getElementById('equip-admin-emp');
   const ts=document.getElementById('equip-admin-type');
@@ -1392,7 +1394,28 @@ async function loadEquipAdmin(emp){
     if(!rows.length){wrap.innerHTML='<div class="empty-state">No equipment assigned.</div>';return;}
     wrap.innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>Item</th><th>Description</th><th>Serial</th><th>Issued</th><th>Status</th><th></th></tr></thead><tbody>${rows.map(o=>{
       const r=o.r;const returned=c('Date Returned')>=0?r[c('Date Returned')]:'';
-      return `<tr><td>${(typeI>=0?r[typeI]:'')||''}</td><td>${(mmI>=0?r[mmI]:'')||''}</td><td>${r[c('Serial Number')]||''}</td><td>${fmtDate(r[c('Date Issued')])||''}</td><td>${returned?'<span class="pill pill-gray">Returned '+fmtDate(returned)+'</span>':'<span class="pill pill-approved">Assigned</span>'}</td><td>${returned?'':`<button class="action-btn btn-approve" onclick="collectEquip(${o.idx})">Collect</button>`}</td></tr>`;
+      if(o.idx===_equipEdit){
+        const curType=(typeI>=0?r[typeI]:'')||'';
+        const curDesc=(mmI>=0?r[mmI]:'')||'';
+        const curSerial=r[c('Serial Number')]||'';
+        const curIssued=toInputDate(r[c('Date Issued')]);
+        const ni=c('Notes');const curNotes=ni>=0?(r[ni]||''):'';
+        const opts=(EQUIP_TYPES.includes(curType)||!curType)?EQUIP_TYPES:[curType,...EQUIP_TYPES];
+        const typeSel=opts.map(t=>`<option value="${eqAttr(t)}"${t===curType?' selected':''}>${t}</option>`).join('');
+        return `<tr><td colspan="6" style="background:#faf8f5;padding:14px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+            <div><div class="eq-lbl">Item</div><select id="eqedit-type" class="eq-inp">${typeSel}</select></div>
+            <div><div class="eq-lbl">Description / Make &amp; Model</div><input id="eqedit-desc" class="eq-inp" value="${eqAttr(curDesc)}"></div>
+            <div><div class="eq-lbl">Serial / Plate</div><input id="eqedit-serial" class="eq-inp" value="${eqAttr(curSerial)}"></div>
+            <div><div class="eq-lbl">Date Issued</div><input type="date" id="eqedit-issued" class="eq-inp" value="${eqAttr(curIssued)}"></div>
+          </div>
+          <div style="margin-bottom:12px"><div class="eq-lbl">Notes</div><input id="eqedit-notes" class="eq-inp" value="${eqAttr(curNotes)}"></div>
+          <div id="eqedit-alert"></div>
+          <button class="action-btn btn-approve" onclick="saveEquipEdit(${o.idx})">Save changes</button>
+          <button class="action-btn btn-edit" style="margin-left:8px" onclick="cancelEquipEdit()">Cancel</button>
+        </td></tr>`;
+      }
+      return `<tr><td>${(typeI>=0?r[typeI]:'')||''}</td><td>${(mmI>=0?r[mmI]:'')||''}</td><td>${r[c('Serial Number')]||''}</td><td>${fmtDate(r[c('Date Issued')])||''}</td><td>${returned?'<span class="pill pill-gray">Returned '+fmtDate(returned)+'</span>':'<span class="pill pill-approved">Assigned</span>'}</td><td><button class="action-btn btn-edit" onclick="editEquip(${o.idx})">Edit</button>${returned?'':`<button class="action-btn btn-approve" style="margin-left:6px" onclick="collectEquip(${o.idx})">Collect</button>`}</td></tr>`;
     }).join('')}</tbody></table></div>`;
   }catch(e){wrap.innerHTML='<div class="empty-state">Could not load equipment.</div>';}
 }
@@ -1438,6 +1461,32 @@ async function collectEquip(rowIndex){
     await api({action:'update',tab:'Equipment',rowIndex:rowIndex,row:JSON.stringify(row)});
     loadEquipAdmin(document.getElementById('equip-admin-emp').value);
   }catch(e){alert('Error updating. Please try again.');}
+}
+function editEquip(idx){_equipEdit=idx;loadEquipAdmin(document.getElementById('equip-admin-emp').value);}
+function cancelEquipEdit(){_equipEdit=null;loadEquipAdmin(document.getElementById('equip-admin-emp').value);}
+async function saveEquipEdit(rowIndex){
+  const alertEl=document.getElementById('eqedit-alert');
+  const type=document.getElementById('eqedit-type').value;
+  const desc=document.getElementById('eqedit-desc').value.trim();
+  const serial=document.getElementById('eqedit-serial').value.trim();
+  const issued=document.getElementById('eqedit-issued').value;
+  const notes=document.getElementById('eqedit-notes').value.trim();
+  if(!type){if(alertEl)alertEl.innerHTML='<div class="alert alert-error">Item is required.</div>';return;}
+  try{
+    const d=await api({action:'read',tab:'Equipment'});
+    const headers=d.data[0];const c=cols(headers);
+    const row=[...d.data[rowIndex-1]];
+    while(row.length<headers.length)row.push('');
+    const set=(name,alt,val)=>{let i=c(name);if(i<0&&alt)i=c(alt);if(i>=0)row[i]=val;};
+    set('Item Type','Type',type);
+    set('Make Model','Make / Model',desc);
+    set('Serial Number',null,serial);
+    if(issued)set('Date Issued',null,issued);
+    set('Notes',null,notes);
+    await api({action:'update',tab:'Equipment',rowIndex:rowIndex,row:JSON.stringify(row)});
+    _equipEdit=null;
+    loadEquipAdmin(document.getElementById('equip-admin-emp').value);
+  }catch(e){if(alertEl)alertEl.innerHTML='<div class="alert alert-error">Error saving. Please try again.</div>';}
 }
 
 function ywd_(s){s=String(s||'').trim();if(!s)return null;var p=s.split('T')[0].split('-');var d;if(p.length===3){d=new Date(+p[0],(+p[1])-1,+p[2]);}else{d=new Date(s);}return isNaN(d)?null:d;}
@@ -1492,10 +1541,10 @@ loadDocs(EMPLOYEE,null);
 loadEquipment(EMPLOYEE);
 </script>
 
-<script src="taskboard.js?v=132"></script>
+<script src="taskboard.js?v=133"></script>
 <script>initTaskBoard("justin");</script>
-<script src="resources.js?v=132"></script>
-<script src="docnaming.js?v=132"></script>
+<script src="resources.js?v=133"></script>
+<script src="docnaming.js?v=133"></script>
 <script>
 (function(){
   if(window.WW_EMPLOYEE!=='Rose Reif')return;
