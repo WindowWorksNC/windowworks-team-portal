@@ -10,12 +10,13 @@
   function ssGet(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } }
   function ssSet(k,v){ try{ sessionStorage.setItem(k,v); }catch(e){} }
   var OWNER_KEY = 'ww_owner';
+  var ADMIN_KEY = 'ww_admin';
   var UNLOCK_KEY = 'ww_unlock_' + EMP;
 
-  // Already an owner this session, or this dashboard already unlocked: no gate.
-  if (ssGet(OWNER_KEY) === '1' || ssGet(UNLOCK_KEY) === '1') return;
+  // Already an owner or admin this session, or this dashboard already unlocked: no gate.
+  if (ssGet(OWNER_KEY) === '1' || ssGet(ADMIN_KEY) === '1' || ssGet(UNLOCK_KEY) === '1') return;
 
-  var pins = { emp:'', rose:'', justin:'' };
+  var pins = { emp:'', rose:'', justin:'', brandon:'' };
   var loaded = false;
 
   var ov = document.createElement('div');
@@ -52,6 +53,7 @@
         if (n === EMP) pins.emp = p;
         if (n === 'Rose Reif') pins.rose = p;
         if (n === 'Justin Reif') pins.justin = p;
+        if (n === 'Brandon McClure') pins.brandon = p;
       });
       loaded = true;
       if (!pins.emp) removeOverlay(); // no PIN set for this person yet: not gated
@@ -61,16 +63,25 @@
   else loadPins();
 
   var OWNER_NAMES = ['Rose Reif','Justin Reif'];
-  function doUnlock(asOwner){ ssSet(UNLOCK_KEY,'1'); if (asOwner) ssSet(OWNER_KEY,'1'); removeOverlay(); }
+  var ADMIN_NAMES = ['Rose Reif','Justin Reif','Brandon McClure'];
+  function doUnlock(asOwner, asAdmin){
+    ssSet(UNLOCK_KEY,'1');
+    if (asOwner) ssSet(OWNER_KEY,'1');
+    if (asAdmin) ssSet(ADMIN_KEY,'1');
+    removeOverlay();
+    try { document.dispatchEvent(new CustomEvent('ww-auth',{ detail:{ owner:!!asOwner, admin:!!asAdmin } })); } catch(e){}
+  }
   function tryUnlock(){
     var inp = document.getElementById('ww-gate-pin'); if (!inp) return;
     var pin = (inp.value || '').trim();
     if (!pin) { setErr('Enter your PIN'); return; }
     if (!loaded) { setErr('One moment...'); return; }
-    // Own PIN: grants owner roam only if this page belongs to Rose or Justin.
-    if (pins.emp && pin === pins.emp) { doUnlock(OWNER_NAMES.indexOf(EMP) >= 0); return; }
-    // Rose's or Justin's PIN unlocks any page and grants owner roam for the session.
-    if ((pins.rose && pin === pins.rose) || (pins.justin && pin === pins.justin)) { doUnlock(true); return; }
+    // Own PIN: owner roam for Rose/Justin, admin roam for Brandon, on their own pages.
+    if (pins.emp && pin === pins.emp) { doUnlock(OWNER_NAMES.indexOf(EMP) >= 0, ADMIN_NAMES.indexOf(EMP) >= 0); return; }
+    // Rose's or Justin's PIN unlocks any page and grants owner + admin roam for the session.
+    if ((pins.rose && pin === pins.rose) || (pins.justin && pin === pins.justin)) { doUnlock(true, true); return; }
+    // Brandon's PIN unlocks any page and grants admin roam (approver tier, not owner).
+    if (pins.brandon && pin === pins.brandon) { doUnlock(false, true); return; }
     setErr('Incorrect PIN'); inp.value=''; inp.focus();
   }
   document.addEventListener('click', function(e){ if (e.target && e.target.id === 'ww-gate-btn') tryUnlock(); });
