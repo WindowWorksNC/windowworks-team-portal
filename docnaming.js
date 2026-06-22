@@ -15,6 +15,7 @@
     ['Commission Earnings Agreement (Sales Consultant)','EarningsCommission'],
     ['Performance Earnings Agreement (Project Manager)','EarningsPerformancePM'],
     ['Performance Earnings Agreement (Admin Professional)','EarningsPerformanceAdmin'],
+    ['Lead Generation Agreement','LeadGeneration'],
     ['I-9 Authorization to Work in the US','I9'],
     ['Government ID','ID'],
     ['Company Policies','Policies'],
@@ -22,6 +23,7 @@
     ['PTO Policy','PTO'],
     ['W-4 Tax Form','W4'],
     ['Direct Deposit Form','DirectDeposit'],
+    ['Equipment Assignment Form','EquipmentAssignment'],
     ['Emergency Contact and Medical Information','Emergency']
   ];
 
