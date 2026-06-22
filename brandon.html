@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=133">
-<link rel="manifest" href="site.webmanifest?v=133">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=134">
+<link rel="manifest" href="site.webmanifest?v=134">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=133">
+<link rel="stylesheet" href="portal.css?v=134">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Brandon McClure';</script>
-<script src="gate.js?v=133"></script>
+<script src="gate.js?v=134"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -218,6 +218,16 @@
       <tbody id="balances-body"></tbody>
     </table>
   </div>
+</div>
+<div class="card" id="emp-pto-detail" style="display:none">
+  <div class="card-title">PTO Record for <span id="emp-pto-detail-name" style="color:#c4581f"></span></div>
+  <div class="table-wrap">
+    <table class="data-table" id="emp-pto-detail-table">
+      <thead><tr><th>Submitted</th><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Notes</th></tr></thead>
+      <tbody id="emp-pto-detail-body"></tbody>
+    </table>
+  </div>
+  <div id="emp-pto-detail-empty" class="empty-state" style="display:none">No PTO records on file for this employee.</div>
 </div>
 </div>
 
@@ -904,7 +914,7 @@ async function loadAdminPTO(){
       document.getElementById('pending-empty').style.display='none';
       pendingBody.innerHTML=pending.map(r=>{
         const idx=d.data.indexOf(r)+1;
-        return `<tr><td><strong>${r[c('Employee')]||''}</strong></td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${r[c('Reason')]||r[c('Notes')]||''}</td><td><button class="action-btn btn-approve" onclick="reviewPTO(${idx},'Approved')">Approve</button> <button class="action-btn btn-deny" onclick="reviewPTO(${idx},'Denied')">Deny</button></td></tr>`;
+        return `<tr><td><strong>${ptoNameLink(r[c('Employee')])}</strong></td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${r[c('Reason')]||r[c('Notes')]||''}</td><td><button class="action-btn btn-approve" onclick="reviewPTO(${idx},'Approved')">Approve</button> <button class="action-btn btn-deny" onclick="reviewPTO(${idx},'Denied')">Deny</button></td></tr>`;
       }).join('');
     }else{document.getElementById('pending-table').style.display='none';document.getElementById('pending-empty').style.display='block';if(pendingBody)pendingBody.innerHTML='';}
     const active=rows.filter(r=>{
@@ -922,7 +932,7 @@ async function loadAdminPTO(){
     const allEmpty=document.getElementById('all-requests-empty');
     if(active.length){
       allTable.style.display='table';allEmpty.style.display='none';
-      document.getElementById('all-requests-body').innerHTML=active.slice().reverse().map(r=>`<tr><td>${r[c('Employee')]||''}</td><td>${fmtDate(r[c('Submitted')])}</td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${statusPill(r[c('Status')])}</td><td>${r[c('Reviewed By')]||''}</td></tr>`).join('');
+      document.getElementById('all-requests-body').innerHTML=active.slice().reverse().map(r=>`<tr><td>${ptoNameLink(r[c('Employee')])}</td><td>${fmtDate(r[c('Submitted')])}</td><td>${r[c('Type')]||''}</td><td>${fmtDate(r[c('Start Date')])}${r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')]?' to '+fmtDate(r[c('End Date')]):''}</td><td>${r[c('Days')]||''}</td><td>${statusPill(r[c('Status')])}</td><td>${r[c('Reviewed By')]||''}</td></tr>`).join('');
     }else{allTable.style.display='none';allEmpty.style.display='block';}
     const archiveSection=document.getElementById('archive-section');
     if(archiveSection){
@@ -1005,9 +1015,49 @@ async function loadAllBalances(){
       const vu=Number(r[c('Vacation Used')])||0,su=Number(r[c('Sick Used')])||0;
       const vb=c('Vacation Balance')>=0?Number(r[c('Vacation Balance')])||0:Math.max(0,10-vu);
       const sb=c('Sick Balance')>=0?Number(r[c('Sick Balance')])||0:Math.max(0,5-su);
-      return `<tr><td><strong>${r[c('Employee')]}</strong></td><td>${vu}</td><td>${vb}</td><td>${su}</td><td>${sb}</td></tr>`;
+      return `<tr><td><strong>${ptoNameLink(r[c('Employee')])}</strong></td><td>${vu}</td><td>${vb}</td><td>${su}</td><td>${sb}</td></tr>`;
     }).join('');
   }catch(e){console.error(e);}
+}
+
+function ptoNameLink(emp){
+  var e=(emp||'').toString();
+  if(!e)return '';
+  return '<a href="javascript:void(0)" class="pto-name-link" onclick="showEmpPTORecord(\''+e.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'+e+'</a>';
+}
+async function showEmpPTORecord(employee){
+  var card=document.getElementById('emp-pto-detail');
+  var nameEl=document.getElementById('emp-pto-detail-name');
+  var body=document.getElementById('emp-pto-detail-body');
+  var emptyEl=document.getElementById('emp-pto-detail-empty');
+  var tableEl=document.getElementById('emp-pto-detail-table');
+  if(!card)return;
+  card.style.display='block';
+  if(nameEl)nameEl.textContent=employee;
+  if(emptyEl)emptyEl.style.display='none';
+  if(tableEl)tableEl.style.display='table';
+  if(body)body.innerHTML='<tr><td colspan="6" class="loading">Loading...</td></tr>';
+  card.scrollIntoView({behavior:'smooth',block:'start'});
+  try{
+    var d=await api({action:'read',tab:'PTO_Requests'});
+    if(!d.success){if(body)body.innerHTML='';if(tableEl)tableEl.style.display='none';if(emptyEl)emptyEl.style.display='block';return;}
+    var c=cols(d.data[0]);
+    var today=new Date().toISOString().split('T')[0];
+    var rows=d.data.slice(1).filter(function(r){return (r[c('Employee')]||'').trim()===employee&&r.some(function(x){return x;});});
+    if(!rows.length){if(body)body.innerHTML='';if(tableEl)tableEl.style.display='none';if(emptyEl)emptyEl.style.display='block';return;}
+    rows.sort(function(a,b){var ad=(a[c('Start Date')]||'').toString();var bd=(b[c('Start Date')]||'').toString();return bd.localeCompare(ad);});
+    if(body)body.innerHTML=rows.map(function(r){
+      var status=(r[c('Status')]||'Pending').trim();
+      var endDate=(r[c('End Date')]||r[c('Start Date')]||'').toString().trim();
+      var pill;
+      if(status==='Denied')pill='<span class="pill pill-denied">Denied</span>';
+      else if(status==='Pending')pill='<span class="pill pill-pending">Pending</span>';
+      else if(status==='Approved'&&endDate>=today)pill='<span class="pill pill-approved">Upcoming</span>';
+      else pill='<span class="pill pill-gray">Past</span>';
+      var dates=fmtDate(r[c('Start Date')])+((r[c('End Date')]&&r[c('End Date')]!==r[c('Start Date')])?' to '+fmtDate(r[c('End Date')]):'');
+      return '<tr><td>'+fmtDate(r[c('Submitted')])+'</td><td>'+(r[c('Type')]||'')+'</td><td>'+dates+'</td><td>'+(r[c('Days')]||'')+'</td><td>'+pill+'</td><td>'+(r[c('Reason')]||r[c('Notes')]||'')+'</td></tr>';
+    }).join('');
+  }catch(e){if(body)body.innerHTML='';if(tableEl)tableEl.style.display='none';if(emptyEl)emptyEl.style.display='block';}
 }
 
 async function loadExpiryAlerts(){
@@ -1376,7 +1426,7 @@ async function cacheCommissionHeaders(){
 }
 
 // ---------- Equipment manager (admin) ----------
-const EQUIP_TYPES=['Computer','Computer case / backpack','iPad','Store keys','Company vehicle','Phone','V1CE card','Other'];
+const EQUIP_TYPES=['Computer','Computer case / backpack','iPad','Store keys','Warehouse keys','Company vehicle','Phone','V1CE card','Other'];
 let _equipEdit=null;
 function eqAttr(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 async function loadEquipAdminEmployees(){
@@ -1848,10 +1898,10 @@ loadARHistory();
 applyCloseGateBrandon();
 </script>
 
-<script src="taskboard.js?v=133"></script>
+<script src="taskboard.js?v=134"></script>
 <script>initTaskBoard("brandon");</script>
-<script src="resources.js?v=133"></script>
-<script src="docnaming.js?v=133"></script>
+<script src="resources.js?v=134"></script>
+<script src="docnaming.js?v=134"></script>
 <script>
 (function(){
   if(window.WW_EMPLOYEE!=='Rose Reif')return;
