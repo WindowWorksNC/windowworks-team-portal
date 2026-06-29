@@ -5,19 +5,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=136">
-<link rel="manifest" href="site.webmanifest?v=136">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=138">
+<link rel="manifest" href="site.webmanifest?v=138">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=136">
+<link rel="stylesheet" href="portal.css?v=138">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Colin Glenn';</script>
-<script src="gate.js?v=136"></script>
+<script src="gate.js?v=138"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -707,10 +707,10 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=136"></script>
+<script src="taskboard.js?v=138"></script>
 <script>initTaskBoard("colin");</script>
-<script src="resources.js?v=136"></script>
-<script src="docnaming.js?v=136"></script>
+<script src="resources.js?v=138"></script>
+<script src="docnaming.js?v=138"></script>
 <script>
 function getCurrentPayPeriodLabel_colin() {
   const startMs=Date.UTC(2025,11,18);
@@ -964,7 +964,7 @@ function updateBonusSummary() {
     let btype = ((bc3 ? (r[bc3('Bonus Type')]||r[bc3('Deal Name')]||'') : '').toString().trim()) || 'New Partner';
     btype = btype.replace(/\s*Bounty$/i,'').trim(); // "New Partner Bounty" -> "New Partner"
     if(orgName) submittedKeys.add(keyFromFields(btype, orgName, rowDate));
-    const entry = { type: btype, account:orgName, amount:amt, detail: (btype==='New Partner'?'First B2B sale - $250 bounty':''), approvedBy:approvedBy, approvedDate:approvedDate, payDate:payDate, dealId:dealId };
+    const entry = { type: btype, account:orgName, amount:amt, detail: (btype==='New Partner'?'First B2B sale - $250 bounty':''), approvedBy:approvedBy, approvedDate:approvedDate, payDate:payDate, dealId:(dealId || (btype==='New Partner' ? ((window._npFirstDeal||{})[(orgName||'').trim().toLowerCase()]||'') : '')) };
     if(approvedBy) approved.push(entry);
     else pending.push(entry);
   });
@@ -1054,7 +1054,7 @@ function earnedAwaitingRow(e){
     <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">${e.label}</div>
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap">
       <div>
-        <div style="font-size:14px;font-weight:600;color:#1a1a1a">${e.account}</div>
+        <div style="font-size:14px;font-weight:600;color:#1a1a1a">${e.account}${((e.label||'').toLowerCase()==='new partner')?wwDealLink((window._npFirstDeal||{})[(e.account||'').trim().toLowerCase()]):''}</div>
         <div style="font-size:13px;color:#888;margin-top:2px">${e.detail||''}</div>
         <div style="margin-top:6px">${clock}</div>
       </div>
@@ -1297,6 +1297,15 @@ async function loadB2BTracker() {
     const JOB_COMPLETE_FIELD = '4de3f85265244bcda17bc3422716c7fb08f436b7';
     const isJobComplete = (deal) => String(deal[JOB_COMPLETE_FIELD]||'').replace(/\s+/g,' ').trim().toLowerCase().indexOf('complete') !== -1;
 
+    // Pre-tax normalization. Deal values entered before the 6/17/2026 switch were
+    // tax-inclusive (7.25% NC sales tax); values from that date on are the pre-tax
+    // subtotal. To compare years on one basis, older values are converted to pre-tax
+    // by dividing out the tax. Keyed to each deal's won date, so it retires itself
+    // once no deal in the comparison predates the cutover.
+    const PRETAX_CUTOVER = new Date('2026-06-17T00:00:00Z');
+    const TAX_DIVISOR = 1.0725;
+    const preTaxValue = (raw, wonDate) => (wonDate && wonDate < PRETAX_CUTOVER) ? (raw / TAX_DIVISOR) : raw;
+
     // Deal-level chase list of won deals still waiting on Job Complete.
     const incompleteDeals = [];
 
@@ -1305,10 +1314,11 @@ async function loadB2BTracker() {
       const orgName = deal.org_id.name;
       const wonDate = deal.won_time ? new Date(deal.won_time.replace(' ','T') + (deal.won_time.includes('Z') ? '' : 'Z')) : null;
       const complete = isJobComplete(deal);
-      if (!complete) incompleteDeals.push({ account: orgName, value: deal.value || 0, wonDate, id: deal.id });
+      const value = preTaxValue(deal.value || 0, wonDate);
+      if (!complete) incompleteDeals.push({ account: orgName, value, wonDate, id: deal.id });
       const orgId = deal.org_id.value;
       if (!orgs[orgId]) orgs[orgId] = { name: orgName, id: orgId, deals: [] };
-      orgs[orgId].deals.push({ id: deal.id, value: deal.value || 0, wonDate, complete });
+      orgs[orgId].deals.push({ id: deal.id, value, wonDate, complete });
     });
 
     // Frozen anchor-clock start: earliest New Partner bounty date per org.
@@ -1331,8 +1341,11 @@ async function loadB2BTracker() {
       }
     } catch(e) { /* fall back to live won_time below */ }
 
+    window._npFirstDeal = {};
     const orgData = Object.values(orgs).map(org => {
       const deals = org.deals.sort((a,b) => a.wonDate - b.wonDate);
+      // First-sale deal id per account, used for the New Partner "See Deal" link.
+      if (deals[0] && deals[0].id != null) window._npFirstDeal[String(org.name).trim().toLowerCase()] = deals[0].id;
       const cDeals = deals.filter(d => d.complete); // job-complete subset
       // Anchor clock starts from the immutable bounty date when available; if both exist,
       // use the earlier, since a re-win only ever pushes the live won_time later.
