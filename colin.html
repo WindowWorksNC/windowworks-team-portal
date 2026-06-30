@@ -964,7 +964,7 @@ function updateBonusSummary() {
     let btype = ((bc3 ? (r[bc3('Bonus Type')]||r[bc3('Deal Name')]||'') : '').toString().trim()) || 'New Partner';
     btype = btype.replace(/\s*Bounty$/i,'').trim(); // "New Partner Bounty" -> "New Partner"
     if(orgName) submittedKeys.add(keyFromFields(btype, orgName, rowDate));
-    const entry = { type: btype, account:orgName, amount:amt, detail: (btype==='New Partner'?'First B2B sale - $250 bounty':''), approvedBy:approvedBy, approvedDate:approvedDate, payDate:payDate, dealId:(dealId || (btype==='New Partner' ? ((window._npFirstDeal||{})[(orgName||'').trim().toLowerCase()]||'') : '')) };
+    const entry = { type: btype, account:orgName, amount:amt, detail: (btype==='New Partner'?'First B2B sale - $250 bounty':''), approvedBy:approvedBy, approvedDate:approvedDate, payDate:payDate, dealId:dealId };
     if(approvedBy) approved.push(entry);
     else pending.push(entry);
   });
@@ -1054,7 +1054,7 @@ function earnedAwaitingRow(e){
     <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:4px">${e.label}</div>
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap">
       <div>
-        <div style="font-size:14px;font-weight:600;color:#1a1a1a">${e.account}${((e.label||'').toLowerCase()==='new partner')?wwDealLink((window._npFirstDeal||{})[(e.account||'').trim().toLowerCase()]):''}</div>
+        <div style="font-size:14px;font-weight:600;color:#1a1a1a">${e.account}</div>
         <div style="font-size:13px;color:#888;margin-top:2px">${e.detail||''}</div>
         <div style="margin-top:6px">${clock}</div>
       </div>
@@ -1297,15 +1297,6 @@ async function loadB2BTracker() {
     const JOB_COMPLETE_FIELD = '4de3f85265244bcda17bc3422716c7fb08f436b7';
     const isJobComplete = (deal) => String(deal[JOB_COMPLETE_FIELD]||'').replace(/\s+/g,' ').trim().toLowerCase().indexOf('complete') !== -1;
 
-    // Pre-tax normalization. Deal values entered before the 6/17/2026 switch were
-    // tax-inclusive (7.25% NC sales tax); values from that date on are the pre-tax
-    // subtotal. To compare years on one basis, older values are converted to pre-tax
-    // by dividing out the tax. Keyed to each deal's won date, so it retires itself
-    // once no deal in the comparison predates the cutover.
-    const PRETAX_CUTOVER = new Date('2026-06-17T00:00:00Z');
-    const TAX_DIVISOR = 1.0725;
-    const preTaxValue = (raw, wonDate) => (wonDate && wonDate < PRETAX_CUTOVER) ? (raw / TAX_DIVISOR) : raw;
-
     // Deal-level chase list of won deals still waiting on Job Complete.
     const incompleteDeals = [];
 
@@ -1314,11 +1305,10 @@ async function loadB2BTracker() {
       const orgName = deal.org_id.name;
       const wonDate = deal.won_time ? new Date(deal.won_time.replace(' ','T') + (deal.won_time.includes('Z') ? '' : 'Z')) : null;
       const complete = isJobComplete(deal);
-      const value = preTaxValue(deal.value || 0, wonDate);
-      if (!complete) incompleteDeals.push({ account: orgName, value, wonDate, id: deal.id });
+      if (!complete) incompleteDeals.push({ account: orgName, value: deal.value || 0, wonDate, id: deal.id });
       const orgId = deal.org_id.value;
       if (!orgs[orgId]) orgs[orgId] = { name: orgName, id: orgId, deals: [] };
-      orgs[orgId].deals.push({ id: deal.id, value, wonDate, complete });
+      orgs[orgId].deals.push({ id: deal.id, value: deal.value || 0, wonDate, complete });
     });
 
     // Frozen anchor-clock start: earliest New Partner bounty date per org.
@@ -1341,11 +1331,8 @@ async function loadB2BTracker() {
       }
     } catch(e) { /* fall back to live won_time below */ }
 
-    window._npFirstDeal = {};
     const orgData = Object.values(orgs).map(org => {
       const deals = org.deals.sort((a,b) => a.wonDate - b.wonDate);
-      // First-sale deal id per account, used for the New Partner "See Deal" link.
-      if (deals[0] && deals[0].id != null) window._npFirstDeal[String(org.name).trim().toLowerCase()] = deals[0].id;
       const cDeals = deals.filter(d => d.complete); // job-complete subset
       // Anchor clock starts from the immutable bounty date when available; if both exist,
       // use the earlier, since a re-win only ever pushes the live won_time later.

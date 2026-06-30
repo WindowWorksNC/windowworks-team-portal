@@ -136,18 +136,6 @@
   </div>
   <div id="incentive-approved-empty" class="empty-state" style="display:none">Nothing approved yet this quarter.</div>
 </div>
-<!-- CONSISTENT-PERF-START -->
-<div class="card">
-  <div class="card-title">Consistent Performance <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Brandon McClure, scorecard domain 3</span></div>
-  <div style="font-size:13px;color:#888;margin-bottom:14px">Set the current quarter result for Brandon's Consistent Performance domain. This feeds his scorecard. Only Rose or Justin can set this.</div>
-  <div id="consistent-status" style="margin-bottom:16px"></div>
-  <div style="display:flex;gap:10px">
-    <button class="action-btn btn-approve" onclick="setConsistent('Pass')">Mark Pass</button>
-    <button class="action-btn btn-deny" onclick="setConsistent('Fail')">Mark Fail</button>
-  </div>
-  <div id="consistent-alert" style="margin-top:14px"></div>
-</div>
-<!-- CONSISTENT-PERF-END -->
 </div>
 
 <!-- ========================= TEAM: PTO REQUESTS ========================= -->
@@ -1165,48 +1153,6 @@ async function reactivateEmployee(name,rowIndex){
   catch(e){ alert('Error updating status. Please try again.'); }
 }
 
-// ---------- Team Dashboard ----------
-async function loadTeamDashboard(){ loadConsistentStatus(); }
-
-async function loadConsistentStatus(){
-  const el=document.getElementById('consistent-status');
-  if(!el)return;
-  try{
-    const q=getCurrentQuarter();const year=new Date().getFullYear();
-    const d=await api({action:'read',tab:'Bonuses'});
-    let current='Not set';
-    if(d.success){
-      const c=cols(d.data[0]);
-      const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()==='Brandon McClure'&&(r[c('Type')]||'').trim()==='Consistent Performance'&&String(r[c('Quarter')]||'').trim()===String(q)&&(!r[c('Year')]||String(r[c('Year')]).trim()===String(year)));
-      if(row)current=(row[c('Status')]||'Not set').trim();
-    }
-    const pill=current==='Pass'?'<span class="pill pill-approved">Pass</span>':current==='Fail'?'<span class="pill pill-denied">Fail</span>':'<span class="pill pill-gray">Not set</span>';
-    el.innerHTML=`Q${q} ${year} current status: ${pill}`;
-  }catch(e){el.innerHTML='<span style="color:#aaa">Could not load status.</span>';}
-}
-
-async function setConsistent(result){
-  const alertEl=document.getElementById('consistent-alert');
-  try{
-    const q=getCurrentQuarter();const year=new Date().getFullYear();
-    const d=await api({action:'read',tab:'Bonuses'});
-    if(!d.success)throw new Error('read');
-    const c=cols(d.data[0]);
-    const headerLen=d.data[0].length;
-    const idx=d.data.slice(1).findIndex(r=>(r[c('Employee')]||'').trim()==='Brandon McClure'&&(r[c('Type')]||'').trim()==='Consistent Performance'&&String(r[c('Quarter')]||'').trim()===String(q)&&(!r[c('Year')]||String(r[c('Year')]).trim()===String(year)));
-    const buildRow=base=>{
-      const row=base?[...base]:new Array(headerLen).fill('');
-      const set=(col,val)=>{const i=c(col);if(i>=0)row[i]=val;};
-      set('Employee','Brandon McClure');set('Type','Consistent Performance');set('Description',`Q${q} ${year} consistent performance`);set('Amount',1500);set('Quarter',q);set('Status',result);set('Year',year);set('Approved By',APPROVER);set('Date Approved',new Date().toLocaleDateString('en-US'));
-      return row;
-    };
-    if(idx>=0){await api({action:'update',tab:'Bonuses',rowIndex:idx+2,row:JSON.stringify(buildRow(d.data[idx+1]))});}
-    else{await api({action:'append',tab:'Bonuses',row:JSON.stringify(buildRow(null))});}
-    alertEl.innerHTML=`<div class="alert alert-success">Consistent Performance set to ${result} for Q${q}.</div>`;
-    loadConsistentStatus();
-  }catch(e){alertEl.innerHTML='<div class="alert alert-error">Error saving. Please try again.</div>';}
-}
-
 // ===================================================================
 //  MY DASHBOARD (personal)
 // ===================================================================
@@ -1585,7 +1531,6 @@ loadExpiryAlerts();
 loadRecordsAdmin();
 computeOwnerAlerts();
 loadEquipAdminEmployees();
-loadTeamDashboard();
 loadPTOBalances(EMPLOYEE);
 loadMyRequests(EMPLOYEE);
 loadRecord(EMPLOYEE);

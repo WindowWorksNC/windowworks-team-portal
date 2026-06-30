@@ -49,30 +49,17 @@
       <span>Q<span id="sc-quarter">--</span> Scorecard</span>
       <span id="sc-total" class="stat-number orange" style="font-size:20px">$0</span>
     </div>
-    <div style="font-size:12px;color:#aaa;margin-bottom:16px">Each domain earns $1,250 when criteria is met. Maximum $5,000 per quarter.</div>
+    <div style="font-size:12px;color:#aaa;margin-bottom:16px">Each domain pays full, half, or nothing. Maximum $5,000 per quarter.</div>
 
-    <div class="sc-domain" id="domain-measurement">
-      <div class="type-label">1. Measurement Quality <span id="d1-pill" style="margin-left:8px"></span></div>
+    <div class="sc-domain" id="domain-install">
+      <div class="type-label">1. Install Satisfaction <span id="d1-pill" style="margin-left:8px"></span></div>
       <div class="incentive-row-body">
         <div style="flex:1">
-          <div class="incentive-row-detail">Reorder value from measurement error must be under 1% of total product cost</div>
-          <div class="form-row" style="margin-top:10px">
-            <div class="form-group">
-              <label class="form-label">Reorder Value ($)</label>
-              <input type="number" class="form-input" id="d1-reorder" placeholder="0.00" step="0.01">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Total Product Cost ($)</label>
-              <input type="number" class="form-input" id="d1-total" placeholder="0.00" step="0.01">
-            </div>
-            <div class="form-group" style="justify-content:flex-end">
-              <label class="form-label">&nbsp;</label>
-              <button class="submit-btn" onclick="calcMeasurement()">Calculate</button>
-            </div>
-          </div>
+          <div class="incentive-row-detail">Customers rate your install 1 to 5 on the post-project survey. Full $1,250 at 4.5 average or higher, half $625 at 4.0 to 4.4, none under 4.0. Needs at least 3 responses to score.</div>
+          <div style="font-size:13px;color:#aaa;margin-top:6px">Fed automatically from the post-project customer survey (launching July 8).</div>
         </div>
         <div class="incentive-row-right">
-          <div class="incentive-amount" id="d1-pct">--</div>
+          <div class="incentive-amount" id="d1-val">--</div>
         </div>
       </div>
     </div>
@@ -81,7 +68,7 @@
       <div class="type-label">2. Data Integrity <span id="d2-pill" style="margin-left:8px"></span></div>
       <div class="incentive-row-body">
         <div>
-          <div class="incentive-row-detail">Average daily overdue Pipedrive activities must be 0</div>
+          <div class="incentive-row-detail">Average daily overdue Pipedrive activities must be 0. Full $1,250 at zero, none otherwise.</div>
           <div style="font-size:13px;color:#aaa;margin-top:6px">Fed automatically from Pipedrive overdue activity tracking.</div>
         </div>
         <div class="incentive-row-right">
@@ -94,67 +81,32 @@
       </div>
     </div>
 
-    <div class="sc-domain" id="domain-satisfaction">
-      <div class="type-label">3. Customer Satisfaction <span id="d3-pill" style="margin-left:8px"></span></div>
+    <div class="sc-domain" id="domain-yardsign">
+      <div class="type-label">3. Yard Sign Rate <span id="d3-pill" style="margin-left:8px"></span></div>
       <div class="incentive-row-body">
         <div style="flex:1">
-          <div class="incentive-row-detail">At least 3 Google reviews or video testimonials per quarter naming Keith</div>
-          <div style="font-size:13px;color:#888;margin:10px 0 8px">Enter each review or testimonial:</div>
-          <div id="d3-entries"></div>
-          <div class="form-row" style="margin-top:8px">
-            <div class="form-group" style="flex:2">
-              <label class="form-label">Customer Name</label>
-              <input type="text" class="form-input" id="d3-name" placeholder="Customer name">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Date</label>
-              <input type="date" class="form-input" id="d3-date">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Type</label>
-              <select class="form-input" id="d3-type">
-                <option>Google Review</option>
-                <option>Video Testimonial</option>
-              </select>
-            </div>
-            <div class="form-group" style="justify-content:flex-end">
-              <label class="form-label">&nbsp;</label>
-              <button class="submit-btn" onclick="addReviewEntry()">Add</button>
-            </div>
-          </div>
+          <div class="incentive-row-detail">Share of your completed installs with a tagged yard-sign photo in CompanyCam. Full $1,250 at 90% or higher, none under 90%.</div>
+          <div style="font-size:13px;color:#aaa;margin-top:6px">Fed automatically from CompanyCam yard-sign tags.</div>
         </div>
         <div class="incentive-row-right">
-          <div class="incentive-amount" id="d3-count">0/3</div>
+          <div class="incentive-amount" id="d3-val">--</div>
         </div>
       </div>
     </div>
-    <div class="sc-domain" id="domain-delivery">
-      <div class="type-label">4. Project Delivery <span id="d4-pill" style="margin-left:8px"></span></div>
+
+    <div class="sc-domain" id="domain-testimonials">
+      <div class="type-label">4. Testimonials <span id="d4-pill" style="margin-left:8px"></span></div>
       <div class="incentive-row-body">
         <div style="flex:1">
-          <div class="incentive-row-detail">At least 95% of scheduled projects completed on time</div>
-          <div class="form-row" style="margin-top:10px">
-            <div class="form-group">
-              <label class="form-label">Jobs Scheduled</label>
-              <input type="number" class="form-input" id="d4-scheduled" placeholder="0">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Completed On Time</label>
-              <input type="number" class="form-input" id="d4-ontime" placeholder="0">
-            </div>
-            <div class="form-group" style="justify-content:flex-end">
-              <label class="form-label">&nbsp;</label>
-              <button class="submit-btn" onclick="calcDelivery()">Calculate</button>
-            </div>
-          </div>
+          <div class="incentive-row-detail">Testimonial videos you capture and tag in CompanyCam this quarter. Full $1,250 at 5 or more, half $625 at 3 to 4, none at 0 to 2.</div>
+          <div style="font-size:13px;color:#aaa;margin-top:6px">Fed automatically from CompanyCam testimonial tags.</div>
         </div>
         <div class="incentive-row-right">
-          <div class="incentive-amount" id="d4-pct">--</div>
+          <div class="incentive-amount" id="d4-val">--</div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="card">
+    <div class="card">
     <div class="card-title">Close Quarter</div>
     <div style="font-size:13px;color:#888;margin-bottom:12px">Archives this quarter's results and emails Rose and Justin a summary.</div>
     <div id="close-qtr-alert-keith"></div>
@@ -635,8 +587,7 @@ loadDocs(EMPLOYEE, 'pm');
 loadEquipment(EMPLOYEE);
 
 // Scorecard logic
-const QTR_BONUS=1250;
-let d3Entries=[];
+const QTR_FULL=1250, QTR_HALF=625;
 
 function getActiveQuarter(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qs=new Date(cy,(cq-1)*3,1);var ds=Math.round((n-qs)/86400000);if(ds<14){return cq===1?{q:4,year:cy-1}:{q:cq-1,year:cy};}return {q:cq,year:cy};}
 function getActiveYear(){return getActiveQuarter().year;}
@@ -644,156 +595,125 @@ function getCloseEnabled(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floo
 function getCloseOpenDate(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qe=new Date(cy,cq*3,0);return new Date(qe.getTime()-14*86400000);}
 function getCurrentQuarter(){return getActiveQuarter().q;}
 
-function updateDomainUI(domainId,pillId,pass,pending){
+function gradedPill(tier){
+  if(tier==='pending')return '<span class="pill pill-gray">Pending Data</span>';
+  if(tier==='full')return '<span class="pill pill-approved">Full</span>';
+  if(tier==='half')return '<span class="pill" style="background:#f5e6d8;color:#9a5520">Half</span>';
+  return '<span class="pill pill-denied">None</span>';
+}
+function tierAmount(tier){return tier==='full'?QTR_FULL:tier==='half'?QTR_HALF:0;}
+function setDomain(domainId,pillId,tier){
   const el=document.getElementById(domainId);
-  if(!el)return;
-  el.style.borderLeft = pending ? '4px solid #e4dbd0' : pass ? '4px solid #28a745' : '4px solid #dc3545';
-  el.classList.toggle('pass', !!pass && !pending);
-  const p=document.getElementById(pillId); if(p)p.innerHTML=passFailPill(pass,pending);
+  if(el){
+    el.style.borderLeft = tier==='pending'?'4px solid #e4dbd0':tier==='full'?'4px solid #28a745':tier==='half'?'4px solid #c4581f':'4px solid #dc3545';
+    el.setAttribute('data-earned', tierAmount(tier));
+    el.setAttribute('data-tier', tier);
+  }
+  const p=document.getElementById(pillId); if(p)p.innerHTML=gradedPill(tier);
 }
-
-function calcMeasurement(){
-  const r=Number(document.getElementById('d1-reorder').value||0);
-  const t=Number(document.getElementById('d1-total').value||0);
-  if(!t){alert('Enter total product cost.');return;}
-  const pct=(r/t)*100;
-  document.getElementById('d1-pct').textContent=pct.toFixed(2)+'%';
-  const pass=pct<1;
-  updateDomainUI('domain-measurement','d1-pill',pass,false);
-  updateTotal();
-  saveScorecard();
-}
-
-function addReviewEntry(){
-  const name=document.getElementById('d3-name').value.trim();
-  const date=document.getElementById('d3-date').value;
-  const type=document.getElementById('d3-type').value;
-  if(!name||!date){alert('Name and date required.');return;}
-  d3Entries.push({name,date,type});
-  document.getElementById('d3-name').value='';
-  document.getElementById('d3-date').value='';
-  renderReviewEntries();
-  saveScorecard();
-}
-
-function removeReviewEntry(i){
-  d3Entries.splice(i,1);
-  renderReviewEntries();
-  saveScorecard();
-}
-
-function renderReviewEntries(){
-  const count=d3Entries.length;
-  document.getElementById('d3-count').textContent=count+'/3';
-  const pass=count>=3;
-  updateDomainUI('domain-satisfaction','d3-pill',pass,count===0);
-  document.getElementById('d3-entries').innerHTML=d3Entries.map((e,i)=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f0ece6;font-size:13px">
-      <span style="flex:1">${e.name}</span>
-      <span style="color:#aaa">${fmtDate(e.date)}</span>
-      <span class="pill pill-gray" style="font-size:10px">${e.type}</span>
-      <button onclick="removeReviewEntry(${i})" style="background:none;border:none;color:#ddd;cursor:pointer;font-size:14px">&#x2715;</button>
-    </div>`).join('');
-  updateTotal();
-}
-
-function calcDelivery(){
-  const s=Number(document.getElementById('d4-scheduled').value||0);
-  const o=Number(document.getElementById('d4-ontime').value||0);
-  if(!s){alert('Enter jobs scheduled.');return;}
-  const pct=(o/s)*100;
-  document.getElementById('d4-pct').textContent=pct.toFixed(1)+'%';
-  const pass=pct>=95;
-  updateDomainUI('domain-delivery','d4-pill',pass,false);
-  updateTotal();
-  saveScorecard();
-}
-
+const SC_DOMAINS=['install','data','yardsign','testimonials'];
 function updateTotal(){
   let total=0;
-  const domains=['measurement','data','satisfaction','delivery'];
-  domains.forEach(d=>{
-    const el=document.getElementById('domain-'+d);
-    if(el&&el.classList.contains('pass'))total+=QTR_BONUS;
-  });
+  SC_DOMAINS.forEach(d=>{const el=document.getElementById('domain-'+d);if(el)total+=Number(el.getAttribute('data-earned')||0);});
   document.getElementById('sc-total').textContent=fmtMoney(total);
 }
+function _scPQL(s){s=String(s||'').trim();if(!s)return null;if(s.indexOf('-')===4){var p=s.split('-');return new Date(+p[0],(+p[1])-1,parseInt((p[2]||'1'),10),12,0,0);}var x=new Date(s);if(!isNaN(x)){x.setHours(12,0,0,0);return x;}return null;}
+function _scInQ(s){var x=_scPQL(s);return !!x&&x.getFullYear()===getActiveYear()&&(Math.floor(x.getMonth()/3)+1)===getCurrentQuarter();}
 
 async function loadScorecard(){
   document.getElementById('sc-quarter').textContent=getCurrentQuarter();
-  ['measurement','data','satisfaction','delivery'].forEach((d,i)=>updateDomainUI('domain-'+d,'d'+(i+1)+'-pill',false,true));
+  SC_DOMAINS.forEach((d,i)=>setDomain('domain-'+d,'d'+(i+1)+'-pill','pending'));
   document.getElementById('scorecard-loading').style.display='none';
   document.getElementById('scorecard-content').style.display='block';
-  // Load overdue activities for data integrity
+
+  // 1. Install Satisfaction - average Q2_Project from Survey tab (need >=3 responses)
+  try{
+    const d=await api({action:'read',tab:'Survey'});
+    if(d.success&&d.data&&d.data.length>1){
+      const c=cols(d.data[0]);
+      const ti=c('Timestamp'),ri=c('RID'),q2i=c('Q2_Project'),si=c('Stage');
+      const seen={};
+      d.data.slice(1).forEach(r=>{const rid=String(r[ri]||'');if(!rid)return;const st=String(r[si]||'').toLowerCase();if(!seen[rid]||st==='complete')seen[rid]=r;});
+      const resp=Object.keys(seen).map(k=>seen[k]).filter(r=>_scInQ(r[ti])&&r[q2i]!==''&&r[q2i]!=null);
+      const el=document.getElementById('d1-val');
+      if(resp.length>=3){
+        const avg=resp.reduce((a,r)=>a+Number(r[q2i]||0),0)/resp.length;
+        if(el)el.textContent=avg.toFixed(2)+' avg ('+resp.length+')';
+        setDomain('domain-install','d1-pill',avg>=4.5?'full':avg>=4.0?'half':'none');
+      }else{
+        if(el)el.textContent=resp.length+' / 3 responses';
+        setDomain('domain-install','d1-pill','pending');
+      }
+    }else{document.getElementById('d1-val').textContent='Survey not live yet';}
+  }catch(e){console.error(e);}
+
+  // 2. Data Integrity - overdue activities (binary, avg=0)
   try{
     const d=await api({action:'read',tab:'Overdue_Activities'});
     if(d.success){
       const c=cols((d.data&&d.data[0])||[]);
       const di=c('Date'),ei=c('Employee'),oi=c('Overdue Count');
-      const _now=new Date(),_cq=getCurrentQuarter(),_cy=getActiveYear();
-      const pql=function(s){s=String(s||'').trim();if(!s)return null;if(s.indexOf('-')===4){var p=s.split('-');return new Date(+p[0],(+p[1])-1,parseInt((p[2]||'1'),10),12,0,0);}var x=new Date(s);if(!isNaN(x)){x.setHours(12,0,0,0);return x;}return null;};
-      const inQ=function(s){var x=pql(s);return !!x&&x.getFullYear()===_cy&&(Math.floor(x.getMonth()/3)+1)===_cq;};
-      const rows=d.data.slice(1).filter(r=>(r[ei]||'').trim()==='Keith Howze'&&inQ(r[di]));
-      const el=document.getElementById('d2-avg');
-      const bd=document.getElementById('d2-breakdown');
+      const rows=d.data.slice(1).filter(r=>(r[ei]||'').trim()==='Keith Howze'&&_scInQ(r[di]));
+      const el=document.getElementById('d2-avg'),bd=document.getElementById('d2-breakdown');
       if(rows.length){
-        const total=rows.reduce((s,r)=>s+Number(r[oi]||0),0);
-        const avg=total/rows.length;
+        const total=rows.reduce((a,r)=>a+Number(r[oi]||0),0);const avg=total/rows.length;
         if(el)el.textContent=avg.toFixed(1)+' avg';
-        updateDomainUI('domain-data','d2-pill',avg===0,false);
-        updateTotal();
+        setDomain('domain-data','d2-pill',avg===0?'full':'none');
         if(bd){
-          const srt=rows.slice().sort(function(a,b){return String(a[di]).localeCompare(String(b[di]));});
-          bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">Every weeknight the portal records how many of your Pipedrive activities are overdue. The score is the average across every logged day this quarter, including days at zero: <strong>'+total+' total overdue over '+rows.length+' logged days = '+avg.toFixed(1)+' average</strong>. The domain pays out only when that average is 0. This shows how many were overdue each day, not which specific activities (the tracker logs a daily count only).</div>'
+          const srt=rows.slice().sort((a,b)=>String(a[di]).localeCompare(String(b[di])));
+          bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">Every weeknight the portal records how many of your Pipedrive activities are overdue. The score is the average across every logged day this quarter, including days at zero: <strong>'+total+' total overdue over '+rows.length+' logged days = '+avg.toFixed(1)+' average</strong>. The domain pays out only when that average is 0.</div>'
             +'<div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th style="text-align:right">Overdue activities</th></tr></thead><tbody>'
-            +srt.map(function(r){var n=Number(r[oi]||0);return '<tr><td>'+fmtDate(r[di])+'</td><td style="text-align:right;font-weight:700;color:'+(n>0?'#c0392b':'#bbb')+'">'+n+'</td></tr>';}).join('')
-            +'</tbody><tfoot><tr style="border-top:2px solid #e4dbd0;font-weight:700"><td>'+rows.length+' logged days</td><td style="text-align:right">'+total+' total / '+avg.toFixed(1)+' avg</td></tr></tfoot></table></div>';
+            +srt.map(r=>{var n=Number(r[oi]||0);return '<tr><td>'+fmtDate(r[di])+'</td><td style="text-align:right;font-weight:700;color:'+(n>0?'#c0392b':'#bbb')+'">'+n+'</td></tr>';}).join('')
+            +'</tbody></table></div>';
         }
-      } else {
-        if(el)el.textContent='No data this quarter';
-        updateDomainUI('domain-data','d2-pill',false,true);
-        if(bd)bd.innerHTML='<div style="font-size:12px;color:#888">No overdue activity has been logged for you yet this quarter.</div>';
-      }
+      }else{if(el)el.textContent='No data this quarter';setDomain('domain-data','d2-pill','pending');if(bd)bd.innerHTML='<div style="font-size:12px;color:#888">No overdue activity logged yet this quarter.</div>';}
     }
   }catch(e){console.error(e);}
-  // Load saved scorecard data
+
+  // 3. Yard Sign Rate - Yard_Signs tab (Sign=Yes / total, this quarter)
   try{
-    const d=await api({action:'read',tab:'Bonuses'});
-    if(d.success){
-      const q=getCurrentQuarter();
-      const row=d.data.slice(1).find(r=>r[0]==='Keith Howze'&&r[4]==q&&r[1]==='Scorecard');
-      if(row&&row[7]){
-        try{
-          const saved=JSON.parse(row[7]);
-          if(saved.d1reorder)document.getElementById('d1-reorder').value=saved.d1reorder;
-          if(saved.d1total)document.getElementById('d1-total').value=saved.d1total;
-          if(saved.d1reorder&&saved.d1total)calcMeasurement();
-          if(saved.d3entries){d3Entries=saved.d3entries;renderReviewEntries();}
-          if(saved.d4scheduled)document.getElementById('d4-scheduled').value=saved.d4scheduled;
-          if(saved.d4ontime)document.getElementById('d4-ontime').value=saved.d4ontime;
-          if(saved.d4scheduled&&saved.d4ontime)calcDelivery();
-        }catch(e){}
-      }
-    }
-  }catch(e){}
+    const d=await api({action:'read',tab:'Yard_Signs'});
+    if(d.success&&d.data&&d.data.length>1){
+      const c=cols(d.data[0]);
+      const di=c('Completed_Date'),sgi=c('Sign');
+      const rows=d.data.slice(1).filter(r=>_scInQ(r[di]));
+      const el=document.getElementById('d3-val');
+      if(rows.length){
+        const yes=rows.filter(r=>String(r[sgi]||'').trim().toLowerCase()==='yes').length;
+        const pct=(yes/rows.length)*100;
+        if(el)el.textContent=yes+'/'+rows.length+' ('+pct.toFixed(0)+'%)';
+        setDomain('domain-yardsign','d3-pill',pct>=90?'full':'none');
+      }else{if(el)el.textContent='No installs this quarter';setDomain('domain-yardsign','d3-pill','pending');}
+    }else{document.getElementById('d3-val').textContent='No data yet';}
+  }catch(e){console.error(e);}
+
+  // 4. Testimonials - Testimonials tab (Capturer=Keith, this quarter)
+  try{
+    const d=await api({action:'read',tab:'Testimonials'});
+    if(d.success&&d.data&&d.data.length>1){
+      const c=cols(d.data[0]);
+      const di=c('Date'),cap=c('Capturer');
+      const cnt=d.data.slice(1).filter(r=>(r[cap]||'').trim()==='Keith Howze'&&_scInQ(r[di])).length;
+      const el=document.getElementById('d4-val');
+      if(el)el.textContent=cnt+(cnt===1?' video':' videos');
+      setDomain('domain-testimonials','d4-pill',cnt>=5?'full':cnt>=3?'half':'none');
+    }else{document.getElementById('d4-val').textContent='No data yet';}
+  }catch(e){console.error(e);}
+
+  updateTotal();
+  saveScorecard();
   applyCloseGateKeith();
 }
 
 async function saveScorecard(){
   try{
     const q=getCurrentQuarter();
-    const data={
-      d1reorder:document.getElementById('d1-reorder').value,
-      d1total:document.getElementById('d1-total').value,
-      d3entries:d3Entries,
-      d4scheduled:document.getElementById('d4-scheduled').value,
-      d4ontime:document.getElementById('d4-ontime').value,
-    };
+    const total=Number(document.getElementById('sc-total').textContent.replace(/[$,]/g,'')||0);
+    const snap={};SC_DOMAINS.forEach(dn=>{const el=document.getElementById('domain-'+dn);snap[dn]={tier:el&&el.getAttribute('data-tier'),earned:el&&Number(el.getAttribute('data-earned')||0)};});
     const d=await api({action:'read',tab:'Bonuses'});
     if(!d.success)return;
     const rowIdx=d.data.findIndex(r=>r[0]==='Keith Howze'&&r[4]==q&&r[1]==='Scorecard');
-    const total=Number(document.getElementById('sc-total').textContent.replace(/[$,]/g,'')||0);
-    const row=['Keith Howze','Scorecard','Q'+q+' Performance Scorecard',total,q,'In Progress','',JSON.stringify(data)];
+    const row=['Keith Howze','Scorecard','Q'+q+' Performance Scorecard',total,q,'In Progress','',JSON.stringify(snap)];
     if(rowIdx>=0)await api({action:'update',tab:'Bonuses',rowIndex:rowIdx+1,row:JSON.stringify(row)});
     else await api({action:'append',tab:'Bonuses',row:JSON.stringify(row)});
   }catch(e){console.error(e);}
@@ -839,32 +759,38 @@ async function applyCloseGateKeith(){
   btn.disabled=false; if(hint)hint.textContent='Ready to close Quarter '+aq.q+', '+aq.year+'.';
 }
 
+function scArchCell(val,label){
+  label=String(label||'');
+  var cls=/Full|Pass/.test(label)?'pill-approved':/Pending/.test(label)?'pill-gray':/Half/.test(label)?'':'pill-denied';
+  var style=/Half/.test(label)?' style="background:#f5e6d8;color:#9a5520"':'';
+  return '<span class="pill '+cls+'"'+style+'>'+(label||'-')+'</span>'+(val&&val!=='--'?'<div style="font-size:11px;color:#aaa;margin-top:3px">'+val+'</div>':'');
+}
+
 async function closeQuarterKeith() {
   const btn = document.getElementById('close-qtr-btn-keith');
   if (!confirm('Close Q' + getCurrentQuarter() + ' scorecard? This will archive results and notify Rose and Justin.')) return;
   btn.disabled = true; btn.textContent = 'Closing...';
   try {
-    const q = getCurrentQuarter();
-    const year = getActiveYear();
-
-    const d1pass = document.getElementById('domain-measurement').classList.contains('pass');
-    const d1val = document.getElementById('d1-pct').textContent || '--';
-    const d2pass = document.getElementById('domain-data').classList.contains('pass');
-    const d2val = document.getElementById('d2-avg').textContent || '--';
-    const d3pass = document.getElementById('domain-satisfaction').classList.contains('pass');
-    const d3val = d3Entries.length + '/3 reviews';
-    const d4pass = document.getElementById('domain-delivery').classList.contains('pass');
-    const d4val = document.getElementById('d4-pct').textContent || '--';
-    const total = (d1pass?1250:0)+(d2pass?1250:0)+(d3pass?1250:0)+(d4pass?1250:0);
-
-    const archiveRow = [
-      'Keith Howze', q, year,
-      d1val, d1pass?'Pass':'Fail',
-      d2val, d2pass?'Pass':'Fail',
-      d3val, d3pass?'Pass':'Fail',
-      d4val, d4pass?'Pass':'Fail',
-      total, new Date().toLocaleDateString('en-US'), ''
+    const q = getCurrentQuarter(); const year = getActiveYear();
+    const defs=[
+      {id:'domain-install',name:'Install Satisfaction',valEl:'d1-val'},
+      {id:'domain-data',name:'Data Integrity',valEl:'d2-avg'},
+      {id:'domain-yardsign',name:'Yard Sign Rate',valEl:'d3-val'},
+      {id:'domain-testimonials',name:'Testimonials',valEl:'d4-val'}
     ];
+    const dm=defs.map(function(x){
+      var el=document.getElementById(x.id);
+      var tier=el?el.getAttribute('data-tier'):'none';
+      var earned=el?Number(el.getAttribute('data-earned')||0):0;
+      var val=(document.getElementById(x.valEl)||{}).textContent||'--';
+      var label=tier==='full'?'Full $1,250':tier==='half'?'Half $625':tier==='pending'?'Pending':'None $0';
+      return {name:x.name,val:val,tier:tier,earned:earned,label:label};
+    });
+    const total=dm.reduce(function(a,r){return a+r.earned;},0);
+
+    const archiveRow=['Keith Howze',q,year,
+      dm[0].val,dm[0].label, dm[1].val,dm[1].label, dm[2].val,dm[2].label, dm[3].val,dm[3].label,
+      total,new Date().toLocaleDateString('en-US'),''];
     await api({action:'append', tab:'Scorecard_Archive', row:JSON.stringify(archiveRow)});
 
     const emailBody = `
@@ -879,20 +805,15 @@ async function closeQuarterKeith() {
           <tr style="background:#f5ede0">
             <th style="text-align:left;padding:10px;font-family:Arial Black,Arial;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#888">Domain</th>
             <th style="text-align:left;padding:10px;font-family:Arial Black,Arial;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#888">Result</th>
-            <th style="text-align:center;padding:10px;font-family:Arial Black,Arial;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#888">Status</th>
+            <th style="text-align:center;padding:10px;font-family:Arial Black,Arial;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#888">Tier</th>
             <th style="text-align:right;padding:10px;font-family:Arial Black,Arial;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#888">Bonus</th>
           </tr>
-          ${[
-            ['Measurement Quality', d1val, d1pass],
-            ['Data Integrity', d2val, d2pass],
-            ['Customer Satisfaction', d3val, d3pass],
-            ['Project Delivery', d4val, d4pass]
-          ].map((dom, i) => `<tr style="border-bottom:1px solid #f0ece6${i%2===1?';background:#faf8f5':''}">
-            <td style="padding:10px;color:#333">${dom[0]}</td>
-            <td style="padding:10px;color:#555">${dom[1]}</td>
-            <td style="padding:10px;text-align:center"><span style="background:${dom[2]?'#d4edda':'#f8d7da'};color:${dom[2]?'#155724':'#721c24'};padding:2px 10px;border-radius:99px;font-size:12px;font-weight:bold">${dom[2]?'PASS':'FAIL'}</span></td>
-            <td style="padding:10px;text-align:right;font-weight:bold;color:${dom[2]?'#c4581f':'#aaa'}">${dom[2]?'$1,250.00':'$0.00'}</td>
-          </tr>`).join('')}
+          ${dm.map(function(d,i){return `<tr style="border-bottom:1px solid #f0ece6${i%2===1?';background:#faf8f5':''}">
+            <td style="padding:10px;color:#333">${d.name}</td>
+            <td style="padding:10px;color:#555">${d.val}</td>
+            <td style="padding:10px;text-align:center"><span style="background:${d.tier==='full'?'#d4edda':d.tier==='half'?'#f5e6d8':'#f8d7da'};color:${d.tier==='full'?'#155724':d.tier==='half'?'#9a5520':'#721c24'};padding:2px 10px;border-radius:99px;font-size:12px;font-weight:bold">${d.tier==='full'?'FULL':d.tier==='half'?'HALF':d.tier==='pending'?'PENDING':'NONE'}</span></td>
+            <td style="padding:10px;text-align:right;font-weight:bold;color:${d.earned>0?'#c4581f':'#aaa'}">$${d.earned.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+          </tr>`;}).join('')}
           <tr style="background:#1a1a1a">
             <td colspan="3" style="padding:12px 10px;font-family:Arial Black,Arial;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#fff">Total Bonus Earned</td>
             <td style="padding:12px 10px;text-align:right;font-family:Arial Black,Arial;font-size:18px;color:#c4581f">$${total.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
@@ -919,13 +840,13 @@ async function loadScorecardArchiveKeith() {
     if (!container) return;
     if (!rows.length) { container.innerHTML = '<div class="empty-state">No past quarters yet.</div>'; return; }
     container.innerHTML = `<table class="data-table">
-      <thead><tr><th>Quarter</th><th>Year</th><th>Measurement</th><th>Data Integrity</th><th>Satisfaction</th><th>Delivery</th><th>Total Earned</th><th>Closed</th></tr></thead>
+      <thead><tr><th>Quarter</th><th>Year</th><th>Install Sat</th><th>Data Integrity</th><th>Yard Signs</th><th>Testimonials</th><th>Total Earned</th><th>Closed</th></tr></thead>
       <tbody>${rows.slice().reverse().map(r => `<tr>
         <td>Q${r[1]}</td><td>${r[2]}</td>
-        <td>${r[4]==='Pass'?'<span class="pill pill-approved">Pass</span>':'<span class="pill pill-denied">Fail</span>'}</td>
-        <td>${r[6]==='Pass'?'<span class="pill pill-approved">Pass</span>':'<span class="pill pill-denied">Fail</span>'}</td>
-        <td>${r[8]==='Pass'?'<span class="pill pill-approved">Pass</span>':'<span class="pill pill-denied">Fail</span>'}</td>
-        <td>${r[10]==='Pass'?'<span class="pill pill-approved">Pass</span>':'<span class="pill pill-denied">Fail</span>'}</td>
+        <td>${scArchCell(r[3],r[4])}</td>
+        <td>${scArchCell(r[5],r[6])}</td>
+        <td>${scArchCell(r[7],r[8])}</td>
+        <td>${scArchCell(r[9],r[10])}</td>
         <td><strong style="color:#c4581f">$${Number(r[11]||0).toLocaleString('en-US',{minimumFractionDigits:2})}</strong></td>
         <td>${r[12]||''}</td>
       </tr>`).join('')}</tbody>
