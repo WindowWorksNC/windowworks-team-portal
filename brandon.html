@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=139">
-<link rel="manifest" href="site.webmanifest?v=139">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=140">
+<link rel="manifest" href="site.webmanifest?v=140">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=139">
+<link rel="stylesheet" href="portal.css?v=140">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Brandon McClure';</script>
-<script src="gate.js?v=139"></script>
+<script src="gate.js?v=140"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -531,8 +531,10 @@ function expiryLabel(dateStr){const d=expiryDays(dateStr);if(d===null)return 'No
 
 function cols(headers){const trimmed=headers.map(h=>(h||'').toString().trim());return name=>trimmed.indexOf(name.trim());}
 var SC_PRIOR_CLOSED=null, SC_EMP='Brandon McClure';
+var PORTAL_START_Q=3, PORTAL_START_Y=2026; // portal went live for scoring in Q3 2026; earlier quarters are pre-portal and never active or closeable
+function qBefore_(aq,ay,bq,by){return ay<by||(ay===by&&aq<bq);}
 async function refreshPriorClosed_(){try{var n=new Date();var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var pq=cq===1?{q:4,year:cy-1}:{q:cq-1,year:cy};var d=await api({action:'read',tab:'Scorecard_Archive'});SC_PRIOR_CLOSED=!!(d&&d.success&&d.data.slice(1).some(function(r){return (r[0]||'').toString().trim()===SC_EMP&&String(r[1])===String(pq.q)&&String(r[2])===String(pq.year);}));}catch(e){SC_PRIOR_CLOSED=false;}}
-function getActiveQuarter(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qs=new Date(cy,(cq-1)*3,1);var ds=Math.round((n-qs)/86400000);if(ds<14&&SC_PRIOR_CLOSED!==true){return cq===1?{q:4,year:cy-1}:{q:cq-1,year:cy};}return {q:cq,year:cy};}
+function getActiveQuarter(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qs=new Date(cy,(cq-1)*3,1);var ds=Math.round((n-qs)/86400000);var pq=cq===1?{q:4,year:cy-1}:{q:cq-1,year:cy};if(ds<14&&SC_PRIOR_CLOSED!==true&&!qBefore_(pq.q,pq.year,PORTAL_START_Q,PORTAL_START_Y)){return pq;}return {q:cq,year:cy};}
 function getActiveYear(){return getActiveQuarter().year;}
 function getCloseEnabled(){var a=getActiveQuarter();var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();if(a.year<cy||(a.year===cy&&a.q<cq))return true;var qe=new Date(cy,cq*3,0);var du=Math.round((qe-n)/86400000);return du<=14;}
 function getCloseOpenDate(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qe=new Date(cy,cq*3,0);return new Date(qe.getTime()-14*86400000);}
@@ -1779,7 +1781,7 @@ async function loadScorecardArchiveBrandon() {
   try {
     const d = await api({action:'read', tab:'Scorecard_Archive'});
     if (!d.success) return;
-    const rows = d.data.slice(1).filter(r => r[0] === 'Brandon McClure');
+    const rows = d.data.slice(1).filter(r => r[0] === 'Brandon McClure' && !qBefore_(Number(r[1]),Number(r[2]),PORTAL_START_Q,PORTAL_START_Y));
     const container = document.getElementById('scorecard-archive-brandon');
     if (!container) return;
     if (!rows.length) { container.innerHTML = '<div class="empty-state">No past quarters yet.</div>'; return; }
@@ -1822,10 +1824,10 @@ loadBrandonScorecard();
 loadScorecardArchiveBrandon();
 </script>
 
-<script src="taskboard.js?v=139"></script>
+<script src="taskboard.js?v=140"></script>
 <script>initTaskBoard("brandon");</script>
-<script src="resources.js?v=139"></script>
-<script src="docnaming.js?v=139"></script>
+<script src="resources.js?v=140"></script>
+<script src="docnaming.js?v=140"></script>
 <script>
 (function(){
   if(window.WW_EMPLOYEE!=='Rose Reif')return;
