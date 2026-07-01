@@ -5,19 +5,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=138">
-<link rel="manifest" href="site.webmanifest?v=138">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=139">
+<link rel="manifest" href="site.webmanifest?v=139">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Keith Howze | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=138">
+<link rel="stylesheet" href="portal.css?v=139">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Keith Howze';</script>
-<script src="gate.js?v=138"></script>
+<script src="gate.js?v=139"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -589,9 +589,11 @@ loadEquipment(EMPLOYEE);
 // Scorecard logic
 const QTR_FULL=1250, QTR_HALF=625;
 
-function getActiveQuarter(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qs=new Date(cy,(cq-1)*3,1);var ds=Math.round((n-qs)/86400000);if(ds<14){return cq===1?{q:4,year:cy-1}:{q:cq-1,year:cy};}return {q:cq,year:cy};}
+var SC_PRIOR_CLOSED=null, SC_EMP='Keith Howze';
+async function refreshPriorClosed_(){try{var n=new Date();var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var pq=cq===1?{q:4,year:cy-1}:{q:cq-1,year:cy};var d=await api({action:'read',tab:'Scorecard_Archive'});SC_PRIOR_CLOSED=!!(d&&d.success&&d.data.slice(1).some(function(r){return (r[0]||'').toString().trim()===SC_EMP&&String(r[1])===String(pq.q)&&String(r[2])===String(pq.year);}));}catch(e){SC_PRIOR_CLOSED=false;}}
+function getActiveQuarter(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qs=new Date(cy,(cq-1)*3,1);var ds=Math.round((n-qs)/86400000);if(ds<14&&SC_PRIOR_CLOSED!==true){return cq===1?{q:4,year:cy-1}:{q:cq-1,year:cy};}return {q:cq,year:cy};}
 function getActiveYear(){return getActiveQuarter().year;}
-function getCloseEnabled(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qs=new Date(cy,(cq-1)*3,1),qe=new Date(cy,cq*3,0);var ds=Math.round((n-qs)/86400000),du=Math.round((qe-n)/86400000);return ds<14||du<=14;}
+function getCloseEnabled(){var a=getActiveQuarter();var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();if(a.year<cy||(a.year===cy&&a.q<cq))return true;var qe=new Date(cy,cq*3,0);var du=Math.round((qe-n)/86400000);return du<=14;}
 function getCloseOpenDate(){var n=new Date();n.setHours(0,0,0,0);var cq=Math.floor(n.getMonth()/3)+1,cy=n.getFullYear();var qe=new Date(cy,cq*3,0);return new Date(qe.getTime()-14*86400000);}
 function getCurrentQuarter(){return getActiveQuarter().q;}
 
@@ -621,6 +623,7 @@ function _scPQL(s){s=String(s||'').trim();if(!s)return null;if(s.indexOf('-')===
 function _scInQ(s){var x=_scPQL(s);return !!x&&x.getFullYear()===getActiveYear()&&(Math.floor(x.getMonth()/3)+1)===getCurrentQuarter();}
 
 async function loadScorecard(){
+  await refreshPriorClosed_();
   document.getElementById('sc-quarter').textContent=getCurrentQuarter();
   SC_DOMAINS.forEach((d,i)=>setDomain('domain-'+d,'d'+(i+1)+'-pill','pending'));
   document.getElementById('scorecard-loading').style.display='none';
@@ -740,7 +743,7 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=138"></script>
+<script src="taskboard.js?v=139"></script>
 <script>initTaskBoard("keith");</script>
 <script>
 async function applyCloseGateKeith(){
@@ -792,6 +795,7 @@ async function closeQuarterKeith() {
       dm[0].val,dm[0].label, dm[1].val,dm[1].label, dm[2].val,dm[2].label, dm[3].val,dm[3].label,
       total,new Date().toLocaleDateString('en-US'),''];
     await api({action:'append', tab:'Scorecard_Archive', row:JSON.stringify(archiveRow)});
+    try{var _bd=await api({action:'read',tab:'Bonuses'});if(_bd&&_bd.success){var _bi=_bd.data.findIndex(function(r){return r[0]===SC_EMP&&String(r[4])===String(q)&&r[1]==='Scorecard';});if(_bi>=0){var _br=_bd.data[_bi].slice();_br[5]='Closed';await api({action:'update',tab:'Bonuses',rowIndex:_bi+1,row:JSON.stringify(_br)});}}}catch(e){}
 
     const emailBody = `
       <div style="font-family:Arial,sans-serif;max-width:600px;padding:20px">
@@ -825,6 +829,7 @@ async function closeQuarterKeith() {
     await api({action:'send_email', subject:`Q${q} ${year} Scorecard - Keith Howze - $${total.toLocaleString('en-US',{minimumFractionDigits:2})} earned`, body:emailBody});
     document.getElementById('close-qtr-alert-keith').innerHTML = '<div class="alert alert-success">Quarter closed. Rose and Justin have been notified.</div>';
     loadScorecardArchiveKeith();
+    loadScorecard();
   } catch(e) {
     document.getElementById('close-qtr-alert-keith').innerHTML = '<div class="alert alert-error">Error closing quarter. Please try again.</div>';
   }
@@ -855,7 +860,7 @@ async function loadScorecardArchiveKeith() {
 }
 
 loadScorecardArchiveKeith();</script>
-<script src="resources.js?v=138"></script>
-<script src="docnaming.js?v=138"></script>
+<script src="resources.js?v=139"></script>
+<script src="docnaming.js?v=139"></script>
 </body>
 </html>
