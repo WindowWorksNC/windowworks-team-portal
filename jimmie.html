@@ -5,19 +5,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=143">
-<link rel="manifest" href="site.webmanifest?v=143">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=144">
+<link rel="manifest" href="site.webmanifest?v=144">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Jimmie Coleman | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=143">
+<link rel="stylesheet" href="portal.css?v=144">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Jimmie Coleman';</script>
-<script src="gate.js?v=143"></script>
+<script src="gate.js?v=144"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -71,14 +71,14 @@
       <div class="stat-number" id="vac-remaining">--</div>
       <div class="stat-label">Vacation Days Left</div>
       <div class="stat-sub" id="vac-used">of 10 used: --</div>
-      <div class="stat-sub" id="vac-upcoming">0 approved upcoming</div>
+      <div class="stat-sub" id="vac-upcoming">0 upcoming</div>
       <div class="pto-bar-wrap"><div class="pto-bar" id="vac-bar" style="width:0%"></div></div>
     </div>
     <div class="stat-block">
       <div class="stat-number" id="sick-remaining">--</div>
       <div class="stat-label">Sick Days Left</div>
       <div class="stat-sub" id="sick-used">of 5 used: --</div>
-      <div class="stat-sub" id="sick-upcoming">0 approved upcoming</div>
+      <div class="stat-sub" id="sick-upcoming">0 upcoming</div>
       <div class="pto-bar-wrap"><div class="pto-bar" id="sick-bar" style="width:0%"></div></div>
     </div>
   </div>
@@ -322,15 +322,16 @@ async function loadMyRequests(employee){
     const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()===employee&&r.some(x=>x));
     if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
     if(tableEl)tableEl.style.display='table';
-    let __vacUp=0,__sickUp=0;
-    rows.forEach(r=>{const st=(r[c('Status')]||'').trim();const ed=(r[c('End Date')]||r[c('Start Date')]||'').toString().trim();if(st==='Approved'&&ed>=today){const dy=Number(r[c('Days')])||0;const tp=(r[c('Type')]||'').toLowerCase();if(tp.indexOf('sick')>=0)__sickUp+=dy;else __vacUp+=dy;}});
-    {const su=(id,v,n)=>{const el=document.getElementById(id);if(el){el.textContent=v;el.style.color=n>0?'#c4581f':'';}};su('vac-upcoming',__vacUp+' approved upcoming',__vacUp);su('sick-upcoming',__sickUp+' approved upcoming',__sickUp);}
+    let __vacUp=0,__sickUp=0,__vacIn=0,__sickIn=0;
+    rows.forEach(r=>{const st=(r[c('Status')]||'').trim();const sd=(r[c('Start Date')]||'').toString().trim();const ed=(r[c('End Date')]||r[c('Start Date')]||'').toString().trim();if(st==='Approved'&&ed>=today){const dy=Number(r[c('Days')])||0;const tp=(r[c('Type')]||'').toLowerCase();const inProg=sd&&sd<=today;if(tp.indexOf('sick')>=0){if(inProg)__sickIn+=dy;else __sickUp+=dy;}else{if(inProg)__vacIn+=dy;else __vacUp+=dy;}}});
+    {const su=(id,v,n)=>{const el=document.getElementById(id);if(el){el.textContent=v;el.style.color=n>0?'#c4581f':'';}};const phr=(a,b)=>{const p=[];if(a>0)p.push(a+' in progress');if(b>0)p.push(b+' upcoming');return p.length?p.join(', '):'0 upcoming';};su('vac-upcoming',phr(__vacIn,__vacUp),__vacIn+__vacUp);su('sick-upcoming',phr(__sickIn,__sickUp),__sickIn+__sickUp);}
     const tbody=document.getElementById('my-requests-body');
     if(tbody)tbody.innerHTML=rows.slice().reverse().map(r=>{
       const status=(r[c('Status')]||'Pending').trim();
+      const startDate=(r[c('Start Date')]||'').trim();
       const endDate=(r[c('End Date')]||r[c('Start Date')]||'').trim();
       let pill;
-      if(status==='Approved'&&endDate>=today){pill='<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';}
+      if(status==='Approved'&&endDate>=today){pill=(startDate&&startDate<=today)?'<span class="pill" style="background:#fff3cd;color:#856404">In progress</span>':'<span class="pill" style="background:#d4edda;color:#155724">Upcoming</span>';}
       else if(status==='Approved'){pill='<span class="pill pill-approved">Approved</span>';}
       else if(status==='Denied'){pill='<span class="pill pill-denied">Denied</span>';}
       else{pill='<span class="pill pill-pending">Pending</span>';}
@@ -543,10 +544,10 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=143"></script>
+<script src="taskboard.js?v=144"></script>
 <script>initTaskBoard("jimmie");</script>
-<script src="resources.js?v=143"></script>
-<script src="docnaming.js?v=143"></script>
+<script src="resources.js?v=144"></script>
+<script src="docnaming.js?v=144"></script>
 <script>
 function getCurrentPayPeriodLabel_jimmie() {
   const startMs=Date.UTC(2025,11,18);
