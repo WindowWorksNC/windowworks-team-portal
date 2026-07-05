@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Window Works Co. | Quick Feedback</title>
-<!-- Window Works customer survey landing page | portal snapshot v145 | standalone, no portal.css -->
+<!-- Window Works customer survey landing page | portal snapshot v146 | standalone, no portal.css -->
 
 <style>
   *{box-sizing:border-box}
@@ -173,10 +173,36 @@
     document.getElementById('hero-title').textContent='Feedback';
     document.getElementById('fallback').classList.remove('hide');
   }else{
-    // Bank Q1 (Brandon's domain) the moment they land, as a partial row.
-    loadHeader().then(function(){
+    // Load the live header in parallel so writes follow the sheet's real columns.
+    loadHeader();
+
+    // Bank Q1 (Brandon's domain) only on a genuine human-presence signal, never on a
+    // cold inbox-scanner prefetch. A real interaction or a visible dwell arms it; a
+    // headless link check produces neither, so it cannot inflate Brandon's score.
+    var partialSent=false, dwellTimer=null;
+    var SIGNALS=['pointerdown','pointermove','touchstart','keydown','wheel','scroll','click'];
+    function bankPartial(){
+      if(partialSent) return;
+      partialSent=true;
+      disarm();
       write({Timestamp:ts(),RID:deal,Q1_Office:q1,Q2_Project:'',Stage:'partial'});
-    });
+    }
+    function disarm(){
+      SIGNALS.forEach(function(e){window.removeEventListener(e,bankPartial,true);});
+      document.removeEventListener('visibilitychange',onVis,true);
+      if(dwellTimer){clearTimeout(dwellTimer);dwellTimer=null;}
+    }
+    function armDwell(){
+      if(!dwellTimer&&document.visibilityState==='visible'){dwellTimer=setTimeout(bankPartial,3000);}
+    }
+    function onVis(){
+      if(document.visibilityState==='visible'){armDwell();}
+      else if(dwellTimer){clearTimeout(dwellTimer);dwellTimer=null;}
+    }
+    SIGNALS.forEach(function(e){window.addEventListener(e,bankPartial,{capture:true,passive:true});});
+    document.addEventListener('visibilitychange',onVis,true);
+    armDwell();
+
     document.getElementById('q1-recap').textContent='You rated the office a '+q1+' out of 5. One more tap and you are done.';
 
     var buttons=document.querySelectorAll('#q2-buttons button');
@@ -185,8 +211,9 @@
         var q2=parseInt(b.getAttribute('data-v'),10);
         buttons.forEach(function(x){x.disabled=true;});
         b.classList.add('chosen');
-        // Complete row wins the per-RID dedup and adds Keith's Q2. Header is already
-        // loaded from page load; rowFrom falls back to FIELDS order if it is not.
+        // A Q2 tap is a definite human, so bank Q1 too (idempotent), then write the
+        // complete row, which wins the per-RID dedup and carries Keith's Q2.
+        bankPartial();
         write({Timestamp:ts(),RID:deal,Q1_Office:q1,Q2_Project:q2,Stage:'complete'});
         document.getElementById('review-link').href=REVIEW_URL;
         setTimeout(function(){
