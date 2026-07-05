@@ -5,19 +5,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=144">
-<link rel="manifest" href="site.webmanifest?v=144">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=147">
+<link rel="manifest" href="site.webmanifest?v=147">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Keith Howze | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=144">
+<link rel="stylesheet" href="portal.css?v=147">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Keith Howze';</script>
-<script src="gate.js?v=144"></script>
+<script src="gate.js?v=147"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -56,7 +56,7 @@
       <div class="incentive-row-body">
         <div style="flex:1">
           <div class="incentive-row-detail">Customers rate your install 1 to 5 on the post-project survey. Full $1,250 at 4.5 average or higher, half $625 at 4.0 to 4.4, none under 4.0. Needs at least 3 responses to score.</div>
-          <div style="font-size:13px;color:#aaa;margin-top:6px">Fed automatically from the post-project customer survey (launching July 8).</div>
+          <div style="font-size:13px;color:#aaa;margin-top:6px">Fed automatically from the post-project customer survey.</div>
         </div>
         <div class="incentive-row-right">
           <div class="incentive-amount" id="d1-val">--</div>
@@ -650,7 +650,7 @@ async function loadScorecard(){
         if(el)el.textContent=resp.length+' / 3 responses';
         setDomain('domain-install','d1-pill','pending');
       }
-    }else{document.getElementById('d1-val').textContent='Survey not live yet';}
+    }else{document.getElementById('d1-val').textContent='0 / 3 responses';}
   }catch(e){console.error(e);}
 
   // 2. Data Integrity - overdue activities (binary, avg=0)
@@ -689,8 +689,8 @@ async function loadScorecard(){
         const pct=(yes/rows.length)*100;
         if(el)el.textContent=yes+'/'+rows.length+' ('+pct.toFixed(0)+'%)';
         setDomain('domain-yardsign','d3-pill',pct>=90?'full':'none');
-      }else{if(el)el.textContent='No installs this quarter';setDomain('domain-yardsign','d3-pill','pending');}
-    }else{document.getElementById('d3-val').textContent='No data yet';}
+      }else{if(el)el.textContent='0 signs';setDomain('domain-yardsign','d3-pill','none');}
+    }else{document.getElementById('d3-val').textContent='0 signs';setDomain('domain-yardsign','d3-pill','none');}
   }catch(e){console.error(e);}
 
   // 4. Testimonials - Testimonials tab (Capturer=Keith, this quarter)
@@ -746,7 +746,7 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=144"></script>
+<script src="taskboard.js?v=147"></script>
 <script>initTaskBoard("keith");</script>
 <script>
 async function applyCloseGateKeith(){
@@ -863,8 +863,8 @@ async function loadScorecardArchiveKeith() {
 }
 
 loadScorecardArchiveKeith();</script>
-<script src="resources.js?v=144"></script>
-<script src="docnaming.js?v=144"></script>
+<script src="resources.js?v=147"></script>
+<script src="docnaming.js?v=147"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
