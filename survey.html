@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Window Works Co. | Quick Feedback</title>
+<!-- Window Works customer survey landing page | portal snapshot v145 | standalone, no portal.css -->
+
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:#f0ece6; color:#1a1a1a;
+    font-family:Arial,Helvetica,sans-serif; line-height:1.5;
+    -webkit-text-size-adjust:100%; -webkit-font-smoothing:antialiased;
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .card{background:#fff; width:100%; max-width:600px; overflow:hidden; box-shadow:0 8px 30px rgba(26,26,26,.10)}
+  .head{background:#1a1a1a; padding:22px 32px; display:flex; align-items:center; justify-content:space-between}
+  .lockup{font-family:Arial,sans-serif; font-size:20px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; color:#fff}
+  .lockup span{color:#c4581f}
+  .status{font-family:Arial,sans-serif; font-size:10px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; color:#c4581f; border:1px solid #c4581f; padding:4px 10px}
+  .hero{background:#c4581f; padding:30px 32px}
+  .eyebrow{font-family:Arial,sans-serif; font-size:10px; font-weight:bold; letter-spacing:3px; text-transform:uppercase; color:#f5c8a8; margin:0 0 8px}
+  .hero h1{font-family:Arial,sans-serif; font-size:32px; font-weight:bold; letter-spacing:1px; text-transform:uppercase; color:#fff; margin:0; line-height:1.1}
+  .body{padding:32px 32px 8px; text-align:center}
+  .label{font-family:Arial,sans-serif; font-size:12px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; color:#1a1a1a; display:inline-block; padding-bottom:8px; border-bottom:2px solid #c4581f; margin-bottom:16px}
+  .prompt{font-family:Arial,sans-serif; font-size:20px; font-weight:bold; color:#1a1a1a; line-height:1.3; margin:0 0 6px}
+  .recap{color:#8a7e74; font-size:14px; margin:0 0 16px; line-height:1.5}
+  .lede{color:#3a3a3a; font-size:15px; line-height:1.6; margin:0 0 6px}
+  .rating{display:flex; gap:8px; justify-content:center; margin:16px 0 6px; flex-wrap:wrap}
+  .rating button{
+    font-family:Arial,sans-serif; font-weight:bold; font-size:22px;
+    width:56px; height:56px; border-radius:12px; cursor:pointer;
+    border:2px solid #c4581f; background:#fff; color:#c4581f;
+    transition:transform .08s ease, background .15s ease, color .15s ease;
+  }
+  .rating button:hover{background:#fbe7db; transform:translateY(-2px)}
+  .rating button.chosen{background:#c4581f; color:#fff}
+  .rating button:disabled{cursor:default}
+  .scale{display:flex; justify-content:space-between; max-width:330px; margin:2px auto 0;
+    font-size:11px; color:#8a7e74; text-transform:uppercase; letter-spacing:1px}
+  a.review-btn{
+    display:inline-block; background:#c4581f; color:#fff; text-decoration:none;
+    font-family:Arial,sans-serif; font-weight:bold; text-transform:uppercase; letter-spacing:2px;
+    font-size:13px; padding:15px 30px; border-radius:12px; margin-top:6px;
+  }
+  .prog{padding:18px 32px 24px; text-align:center}
+  .segs{display:flex; gap:8px; justify-content:center; margin-bottom:8px}
+  .seg{width:56px; height:6px; border-radius:3px; background:#e2dccf}
+  .seg.on{background:#c4581f}
+  .prog-label{font-family:Arial,sans-serif; font-size:11px; color:#8a7e74; letter-spacing:1px; text-transform:uppercase}
+  .foot{background:#1a1a1a; padding:24px 32px}
+  .foot-row{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding-bottom:14px; margin-bottom:14px; border-bottom:1px solid #333}
+  .foot .fname{font-family:Arial,sans-serif; font-size:13px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; color:#fff; margin:0 0 6px}
+  .foot .farea{font-size:11px; color:#888; margin:0; line-height:1.7}
+  .foot .fphone{font-family:Arial,sans-serif; font-size:18px; font-weight:bold; letter-spacing:1px; color:#c4581f; margin:0 0 4px; text-align:right}
+  .foot .fweb{font-size:11px; color:#888; margin:0; text-align:right}
+  .foot .fweb a{color:#888; text-decoration:none}
+  .foot .ffine{font-size:11px; color:#555; margin:0; line-height:1.6}
+  .hide{display:none !important}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="head">
+    <span class="lockup">WINDOW<span>WORKS</span></span>
+    <span class="status">Feedback</span>
+  </div>
+
+  <div class="hero">
+    <p class="eyebrow" id="hero-eyebrow">Almost done</p>
+    <h1 id="hero-title">Almost there</h1>
+  </div>
+
+  <div id="start">
+    <div class="body">
+      <div class="label">The Installation</div>
+      <div class="prompt">How happy are you with the install, the crew, and the final walkthrough?</div>
+      <div class="recap" id="q1-recap"></div>
+      <div class="rating" id="q2-buttons">
+        <button type="button" data-v="1">1</button>
+        <button type="button" data-v="2">2</button>
+        <button type="button" data-v="3">3</button>
+        <button type="button" data-v="4">4</button>
+        <button type="button" data-v="5">5</button>
+      </div>
+      <div class="scale"><span>Poor</span><span>Excellent</span></div>
+    </div>
+    <div class="prog">
+      <div class="segs"><div class="seg on"></div><div class="seg on"></div><div class="seg"></div></div>
+      <div class="prog-label">Step 2 of 3 &bull; one tap left</div>
+    </div>
+  </div>
+
+  <div id="done" class="hide">
+    <div class="body">
+      <div class="label">Thank You</div>
+      <div class="prompt">We appreciate you.</div>
+      <div class="recap">Your feedback goes straight to the team who handled your project. If you have a moment, a quick public review helps us more than almost anything.</div>
+      <a class="review-btn" id="review-link" href="#" target="_blank" rel="noopener">Leave a quick review &#8594;</a>
+    </div>
+    <div class="prog">
+      <div class="segs"><div class="seg on"></div><div class="seg on"></div><div class="seg on"></div></div>
+      <div class="prog-label">Step 3 of 3 &bull; last one</div>
+    </div>
+  </div>
+
+  <div id="fallback" class="hide">
+    <div class="body">
+      <div class="prompt">Please use the link from your email</div>
+      <div class="recap">This page opens from the feedback email we sent after your project. Open that email and tap a rating to get started.</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="foot-row">
+      <div>
+        <p class="fname">Window Works Co.</p>
+        <p class="farea">Serving Cary, Raleigh, Apex, Holly Springs,<br>Morrisville, Durham &amp; Chapel Hill</p>
+      </div>
+      <div>
+        <p class="fphone">(919) 854-6121</p>
+        <p class="fweb"><a href="https://windowworksnc.com">windowworksnc.com</a></p>
+      </div>
+    </div>
+    <p class="ffine">Thank you for trusting Window Works Co. with your home.</p>
+  </div>
+</div>
+
+<script>
+  // ---- Config ----
+  var PROXY='https://script.google.com/macros/s/AKfycbwfE3icMtaSGtMqP6SMfyJyvluAkUyzhiI7EGz_LV07nYtBiG1UupXaOUxbOC5EBhgCBw/exec';
+  var REVIEW_URL='https://g.page/r/CZ4FiX3g2BVUEAE/review';
+  // Canonical order, used only as a fallback if the live header cannot be read.
+  var FIELDS=['Timestamp','RID','Q1_Office','Q2_Project','Stage'];
+  var HEADER=null; // live Survey header, trimmed, in the sheet's actual order
+
+  function qp(k){return new URLSearchParams(window.location.search).get(k)||'';}
+  function ts(){
+    var d=new Date(),p=function(n){return (n<10?'0':'')+n;};
+    return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+  }
+  // Read the header once so the write follows the sheet's real column order,
+  // not a hardcoded position. Same rule as the portal's cols(): trim, case sensitive.
+  function loadHeader(){
+    var url=PROXY+'?action=read&tab=Survey';
+    return fetch(url).then(function(r){return r.json();}).then(function(d){
+      if(d&&d.success&&d.data&&d.data.length){
+        HEADER=d.data[0].map(function(h){return String(h==null?'':h).trim();});
+      }
+    }).catch(function(){});
+  }
+  // Build a full-width row keyed by header name, so a reorder or inserted column
+  // can never silently shift a value into the wrong field.
+  function rowFrom(vals){
+    var order=(HEADER&&HEADER.length)?HEADER:FIELDS;
+    return order.map(function(name){return Object.prototype.hasOwnProperty.call(vals,name)?vals[name]:'';});
+  }
+  function write(vals){
+    var url=PROXY+'?action=append&tab=Survey&row='+encodeURIComponent(JSON.stringify(rowFrom(vals)));
+    return fetch(url).then(function(r){return r.json();}).catch(function(){/* never block the customer */});
+  }
+
+  var deal=qp('deal');
+  var q1=parseInt(qp('q1'),10);
+  var q1ok=deal&&q1>=1&&q1<=5;
+
+  if(!q1ok){
+    document.getElementById('start').classList.add('hide');
+    document.getElementById('hero-eyebrow').textContent='One quick step';
+    document.getElementById('hero-title').textContent='Feedback';
+    document.getElementById('fallback').classList.remove('hide');
+  }else{
+    // Bank Q1 (Brandon's domain) the moment they land, as a partial row.
+    loadHeader().then(function(){
+      write({Timestamp:ts(),RID:deal,Q1_Office:q1,Q2_Project:'',Stage:'partial'});
+    });
+    document.getElementById('q1-recap').textContent='You rated the office a '+q1+' out of 5. One more tap and you are done.';
+
+    var buttons=document.querySelectorAll('#q2-buttons button');
+    buttons.forEach(function(b){
+      b.addEventListener('click',function(){
+        var q2=parseInt(b.getAttribute('data-v'),10);
+        buttons.forEach(function(x){x.disabled=true;});
+        b.classList.add('chosen');
+        // Complete row wins the per-RID dedup and adds Keith's Q2. Header is already
+        // loaded from page load; rowFrom falls back to FIELDS order if it is not.
+        write({Timestamp:ts(),RID:deal,Q1_Office:q1,Q2_Project:q2,Stage:'complete'});
+        document.getElementById('review-link').href=REVIEW_URL;
+        setTimeout(function(){
+          document.getElementById('hero-eyebrow').textContent='All done';
+          document.getElementById('hero-title').textContent='Thank you';
+          document.getElementById('start').classList.add('hide');
+          document.getElementById('done').classList.remove('hide');
+        },260);
+      });
+    });
+  }
+</script>
+</body>
+</html>
