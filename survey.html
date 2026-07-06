@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Window Works Co. | Quick Feedback</title>
-<!-- Window Works customer survey landing page | portal snapshot v148 | standalone, no portal.css -->
+<!-- Window Works customer survey landing page | portal snapshot v150 | standalone, no portal.css | complete-only -->
 
 <style>
   *{box-sizing:border-box}
@@ -201,32 +201,10 @@
     // Load the live header in parallel so writes follow the sheet's real columns.
     loadHeader();
 
-    // Bank Q1 (Brandon's domain) only on a genuine human-presence signal, never on a
-    // cold inbox-scanner prefetch. A real interaction or a visible dwell arms it; a
-    // headless link check produces neither, so it cannot inflate Brandon's score.
-    var partialSent=false, dwellTimer=null;
-    var SIGNALS=['pointerdown','pointermove','touchstart','keydown','wheel','scroll','click'];
-    function bankPartial(){
-      if(partialSent) return;
-      partialSent=true;
-      disarm();
-      write({Timestamp:ts(),RID:deal,Q1_Office:q1,Q2_Project:'',Stage:'partial'});
-    }
-    function disarm(){
-      SIGNALS.forEach(function(e){window.removeEventListener(e,bankPartial,true);});
-      document.removeEventListener('visibilitychange',onVis,true);
-      if(dwellTimer){clearTimeout(dwellTimer);dwellTimer=null;}
-    }
-    function armDwell(){
-      if(!dwellTimer&&document.visibilityState==='visible'){dwellTimer=setTimeout(bankPartial,3000);}
-    }
-    function onVis(){
-      if(document.visibilityState==='visible'){armDwell();}
-      else if(dwellTimer){clearTimeout(dwellTimer);dwellTimer=null;}
-    }
-    SIGNALS.forEach(function(e){window.addEventListener(e,bankPartial,{capture:true,passive:true});});
-    document.addEventListener('visibilitychange',onVis,true);
-    armDwell();
+    // Complete-only: nothing is recorded until the customer taps the install rating,
+    // a browser-trusted gesture on the rendered page. No write happens on load, render,
+    // or dwell, and no partial rows are ever written, so an email link scanner that
+    // merely opens the link (in any order, any number of times) records nothing at all.
 
     function setRecap(){
       document.getElementById('q1-recap').textContent='You rated the office a '+q1+' out of 5. One more tap and you are done.';
@@ -248,7 +226,8 @@
     document.getElementById('to-q1').addEventListener('click',showQ1);
     document.getElementById('to-q2').addEventListener('click',showQ2);
     document.querySelectorAll('#q1-buttons button').forEach(function(b){
-      b.addEventListener('click',function(){
+      b.addEventListener('click',function(e){
+        if(!e.isTrusted) return; // ignore synthetic clicks fired by scanners
         q1=parseInt(b.getAttribute('data-v'),10);
         setRecap();
         showQ2();
@@ -257,13 +236,13 @@
 
     var buttons=document.querySelectorAll('#q2-buttons button');
     buttons.forEach(function(b){
-      b.addEventListener('click',function(){
+      b.addEventListener('click',function(e){
+        if(!e.isTrusted) return; // ignore synthetic clicks fired by scanners
         var q2=parseInt(b.getAttribute('data-v'),10);
         buttons.forEach(function(x){x.disabled=true;});
         b.classList.add('chosen');
-        // A Q2 tap is a definite human, so bank Q1 too (idempotent), then write the
-        // complete row, which wins the per-RID dedup and carries Keith's Q2.
-        bankPartial();
+        // The only write in the whole page: one complete row carrying both answers,
+        // written solely by this trusted install tap. No tap, no row.
         write({Timestamp:ts(),RID:deal,Q1_Office:q1,Q2_Project:q2,Stage:'complete'});
         document.getElementById('review-link').href=REVIEW_URL;
         setTimeout(function(){
