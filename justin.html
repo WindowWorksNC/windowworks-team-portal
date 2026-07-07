@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=152">
-<link rel="manifest" href="site.webmanifest?v=152">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=153">
+<link rel="manifest" href="site.webmanifest?v=153">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Justin Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=152">
+<link rel="stylesheet" href="portal.css?v=153">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Justin Reif';</script>
-<script src="gate.js?v=152"></script>
+<script src="gate.js?v=153"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -130,7 +130,7 @@
   <div id="incentive-approved-loading" class="loading">Loading...</div>
   <div class="table-wrap">
     <table class="data-table" id="incentive-approved-table" style="display:none">
-      <thead><tr><th>Employee</th><th>Type</th><th>Amount</th><th>Approved By</th><th>Pay Date</th></tr></thead>
+      <thead><tr><th>Employee</th><th>Type</th><th>Detail</th><th>Amount</th><th>Approved By</th><th>Pay Date</th></tr></thead>
       <tbody id="incentive-approved-body"></tbody>
     </table>
   </div>
@@ -732,11 +732,11 @@ async function loadIncentivePay(){
         if(!employee||type==='Consistent Performance')return;
         const amount=Number(r[c('Amount')])||0;
         if(amount<=0)return; // nothing to pay
-        const approvedBy=(r[c('Approved By')]||'').trim();
+        const rawApprover=(r[c('Approved By')]||'').trim();const approvedBy=rawApprover.charAt(0)==='{'?'':rawApprover;const scSnap=(r[c('Notes')]||'').toString().trim()||(rawApprover.charAt(0)==='{'?rawApprover:'');
         const rowIdx=dBonus.data.indexOf(r)+1;
-        const item={sheet:'Bonuses',rowIdx,employee,date:fmtDate(r[c('Date Approved')]||r[c('Quarter')]),detail:`Q${r[c('Quarter')]||''} ${r[c('Year')]||''}`.trim(),type:type||'Bonus',amount,approvedBy,payDate:r[c('Pay Date')]||''};
+        const item={sheet:'Bonuses',rowIdx,employee,date:fmtDate(r[c('Date Approved')]||r[c('Quarter')]),detail:`Q${r[c('Quarter')]||''} ${r[c('Year')]||''}`.trim(),type:type||'Bonus',amount,approvedBy,snap:scSnap,payDate:r[c('Pay Date')]||''};
         if(status==='Earned'&&!approvedBy)pending.push(item);
-        else if(approvedBy||status==='Approved')approved.push(item);
+        else if(approvedBy||status==='Approved'||status==='Closed')approved.push(item);
       });
     }
     INCENTIVE_PENDING=dedupeIncentive(pending);
@@ -755,11 +755,12 @@ async function loadIncentivePay(){
     const aEmpty=document.getElementById('incentive-approved-empty');
     const aBody=document.getElementById('incentive-approved-body');
     if(!approvedDeduped.length){if(aEmpty)aEmpty.style.display='block';if(aTable)aTable.style.display='none';}
-    else{if(aEmpty)aEmpty.style.display='none';if(aTable)aTable.style.display='table';if(aBody)aBody.innerHTML=approvedDeduped.map(i=>`<tr><td>${i.employee}</td><td>${i.type}</td><td><strong style="color:#c4581f">${fmtMoney(i.amount)}</strong></td><td>${i.approvedBy}</td><td>${i.payDate||''}</td></tr>`).join('');}
+    else{if(aEmpty)aEmpty.style.display='none';if(aTable)aTable.style.display='table';if(aBody)aBody.innerHTML=approvedDeduped.map(i=>`<tr><td>${i.employee}</td><td>${i.type}</td><td>${i.snap?wwScorecardDetail(i.snap):(i.detail||'')+wwDealLink(i.dealId)}</td><td><strong style="color:#c4581f">${fmtMoney(i.amount)}</strong></td><td>${i.approvedBy}</td><td>${i.payDate||''}</td></tr>`).join('');}
   }catch(e){if(loadEl)loadEl.style.display='none';console.error(e);}
 }
 
 function wwDealLink(id){var s=(id==null?'':String(id).trim());return s?` <a href="https://windowworksco.pipedrive.com/deal/${encodeURIComponent(s)}" target="_blank" rel="noopener" style="color:#c4581f;text-decoration:none;font-size:11px;font-weight:600;white-space:nowrap">See Deal</a>`:'';}
+function wwScorecardDetail(snapStr){if(!snapStr)return '<span style="color:#bbb">-</span>';var labels={install:'Install Satisfaction',data:'Data Integrity',yardsign:'Yard Sign Rate',testimonials:'Testimonials',pipeline:'Pipeline Accuracy',collections:'Collections',office:'Office Satisfaction'};var snap;try{snap=JSON.parse(snapStr);}catch(e){return '<span style="color:#bbb">-</span>';}var parts=[];Object.keys(snap).forEach(function(k){var e=Number(snap[k]&&snap[k].earned||0);if(e>0)parts.push((labels[k]||k)+' '+fmtMoney(e));});return parts.length?'<span style="font-size:12px;color:#666">'+parts.join(', ')+'</span>':'<span style="color:#bbb">-</span>';}
 function renderIncentive(){
   const filter=document.getElementById('incentive-filter');
   const val=filter?filter.value:'all';
@@ -1540,10 +1541,10 @@ loadDocs(EMPLOYEE,null);
 loadEquipment(EMPLOYEE);
 </script>
 
-<script src="taskboard.js?v=152"></script>
+<script src="taskboard.js?v=153"></script>
 <script>initTaskBoard("justin");</script>
-<script src="resources.js?v=152"></script>
-<script src="docnaming.js?v=152"></script>
+<script src="resources.js?v=153"></script>
+<script src="docnaming.js?v=153"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
