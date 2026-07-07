@@ -384,6 +384,7 @@ function initTaskBoard(slug) {
   function attachTaskEvents() {
     document.querySelectorAll('[id^="tbt-"]').forEach(el => {
       el.addEventListener('dragstart', e => {
+        if (e.target && e.target.closest && e.target.closest('input, textarea')) { e.preventDefault(); return; }
         dragId = el.id.replace('tbt-','');
         setTimeout(() => el.classList.add('tb-dragging'), 0);
         e.dataTransfer.effectAllowed = 'move';
