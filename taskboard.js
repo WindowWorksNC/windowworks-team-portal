@@ -398,6 +398,14 @@ function initTaskBoard(slug) {
         else { el.classList.add('tb-drop-below'); dropPos = 'below'; }
       });
       el.addEventListener('drop', e => { e.stopPropagation(); });
+      // Firefox will not place a text caret inside an input or textarea whose ancestor
+      // is draggable=true: it claims the mousedown as the start of a card drag before
+      // any caret lands, and cancelling dragstart afterward does not bring the caret
+      // back. So while any field inside the card is focused we turn the card's
+      // draggability off, and restore it on blur. The next renderBoard rebuilds the
+      // card with draggable=true regardless, so nothing needs to be reset by hand.
+      el.addEventListener('focusin', e => { if (e.target && e.target.closest && e.target.closest('input, textarea')) el.draggable = false; });
+      el.addEventListener('focusout', () => { el.draggable = true; });
     });
   }
 
