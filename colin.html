@@ -5,19 +5,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=153">
-<link rel="manifest" href="site.webmanifest?v=153">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=155">
+<link rel="manifest" href="site.webmanifest?v=155">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=153">
+<link rel="stylesheet" href="portal.css?v=155">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Colin Glenn';</script>
-<script src="gate.js?v=153"></script>
+<script src="gate.js?v=155"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -708,10 +708,10 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=153"></script>
+<script src="taskboard.js?v=155"></script>
 <script>initTaskBoard("colin");</script>
-<script src="resources.js?v=153"></script>
-<script src="docnaming.js?v=153"></script>
+<script src="resources.js?v=155"></script>
+<script src="docnaming.js?v=155"></script>
 <script>
 function getCurrentPayPeriodLabel_colin() {
   const startMs=Date.UTC(2025,11,18);
@@ -881,7 +881,12 @@ async function submitBooking() {
     const today = new Date().toLocaleDateString('en-US');
     const period = getCurrentPayPeriodLabel_colin();
     const notes = document.getElementById('booking-notes').value.trim();
-    const row = ['Colin Glenn', today, customer, apptDate, '', notes, period];
+    const _bb = await api({action:'read', tab:'B2B_Booking_Bonuses'});
+    const _bh = (_bb && _bb.success && _bb.data && _bb.data.length) ? _bb.data[0] : ['Employee','Date','Customer Name','Appointment Date','Approved By','Approved Date','Pay Date','Notes','Pay Period'];
+    const _bc = cols(_bh);
+    const row = new Array(_bh.length).fill('');
+    const _setb = (col,v)=>{const i=_bc(col);if(i>=0)row[i]=v;};
+    _setb('Employee','Colin Glenn'); _setb('Date',today); _setb('Customer Name',customer); _setb('Appointment Date',apptDate); _setb('Notes',notes); _setb('Pay Period',period);
     await api({action:'append', tab:'B2B_Booking_Bonuses', row: JSON.stringify(row)});
     msg.textContent='Booking bonus logged!'; msg.style.color='#28a745';
     document.getElementById('booking-customer').value='';

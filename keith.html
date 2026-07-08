@@ -5,19 +5,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=153">
-<link rel="manifest" href="site.webmanifest?v=153">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=155">
+<link rel="manifest" href="site.webmanifest?v=155">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Keith Howze | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=153">
+<link rel="stylesheet" href="portal.css?v=155">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Keith Howze';</script>
-<script src="gate.js?v=153"></script>
+<script src="gate.js?v=155"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -746,7 +746,7 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=153"></script>
+<script src="taskboard.js?v=155"></script>
 <script>initTaskBoard("keith");</script>
 <script>
 async function applyCloseGateKeith(){
@@ -794,9 +794,14 @@ async function closeQuarterKeith() {
     });
     const total=dm.reduce(function(a,r){return a+r.earned;},0);
 
-    const archiveRow=['Keith Howze',q,year,
-      dm[0].val,dm[0].label, dm[1].val,dm[1].label, dm[2].val,dm[2].label, dm[3].val,dm[3].label,
-      total,new Date().toLocaleDateString('en-US'),''];
+    const _sa = await api({action:'read', tab:'Scorecard_Archive'});
+    const _sh = (_sa && _sa.success && _sa.data && _sa.data.length) ? _sa.data[0] : ['Employee','Quarter','Year','Domain 1','D1 Score','D1 Tier','Domain 2','D2 Score','D2 Tier','Domain 3','D3 Score','D3 Tier','Domain 4','D4 Score','D4 Tier','Total','Closed Date','Notes'];
+    const _sc = cols(_sh);
+    const archiveRow = new Array(_sh.length).fill('');
+    const _sset = function(col,v){var i=_sc(col);if(i>=0)archiveRow[i]=v;};
+    _sset('Employee',SC_EMP); _sset('Quarter',q); _sset('Year',year);
+    for(var _di=0;_di<dm.length;_di++){ _sset('Domain '+(_di+1),dm[_di].name); _sset('D'+(_di+1)+' Score',dm[_di].val); _sset('D'+(_di+1)+' Tier',dm[_di].label); }
+    _sset('Total',total); _sset('Closed Date',new Date().toLocaleDateString('en-US')); _sset('Notes','');
     await api({action:'append', tab:'Scorecard_Archive', row:JSON.stringify(archiveRow)});
     try{var _bd=await api({action:'read',tab:'Bonuses'});if(_bd&&_bd.success){var _bi=_bd.data.findIndex(function(r){return r[0]===SC_EMP&&String(r[4])===String(q)&&r[1]==='Scorecard';});if(_bi>=0){var _br=_bd.data[_bi].slice();_br[5]='Closed';await api({action:'update',tab:'Bonuses',rowIndex:_bi+1,row:JSON.stringify(_br)});}}}catch(e){}
 
@@ -863,8 +868,8 @@ async function loadScorecardArchiveKeith() {
 }
 
 loadScorecardArchiveKeith();</script>
-<script src="resources.js?v=153"></script>
-<script src="docnaming.js?v=153"></script>
+<script src="resources.js?v=155"></script>
+<script src="docnaming.js?v=155"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
