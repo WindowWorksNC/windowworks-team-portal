@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=155">
-<link rel="manifest" href="site.webmanifest?v=155">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=156">
+<link rel="manifest" href="site.webmanifest?v=156">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Rose Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=155">
+<link rel="stylesheet" href="portal.css?v=156">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Rose Reif';</script>
-<script src="gate.js?v=155"></script>
+<script src="gate.js?v=156"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -46,6 +46,7 @@
     <button class="tab" onclick="switchTab('incentive',this)">Incentive Pay <span id="badge-incentive" class="nav-badge"></span></button>
     <button class="tab" onclick="switchTab('pto-admin',this)">PTO Requests <span id="badge-pto" class="nav-badge"></span></button>
     <button class="tab" onclick="switchTab('records-admin',this)">Employee Records <span id="badge-records" class="nav-badge"></span></button>
+    <button class="tab" id="reviews-tab-btn" onclick="switchTab('reviews',this)" style="display:none">Reviews</button>
   </div>
 </div>
 <div id="view-me" style="display:none">
@@ -278,6 +279,27 @@
     </div>
     <div style="margin-bottom:12px"><div class="eq-lbl">Notes</div><input id="equip-admin-notes" class="eq-inp" style="width:100%;box-sizing:border-box" placeholder="Optional"></div>
     <button class="submit-btn" id="equip-admin-btn" onclick="assignEquip()">Assign Equipment</button>
+  </div>
+</div>
+</div>
+
+<div class="tab-content" id="tab-reviews">
+<div class="card">
+  <div class="card-title">Review Notes <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Private to owners, never shown to the team</span></div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+    <span style="font-size:11px;color:#888;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:0.1em;text-transform:uppercase">Employee</span>
+    <select id="review-emp" onchange="loadReviewNotes(this.value)" style="font-size:14px;font-family:'Barlow',Arial,sans-serif;padding:7px 10px;border:1px solid #ddd;border-radius:4px;background:#faf8f5;color:#1a1a1a;min-width:220px"></select>
+  </div>
+  <div id="review-add-alert"></div>
+  <div class="form-row">
+    <div class="form-group" style="max-width:220px"><label class="form-label">Date</label><input type="date" class="form-input" id="review-date"></div>
+  </div>
+  <div class="form-group"><label class="form-label">Note</label><textarea class="form-input form-textarea" id="review-note" rows="3" placeholder="What happened, what you observed, wins, concerns, coaching notes..."></textarea></div>
+  <button class="submit-btn" id="review-add-btn" onclick="addReviewNote()">Add Note</button>
+  <div style="border-top:1px solid #f0ece6;margin-top:20px;padding-top:16px">
+    <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:12px">Log</div>
+    <div id="review-list-loading" class="loading">Loading...</div>
+    <div id="review-list"></div>
   </div>
 </div>
 </div>
@@ -1518,6 +1540,95 @@ async function computeOwnerAlerts(){
   }catch(e){}
 }
 
+// ---------- Review notes (owner only) ----------
+function escapeHtml(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function wwIsOwner(){try{return sessionStorage.getItem('ww_owner')==='1';}catch(e){return false;}}
+var _reviewEmpsLoaded=false;
+function wwRevealReviews(){var btn=document.getElementById('reviews-tab-btn');if(btn&&wwIsOwner())btn.style.display='';}
+function initReviews(){
+  wwRevealReviews();
+  document.addEventListener('ww-auth',function(e){if(e&&e.detail&&e.detail.owner){wwRevealReviews();if(!_reviewEmpsLoaded)loadReviewEmployees();}});
+  if(wwIsOwner())loadReviewEmployees();
+}
+async function loadReviewEmployees(){
+  var sel=document.getElementById('review-emp');if(!sel)return;
+  try{
+    var d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success)return;
+    var c=cols(d.data[0]);
+    var emps=[...new Set(d.data.slice(1).map(r=>(r[c('Employee')]||'').toString().trim()).filter(Boolean))].sort();
+    sel.innerHTML=emps.map(e=>`<option value="${e}">${e}</option>`).join('');
+    _reviewEmpsLoaded=true;
+    var dt=document.getElementById('review-date');if(dt&&!dt.value)dt.value=new Date().toISOString().slice(0,10);
+    if(emps.length)loadReviewNotes(emps[0]);
+  }catch(e){}
+}
+async function loadReviewNotes(emp){
+  var wrap=document.getElementById('review-list');
+  var ld=document.getElementById('review-list-loading');
+  if(ld)ld.style.display='block';if(wrap)wrap.innerHTML='';
+  try{
+    var d=await api({action:'read',tab:'Review_Notes'});
+    if(ld)ld.style.display='none';
+    if(!d||!d.success||!d.data||!d.data.length){if(wrap)wrap.innerHTML='<div class="empty-state">No Review_Notes tab found yet. Create it in the sheet with headers: Timestamp, Date, Employee, Author, Note.</div>';return;}
+    var c=cols(d.data[0]);
+    var di=c('Date'),ei=c('Employee'),ai=c('Author'),ni=c('Note'),ti=c('Timestamp');
+    var rows=[];
+    for(var k=1;k<d.data.length;k++){
+      var r=d.data[k];
+      if(((r[ei]||'').toString().trim())!==emp)continue;
+      rows.push({sheetRow:k+1,date:r[di]||'',author:(r[ai]||'').toString(),note:(r[ni]||'').toString(),ts:(r[ti]||'').toString()});
+    }
+    rows.sort(function(a,b){var ad=new Date(a.date||a.ts||0),bd=new Date(b.date||b.ts||0);if(bd-ad!==0)return bd-ad;return (b.ts||'').localeCompare(a.ts||'');});
+    if(!rows.length){if(wrap)wrap.innerHTML='<div class="empty-state">No notes yet for '+escapeHtml(emp)+'.</div>';return;}
+    if(wrap)wrap.innerHTML=rows.map(function(o){
+      var meta=fmtDate(o.date)+(o.author?' &middot; '+escapeHtml(o.author):'');
+      return '<div style="border:1px solid #ece7df;border-radius:6px;padding:12px 14px;margin-bottom:10px;background:#faf8f5">'+
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">'+
+        '<div style="font-family:\'Barlow Condensed\',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#1a1a1a">'+meta+'</div>'+
+        '<button class="action-btn btn-deny" onclick="deleteReviewNote('+o.sheetRow+')">Delete</button>'+
+        '</div>'+
+        '<div style="margin-top:6px;font-size:14px;color:#333;white-space:pre-wrap">'+escapeHtml(o.note)+'</div>'+
+        '</div>';
+    }).join('');
+  }catch(e){if(ld)ld.style.display='none';if(wrap)wrap.innerHTML='<div class="empty-state">Could not load notes.</div>';}
+}
+async function addReviewNote(){
+  var emp=document.getElementById('review-emp').value;
+  var date=document.getElementById('review-date').value;
+  var note=document.getElementById('review-note').value.trim();
+  var a=document.getElementById('review-add-alert');
+  if(!emp){if(a)a.innerHTML='<div class="alert alert-error">Select an employee.</div>';return;}
+  if(!note){if(a)a.innerHTML='<div class="alert alert-error">Write a note before saving.</div>';return;}
+  if(!date)date=new Date().toISOString().slice(0,10);
+  var btn=document.getElementById('review-add-btn');btn.disabled=true;btn.textContent='Saving...';
+  try{
+    var d=await api({action:'read',tab:'Review_Notes'});
+    if(!d||!d.success||!d.data||!d.data.length){if(a)a.innerHTML='<div class="alert alert-error">No Review_Notes tab found. Create it in the sheet with headers: Timestamp, Date, Employee, Author, Note.</div>';btn.disabled=false;btn.textContent='Add Note';return;}
+    var headers=d.data[0];var c=cols(headers);
+    var row=new Array(headers.length).fill('');
+    var set=function(name,val){var i=c(name);if(i>=0)row[i]=val;};
+    set('Timestamp',new Date().toISOString());
+    set('Date',date);
+    set('Employee',emp);
+    set('Author',(window.WW_EMPLOYEE||'').trim());
+    set('Note',note);
+    await api({action:'append',tab:'Review_Notes',row:JSON.stringify(row)});
+    if(a)a.innerHTML='<div class="alert alert-success">Note added.</div>';
+    document.getElementById('review-note').value='';
+    loadReviewNotes(emp);
+  }catch(e){if(a)a.innerHTML='<div class="alert alert-error">Error saving. Please try again.</div>';}
+  btn.disabled=false;btn.textContent='Add Note';
+}
+async function deleteReviewNote(sheetRow){
+  if(!confirm('Delete this note? This cannot be undone.'))return;
+  try{
+    await api({action:'delete',tab:'Review_Notes',rowIndex:sheetRow});
+    var emp=document.getElementById('review-emp').value;
+    loadReviewNotes(emp);
+  }catch(e){alert('Error deleting. Please try again.');}
+}
+
 // ---------- Init ----------
 document.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
@@ -1534,6 +1645,7 @@ loadExpiryAlerts();
 loadRecordsAdmin();
 computeOwnerAlerts();
 loadEquipAdminEmployees();
+initReviews();
 loadPTOBalances(EMPLOYEE);
 loadMyRequests(EMPLOYEE);
 loadRecord(EMPLOYEE);
@@ -1541,10 +1653,10 @@ loadDocs(EMPLOYEE,null);
 loadEquipment(EMPLOYEE);
 </script>
 
-<script src="taskboard.js?v=155"></script>
+<script src="taskboard.js?v=156"></script>
 <script>initTaskBoard("rose");</script>
-<script src="resources.js?v=155"></script>
-<script src="docnaming.js?v=155"></script>
+<script src="resources.js?v=156"></script>
+<script src="docnaming.js?v=156"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
