@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=157">
-<link rel="manifest" href="site.webmanifest?v=157">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=158">
+<link rel="manifest" href="site.webmanifest?v=158">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=157">
+<link rel="stylesheet" href="portal.css?v=158">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Brandon McClure';</script>
-<script src="gate.js?v=157"></script>
+<script src="gate.js?v=158"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -336,6 +336,10 @@
       </div>
       <div class="sc-domain-desc">Median days from install completion to payment on homeowner deals. Full $1,500 within 2 days, half $750 within 5 days, none over 5 days.</div>
       <div class="sc-domain-note">Fed automatically from Pipedrive: install completion to the post-install Collect Payment activity being marked done.</div>
+      <div style="margin-top:12px;border-top:1px solid #efe9e1;padding-top:10px">
+        <span onclick="var w=document.getElementById('d2-breakdown');w.style.display=w.style.display==='none'?'block':'none'" style="font-size:11px;color:#c4581f;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.05em">View contributing deals</span>
+        <div id="d2-breakdown" style="display:none;margin-top:10px"></div>
+      </div>
     </div>
 
     <div class="sc-domain" id="domain-office">
@@ -1684,32 +1688,34 @@ async function computeBrandonCollections(){
       if(!more) break;
       start+=500;
     }
-    // 2. Latest in-quarter install completion date per deal.
+    // 2. Latest in-quarter install completion per deal, keeping both the date and the raw stamp.
     const installByDeal={};
     acts.forEach(a=>{
       const id=a.deal_id, mdt=a.marked_as_done_time;
       if(!id||!mdt||!_scbInQ(mdt)) return;
       const d=_scbPQL(mdt); if(!d) return;
-      if(!installByDeal[id]||d>installByDeal[id]) installByDeal[id]=d;
+      if(!installByDeal[id]||d>installByDeal[id].d) installByDeal[id]={d:d,raw:mdt};
     });
     const dealIds=Object.keys(installByDeal);
     // 3. Per deal: confirm Installations pipeline and won, then first post-install Collect Payment.
-    const daysList=[];
+    const daysList=[], contrib=[];
     for(let k=0;k<dealIds.length;k++){
-      const id=dealIds[k], installDate=installByDeal[id];
+      const id=dealIds[k], installDate=installByDeal[id].d, installRaw=installByDeal[id].raw;
       let deal=null,dacts=[];
       try{ deal=(((await (await fetch(PD_BASE+'/deals/'+id+'?api_token='+PIPEDRIVE_TOKEN)).json())||{}).data)||null; }catch(e){ continue; }
       if(!deal||deal.status!=='won'||Number(deal.pipeline_id)!==Number(pid)) continue;
       try{ dacts=(((await (await fetch(PD_BASE+'/deals/'+id+'/activities?api_token='+PIPEDRIVE_TOKEN)).json())||{}).data)||[]; }catch(e){ continue; }
-      let collectDate=null;
+      let collectDate=null, collectRaw='';
       dacts.forEach(a=>{
         if(a.type!=='collect_payment'||!a.done||!a.marked_as_done_time) return;
         const cd=_scbPQL(a.marked_as_done_time);
         if(!cd||cd<installDate) return; // deposits and pre-install collections do not count
-        if(!collectDate||cd<collectDate) collectDate=cd; // first payment after the install
+        if(!collectDate||cd<collectDate){ collectDate=cd; collectRaw=a.marked_as_done_time; } // first payment after the install
       });
       if(!collectDate) continue; // installed but not yet paid post-install, so pending and uncounted
-      daysList.push(Math.round((collectDate-installDate)/86400000));
+      const days=Math.round((collectDate-installDate)/86400000);
+      daysList.push(days);
+      contrib.push({id:id,name:deal.title||('Deal '+id),install:installRaw,collect:collectRaw,days:days});
     }
     // 4. Median and tier. Full within 2 days, half within 5, none over 5.
     if(daysList.length){
@@ -1722,7 +1728,18 @@ async function computeBrandonCollections(){
       if(el)el.textContent='No completed installs paid this quarter';
       setDomainB('domain-collections','d2-pill','pending');
     }
-  }catch(e){ console.error(e); if(el)el.textContent='Could not load from Pipedrive'; setDomainB('domain-collections','d2-pill','pending'); }
+    renderCollectionsBreakdown(contrib);
+  }catch(e){ console.error(e); if(el)el.textContent='Could not load from Pipedrive'; setDomainB('domain-collections','d2-pill','pending'); renderCollectionsBreakdown(null); }
+}
+function renderCollectionsBreakdown(contrib){
+  const bd=document.getElementById('d2-breakdown'); if(!bd) return;
+  if(!contrib){ bd.innerHTML='<div style="font-size:12px;color:#888">Could not load contributing deals from Pipedrive.</div>'; return; }
+  if(!contrib.length){ bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5">No deals have contributed this quarter yet. A deal appears here once its install is complete and a payment is collected afterward.</div>'; return; }
+  contrib.sort(function(a,b){return String(a.install).localeCompare(String(b.install));});
+  bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">Homeowner installs in the Installations pipeline that completed and were paid this quarter. Days runs from install completion to the first payment collected afterward; the score is the median across these deals.</div>'
+    +'<div class="table-wrap"><table class="data-table"><thead><tr><th>Deal</th><th>Install Completed</th><th>Payment Collected</th><th style="text-align:right">Days</th></tr></thead><tbody>'
+    +contrib.map(function(r){return '<tr><td>'+escHtml(r.name)+wwDealLink(r.id)+'</td><td>'+fmtDate(r.install)+'</td><td>'+fmtDate(r.collect)+'</td><td style="text-align:right;font-weight:700">'+r.days+'</td></tr>';}).join('')
+    +'</tbody></table></div>';
 }
 async function loadBrandonScorecard(){
   await refreshPriorClosed_();
@@ -1906,10 +1923,10 @@ loadBrandonScorecard();
 loadScorecardArchiveBrandon();
 </script>
 
-<script src="taskboard.js?v=157"></script>
+<script src="taskboard.js?v=158"></script>
 <script>initTaskBoard("brandon");</script>
-<script src="resources.js?v=157"></script>
-<script src="docnaming.js?v=157"></script>
+<script src="resources.js?v=158"></script>
+<script src="docnaming.js?v=158"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
