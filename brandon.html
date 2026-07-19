@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=158">
-<link rel="manifest" href="site.webmanifest?v=158">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=159">
+<link rel="manifest" href="site.webmanifest?v=159">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=158">
+<link rel="stylesheet" href="portal.css?v=159">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Brandon McClure';</script>
-<script src="gate.js?v=158"></script>
+<script src="gate.js?v=159"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -1010,11 +1010,30 @@ async function loadAllBalances(){
     const c=cols(d.data[0]);
     const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim());
     if(!rows.length)return;
+    const usedVac={},usedSick={};
+    try{
+      const rq=await api({action:'read',tab:'PTO_Requests'});
+      if(rq.success&&rq.data&&rq.data.length){
+        const rc=cols(rq.data[0]);
+        const today=new Date().toISOString().split('T')[0];
+        rq.data.slice(1).forEach(r=>{
+          const emp=(r[rc('Employee')]||'').trim();if(!emp)return;
+          if((r[rc('Status')]||'').trim()!=='Approved')return;
+          const ed=(r[rc('End Date')]||r[rc('Start Date')]||'').toString().trim();
+          if(!(ed&&ed<today))return;
+          const dy=Number(r[rc('Days')])||0;
+          if((r[rc('Type')]||'').toLowerCase().indexOf('sick')>=0)usedSick[emp]=(usedSick[emp]||0)+dy;else usedVac[emp]=(usedVac[emp]||0)+dy;
+        });
+      }
+    }catch(_){}
     document.getElementById('balances-table').style.display='table';
     document.getElementById('balances-body').innerHTML=rows.map(r=>{
-      const vu=Number(r[c('Vacation Used')])||0,su=Number(r[c('Sick Used')])||0;
-      const vb=c('Vacation Balance')>=0?Number(r[c('Vacation Balance')])||0:Math.max(0,10-vu);
-      const sb=c('Sick Balance')>=0?Number(r[c('Sick Balance')])||0:Math.max(0,5-su);
+      const emp=(r[c('Employee')]||'').trim();
+      const vTot=c('Vacation Balance')>=0?(Number(r[c('Vacation Used')])||0)+(Number(r[c('Vacation Balance')])||0):10;
+      const sTot=c('Sick Balance')>=0?(Number(r[c('Sick Used')])||0)+(Number(r[c('Sick Balance')])||0):5;
+      const vu=usedVac[emp]||0,su=usedSick[emp]||0;
+      const vb=Math.max(0,vTot-vu);
+      const sb=Math.max(0,sTot-su);
       return `<tr><td><strong>${ptoNameLink(r[c('Employee')])}</strong></td><td>${vu}</td><td>${vb}</td><td>${su}</td><td>${sb}</td></tr>`;
     }).join('');
   }catch(e){console.error(e);}
@@ -1259,13 +1278,30 @@ async function loadPTOBalances(employee){
     if(!row)return;
     const vacUsed=Number(row[c('Vacation Used')])||0;
     const sickUsed=Number(row[c('Sick Used')])||0;
-    const vacBal=c('Vacation Balance')>=0?Number(row[c('Vacation Balance')])||0:Math.max(0,10-vacUsed);
-    const sickBal=c('Sick Balance')>=0?Number(row[c('Sick Balance')])||0:Math.max(0,5-sickUsed);
-    const vacTotal=vacUsed+vacBal,sickTotal=sickUsed+sickBal;
+    const vacTotal=c('Vacation Balance')>=0?vacUsed+(Number(row[c('Vacation Balance')])||0):10;
+    const sickTotal=c('Sick Balance')>=0?sickUsed+(Number(row[c('Sick Balance')])||0):5;
+    let vacDone=0,sickDone=0;
+    try{
+      const rq=await api({action:'read',tab:'PTO_Requests'});
+      if(rq.success&&rq.data&&rq.data.length){
+        const rc=cols(rq.data[0]);
+        const today=new Date().toISOString().split('T')[0];
+        rq.data.slice(1).forEach(r=>{
+          if((r[rc('Employee')]||'').trim()!==employee)return;
+          if((r[rc('Status')]||'').trim()!=='Approved')return;
+          const ed=(r[rc('End Date')]||r[rc('Start Date')]||'').toString().trim();
+          if(!(ed&&ed<today))return;
+          const dy=Number(r[rc('Days')])||0;
+          if((r[rc('Type')]||'').toLowerCase().indexOf('sick')>=0)sickDone+=dy;else vacDone+=dy;
+        });
+      }
+    }catch(_){}
+    const vacUsedEff=vacDone,sickUsedEff=sickDone;
+    const vacBal=Math.max(0,vacTotal-vacUsedEff),sickBal=Math.max(0,sickTotal-sickUsedEff);
     const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
     const sw=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=v;};
-    s('vac-remaining',vacBal);s('vac-used',`of ${vacTotal} used: ${vacUsed}`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsed/vacTotal)*100)+'%':'0%');
-    s('sick-remaining',sickBal);s('sick-used',`of ${sickTotal} used: ${sickUsed}`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsed/sickTotal)*100)+'%':'0%');
+    s('vac-remaining',vacBal);s('vac-used',`of ${vacTotal} used: ${vacUsedEff}`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsedEff/vacTotal)*100)+'%':'0%');
+    s('sick-remaining',sickBal);s('sick-used',`of ${sickTotal} used: ${sickUsedEff}`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsedEff/sickTotal)*100)+'%':'0%');
   }catch(e){console.error(e);}
 }
 
@@ -1923,10 +1959,10 @@ loadBrandonScorecard();
 loadScorecardArchiveBrandon();
 </script>
 
-<script src="taskboard.js?v=158"></script>
+<script src="taskboard.js?v=159"></script>
 <script>initTaskBoard("brandon");</script>
-<script src="resources.js?v=158"></script>
-<script src="docnaming.js?v=158"></script>
+<script src="resources.js?v=159"></script>
+<script src="docnaming.js?v=159"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
