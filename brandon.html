@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=160">
-<link rel="manifest" href="site.webmanifest?v=160">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=161">
+<link rel="manifest" href="site.webmanifest?v=161">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=160">
+<link rel="stylesheet" href="portal.css?v=161">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Brandon McClure';</script>
-<script src="gate.js?v=160"></script>
+<script src="gate.js?v=161"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -233,6 +233,17 @@
 
 <!-- ========================= TEAM: EMPLOYEE RECORDS ========================= -->
 <div class="tab-content" id="tab-records-admin">
+<div class="card">
+  <div class="card-title">Reviews Coming Due</div>
+  <div id="review-due-loading" class="loading">Loading...</div>
+  <div class="table-wrap">
+    <table class="data-table" id="review-due-table" style="display:none">
+      <thead><tr><th>Employee</th><th>Review</th><th>Due Date</th><th>Status</th></tr></thead>
+      <tbody id="review-due-body"></tbody>
+    </table>
+  </div>
+  <div id="review-due-empty" class="empty-state" style="display:none">No reviews coming due.</div>
+</div>
 <div class="card">
   <div class="card-title">Expiring IDs</div>
   <div id="expiry-loading" class="loading">Loading...</div>
@@ -1099,6 +1110,33 @@ async function loadExpiryAlerts(){
   }catch(e){console.error(e);}
 }
 
+async function loadReviewAlerts(){
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    document.getElementById('review-due-loading').style.display='none';
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const ni=c('Next Review'),n9=c('Review Due 90Day'),si=c('Status');
+    const out=[];
+    d.data.slice(1).forEach(function(r){
+      const name=r[c('Employee')];if(!name)return;
+      if(si>=0&&(r[si]||'').toString().trim()==='Inactive')return;
+      const dn=daysUntil_(ni>=0?r[ni]:'');
+      const d9=daysUntil_(n9>=0?r[n9]:'');
+      if(dn!==null&&dn<=30){out.push({name:name,type:'Annual',due:(ni>=0?r[ni]:''),d:dn});}
+      else if(d9!==null&&d9>=-30&&d9<=30){out.push({name:name,type:'90-Day',due:(n9>=0?r[n9]:''),d:d9});}
+    });
+    if(!out.length){document.getElementById('review-due-empty').style.display='block';return;}
+    document.getElementById('review-due-table').style.display='table';
+    document.getElementById('review-due-body').innerHTML=out.sort(function(a,b){return a.d-b.d;}).map(function(r){
+      var cls=r.d<0?'expiry-danger':'expiry-warn';
+      var ad=Math.abs(r.d);
+      var lbl=r.d<0?('Overdue '+ad+' day'+(ad===1?'':'s')):(r.d===0?'Due today':('Due in '+r.d+' day'+(r.d===1?'':'s')));
+      return '<tr><td><strong>'+r.name+'</strong></td><td>'+r.type+'</td><td>'+fmtDate(r.due)+'</td><td><span class="'+cls+'">'+lbl+'</span></td></tr>';
+    }).join('');
+  }catch(e){console.error(e);}
+}
+
 // ---------- Employee Records admin (editable) ----------
 function addDays(dateStr,n){if(!dateStr)return '';const d=new Date(dateStr+'T12:00:00');if(isNaN(d))return '';d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];}
 function toInputDate(d){if(!d)return '';try{const x=new Date(d);if(isNaN(x))return '';return x.toISOString().split('T')[0];}catch(e){return '';}}
@@ -1161,7 +1199,7 @@ async function saveRecord(name,rowIndex,safe){
     if(c('Review Due 90Day')>=0&&hire)row[c('Review Due 90Day')]=addDays(hire,90);
     await api({action:'update',tab:'Employee_Records',rowIndex:rowIndex,row:JSON.stringify(row)});
     if(alertEl)alertEl.innerHTML='<div class="alert alert-success">Saved.</div>';
-    loadExpiryAlerts();
+    loadExpiryAlerts();loadReviewAlerts();
   }catch(e){if(alertEl)alertEl.innerHTML='<div class="alert alert-error">Error saving.</div>';}
 }
 
@@ -1610,7 +1648,7 @@ async function computeOwnerAlerts(){
         var exp='';if(r[docsIdx]){try{var doc=JSON.parse(r[docsIdx]);exp=doc['Government ID - Expiry']||'';}catch(_){}}
         if(exp){var de=daysUntil_(exp);if(de!==null&&de<=30)ids++;}
         var dn=daysUntil_(ni>=0?r[ni]:'');var d9=daysUntil_(n9>=0?r[n9]:'');
-        if(dn!==null&&dn<=30)revs++;else if(d9!==null&&d9>=0&&d9<=30)revs++;
+        if(dn!==null&&dn<=30)revs++;else if(d9!==null&&d9>=-30&&d9<=30)revs++;
       });
     }
     window._alertPTO=pto;window._alertRecords=ids+revs;
@@ -1947,6 +1985,7 @@ loadIncentivePay();
 loadAdminPTO();
 loadAllBalances();
 loadExpiryAlerts();
+loadReviewAlerts();
 loadRecordsAdmin();
 computeOwnerAlerts();
 loadEquipAdminEmployees();
@@ -1959,10 +1998,10 @@ loadBrandonScorecard();
 loadScorecardArchiveBrandon();
 </script>
 
-<script src="taskboard.js?v=160"></script>
+<script src="taskboard.js?v=161"></script>
 <script>initTaskBoard("brandon");</script>
-<script src="resources.js?v=160"></script>
-<script src="docnaming.js?v=160"></script>
+<script src="resources.js?v=161"></script>
+<script src="docnaming.js?v=161"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
