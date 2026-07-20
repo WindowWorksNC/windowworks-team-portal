@@ -5,19 +5,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=165">
-<link rel="manifest" href="site.webmanifest?v=165">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=163">
+<link rel="manifest" href="site.webmanifest?v=163">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=165">
+<link rel="stylesheet" href="portal.css?v=163">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Colin Glenn';</script>
-<script src="gate.js?v=165"></script>
+<script src="gate.js?v=163"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -724,10 +724,10 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=165"></script>
+<script src="taskboard.js?v=163"></script>
 <script>initTaskBoard("colin");</script>
-<script src="resources.js?v=165"></script>
-<script src="docnaming.js?v=165"></script>
+<script src="resources.js?v=163"></script>
+<script src="docnaming.js?v=163"></script>
 <script>
 function getCurrentPayPeriodLabel_colin() {
   const startMs=Date.UTC(2025,11,18);
@@ -992,14 +992,16 @@ function updateBonusSummary() {
   });
 
   // Earned but not yet submitted -> submission window. Driven entirely by the log,
-  // which holds both portal-stamped bounties (Anchor/Wallet/Retention) and
-  // zap-written New Partner rows, so every type shares the same submit flow.
+  // which holds portal-stamped bounties (Anchor/Wallet/Retention). New Partner
+  // also lands in the log but is zap-owned end to end, so it is skipped below and
+  // is never submitted or auto-submitted by the portal.
   const earnedAwaiting = [];
   Object.keys(log).forEach(k => {
     const e = log[k];
     if(!e || !e.account) return;
     if(e.submitted) return;                 // log says submitted
     if(submittedKeys.has(k)) return;        // already on the approval queue
+    if((e.type||'').trim().toLowerCase()==='new partner') return; // New Partner is zap-owned; the portal never submits it
     earnedAwaiting.push({ label:e.type, account:e.account, amount:e.amount, detail:e.detail, key:k, daysLeft:e.daysLeft, expired:e.expired });
   });
 
@@ -1150,6 +1152,7 @@ async function reconcileEarnedLog(earned){
   for(const key of Object.keys(out)){
     const e=out[key];
     if(e.submitted || e.daysLeft>=0) continue;
+    if((e.type||'').trim().toLowerCase()==='new partner') continue; // New Partner is zap-owned; the portal never auto-submits it
     const ok=await autoSubmitOverdue(e);
     if(ok) e.submitted=true;
   }
@@ -1163,7 +1166,8 @@ async function reconcileEarnedLog(earned){
 async function autoSubmitOverdue(entry){
   try{
     const d=await api({action:'read', tab:'B2B_Partner_Bounties'});
-    if(d.success && d.data && d.data.length){
+    const header=(d.success && d.data && d.data.length)?d.data[0]:null;
+    if(header){
       const c=cols(d.data[0]);
       const already=d.data.slice(1).some(r=>{
         const acct=(r[c('Account')]||r[c('Org name')]||r[c('Org Name')]||r[c('Deal Name')]||'').toString().trim();
@@ -1173,8 +1177,10 @@ async function autoSubmitOverdue(entry){
       });
       if(already){ await markEarnedSubmitted(entry.key); return true; }
     }
+    if(!header) return false; // cannot map columns without a header; never write a positional row
     const today=new Date().toLocaleDateString('en-US');
-    const row=['Colin Glenn', today, entry.account, entry.account, '', '', '', entry.amount, entry.type, '', '', ''];
+    const vals={ Employee:'Colin Glenn', Date:today, Account:entry.account, 'Org name':entry.account, Amount:entry.amount, 'Bonus Type':entry.type };
+    const row=header.map(h=>{ const name=String(h).trim(); return (name in vals)?vals[name]:''; });
     await api({action:'append', tab:'B2B_Partner_Bounties', row:JSON.stringify(row)});
     await markEarnedSubmitted(entry.key);
     return true;
@@ -1186,8 +1192,12 @@ async function submitOneBounty(btnId, key, account, type, amount){
   const btn=document.getElementById(btnId);
   if(btn){ btn.disabled=true; btn.textContent='Submitting...'; }
   try{
+    const bd=await api({action:'read', tab:'B2B_Partner_Bounties'});
+    const header=(bd.success && bd.data && bd.data.length)?bd.data[0]:null;
+    if(!header) throw new Error('no header');
     const today=new Date().toLocaleDateString('en-US');
-    const row=['Colin Glenn', today, account, account, '', '', '', amount, type, '', '', ''];
+    const vals={ Employee:'Colin Glenn', Date:today, Account:account, 'Org name':account, Amount:amount, 'Bonus Type':type };
+    const row=header.map(h=>{ const name=String(h).trim(); return (name in vals)?vals[name]:''; });
     await api({action:'append', tab:'B2B_Partner_Bounties', row:JSON.stringify(row)});
     await markEarnedSubmitted(key);
     if(btn){ btn.textContent='Submitted!'; btn.style.background='#d4edda'; btn.style.color='#155724'; btn.style.borderColor='#28a745'; }
