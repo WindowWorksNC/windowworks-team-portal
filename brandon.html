@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=161">
-<link rel="manifest" href="site.webmanifest?v=161">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=162">
+<link rel="manifest" href="site.webmanifest?v=162">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=161">
+<link rel="stylesheet" href="portal.css?v=162">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Brandon McClure';</script>
-<script src="gate.js?v=161"></script>
+<script src="gate.js?v=162"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -238,11 +238,20 @@
   <div id="review-due-loading" class="loading">Loading...</div>
   <div class="table-wrap">
     <table class="data-table" id="review-due-table" style="display:none">
-      <thead><tr><th>Employee</th><th>Review</th><th>Due Date</th><th>Status</th></tr></thead>
+      <thead><tr><th>Employee</th><th>Review</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
       <tbody id="review-due-body"></tbody>
     </table>
   </div>
   <div id="review-due-empty" class="empty-state" style="display:none">No reviews coming due.</div>
+  <div id="review-sched-wrap" style="display:none;margin-top:16px">
+    <div class="review-sched-title">Scheduled</div>
+    <div class="table-wrap">
+      <table class="data-table review-sched-table">
+        <thead><tr><th>Employee</th><th>Review</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="review-sched-body"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 <div class="card">
   <div class="card-title">Expiring IDs</div>
@@ -1110,31 +1119,135 @@ async function loadExpiryAlerts(){
   }catch(e){console.error(e);}
 }
 
+function reviewStateFor_(r,ix){
+  var doc=null;if(ix.docsIdx>=0&&r[ix.docsIdx]){try{doc=JSON.parse(r[ix.docsIdx]);}catch(_){}}
+  var sched=(doc&&doc['Review Scheduled'])?doc['Review Scheduled']:'';
+  var schedFor=(doc&&doc['Review Scheduled For'])?doc['Review Scheduled For']:'';
+  var ninetyFlag=!!(doc&&doc['90-Day Done']);
+  var annualDue=ix.ni>=0?(r[ix.ni]||''):'';
+  var ninetyDue=ix.n9>=0?(r[ix.n9]||''):'';
+  var lastR=ix.li>=0?(r[ix.li]||''):'';
+  var dl=daysUntil_(lastR);
+  var active=null;
+  if(annualDue){
+    var dn=daysUntil_(annualDue);
+    var sfa=(sched&&schedFor===annualDue);
+    if((dn!==null&&dn<=30)||sfa){active={type:'Annual',due:annualDue,d:dn};}
+  }
+  if(!active&&ninetyDue){
+    var d9=daysUntil_(ninetyDue);
+    var ninetyDone=ninetyFlag||(dl!==null&&d9!==null&&dl>=d9);
+    var sfn=(sched&&schedFor===ninetyDue);
+    if(!ninetyDone&&((d9!==null&&d9>=-30&&d9<=30)||sfn)){active={type:'90-Day',due:ninetyDue,d:d9};}
+  }
+  if(!active)return null;
+  var schedForThis=(sched&&schedFor===active.due);
+  var sd=schedForThis?daysUntil_(sched):null;
+  active.sched=schedForThis?sched:'';
+  active.sd=sd;
+  if(schedForThis&&sd!==null&&sd>=0)active.state='snoozed';
+  else if(schedForThis&&sd!==null&&sd<0)active.state='lapsed';
+  else active.state='attention';
+  return active;
+}
+function reviewIx_(c){return {ni:c('Next Review'),n9:c('Review Due 90Day'),li:c('Last Review'),docsIdx:(c('Documents')>=0?c('Documents'):12)};}
 async function loadReviewAlerts(){
   try{
     const d=await api({action:'read',tab:'Employee_Records'});
     document.getElementById('review-due-loading').style.display='none';
     if(!d.success)return;
     const c=cols(d.data[0]);
-    const ni=c('Next Review'),n9=c('Review Due 90Day'),si=c('Status');
-    const out=[];
-    d.data.slice(1).forEach(function(r){
+    const ix=reviewIx_(c);
+    const si=c('Status');
+    const attention=[],scheduled=[];
+    d.data.forEach(function(r,idx){
+      if(idx===0)return;
       const name=r[c('Employee')];if(!name)return;
       if(si>=0&&(r[si]||'').toString().trim()==='Inactive')return;
-      const dn=daysUntil_(ni>=0?r[ni]:'');
-      const d9=daysUntil_(n9>=0?r[n9]:'');
-      if(dn!==null&&dn<=30){out.push({name:name,type:'Annual',due:(ni>=0?r[ni]:''),d:dn});}
-      else if(d9!==null&&d9>=-30&&d9<=30){out.push({name:name,type:'90-Day',due:(n9>=0?r[n9]:''),d:d9});}
+      const rs=reviewStateFor_(r,ix);if(!rs)return;
+      const rec={rowIndex:idx+1,name:name,type:rs.type,due:rs.due,d:rs.d,sched:rs.sched,sd:rs.sd,state:rs.state};
+      if(rs.state==='snoozed')scheduled.push(rec);else attention.push(rec);
     });
-    if(!out.length){document.getElementById('review-due-empty').style.display='block';return;}
-    document.getElementById('review-due-table').style.display='table';
-    document.getElementById('review-due-body').innerHTML=out.sort(function(a,b){return a.d-b.d;}).map(function(r){
-      var cls=r.d<0?'expiry-danger':'expiry-warn';
-      var ad=Math.abs(r.d);
-      var lbl=r.d<0?('Overdue '+ad+' day'+(ad===1?'':'s')):(r.d===0?'Due today':('Due in '+r.d+' day'+(r.d===1?'':'s')));
-      return '<tr><td><strong>'+r.name+'</strong></td><td>'+r.type+'</td><td>'+fmtDate(r.due)+'</td><td><span class="'+cls+'">'+lbl+'</span></td></tr>';
-    }).join('');
+    const emptyEl=document.getElementById('review-due-empty');
+    const tableEl=document.getElementById('review-due-table');
+    if(attention.length){
+      tableEl.style.display='table';
+      document.getElementById('review-due-body').innerHTML=attention.sort(function(a,b){var av=(a.d==null?9999:a.d),bv=(b.d==null?9999:b.d);return av-bv;}).map(function(x){
+        var lbl,cls;
+        if(x.state==='lapsed'){cls='expiry-danger';lbl='Scheduled '+fmtDate(x.sched)+', not recorded';}
+        else if(x.d!==null&&x.d<0){cls='expiry-danger';var a=Math.abs(x.d);lbl='Overdue '+a+' day'+(a===1?'':'s');}
+        else if(x.d===0){cls='expiry-warn';lbl='Due today';}
+        else {cls='expiry-warn';lbl='Due in '+x.d+' day'+(x.d===1?'':'s');}
+        return '<tr><td><strong>'+x.name+'</strong></td><td>'+x.type+'</td><td>'+fmtDate(x.due)+'</td><td><span class="'+cls+'">'+lbl+'</span></td>'
+          +'<td class="review-actions"><input type="date" class="form-input review-sched-input" id="rsd-'+x.rowIndex+'">'
+          +'<button class="btn-mini" onclick="scheduleReview('+x.rowIndex+')">Schedule</button>'
+          +'<button class="btn-mini btn-mini-done" onclick="markReviewDone('+x.rowIndex+')">Mark done</button></td></tr>';
+      }).join('');
+    } else { tableEl.style.display='none'; }
+    const wrap=document.getElementById('review-sched-wrap');
+    if(scheduled.length){
+      wrap.style.display='block';
+      document.getElementById('review-sched-body').innerHTML=scheduled.sort(function(a,b){return (a.sd==null?9999:a.sd)-(b.sd==null?9999:b.sd);}).map(function(x){
+        return '<tr><td><strong>'+x.name+'</strong></td><td>'+x.type+'</td><td>Scheduled for '+fmtDate(x.sched)+'</td>'
+          +'<td class="review-actions"><input type="date" class="form-input review-sched-input" id="rsd-'+x.rowIndex+'" value="'+toInputDate(x.sched)+'">'
+          +'<button class="btn-mini" onclick="scheduleReview('+x.rowIndex+')">Reschedule</button>'
+          +'<button class="btn-mini" onclick="clearReviewSchedule('+x.rowIndex+')">Clear</button>'
+          +'<button class="btn-mini btn-mini-done" onclick="markReviewDone('+x.rowIndex+')">Mark done</button></td></tr>';
+      }).join('');
+    } else { wrap.style.display='none'; }
+    if(emptyEl)emptyEl.style.display=(!attention.length&&!scheduled.length)?'block':'none';
   }catch(e){console.error(e);}
+}
+async function scheduleReview(rowIndex){
+  var inp=document.getElementById('rsd-'+rowIndex);
+  var val=inp&&inp.value?inp.value:'';
+  if(!val){alert('Pick a date first.');return;}
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});if(!d.success)return;
+    const c=cols(d.data[0]);const orig=d.data[rowIndex-1];if(!orig)return;
+    const di=c('Documents')>=0?c('Documents'):12;
+    const rs=reviewStateFor_(orig,reviewIx_(c));
+    if(!rs){alert('No active review to schedule for this person.');return;}
+    const row=orig.slice();
+    var doc={};if(row[di]){try{doc=JSON.parse(row[di]);}catch(_){}}
+    doc['Review Scheduled']=val;doc['Review Scheduled For']=rs.due;
+    row[di]=JSON.stringify(doc);
+    await api({action:'update',tab:'Employee_Records',rowIndex:rowIndex,row:JSON.stringify(row)});
+    loadReviewAlerts();computeOwnerAlerts();
+  }catch(e){console.error(e);alert('Could not save schedule.');}
+}
+async function clearReviewSchedule(rowIndex){
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});if(!d.success)return;
+    const c=cols(d.data[0]);const orig=d.data[rowIndex-1];if(!orig)return;
+    const di=c('Documents')>=0?c('Documents'):12;
+    const row=orig.slice();
+    var doc={};if(row[di]){try{doc=JSON.parse(row[di]);}catch(_){}}
+    delete doc['Review Scheduled'];delete doc['Review Scheduled For'];
+    row[di]=JSON.stringify(doc);
+    await api({action:'update',tab:'Employee_Records',rowIndex:rowIndex,row:JSON.stringify(row)});
+    loadReviewAlerts();computeOwnerAlerts();
+  }catch(e){console.error(e);alert('Could not clear schedule.');}
+}
+async function markReviewDone(rowIndex){
+  if(!confirm('Mark this review as completed today?'))return;
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});if(!d.success)return;
+    const c=cols(d.data[0]);const orig=d.data[rowIndex-1];if(!orig)return;
+    const di=c('Documents')>=0?c('Documents'):12;
+    const rs=reviewStateFor_(orig,reviewIx_(c));
+    const row=orig.slice();
+    var t=new Date();t.setHours(0,0,0,0);var todayStr=t.toISOString().split('T')[0];
+    if(c('Last Review')>=0)row[c('Last Review')]=todayStr;
+    if(rs&&rs.type==='Annual'&&c('Next Review')>=0)row[c('Next Review')]=addDays(todayStr,365);
+    var doc={};if(row[di]){try{doc=JSON.parse(row[di]);}catch(_){}}
+    if(rs&&rs.type==='90-Day')doc['90-Day Done']=todayStr;
+    delete doc['Review Scheduled'];delete doc['Review Scheduled For'];
+    row[di]=JSON.stringify(doc);
+    await api({action:'update',tab:'Employee_Records',rowIndex:rowIndex,row:JSON.stringify(row)});
+    loadReviewAlerts();computeOwnerAlerts();
+    if(typeof loadRecordsAdmin==='function')loadRecordsAdmin();
+  }catch(e){console.error(e);alert('Could not mark done.');}
 }
 
 // ---------- Employee Records admin (editable) ----------
@@ -1641,14 +1754,14 @@ async function computeOwnerAlerts(){
     if(e&&e.success){
       var ec=cols(e.data[0]);
       var docsIdx=ec('Documents')>=0?ec('Documents'):8;
-      var ni=ec('Next Review'),n9=ec('Review Due 90Day'),si=ec('Status'),eiName=ec('Employee');
+      var ni=ec('Next Review'),n9=ec('Review Due 90Day'),si=ec('Status'),eiName=ec('Employee'),li=ec('Last Review');
       e.data.slice(1).forEach(function(r){
         if(!r[eiName])return;
         if(si>=0&&(r[si]||'').toString().trim()==='Inactive')return;
         var exp='';if(r[docsIdx]){try{var doc=JSON.parse(r[docsIdx]);exp=doc['Government ID - Expiry']||'';}catch(_){}}
         if(exp){var de=daysUntil_(exp);if(de!==null&&de<=30)ids++;}
-        var dn=daysUntil_(ni>=0?r[ni]:'');var d9=daysUntil_(n9>=0?r[n9]:'');
-        if(dn!==null&&dn<=30)revs++;else if(d9!==null&&d9>=-30&&d9<=30)revs++;
+        var rs=reviewStateFor_(r,{ni:ni,n9:n9,li:li,docsIdx:docsIdx});
+        if(rs&&(rs.state==='attention'||rs.state==='lapsed'))revs++;
       });
     }
     window._alertPTO=pto;window._alertRecords=ids+revs;
@@ -1998,10 +2111,10 @@ loadBrandonScorecard();
 loadScorecardArchiveBrandon();
 </script>
 
-<script src="taskboard.js?v=161"></script>
+<script src="taskboard.js?v=162"></script>
 <script>initTaskBoard("brandon");</script>
-<script src="resources.js?v=161"></script>
-<script src="docnaming.js?v=161"></script>
+<script src="resources.js?v=162"></script>
+<script src="docnaming.js?v=162"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');

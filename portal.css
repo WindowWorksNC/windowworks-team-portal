@@ -365,3 +365,14 @@ tr.cur td:first-child{border-left:3px solid #c4581f}
 }
 
 .pay-note{background:#f5ede0;border-left:3px solid #c4581f;border-radius:4px;padding:12px 14px;margin-bottom:16px;font-size:13px;line-height:1.55;color:#1a1a1a}
+
+
+/* Review scheduling actions (v162) */
+.review-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.review-actions .review-sched-input{width:150px;padding:4px 6px;font-size:12px}
+.btn-mini{background:#c4581f;color:#fff;border:none;border-radius:4px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn-mini:hover{background:#a8481a}
+.btn-mini-done{background:#28a745}
+.btn-mini-done:hover{background:#1f8e3a}
+.review-sched-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:8px}
+.review-sched-table{opacity:.72}
