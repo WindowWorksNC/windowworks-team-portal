@@ -5,19 +5,20 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=163">
-<link rel="manifest" href="site.webmanifest?v=163">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=166">
+<link rel="manifest" href="site.webmanifest?v=166">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Keith Howze | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=163">
+<link rel="stylesheet" href="portal.css?v=166">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Keith Howze';</script>
-<script src="gate.js?v=163"></script>
+<script src="gate.js?v=166"></script>
+<script src="scorecards.js?v=166"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -604,7 +605,6 @@ loadDocs(EMPLOYEE, 'pm');
 loadEquipment(EMPLOYEE);
 
 // Scorecard logic
-const QTR_FULL=1250, QTR_HALF=625;
 
 var SC_PRIOR_CLOSED=null, SC_EMP='Keith Howze';
 var PORTAL_START_Q=3, PORTAL_START_Y=2026; // portal went live for scoring in Q3 2026; earlier quarters are pre-portal and never active or closeable
@@ -622,7 +622,7 @@ function gradedPill(tier){
   if(tier==='half')return '<span class="pill" style="background:#f5e6d8;color:#9a5520">Half</span>';
   return '<span class="pill pill-denied">None</span>';
 }
-function tierAmount(tier){return tier==='full'?QTR_FULL:tier==='half'?QTR_HALF:0;}
+function tierAmount(tier){return WWSC.amt('keith',tier);}
 function setDomain(domainId,pillId,tier){
   const el=document.getElementById(domainId);
   if(el){
@@ -647,86 +647,29 @@ async function loadScorecard(){
   SC_DOMAINS.forEach((d,i)=>setDomain('domain-'+d,'d'+(i+1)+'-pill','pending'));
   document.getElementById('scorecard-loading').style.display='none';
   document.getElementById('scorecard-content').style.display='block';
-
-  // 1. Install Satisfaction - average Q2_Project from Survey tab (need >=3 responses)
   try{
-    const d=await api({action:'read',tab:'Survey'});
-    if(d.success&&d.data&&d.data.length>1){
-      const c=cols(d.data[0]);
-      const ti=c('Timestamp'),ri=c('RID'),q2i=c('Q2_Project'),si=c('Stage');
-      const seen={};
-      d.data.slice(1).forEach(r=>{const rid=String(r[ri]||'');if(!rid)return;const st=String(r[si]||'').toLowerCase();if(!seen[rid]||st==='complete')seen[rid]=r;});
-      const resp=Object.keys(seen).map(k=>seen[k]).filter(r=>_scInQ(r[ti])&&r[q2i]!==''&&r[q2i]!=null);
-      const el=document.getElementById('d1-val');
-      if(resp.length>=3){
-        const avg=resp.reduce((a,r)=>a+Number(r[q2i]||0),0)/resp.length;
-        if(el)el.textContent=avg.toFixed(2)+' avg ('+resp.length+')';
-        setDomain('domain-install','d1-pill',avg>=4.5?'full':avg>=4.0?'half':'none');
+    var sc=await WWSC.computeKeith();
+    sc.domains.forEach(function(dm){
+      var v=document.getElementById(dm.valEl);if(v&&dm.display!=null)v.textContent=dm.display;
+      setDomain(dm.domEl,dm.pillEl,dm.tier);
+    });
+    var dd=sc.domains[1].extra,bd=document.getElementById('d2-breakdown');
+    if(bd){
+      if(dd&&dd.rows&&dd.rows.length){
+        var srt=dd.rows.slice().sort(function(a,b){return String(a[dd.di]).localeCompare(String(b[dd.di]));});
+        bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">Every weeknight the portal records how many of your Pipedrive activities are overdue. The score is the average across every logged day this quarter, including days at zero: <strong>'+dd.total+' total overdue over '+dd.rows.length+' logged days = '+dd.avg.toFixed(1)+' average</strong>. The domain pays out only when that average is 0.</div>'
+          +'<div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th style="text-align:right">Overdue activities</th></tr></thead><tbody>'
+          +srt.map(function(r){var n=Number(r[dd.oi]||0);return '<tr><td>'+fmtDate(r[dd.di])+'</td><td style="text-align:right;font-weight:700;color:'+(n>0?'#c0392b':'#bbb')+'">'+n+'</td></tr>';}).join('')
+          +'</tbody></table></div>';
       }else{
-        if(el)el.textContent=resp.length+' / 3 responses';
-        setDomain('domain-install','d1-pill','pending');
+        bd.innerHTML='<div style="font-size:12px;color:#888">No overdue activity logged yet this quarter.</div>';
       }
-    }else{document.getElementById('d1-val').textContent='0 / 3 responses';}
-  }catch(e){console.error(e);}
-
-  // 2. Data Integrity - overdue activities (binary, avg=0)
-  try{
-    const d=await api({action:'read',tab:'Overdue_Activities'});
-    if(d.success){
-      const c=cols((d.data&&d.data[0])||[]);
-      const di=c('Date'),ei=c('Employee'),oi=c('Overdue Count');
-      const rows=d.data.slice(1).filter(r=>(r[ei]||'').trim()==='Keith Howze'&&_scInQ(r[di]));
-      const el=document.getElementById('d2-avg'),bd=document.getElementById('d2-breakdown');
-      if(rows.length){
-        const total=rows.reduce((a,r)=>a+Number(r[oi]||0),0);const avg=total/rows.length;
-        if(el)el.textContent=avg.toFixed(1)+' avg';
-        setDomain('domain-data','d2-pill',avg===0?'full':'none');
-        if(bd){
-          const srt=rows.slice().sort((a,b)=>String(a[di]).localeCompare(String(b[di])));
-          bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">Every weeknight the portal records how many of your Pipedrive activities are overdue. The score is the average across every logged day this quarter, including days at zero: <strong>'+total+' total overdue over '+rows.length+' logged days = '+avg.toFixed(1)+' average</strong>. The domain pays out only when that average is 0.</div>'
-            +'<div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th style="text-align:right">Overdue activities</th></tr></thead><tbody>'
-            +srt.map(r=>{var n=Number(r[oi]||0);return '<tr><td>'+fmtDate(r[di])+'</td><td style="text-align:right;font-weight:700;color:'+(n>0?'#c0392b':'#bbb')+'">'+n+'</td></tr>';}).join('')
-            +'</tbody></table></div>';
-        }
-      }else{if(el)el.textContent='No data this quarter';setDomain('domain-data','d2-pill','pending');if(bd)bd.innerHTML='<div style="font-size:12px;color:#888">No overdue activity logged yet this quarter.</div>';}
     }
   }catch(e){console.error(e);}
-
-  // 3. Yard Sign Rate - Yard_Signs tab (Sign=Yes / total, this quarter)
-  try{
-    const d=await api({action:'read',tab:'Yard_Signs'});
-    if(d.success&&d.data&&d.data.length>1){
-      const c=cols(d.data[0]);
-      const di=c('Completed_Date'),sgi=c('Sign');
-      const rows=d.data.slice(1).filter(r=>_scInQ(r[di]));
-      const el=document.getElementById('d3-val');
-      if(rows.length){
-        const yes=rows.filter(r=>String(r[sgi]||'').trim().toLowerCase()==='yes').length;
-        const pct=(yes/rows.length)*100;
-        if(el)el.textContent=yes+'/'+rows.length+' ('+pct.toFixed(0)+'%)';
-        setDomain('domain-yardsign','d3-pill',pct>=90?'full':'none');
-      }else{if(el)el.textContent='0 signs';setDomain('domain-yardsign','d3-pill','none');}
-    }else{document.getElementById('d3-val').textContent='0 signs';setDomain('domain-yardsign','d3-pill','none');}
-  }catch(e){console.error(e);}
-
-  // 4. Testimonials - Testimonials tab (Capturer=Keith, this quarter)
-  try{
-    const d=await api({action:'read',tab:'Testimonials'});
-    if(d.success&&d.data&&d.data.length>1){
-      const c=cols(d.data[0]);
-      const di=c('Date'),cap=c('Capturer');
-      const cnt=d.data.slice(1).filter(r=>(r[cap]||'').trim()==='Keith Howze'&&_scInQ(r[di])).length;
-      const el=document.getElementById('d4-val');
-      if(el)el.textContent=cnt+(cnt===1?' video':' videos');
-      setDomain('domain-testimonials','d4-pill',cnt>=5?'full':cnt>=3?'half':'none');
-    }else{document.getElementById('d4-val').textContent='No data yet';}
-  }catch(e){console.error(e);}
-
   updateTotal();
   saveScorecard();
   applyCloseGateKeith();
 }
-
 async function saveScorecard(){
   try{
     const q=getCurrentQuarter();
@@ -762,7 +705,7 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=163"></script>
+<script src="taskboard.js?v=166"></script>
 <script>initTaskBoard("keith");</script>
 <script>
 async function applyCloseGateKeith(){
@@ -884,8 +827,8 @@ async function loadScorecardArchiveKeith() {
 }
 
 loadScorecardArchiveKeith();</script>
-<script src="resources.js?v=163"></script>
-<script src="docnaming.js?v=163"></script>
+<script src="resources.js?v=166"></script>
+<script src="docnaming.js?v=166"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');

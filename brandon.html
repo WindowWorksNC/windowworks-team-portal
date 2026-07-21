@@ -4,19 +4,20 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=163">
-<link rel="manifest" href="site.webmanifest?v=163">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=166">
+<link rel="manifest" href="site.webmanifest?v=166">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=163">
+<link rel="stylesheet" href="portal.css?v=166">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Brandon McClure';</script>
-<script src="gate.js?v=163"></script>
+<script src="gate.js?v=166"></script>
+<script src="scorecards.js?v=166"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -369,6 +370,10 @@
       </div>
       <div class="sc-domain-desc">Customers rate the office 1 to 5 on the post-project survey. Full $1,500 at 4.5 average or higher, half $750 at 4.0 to 4.4, none under 4.0. Needs at least 3 responses to score.</div>
       <div class="sc-domain-note">Fed automatically from the post-project customer survey.</div>
+      <div style="margin-top:12px;border-top:1px solid #efe9e1;padding-top:10px">
+        <span onclick="var w=document.getElementById('d3-breakdown');w.style.display=w.style.display==='none'?'block':'none'" style="font-size:11px;color:#c4581f;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.05em">View responses</span>
+        <div id="d3-breakdown" style="display:none;margin-top:10px"></div>
+      </div>
     </div>
   </div>
   <div class="card">
@@ -1773,7 +1778,6 @@ async function computeOwnerAlerts(){
 // ===================================================================
 //  MY SCORECARD (Brandon)
 // ===================================================================
-const QTR_FULL_B=1500, QTR_HALF_B=750;
 const SCB_DOMAINS=['pipeline','collections','office'];
 function gradedPillB(tier){
   if(tier==='pending')return '<span class="pill pill-gray">Pending Data</span>';
@@ -1781,7 +1785,7 @@ function gradedPillB(tier){
   if(tier==='half')return '<span class="pill" style="background:#f5e6d8;color:#9a5520">Half</span>';
   return '<span class="pill pill-denied">None</span>';
 }
-function tierAmountB(tier){return tier==='full'?QTR_FULL_B:tier==='half'?QTR_HALF_B:0;}
+function tierAmountB(tier){return WWSC.amt('brandon',tier);}
 function setDomainB(domainId,pillId,tier){
   const el=document.getElementById(domainId);
   if(el){el.style.borderLeft=tier==='pending'?'4px solid #e4dbd0':tier==='full'?'4px solid #28a745':tier==='half'?'4px solid #c4581f':'4px solid #dc3545';el.setAttribute('data-earned',tierAmountB(tier));el.setAttribute('data-tier',tier);}
@@ -1850,74 +1854,6 @@ async function applyCloseGateBrandon(){
 // Scope: Installations pipeline only, which excludes Services and B2B. Bucketed by install-completion quarter.
 const PIPEDRIVE_TOKEN = 'e3ede19f7c61fad229f89cf091af089cd5a2318e';
 const PD_BASE = 'https://api.pipedrive.com/v1';
-let _installPipelineId = null;
-async function pdInstallPipelineId(){
-  if(_installPipelineId!==null) return _installPipelineId;
-  try{
-    const r=await fetch(PD_BASE+'/pipelines?api_token='+PIPEDRIVE_TOKEN);
-    const list=((await r.json())||{}).data||[];
-    const hit=list.find(p=>/install/i.test(String(p.name||''))&&!/service/i.test(String(p.name||'')));
-    _installPipelineId=hit?hit.id:4;
-  }catch(e){_installPipelineId=4;}
-  return _installPipelineId;
-}
-async function computeBrandonCollections(){
-  const el=document.getElementById('d2-val');
-  try{
-    const pid=await pdInstallPipelineId();
-    // 1. All completed Installation activities across every user (paginate defensively).
-    let acts=[],start=0,guard=0;
-    while(guard++<8){
-      const r=await fetch(PD_BASE+'/activities?api_token='+PIPEDRIVE_TOKEN+'&type=installation&done=1&user_id=0&limit=500&start='+start);
-      const j=(await r.json())||{};
-      acts=acts.concat(j.data||[]);
-      const more=j.additional_data&&j.additional_data.pagination&&j.additional_data.pagination.more_items_in_collection;
-      if(!more) break;
-      start+=500;
-    }
-    // 2. Latest in-quarter install completion per deal, keeping both the date and the raw stamp.
-    const installByDeal={};
-    acts.forEach(a=>{
-      const id=a.deal_id, mdt=a.marked_as_done_time;
-      if(!id||!mdt||!_scbInQ(mdt)) return;
-      const d=_scbPQL(mdt); if(!d) return;
-      if(!installByDeal[id]||d>installByDeal[id].d) installByDeal[id]={d:d,raw:mdt};
-    });
-    const dealIds=Object.keys(installByDeal);
-    // 3. Per deal: confirm Installations pipeline and won, then first post-install Collect Payment.
-    const daysList=[], contrib=[];
-    for(let k=0;k<dealIds.length;k++){
-      const id=dealIds[k], installDate=installByDeal[id].d, installRaw=installByDeal[id].raw;
-      let deal=null,dacts=[];
-      try{ deal=(((await (await fetch(PD_BASE+'/deals/'+id+'?api_token='+PIPEDRIVE_TOKEN)).json())||{}).data)||null; }catch(e){ continue; }
-      if(!deal||deal.status!=='won'||Number(deal.pipeline_id)!==Number(pid)) continue;
-      try{ dacts=(((await (await fetch(PD_BASE+'/deals/'+id+'/activities?api_token='+PIPEDRIVE_TOKEN)).json())||{}).data)||[]; }catch(e){ continue; }
-      let collectDate=null, collectRaw='';
-      dacts.forEach(a=>{
-        if(a.type!=='collect_payment'||!a.done||!a.marked_as_done_time) return;
-        const cd=_scbPQL(a.marked_as_done_time);
-        if(!cd||cd<installDate) return; // deposits and pre-install collections do not count
-        if(!collectDate||cd<collectDate){ collectDate=cd; collectRaw=a.marked_as_done_time; } // first payment after the install
-      });
-      if(!collectDate) continue; // installed but not yet paid post-install, so pending and uncounted
-      const days=Math.round((collectDate-installDate)/86400000);
-      daysList.push(days);
-      contrib.push({id:id,name:deal.title||('Deal '+id),install:installRaw,collect:collectRaw,days:days});
-    }
-    // 4. Median and tier. Full within 2 days, half within 5, none over 5.
-    if(daysList.length){
-      daysList.sort((a,b)=>a-b);
-      const mid=Math.floor(daysList.length/2);
-      const med=daysList.length%2?daysList[mid]:(daysList[mid-1]+daysList[mid])/2;
-      if(el)el.textContent=med.toFixed(1)+' day median ('+daysList.length+')';
-      setDomainB('domain-collections','d2-pill',med<=2?'full':med<=5?'half':'none');
-    }else{
-      if(el)el.textContent='No completed installs paid this quarter';
-      setDomainB('domain-collections','d2-pill','pending');
-    }
-    renderCollectionsBreakdown(contrib);
-  }catch(e){ console.error(e); if(el)el.textContent='Could not load from Pipedrive'; setDomainB('domain-collections','d2-pill','pending'); renderCollectionsBreakdown(null); }
-}
 function renderCollectionsBreakdown(contrib){
   const bd=document.getElementById('d2-breakdown'); if(!bd) return;
   if(!contrib){ bd.innerHTML='<div style="font-size:12px;color:#888">Could not load contributing deals from Pipedrive.</div>'; return; }
@@ -1928,56 +1864,43 @@ function renderCollectionsBreakdown(contrib){
     +contrib.map(function(r){return '<tr><td>'+escHtml(r.name)+wwDealLink(r.id)+'</td><td>'+fmtDate(r.install)+'</td><td>'+fmtDate(r.collect)+'</td><td style="text-align:right;font-weight:700">'+r.days+'</td></tr>';}).join('')
     +'</tbody></table></div>';
 }
+async function renderOfficeBreakdown(rows){
+  const bd=document.getElementById('d3-breakdown'); if(!bd) return;
+  if(!rows){ bd.innerHTML='<div style="font-size:12px;color:#888">Could not load responses.</div>'; return; }
+  if(!rows.length){ bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5">No survey responses have counted this quarter yet. A response appears here once a customer completes the post-project rating.</div>'; return; }
+  bd.innerHTML='<div style="font-size:12px;color:#888">Loading responses...</div>';
+  const names={};
+  for(const r of rows){
+    if(!r.rid||names[r.rid]!=null) continue;
+    try{ const j=await (await fetch(PD_BASE+'/deals/'+encodeURIComponent(r.rid)+'?api_token='+PIPEDRIVE_TOKEN)).json(); names[r.rid]=(j&&j.data&&j.data.title)||('Deal '+r.rid); }
+    catch(e){ names[r.rid]='Deal '+r.rid; }
+  }
+  rows.sort(function(a,b){return String(b.ts).localeCompare(String(a.ts));});
+  bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">Completed post-project survey responses counted toward this quarter\'s office score. Office is the 1 to 5 rating that feeds the score; Project is the install rating, shown for context.</div>'
+    +'<div class="table-wrap"><table class="data-table"><thead><tr><th>Deal</th><th style="text-align:center">Office</th><th style="text-align:center">Project</th><th>Date</th></tr></thead><tbody>'
+    +rows.map(function(r){return '<tr><td>'+escHtml(names[r.rid]||('Deal '+r.rid))+wwDealLink(r.rid)+'</td><td style="text-align:center;font-weight:700">'+escHtml(String(r.office))+'</td><td style="text-align:center">'+escHtml(String(r.project==null?'':r.project))+'</td><td>'+fmtDate(r.ts)+'</td></tr>';}).join('')
+    +'</tbody></table></div>';
+}
 async function loadBrandonScorecard(){
   await refreshPriorClosed_();
   document.getElementById('scorecard-loading').style.display='none';
   document.getElementById('scorecard-content').style.display='block';
   var __sq=document.getElementById('sc-quarter');if(__sq)__sq.textContent=getCurrentQuarter();
   SCB_DOMAINS.forEach((d,i)=>setDomainB('domain-'+d,'d'+(i+1)+'-pill','pending'));
-
-  // 1. Pipeline Accuracy - average Clean_Pct from Pipeline_Accuracy tab
   try{
-    const d=await api({action:'read',tab:'Pipeline_Accuracy'});
-    if(d.success&&d.data&&d.data.length>1){
-      const c=cols(d.data[0]);
-      const di=c('Date'),pi=c('Clean_Pct'),fi=c('Failing');
-      const rows=d.data.slice(1).filter(r=>_scbInQ(r[di]));
-      const el=document.getElementById('d1-val');
-      if(rows.length){
-        const avg=rows.reduce((a,r)=>a+Number(r[pi]||0),0)/rows.length;
-        if(el)el.textContent=avg.toFixed(1)+'% avg';
-        setDomainB('domain-pipeline','d1-pill',avg>=95?'full':avg>=85?'half':'none');
-        renderPipelineBreakdown(rows,di,pi,fi);
-      }else{if(el)el.textContent='No data this quarter';setDomainB('domain-pipeline','d1-pill','pending');}
-    }else{document.getElementById('d1-val').textContent='No data yet';}
+    var sc=await WWSC.computeBrandon();
+    sc.domains.forEach(function(dm){
+      var v=document.getElementById(dm.valEl);if(v&&dm.display!=null)v.textContent=dm.display;
+      setDomainB(dm.domEl,dm.pillEl,dm.tier);
+    });
+    var pipe=sc.domains[0].extra;if(pipe&&pipe.rows)renderPipelineBreakdown(pipe.rows,pipe.di,pipe.pi,pipe.fi);
+    var col=sc.domains[1].extra;renderCollectionsBreakdown(col?col.contrib:null);
+    var off=sc.domains[2].extra;renderOfficeBreakdown(off&&off.resp?off.resp:[]);
   }catch(e){console.error(e);}
-
-  // 2. Collections - live from Pipedrive (install completion to post-install payment, Installations pipeline).
-  await computeBrandonCollections();
-
-  // 3. Office Satisfaction - average Q1_Office from Survey tab (need >=3)
-  try{
-    const d=await api({action:'read',tab:'Survey'});
-    if(d.success&&d.data&&d.data.length>1){
-      const c=cols(d.data[0]);
-      const ti=c('Timestamp'),ri=c('RID'),q1i=c('Q1_Office'),si=c('Stage');
-      const seen={};
-      d.data.slice(1).forEach(r=>{const rid=String(r[ri]||'');if(!rid)return;const st=String(r[si]||'').toLowerCase();if(!seen[rid]||st==='complete')seen[rid]=r;});
-      const resp=Object.keys(seen).map(k=>seen[k]).filter(r=>_scbInQ(r[ti])&&r[q1i]!==''&&r[q1i]!=null);
-      const el=document.getElementById('d3-val');
-      if(resp.length>=3){
-        const avg=resp.reduce((a,r)=>a+Number(r[q1i]||0),0)/resp.length;
-        if(el)el.textContent=avg.toFixed(2)+' avg ('+resp.length+')';
-        setDomainB('domain-office','d3-pill',avg>=4.5?'full':avg>=4.0?'half':'none');
-      }else{if(el)el.textContent=resp.length+' / 3 responses';setDomainB('domain-office','d3-pill','pending');}
-    }else{document.getElementById('d3-val').textContent='0 / 3 responses';}
-  }catch(e){console.error(e);}
-
   updateBTotal();
   saveBrandonScorecard();
   applyCloseGateBrandon();
 }
-
 async function saveBrandonScorecard(){
   try{
     const q=getCurrentQuarter();
@@ -2111,10 +2034,10 @@ loadBrandonScorecard();
 loadScorecardArchiveBrandon();
 </script>
 
-<script src="taskboard.js?v=163"></script>
+<script src="taskboard.js?v=166"></script>
 <script>initTaskBoard("brandon");</script>
-<script src="resources.js?v=163"></script>
-<script src="docnaming.js?v=163"></script>
+<script src="resources.js?v=166"></script>
+<script src="docnaming.js?v=166"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');

@@ -4,19 +4,20 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=163">
-<link rel="manifest" href="site.webmanifest?v=163">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=166">
+<link rel="manifest" href="site.webmanifest?v=166">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Rose Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=163">
+<link rel="stylesheet" href="portal.css?v=166">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Rose Reif';</script>
-<script src="gate.js?v=163"></script>
+<script src="gate.js?v=166"></script>
+<script src="scorecards.js?v=166"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -44,6 +45,7 @@
   <div class="tabs" id="tabs-team">
     <button class="tab active" onclick="switchTab('commission-admin',this)">Commission <span id="badge-commission" class="nav-badge"></span></button>
     <button class="tab" onclick="switchTab('incentive',this)">Incentive Pay <span id="badge-incentive" class="nav-badge"></span></button>
+    <button class="tab" onclick="switchTab('scorecards',this)">Scorecards</button>
     <button class="tab" onclick="switchTab('pto-admin',this)">PTO Requests <span id="badge-pto" class="nav-badge"></span></button>
     <button class="tab" onclick="switchTab('records-admin',this)">Employee Records <span id="badge-records" class="nav-badge"></span></button>
     <button class="tab" id="reviews-tab-btn" onclick="switchTab('reviews',this)" style="display:none">Reviews</button>
@@ -137,6 +139,17 @@
   </div>
   <div id="incentive-approved-empty" class="empty-state" style="display:none">Nothing approved yet this quarter.</div>
 </div>
+</div>
+
+<!-- ========================= TEAM: SCORECARDS ========================= -->
+<div class="tab-content" id="tab-scorecards">
+  <div class="card">
+    <div class="card-title" style="justify-content:space-between"><span>Performance Scorecards</span><span style="font-size:12px;color:#888;font-weight:400;text-transform:none" id="sc-summary-qtr">Loading...</span></div>
+    <div style="font-size:13px;color:#666;line-height:1.5;margin:4px 0 14px">Current quarter scorecards for Brandon and Keith, reflecting each person's latest saved progress from their own portal. Each domain shows its result tier and the bonus earned so far.</div>
+    <div id="sc-summary-loading" class="loading">Loading...</div>
+    <div id="sc-summary-content" style="display:none"></div>
+    <div id="sc-summary-empty" class="empty-state" style="display:none">No scorecards started this quarter yet.</div>
+  </div>
 </div>
 
 <!-- ========================= TEAM: PTO REQUESTS ========================= -->
@@ -1823,9 +1836,53 @@ document.addEventListener('DOMContentLoaded',function(){
   if(el)el.classList.add('active');
 });
 
+function _scTierBadge(t){
+  var m={full:['Full','#28a745'],half:['Half','#c4581f'],none:['None','#c0392b'],pending:['Pending','#999']};
+  var x=m[t]||['Pending','#999'];
+  return '<span style="display:inline-block;font-size:11px;font-weight:700;color:#fff;background:'+x[1]+';padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.04em">'+x[0]+'</span>';
+}
+function _scStatusBadge(s){
+  var t=String(s||'In Progress');var bg=t.toLowerCase()==='closed'?'#1a1a1a':(t.toLowerCase()==='approved'?'#28a745':'#c4581f');
+  return '<span style="display:inline-block;font-size:11px;font-weight:700;color:#fff;background:'+bg+';padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.04em;margin-right:8px">'+t+'</span>';
+}
+function _scMoney(n){return '$'+Number(n||0).toLocaleString('en-US');}
+function _scEmployeeCard(name,sc,status){
+  var out='<div style="margin-bottom:22px">';
+  out+='<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid #1a1a1a;padding-bottom:6px;margin-bottom:8px">'
+    +'<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:600">'+name+'</span>'
+    +'<span>'+(status?_scStatusBadge(status):'')+'<strong style="font-size:16px">'+_scMoney(sc.total)+'</strong></span></div>';
+  out+='<div class="table-wrap"><table class="data-table"><thead><tr><th>Domain</th><th>Result</th><th>Detail</th><th style="text-align:right">Earned</th></tr></thead><tbody>';
+  sc.domains.forEach(function(d){
+    out+='<tr><td>'+d.label+'</td><td>'+_scTierBadge(d.tier)+'</td><td style="color:#666;font-size:12px">'+(d.display||'')+'</td><td style="text-align:right;font-weight:700">'+_scMoney(d.earned)+'</td></tr>';
+  });
+  out+='</tbody></table></div></div>';
+  return out;
+}
+async function loadScorecardsSummary(){
+  var loadEl=document.getElementById('sc-summary-loading');
+  var contentEl=document.getElementById('sc-summary-content');
+  var qEl=document.getElementById('sc-summary-qtr');
+  try{
+    var q=getCurrentQuarter();
+    if(qEl)qEl.textContent='Q'+q+' '+getActiveYear();
+    var statuses={};
+    try{var bd=await api({action:'read',tab:'Bonuses'});if(bd.success&&bd.data&&bd.data.length){var c=cols(bd.data[0]);bd.data.slice(1).forEach(function(r){if(String(r[c('Type')]||'').trim()==='Scorecard'&&String(r[c('Quarter')])===String(q))statuses[String(r[c('Employee')]||'').trim()]=r[c('Status')];});}}catch(e){}
+    var results=await Promise.all([WWSC.computeBrandon(),WWSC.computeKeith()]);
+    var people=[{name:'Brandon McClure',sc:results[0]},{name:'Keith Howze',sc:results[1]}];
+    var html=people.map(function(p){return _scEmployeeCard(p.name,p.sc,statuses[p.name]);}).join('');
+    if(loadEl)loadEl.style.display='none';
+    if(contentEl){contentEl.innerHTML=html;contentEl.style.display='block';}
+  }catch(e){
+    console.error(e);
+    if(loadEl)loadEl.textContent='Could not load scorecards.';
+  }
+}
 populateAdminSelects();
 cacheCommissionHeaders().then(loadTeamCommission);
+loadIncentivePay();populateAdminSelects();
+cacheCommissionHeaders().then(loadTeamCommission);
 loadIncentivePay();
+loadScorecardsSummary();
 loadAdminPTO();
 loadAllBalances();
 loadExpiryAlerts();
@@ -1841,10 +1898,10 @@ loadDocs(EMPLOYEE,null);
 loadEquipment(EMPLOYEE);
 </script>
 
-<script src="taskboard.js?v=163"></script>
+<script src="taskboard.js?v=166"></script>
 <script>initTaskBoard("rose");</script>
-<script src="resources.js?v=163"></script>
-<script src="docnaming.js?v=163"></script>
+<script src="resources.js?v=166"></script>
+<script src="docnaming.js?v=166"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
