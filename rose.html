@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=167">
-<link rel="manifest" href="site.webmanifest?v=167">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=168">
+<link rel="manifest" href="site.webmanifest?v=168">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Rose Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=167">
+<link rel="stylesheet" href="portal.css?v=168">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Rose Reif';</script>
-<script src="gate.js?v=167"></script>
-<script src="scorecards.js?v=167"></script>
+<script src="gate.js?v=168"></script>
+<script src="scorecards.js?v=168"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -2123,12 +2123,27 @@ async function loadReviewNotes(emp){
     if(!rows.length){if(wrap)wrap.innerHTML='<div class="empty-state">No notes yet for '+escapeHtml(emp)+'.</div>';return;}
     if(wrap)wrap.innerHTML=rows.map(function(o){
       var meta=fmtDate(o.date)+(o.author?' &middot; '+escapeHtml(o.author):'');
-      return '<div style="border:1px solid #ece7df;border-radius:6px;padding:12px 14px;margin-bottom:10px;background:#faf8f5">'+
+      var esc=escapeHtml(o.note);
+      var dv=toDateInputVal(o.date);
+      return '<div style="border:1px solid #ece7df;border-radius:6px;padding:12px 14px;margin-bottom:10px;background:#faf8f5" id="review-card-'+o.sheetRow+'">'+
         '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">'+
         '<div style="font-family:\'Barlow Condensed\',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#1a1a1a">'+meta+'</div>'+
+        '<div style="display:flex;gap:6px;flex-shrink:0">'+
+        '<button class="action-btn btn-edit" onclick="startReviewEdit('+o.sheetRow+')">Edit</button>'+
         '<button class="action-btn btn-deny" onclick="deleteReviewNote('+o.sheetRow+')">Delete</button>'+
         '</div>'+
-        '<div style="margin-top:6px;font-size:14px;color:#333;white-space:pre-wrap">'+escapeHtml(o.note)+'</div>'+
+        '</div>'+
+        '<div id="review-view-'+o.sheetRow+'" style="margin-top:6px;font-size:14px;color:#333;white-space:pre-wrap">'+esc+'</div>'+
+        '<div id="review-edit-'+o.sheetRow+'" style="display:none;margin-top:10px">'+
+        '<label class="form-label">Date</label>'+
+        '<input type="date" class="form-input review-edit-date" style="max-width:220px" value="'+dv+'">'+
+        '<label class="form-label" style="display:block;margin-top:8px">Note</label>'+
+        '<textarea class="form-input form-textarea review-edit-note" rows="3">'+esc+'</textarea>'+
+        '<div style="display:flex;gap:8px;margin-top:10px">'+
+        '<button class="action-btn btn-approve review-edit-save" onclick="saveReviewNoteEdit('+o.sheetRow+')">Save</button>'+
+        '<button class="action-btn btn-edit" onclick="cancelReviewEdit('+o.sheetRow+')">Cancel</button>'+
+        '</div>'+
+        '</div>'+
         '</div>';
     }).join('');
   }catch(e){if(ld)ld.style.display='none';if(wrap)wrap.innerHTML='<div class="empty-state">Could not load notes.</div>';}
@@ -2167,6 +2182,51 @@ async function deleteReviewNote(sheetRow){
     var emp=document.getElementById('review-emp').value;
     loadReviewNotes(emp);
   }catch(e){alert('Error deleting. Please try again.');}
+}
+function toDateInputVal(v){
+  if(!v)return '';
+  var s=String(v).trim();
+  var m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m)return m[1]+'-'+m[2]+'-'+m[3];
+  var dt=new Date(s);
+  if(!isNaN(dt.getTime()))return dt.toISOString().slice(0,10);
+  return '';
+}
+function startReviewEdit(sheetRow){
+  var v=document.getElementById('review-view-'+sheetRow);
+  var e=document.getElementById('review-edit-'+sheetRow);
+  if(v)v.style.display='none';
+  if(e)e.style.display='';
+}
+function cancelReviewEdit(sheetRow){
+  var v=document.getElementById('review-view-'+sheetRow);
+  var e=document.getElementById('review-edit-'+sheetRow);
+  if(e)e.style.display='none';
+  if(v)v.style.display='';
+}
+async function saveReviewNoteEdit(sheetRow){
+  var box=document.getElementById('review-edit-'+sheetRow);
+  if(!box)return;
+  var ta=box.querySelector('.review-edit-note');
+  var de=box.querySelector('.review-edit-date');
+  var note=ta?ta.value.trim():'';
+  var date=de?de.value:'';
+  if(!note){alert('Write a note before saving.');return;}
+  var btn=box.querySelector('.review-edit-save');
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  try{
+    var d=await api({action:'read',tab:'Review_Notes'});
+    if(!d||!d.success||!d.data||!d.data.length){alert('Could not load notes.');if(btn){btn.disabled=false;btn.textContent='Save';}return;}
+    var headers=d.data[0];var c=cols(headers);
+    var row=[...(d.data[sheetRow-1]||[])];
+    while(row.length<headers.length)row.push('');
+    var set=function(name,val){var i=c(name);if(i>=0)row[i]=val;};
+    set('Note',note);
+    if(date)set('Date',date);
+    await api({action:'update',tab:'Review_Notes',rowIndex:sheetRow,row:JSON.stringify(row)});
+    var emp=document.getElementById('review-emp').value;
+    loadReviewNotes(emp);
+  }catch(e){alert('Error saving. Please try again.');if(btn){btn.disabled=false;btn.textContent='Save';}}
 }
 
 // ---------- Init ----------
@@ -2240,10 +2300,10 @@ loadDocs(EMPLOYEE,null);
 loadEquipment(EMPLOYEE);
 </script>
 
-<script src="taskboard.js?v=167"></script>
+<script src="taskboard.js?v=168"></script>
 <script>initTaskBoard("rose");</script>
-<script src="resources.js?v=167"></script>
-<script src="docnaming.js?v=167"></script>
+<script src="resources.js?v=168"></script>
+<script src="docnaming.js?v=168"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
