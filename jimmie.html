@@ -5,19 +5,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=169">
-<link rel="manifest" href="site.webmanifest?v=169">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=170">
+<link rel="manifest" href="site.webmanifest?v=170">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Jimmie Coleman | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=169">
+<link rel="stylesheet" href="portal.css?v=170">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Jimmie Coleman';</script>
-<script src="gate.js?v=169"></script>
+<script src="gate.js?v=170"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -65,7 +65,81 @@
     <div id="prev-periods-body_jimmie"></div>
   </div>
 </div>
-</div></div><div class="tab-content" id="tab-pto"><div class="card">
+</div></div><div class="tab-content" id="tab-expenses">
+  <div class="card">
+    <div class="card-title">Submit an Expense</div>
+    <div id="rb-form-alert"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-input" id="rb-category" onchange="rbOnCategory()">
+          <option value="">Select...</option>
+          <option>Travel Meals</option>
+          <option>Lodging</option>
+          <option>Parking &amp; Tolls</option>
+          <option>Airfare &amp; Baggage</option>
+          <option>Supplies &amp; Materials</option>
+          <option>Marketing / Media</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expense Date</label>
+        <input type="date" class="form-input" id="rb-date">
+      </div>
+    </div>
+    <div id="rb-mktg-note" style="display:none"><div class="alert alert-info">Marketing and branded materials (flyers, printed pieces, ads, anything using the Window Works logo) must be approved before they are produced or purchased. Marketing spend over $100 is routed to Rose and will not be reimbursed if it was not approved in advance.</div></div>
+    <div id="rb-trip-fields" style="display:none">
+      <div class="rb-sub">Meal cap lookup</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Destination City</label><input type="text" class="form-input" id="rb-city" placeholder="Columbus"></div>
+        <div class="form-group" style="max-width:110px"><label class="form-label">State</label><input type="text" class="form-input" id="rb-state" placeholder="OH" maxlength="2"></div>
+        <div class="form-group" style="max-width:140px"><label class="form-label">or ZIP</label><input type="text" class="form-input" id="rb-zip" placeholder="43004"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Trip Start</label><input type="date" class="form-input" id="rb-tstart"></div>
+        <div class="form-group"><label class="form-label">Trip End</label><input type="date" class="form-input" id="rb-tend"></div>
+        <div class="form-group" style="justify-content:flex-end"><button type="button" class="submit-btn" style="background:#1a1a1a" onclick="rbLookupCap()">Look up rate</button></div>
+      </div>
+      <div id="rb-cap-out"></div>
+      <input type="hidden" id="rb-cap-value">
+      <input type="hidden" id="rb-cap-rate">
+      <div id="rb-cap-manual-out" class="rb-muted"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Amount ($)</label><input type="number" class="form-input" id="rb-amount" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="form-group" style="flex:2"><label class="form-label">Business Purpose</label><input type="text" class="form-input" id="rb-purpose" placeholder="What was this for?"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label class="form-label">Receipts</label>
+      <input type="file" accept="image/*,application/pdf" capture="environment" multiple id="rb-receipt-input" onchange="rbUpload(this)" class="form-input" style="padding:6px;background:#f5f3f0">
+      <div id="rb-receipt-status"></div>
+      <div id="rb-receipt-list" class="rb-chips"></div>
+    </div>
+    <button class="submit-btn" id="rb-submit-btn" onclick="submitReimbursement(EMPLOYEE)">Submit Expense</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">What is and is not covered</div>
+    <div class="rb-policy">
+      <p><strong>Submit within 30 days.</strong> Turn in each expense within 30 days of the date on the receipt. Later submissions are flagged and may not be reimbursed.</p>
+      <p><strong>Covered</strong> when pre-approved and documented with a receipt: travel meals up to the federal rate for that location, lodging, parking and tolls, airfare and baggage, and approved supplies or materials for the job.</p>
+      <p><strong>Not covered:</strong> alcohol, personal entertainment, room upgrades or extras beyond policy, traffic or parking fines, expenses for anyone who is not an employee, anything without a receipt, and any self-created marketing or branded material that was not approved in advance. Marketing over $100 needs Rose's approval before you spend.</p>
+      <p class="rb-muted">Reimbursements are paid on the regular pay cycle after approval.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">My Submitted Expenses</div>
+    <div id="rb-mine-loading" class="loading">Loading...</div>
+    <table class="data-table" id="rb-mine-table" style="display:none">
+      <thead><tr><th>Date</th><th>Category</th><th>Purpose</th><th>Amount</th><th>Receipts</th><th>Status</th></tr></thead>
+      <tbody id="rb-mine-body"></tbody>
+    </table>
+    <div id="rb-mine-empty" class="empty-state" style="display:none">No expenses submitted yet.</div>
+  </div>
+</div>
+<div class="tab-content" id="tab-pto"><div class="card">
   <div class="card-title">Leave Balances</div>
   <div class="stat-grid">
     <div class="stat-block">
@@ -224,80 +298,7 @@
 </div>
 
 
-<div class="tab-content" id="tab-expenses">
-  <div class="card">
-    <div class="card-title">Submit an Expense</div>
-    <div id="rb-form-alert"></div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Category</label>
-        <select class="form-input" id="rb-category" onchange="rbOnCategory()">
-          <option value="">Select...</option>
-          <option>Travel Meals</option>
-          <option>Lodging</option>
-          <option>Parking &amp; Tolls</option>
-          <option>Airfare &amp; Baggage</option>
-          <option>Supplies &amp; Materials</option>
-          <option>Marketing / Media</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Expense Date</label>
-        <input type="date" class="form-input" id="rb-date">
-      </div>
-    </div>
-    <div id="rb-mktg-note" style="display:none"><div class="alert alert-info">Marketing and branded materials (flyers, printed pieces, ads, anything using the Window Works logo) must be approved before they are produced or purchased. Marketing spend over $100 is routed to Rose and will not be reimbursed if it was not approved in advance.</div></div>
-    <div id="rb-trip-fields" style="display:none">
-      <div class="rb-sub">Meal cap lookup</div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Destination City</label><input type="text" class="form-input" id="rb-city" placeholder="Columbus"></div>
-        <div class="form-group" style="max-width:110px"><label class="form-label">State</label><input type="text" class="form-input" id="rb-state" placeholder="OH" maxlength="2"></div>
-        <div class="form-group" style="max-width:140px"><label class="form-label">or ZIP</label><input type="text" class="form-input" id="rb-zip" placeholder="43004"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Trip Start</label><input type="date" class="form-input" id="rb-tstart"></div>
-        <div class="form-group"><label class="form-label">Trip End</label><input type="date" class="form-input" id="rb-tend"></div>
-        <div class="form-group" style="justify-content:flex-end"><button type="button" class="submit-btn" style="background:#1a1a1a" onclick="rbLookupCap()">Look up rate</button></div>
-      </div>
-      <div id="rb-cap-out"></div>
-      <input type="hidden" id="rb-cap-value">
-      <input type="hidden" id="rb-cap-rate">
-      <div id="rb-cap-manual-out" class="rb-muted"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Amount ($)</label><input type="number" class="form-input" id="rb-amount" min="0" step="0.01" placeholder="0.00"></div>
-      <div class="form-group" style="flex:2"><label class="form-label">Business Purpose</label><input type="text" class="form-input" id="rb-purpose" placeholder="What was this for?"></div>
-    </div>
-    <div class="form-group" style="margin-bottom:12px">
-      <label class="form-label">Receipts</label>
-      <input type="file" accept="image/*,application/pdf" capture="environment" multiple id="rb-receipt-input" onchange="rbUpload(this)" class="form-input" style="padding:6px;background:#f5f3f0">
-      <div id="rb-receipt-status"></div>
-      <div id="rb-receipt-list" class="rb-chips"></div>
-    </div>
-    <button class="submit-btn" id="rb-submit-btn" onclick="submitReimbursement(EMPLOYEE)">Submit Expense</button>
-  </div>
 
-  <div class="card">
-    <div class="card-title">What is and is not covered</div>
-    <div class="rb-policy">
-      <p><strong>Submit within 30 days.</strong> Turn in each expense within 30 days of the date on the receipt. Later submissions are flagged and may not be reimbursed.</p>
-      <p><strong>Covered</strong> when pre-approved and documented with a receipt: travel meals up to the federal rate for that location, lodging, parking and tolls, airfare and baggage, and approved supplies or materials for the job.</p>
-      <p><strong>Not covered:</strong> alcohol, personal entertainment, room upgrades or extras beyond policy, traffic or parking fines, expenses for anyone who is not an employee, anything without a receipt, and any self-created marketing or branded material that was not approved in advance. Marketing over $100 needs Rose's approval before you spend.</p>
-      <p class="rb-muted">Reimbursements are paid on the regular pay cycle after approval.</p>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">My Submitted Expenses</div>
-    <div id="rb-mine-loading" class="loading">Loading...</div>
-    <table class="data-table" id="rb-mine-table" style="display:none">
-      <thead><tr><th>Date</th><th>Category</th><th>Purpose</th><th>Amount</th><th>Receipts</th><th>Status</th></tr></thead>
-      <tbody id="rb-mine-body"></tbody>
-    </table>
-    <div id="rb-mine-empty" class="empty-state" style="display:none">No expenses submitted yet.</div>
-  </div>
-</div>
 <script>// portal_shared.js - Window Works Team Portal
 const PROXY = 'https://script.google.com/macros/s/AKfycbwfE3icMtaSGtMqP6SMfyJyvluAkUyzhiI7EGz_LV07nYtBiG1UupXaOUxbOC5EBhgCBw/exec';
 
@@ -835,10 +836,10 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=169"></script>
+<script src="taskboard.js?v=170"></script>
 <script>initTaskBoard("jimmie");</script>
-<script src="resources.js?v=169"></script>
-<script src="docnaming.js?v=169"></script>
+<script src="resources.js?v=170"></script>
+<script src="docnaming.js?v=170"></script>
 <script>
 function getCurrentPayPeriodLabel_jimmie() {
   const startMs=Date.UTC(2025,11,18);
