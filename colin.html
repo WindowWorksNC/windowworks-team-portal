@@ -5,19 +5,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=170">
-<link rel="manifest" href="site.webmanifest?v=170">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=171">
+<link rel="manifest" href="site.webmanifest?v=171">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=170">
+<link rel="stylesheet" href="portal.css?v=171">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Colin Glenn';</script>
-<script src="gate.js?v=170"></script>
+<script src="gate.js?v=171"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -247,14 +247,14 @@
           <option>Other</option>
         </select>
       </div>
-      <div class="form-group">
+      <div class="form-group" id="rb-date-group">
         <label class="form-label">Expense Date</label>
         <input type="date" class="form-input" id="rb-date">
       </div>
     </div>
     <div id="rb-mktg-note" style="display:none"><div class="alert alert-info">Marketing and branded materials (flyers, printed pieces, ads, anything using the Window Works logo) must be approved before they are produced or purchased. Marketing spend over $100 is routed to Rose and will not be reimbursed if it was not approved in advance.</div></div>
-    <div id="rb-trip-fields" style="display:none">
-      <div class="rb-sub">Meal cap lookup</div>
+        <div id="rb-trip-fields" style="display:none">
+      <div class="rb-sub">Travel meals</div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Destination City</label><input type="text" class="form-input" id="rb-city" placeholder="Columbus"></div>
         <div class="form-group" style="max-width:110px"><label class="form-label">State</label><input type="text" class="form-input" id="rb-state" placeholder="OH" maxlength="2"></div>
@@ -263,15 +263,15 @@
       <div class="form-row">
         <div class="form-group"><label class="form-label">Trip Start</label><input type="date" class="form-input" id="rb-tstart"></div>
         <div class="form-group"><label class="form-label">Trip End</label><input type="date" class="form-input" id="rb-tend"></div>
-        <div class="form-group" style="justify-content:flex-end"><button type="button" class="submit-btn" style="background:#1a1a1a" onclick="rbLookupCap()">Look up rate</button></div>
+        <div class="form-group" style="justify-content:flex-end"><button type="button" class="submit-btn" style="background:#1a1a1a" onclick="rbLookupMeals()">Look up rates</button></div>
       </div>
       <div id="rb-cap-out"></div>
+      <div id="rb-meal-grid" style="margin-top:10px;overflow-x:auto"></div>
+      <div id="rb-meal-total" class="rb-cap-card" style="display:none;margin-top:8px"></div>
       <input type="hidden" id="rb-cap-value">
-      <input type="hidden" id="rb-cap-rate">
-      <div id="rb-cap-manual-out" class="rb-muted"></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Amount ($)</label><input type="number" class="form-input" id="rb-amount" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="form-group" id="rb-amount-group"><label class="form-label">Amount ($)</label><input type="number" class="form-input" id="rb-amount" min="0" step="0.01" placeholder="0.00"></div>
       <div class="form-group" style="flex:2"><label class="form-label">Business Purpose</label><input type="text" class="form-input" id="rb-purpose" placeholder="What was this for?"></div>
     </div>
     <div class="form-group" style="margin-bottom:12px">
@@ -577,10 +577,11 @@ async function rbLookupCap(){
 }
 function rbOnCategory(){
   var cat=document.getElementById('rb-category').value;
-  var trip=document.getElementById('rb-trip-fields');
-  if(trip)trip.style.display=(cat==='Travel Meals')?'block':'none';
-  var mk=document.getElementById('rb-mktg-note');
-  if(mk)mk.style.display=(cat==='Marketing / Media')?'block':'none';
+  var meals=(cat==='Travel Meals');
+  var trip=document.getElementById('rb-trip-fields'); if(trip)trip.style.display=meals?'block':'none';
+  var ag=document.getElementById('rb-amount-group'); if(ag)ag.style.display=meals?'none':'';
+  var dg=document.getElementById('rb-date-group'); if(dg)dg.style.display=meals?'none':'';
+  var mk=document.getElementById('rb-mktg-note'); if(mk)mk.style.display=(cat==='Marketing / Media')?'block':'none';
 }
 function rbCompress(file){
   return new Promise(function(resolve,reject){
@@ -626,29 +627,109 @@ function rbRenderReceipts(){
   box.innerHTML=RB_RECEIPTS.map(function(u,i){return '<span class="rb-chip"><a href="'+u+'" target="_blank" rel="noopener">Receipt '+(i+1)+'</a> <button type="button" class="rb-chip-x" onclick="rbRemoveReceipt('+i+')">x</button></span>';}).join('');
 }
 function rbRemoveReceipt(i){RB_RECEIPTS.splice(i,1);rbRenderReceipts();}
+/* ===== Travel meals: per-day actual, capped at federal per-meal rate ===== */
+var RB_MIE_TABLE={68:{b:16,l:19,d:28,i:5},74:{b:18,l:20,d:31,i:5},80:{b:20,l:22,d:33,i:5},86:{b:22,l:23,d:36,i:5},92:{b:23,l:26,d:38,i:5}};
+var RB_BD=null, RB_DATES=[];
+function rbMealBreakdown(total){
+  var t=Math.round(Number(total));
+  if(RB_MIE_TABLE[t])return RB_MIE_TABLE[t];
+  var keys=Object.keys(RB_MIE_TABLE).map(Number), best=keys[0];
+  for(var i=1;i<keys.length;i++){if(Math.abs(keys[i]-t)<Math.abs(best-t))best=keys[i];}
+  return RB_MIE_TABLE[best];
+}
+async function rbLookupMeals(){
+  var out=document.getElementById('rb-cap-out');
+  var city=(document.getElementById('rb-city').value||'').trim();
+  var state=(document.getElementById('rb-state').value||'').trim();
+  var zip=(document.getElementById('rb-zip').value||'').trim();
+  var start=document.getElementById('rb-tstart').value;
+  var end=document.getElementById('rb-tend').value;
+  if(!start){out.innerHTML='<div class="alert alert-warning">Enter the trip start date first.</div>';return;}
+  if(!zip&&!(city&&state)){out.innerHTML='<div class="alert alert-warning">Enter a ZIP, or a city and state.</div>';return;}
+  out.innerHTML='<div class="rb-muted">Looking up federal meal rates...</div>';
+  var params={action:'perdiem',year:rbFiscalYear(start)};
+  if(zip)params.zip=zip; else {params.city=city;params.state=state;}
+  try{
+    var d=await api(params);
+    if(!d||!d.success||!d.meals){out.innerHTML='<div class="alert alert-warning">Could not find a federal rate for that location. Check the city and state, or try the ZIP.</div>';return;}
+    var bd=rbMealBreakdown(d.meals);
+    out.innerHTML='<div class="rb-cap-card">Federal daily maximums for this location: breakfast '+fmtMoney(bd.b)+', lunch '+fmtMoney(bd.l)+', dinner '+fmtMoney(bd.d)+', incidentals '+fmtMoney(bd.i)+'. Enter what was actually spent on each; boxes are capped at these amounts.</div>';
+    rbRenderMealGrid(start,end,bd);
+  }catch(e){out.innerHTML='<div class="alert alert-warning">Rate lookup is unavailable right now. Please try again.</div>';}
+}
+function rbRenderMealGrid(start,end,bd){
+  RB_BD=bd;
+  var s=new Date(start+'T00:00:00');
+  var e=end?new Date(end+'T00:00:00'):new Date(start+'T00:00:00');
+  if(e<s)e=new Date(s);
+  var days=[],cur=new Date(s),guard=0;
+  while(cur<=e&&guard<400){days.push(new Date(cur));cur.setDate(cur.getDate()+1);guard++;}
+  RB_DATES=days.map(function(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);});
+  function cell(meal,cap,idx){return '<td><input type="number" class="form-input rb-meal-in" data-meal="'+meal+'" data-day="'+idx+'" min="0" max="'+cap+'" step="0.01" placeholder="0" oninput="rbMealTotal()" style="width:74px;padding:6px"></td>';}
+  var rows=days.map(function(d,idx){var lbl=(d.getMonth()+1)+'/'+d.getDate();return '<tr><td style="font-weight:600;white-space:nowrap">'+lbl+'</td>'+cell('b',bd.b,idx)+cell('l',bd.l,idx)+cell('d',bd.d,idx)+cell('i',bd.i,idx)+'</tr>';}).join('');
+  document.getElementById('rb-meal-grid').innerHTML='<table class="data-table"><thead><tr><th>Day</th><th>Breakfast<br><span class="rb-muted">max '+fmtMoney(bd.b)+'</span></th><th>Lunch<br><span class="rb-muted">max '+fmtMoney(bd.l)+'</span></th><th>Dinner<br><span class="rb-muted">max '+fmtMoney(bd.d)+'</span></th><th>Incid.<br><span class="rb-muted">max '+fmtMoney(bd.i)+'</span></th></tr></thead><tbody>'+rows+'</tbody></table>';
+  rbMealTotal();
+}
+function rbMealTotal(){
+  if(!RB_BD)return 0;
+  var caps={b:RB_BD.b,l:RB_BD.l,d:RB_BD.d,i:RB_BD.i};
+  var total=0,capped=false;
+  document.querySelectorAll('.rb-meal-in').forEach(function(inp){
+    var m=inp.getAttribute('data-meal');var v=Number(inp.value)||0;
+    if(v<0){v=0;inp.value='';}
+    if(v>caps[m]+0.005){v=caps[m];inp.value=caps[m];capped=true;}
+    total+=v;
+  });
+  total=Math.round(total*100)/100;
+  var el=document.getElementById('rb-meal-total');
+  if(el){el.style.display='block';el.innerHTML='Meal total: <strong>'+fmtMoney(total)+'</strong>'+(capped?' <span class="rb-muted">(a box was capped at the federal rate)</span>':'');}
+  var hv=document.getElementById('rb-cap-value');if(hv)hv.value=total;
+  return total;
+}
+function rbMealItemization(){
+  var names={b:'Breakfast',l:'Lunch',d:'Dinner',i:'Incidentals'};
+  var order=['b','l','d','i'];var byDay={};
+  document.querySelectorAll('.rb-meal-in').forEach(function(inp){
+    var v=Number(inp.value)||0;if(v<=0)return;
+    var day=inp.getAttribute('data-day'),m=inp.getAttribute('data-meal');
+    (byDay[day]=byDay[day]||{})[m]=v;
+  });
+  var parts=[];
+  Object.keys(byDay).forEach(function(day){
+    var dd=RB_DATES[day]||'';var lbl=dd?(Number(dd.slice(5,7))+'/'+Number(dd.slice(8,10))):('Day '+(Number(day)+1));
+    var segs=order.filter(function(m){return byDay[day][m];}).map(function(m){return names[m]+' '+fmtMoney(byDay[day][m]);});
+    parts.push(lbl+' '+segs.join(', '));
+  });
+  return parts.join('; ');
+}
 async function submitReimbursement(employee){
   var alertEl=document.getElementById('rb-form-alert');
   var cat=document.getElementById('rb-category').value;
-  var date=document.getElementById('rb-date').value;
-  var amount=Number(document.getElementById('rb-amount').value);
   var purpose=(document.getElementById('rb-purpose').value||'').trim();
   if(!cat){alertEl.innerHTML='<div class="alert alert-error">Choose a category.</div>';return;}
-  if(!date){alertEl.innerHTML='<div class="alert alert-error">Enter the expense date.</div>';return;}
-  if(!amount||amount<=0){alertEl.innerHTML='<div class="alert alert-error">Enter the amount.</div>';return;}
-  if(!purpose){alertEl.innerHTML='<div class="alert alert-error">Add a short business purpose.</div>';return;}
   if(!RB_RECEIPTS.length){alertEl.innerHTML='<div class="alert alert-error">Attach at least one receipt.</div>';return;}
-  var dest='',tstart='',tend='',cap='';
-  if(cat==='Travel Meals'){
+  var meals=(cat==='Travel Meals');
+  var date,amount,dest='',tstart='',tend='',cap='',description=purpose;
+  if(meals){
     var city=(document.getElementById('rb-city').value||'').trim();
     var state=(document.getElementById('rb-state').value||'').trim();
     var zip=(document.getElementById('rb-zip').value||'').trim();
     dest=zip?zip:(city+(state?(', '+state):''));
     tstart=document.getElementById('rb-tstart').value||'';
     tend=document.getElementById('rb-tend').value||'';
-    cap=document.getElementById('rb-cap-value').value||'';
-    if(cap&&amount>Number(cap)+0.005){
-      if(!confirm('This amount ('+fmtMoney(amount)+') is over the federal meal cap of '+fmtMoney(cap)+'. The overage may not be reimbursed. Submit anyway?'))return;
-    }
+    if(!tstart){alertEl.innerHTML='<div class="alert alert-error">Enter the trip dates and tap Look up rates.</div>';return;}
+    amount=rbMealTotal();
+    if(!amount||amount<=0){alertEl.innerHTML='<div class="alert alert-error">Enter at least one meal amount.</div>';return;}
+    date=tstart;
+    var items=rbMealItemization();
+    description='Meals '+dest+' ('+tstart+(tend&&tend!==tstart?(' to '+tend):'')+'): '+items+(purpose?(' - '+purpose):'');
+  }else{
+    date=document.getElementById('rb-date').value;
+    amount=Number(document.getElementById('rb-amount').value);
+    if(!date){alertEl.innerHTML='<div class="alert alert-error">Enter the expense date.</div>';return;}
+    if(!amount||amount<=0){alertEl.innerHTML='<div class="alert alert-error">Enter the amount.</div>';return;}
+    if(!purpose){alertEl.innerHTML='<div class="alert alert-error">Add a short business purpose.</div>';return;}
+    description=purpose;
   }
   var btn=document.getElementById('rb-submit-btn');
   btn.disabled=true;btn.textContent='Submitting...';
@@ -663,7 +744,7 @@ async function submitReimbursement(employee){
     put('Date Submitted',new Date().toLocaleDateString('en-US'));
     put('Category',cat);
     put('Expense Date',date);
-    put('Description',purpose);
+    put('Description',description);
     put('Destination',dest);
     put('Trip Start',tstart);
     put('Trip End',tend);
@@ -677,14 +758,17 @@ async function submitReimbursement(employee){
     RB_RECEIPTS=[];rbRenderReceipts();
     ['rb-amount','rb-purpose','rb-date','rb-city','rb-state','rb-zip','rb-tstart','rb-tend'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
     var co=document.getElementById('rb-cap-out');if(co)co.innerHTML='';
-    var cm=document.getElementById('rb-cap-manual-out');if(cm)cm.textContent='';
-    document.getElementById('rb-cap-value').value='';
+    var mg=document.getElementById('rb-meal-grid');if(mg)mg.innerHTML='';
+    var mt=document.getElementById('rb-meal-total');if(mt){mt.style.display='none';mt.innerHTML='';}
+    RB_BD=null;RB_DATES=[];
+    var cv=document.getElementById('rb-cap-value');if(cv)cv.value='';
     if(typeof loadMyReimbursements==='function')loadMyReimbursements(employee);
   }catch(e){
     alertEl.innerHTML='<div class="alert alert-error">Could not submit. Make sure the Reimbursements tab exists, then try again.</div>';
   }
   btn.disabled=false;btn.textContent='Submit Expense';
 }
+
 async function loadMyReimbursements(employee){
   var loadEl=document.getElementById('rb-mine-loading');
   var tableEl=document.getElementById('rb-mine-table');
@@ -1000,10 +1084,10 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=170"></script>
+<script src="taskboard.js?v=171"></script>
 <script>initTaskBoard("colin");</script>
-<script src="resources.js?v=170"></script>
-<script src="docnaming.js?v=170"></script>
+<script src="resources.js?v=171"></script>
+<script src="docnaming.js?v=171"></script>
 <script>
 function getCurrentPayPeriodLabel_colin() {
   const startMs=Date.UTC(2025,11,18);
