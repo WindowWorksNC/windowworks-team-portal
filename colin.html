@@ -5,19 +5,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=171">
-<link rel="manifest" href="site.webmanifest?v=171">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=173">
+<link rel="manifest" href="site.webmanifest?v=173">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Colin Glenn | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=171">
+<link rel="stylesheet" href="portal.css?v=173">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Colin Glenn';</script>
-<script src="gate.js?v=171"></script>
+<script src="gate.js?v=173"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -47,13 +47,13 @@
 <div class="tab-content" id="tab-commission">
 <div class="card">
   <div class="card-title" style="justify-content:space-between"><span>Commission</span><span style="font-size:12px;color:#888;font-weight:400;text-transform:none">4.5% flat</span></div>
-  <div class="pay-note">A commission is created as pending when a deal is marked won in Pipedrive. The commission amount is your commission rate times the deal value in Pipedrive, which should be the pre-tax subtotal amount. When the 'Pay Commission' activity is marked complete, the commission is added to the current payroll period. Deals won prior to June 17, 2026 are not paid out using this system; they are paid out using the prior Excel commission calculator.</div>
+  <div class="pay-note">Commissions are currently tracked manually. A deposit earns commission when it is collected and the balance earns commission when it is collected. Record payments on your commission calculator and submit it to Brandon each pay period. Automated commission tracking is coming with the new CRM.</div>
   <div style="margin-bottom:12px">
     <div style="font-family:'Barlow Condensed',Arial,sans-serif;font-size:20px;font-weight:700;color:#1a1a1a" id="comm-period-label">Loading...</div>
     <div style="font-size:13px;color:#888;margin-top:2px">Period Total: <strong style="color:#c4581f" id="comm-period-total">$0.00</strong> &nbsp;&bull;&nbsp; YTD: <strong id="comm-ytd-total">$0.00</strong></div>
   </div>
   <div id="comm-loading" class="loading">Loading...</div>
-  <div id="comm-empty" class="empty-state" style="display:none">No commissions this period.</div>
+  <div id="comm-empty" class="empty-state" style="display:none">Commissions are tracked manually right now. See your commission calculator for current figures.</div>
   <div class="table-wrap" id="comm-table-wrap" style="display:none">
     <table class="data-table"><thead><tr><th>Date</th><th>Deal</th><th>Amount</th><th>Rate</th><th>Commission</th><th>Approved By</th><th>Approved</th></tr></thead>
     <tbody id="comm-body"></tbody></table>
@@ -1084,10 +1084,10 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=171"></script>
+<script src="taskboard.js?v=173"></script>
 <script>initTaskBoard("colin");</script>
-<script src="resources.js?v=171"></script>
-<script src="docnaming.js?v=171"></script>
+<script src="resources.js?v=173"></script>
+<script src="docnaming.js?v=173"></script>
 <script>
 function getCurrentPayPeriodLabel_colin() {
   const startMs=Date.UTC(2025,11,18);
