@@ -25,6 +25,8 @@
     modules: [],
     done: {},
     current: null,
+    hire: null,
+    openWeeks: {},
     busy: false
   };
 
@@ -72,10 +74,18 @@
 
   /* ---------- markdown ---------- */
 
+  function safeUrl(u) {
+    return /^(https?:|mailto:)/i.test(String(u || '').trim()) ? String(u).trim() : '';
+  }
+
   function inlineMd(t) {
     t = esc(t);
     t = t.replace(/`([^`]+)`/g, '<code class="tr-code">$1</code>');
     t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    t = t.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (m, label, url) {
+      var u = safeUrl(url);
+      return u ? '<a class="tr-link" href="' + u + '" target="_blank" rel="noopener">' + label + '</a>' : label;
+    });
     return t;
   }
 
@@ -120,22 +130,38 @@
     return i;
   }
 
+  /* Reference content is written as "**Term.** explanation" over and over.
+     Rendered as plain paragraphs that is an unreadable gray wall, so runs of
+     them become a divided list with the term picked out. */
+  var DEF_RE = /^\*\*(.{2,70}?)\*\*\s+(\S[\s\S]*)$/;
+
   function md(src) {
     var lines = String(src || '').replace(/\r/g, '').split('\n');
-    var out = [], i = 0;
+    var out = [], defs = [], i = 0;
+
+    function flushDefs() {
+      if (!defs.length) return;
+      out.push('<div class="tr-defs">' + defs.map(function (d) {
+        return '<div class="tr-def"><span class="tr-def-t">' + inlineMd(d[0]) +
+          '</span> <span class="tr-def-d">' + inlineMd(d[1]) + '</span></div>';
+      }).join('') + '</div>');
+      defs = [];
+    }
     while (i < lines.length) {
       var t = lines[i].trim();
       if (!t) { i++; continue; }
 
       var h = t.match(/^(#{1,6})\s+(.*)$/);
       if (h) {
-        var lv = Math.min(h[1].length + 1, 6);
+        var lv = Math.min(Math.max(h[1].length, 2), 6);
+        flushDefs();
         out.push('<h' + lv + ' class="tr-h">' + inlineMd(h[2]) + '</h' + lv + '>');
         i++; continue;
       }
       if (t.charAt(0) === '|') {
         var tbl = [];
         while (i < lines.length && lines[i].trim().charAt(0) === '|') { tbl.push(lines[i].trim()); i++; }
+        flushDefs();
         out.push(mdTable(tbl)); continue;
       }
       if (/^>\s?/.test(t)) {
@@ -143,14 +169,20 @@
         while (i < lines.length && /^>\s?/.test(lines[i].trim())) {
           bq.push(lines[i].trim().replace(/^>\s?/, '')); i++;
         }
+        flushDefs();
         out.push('<blockquote class="tr-bq">' + inlineMd(bq.join(' ')) + '</blockquote>'); continue;
       }
-      if (/^[-*]\s+/.test(t)) { i = takeList(lines, i, /^[-*]\s+/, 'ul', out); continue; }
-      if (/^\d+\.\s+/.test(t)) { i = takeList(lines, i, /^\d+\.\s+/, 'ol', out); continue; }
+      if (/^[-*]\s+/.test(t)) { flushDefs(); i = takeList(lines, i, /^[-*]\s+/, 'ul', out); continue; }
+      if (/^\d+\.\s+/.test(t)) { flushDefs(); i = takeList(lines, i, /^\d+\.\s+/, 'ol', out); continue; }
       var para = [];
       while (i < lines.length && !isBlockStart(lines[i].trim())) { para.push(lines[i].trim()); i++; }
-      out.push('<p class="tr-p">' + inlineMd(para.join(' ')) + '</p>');
+      var joined = para.join(' ');
+      var dm = joined.match(DEF_RE);
+      if (dm) { defs.push([dm[1], dm[2]]); continue; }
+      flushDefs();
+      out.push('<p class="tr-p">' + inlineMd(joined) + '</p>');
     }
+    flushDefs();
     return out.join('');
   }
 
@@ -166,6 +198,54 @@
     }
     return '<p class="tr-p"><a class="doc-link" href="' + esc(v) + '" target="_blank" rel="noopener">Open the video</a></p>';
   }
+
+  /* ---------- schedule ---------- */
+
+  /* Week ranges are derived from the hire date rather than a hardcoded
+     calendar, so this works for the next cohort without a code change.
+     Week 1 is the Mon to Fri of the hire week. */
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function parseDate(v) {
+    if (!v) return null;
+    var d = new Date(v);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  function weekRange(hire, n) {
+    if (!hire) return null;
+    var mon = new Date(hire.getTime());
+    var shift = (mon.getDay() + 6) % 7;
+    mon.setDate(mon.getDate() - shift + (n - 1) * 7);
+    var fri = new Date(mon.getTime());
+    fri.setDate(fri.getDate() + 4);
+    return { start: mon, end: fri };
+  }
+
+  function rangeLabel(r) {
+    if (!r) return '';
+    var a = MON[r.start.getMonth()] + ' ' + r.start.getDate();
+    var b = (r.start.getMonth() === r.end.getMonth())
+      ? String(r.end.getDate())
+      : MON[r.end.getMonth()] + ' ' + r.end.getDate();
+    return a + ' to ' + b;
+  }
+
+  function currentWeek(hire, maxWeek) {
+    if (!hire) return 1;
+    var now = new Date();
+    for (var n = 1; n <= maxWeek; n++) {
+      var r = weekRange(hire, n);
+      if (!r) return 1;
+      var end = new Date(r.end.getTime());
+      end.setHours(23, 59, 59);
+      if (now <= end) return n;
+    }
+    return maxWeek;
+  }
+
+  function isLive(m) { return (m.format || '') === 'live'; }
+  function needsSignoff(m) { return (m.signoff || '') === 'approver'; }
 
   /* ---------- data ---------- */
 
@@ -184,6 +264,19 @@
     if (!res.ok) throw new Error('modules.json ' + res.status);
     var d = await res.json();
     S.modules = (d && d.modules) || [];
+  }
+
+  async function loadHireDate() {
+    S.hire = null;
+    try {
+      var d = await api({ action: 'read', tab: 'Employee_Records' });
+      if (!d || !d.success || !d.data || !d.data.length) return;
+      var c = cols(d.data[0]);
+      var row = d.data.slice(1).find(function (r) {
+        return (r[c('Employee')] || '').toString().trim() === S.employee;
+      });
+      if (row) S.hire = parseDate(row[c('Hire Date')]);
+    } catch (e) { console.error('hire date', e); }
   }
 
   async function loadCompletions() {
@@ -214,8 +307,43 @@
     return 'Week ' + w;
   }
 
-  function progressBar(pct) {
-    return '<div class="tr-bar"><div class="tr-bar-fill" style="width:' + pct + '%"></div></div>';
+  function bar(pct) {
+    return '<span class="tr-bar"><span class="tr-bar-fill" style="width:' + pct + '%"></span></span>';
+  }
+
+  function statusMark(m) {
+    var d = S.done[m.id];
+    if (!d) return '<span class="tr-mark tr-mark-open"></span>';
+    if (d.pending) return '<span class="tr-mark tr-mark-wait">&hellip;</span>';
+    return '<span class="tr-mark tr-mark-done">&#10003;</span>';
+  }
+
+  function liveCard(m) {
+    var when = parseDate(m.session_date);
+    var whenTxt = when ? MON[when.getMonth()] + ' ' + when.getDate() : '';
+    var d = S.done[m.id];
+    var state = d
+      ? '<span class="tr-live-state tr-live-done">Signed off</span>'
+      : '<span class="tr-live-state">' + (needsSignoff(m) ? 'Not yet signed off' : 'Not started') + '</span>';
+    return '<div class="tr-live" onclick="trOpen(\'' + esc(m.id) + '\')">' +
+      '<div class="tr-live-eyebrow">Live session' + (whenTxt ? ' &middot; ' + esc(whenTxt) : '') + '</div>' +
+      '<div class="tr-live-title">' + esc(m.title) + '</div>' +
+      '<div class="tr-live-foot">' +
+        (m.owner ? '<span class="tr-live-who">with ' + esc(m.owner) + '</span>' : '') +
+        '<span class="tr-live-min">' + (Number(m.duration_min) || 0) + ' min</span>' +
+        state +
+      '</div></div>';
+  }
+
+  function moduleCard(m) {
+    var d = S.done[m.id];
+    return '<div class="tr-card' + (d && !d.pending ? ' tr-card-done' : '') + '" onclick="trOpen(\'' + esc(m.id) + '\')">' +
+      '<div class="tr-card-top"><span class="tr-chip">' + esc(m.track || '') + '</span>' + statusMark(m) + '</div>' +
+      '<div class="tr-card-title">' + esc(m.title) + '</div>' +
+      '<div class="tr-card-meta">' + (Number(m.duration_min) || 0) + ' min' +
+      (m.has_quiz ? ' &middot; quiz' : '') +
+      (d && d.max ? ' &middot; ' + d.score + '/' + d.max : '') +
+      '</div></div>';
   }
 
   function renderList() {
@@ -226,57 +354,66 @@
       return;
     }
 
-    var groups = {}, order = [];
+    var groups = {}, weeks = [];
     mods.forEach(function (m) {
       var k = (m.week === null || m.week === undefined) ? 'x' : String(m.week);
-      if (!groups[k]) { groups[k] = []; order.push(k); }
+      if (!groups[k]) { groups[k] = []; weeks.push(k); }
       groups[k].push(m);
     });
-    order.sort(function (a, b) {
+    weeks.sort(function (a, b) {
       if (a === 'x') return 1;
       if (b === 'x') return -1;
       return Number(a) - Number(b);
     });
 
+    var numbered = weeks.filter(function (k) { return k !== 'x'; }).map(Number);
+    var maxWeek = numbered.length ? Math.max.apply(null, numbered) : 1;
+    var cur = currentWeek(S.hire, maxWeek);
+
     var doneCount = mods.filter(function (m) { return S.done[m.id]; }).length;
     var pct = Math.round(doneCount / mods.length * 100);
-    var pendingTotal = mods.reduce(function (a, m) {
+    var pending = mods.reduce(function (a, m) {
       return a + (S.done[m.id] ? S.done[m.id].pending : 0);
     }, 0);
 
-    var html = '<div class="tr-head">' +
-      '<div class="tr-head-l"><div class="tr-head-num">' + doneCount + ' of ' + mods.length + '</div>' +
-      '<div class="tr-head-lbl">modules complete</div></div>' +
-      '<div class="tr-head-r">' + progressBar(pct) + '</div></div>';
+    var html = '<div class="tr-hero">' +
+      '<div class="tr-hero-top"><span class="tr-hero-eyebrow">Your onboarding</span>' +
+      '<span class="tr-hero-pct">' + pct + '%</span></div>' +
+      '<div class="tr-hero-bar">' + bar(pct) + '</div>' +
+      '<div class="tr-hero-sub">' + doneCount + ' of ' + mods.length + ' complete' +
+      (pending ? ', ' + pending + ' points with Rose and Justin for review' : '') + '</div></div>';
 
-    if (pendingTotal) {
-      html += '<div class="alert alert-info" style="font-size:13px">' + pendingTotal +
-        ' point' + (pendingTotal === 1 ? '' : 's') + ' worth of answers are with Rose and Justin for review.</div>';
-    }
-
-    order.forEach(function (k) {
+    weeks.forEach(function (k) {
       var list = groups[k];
+      var isX = k === 'x';
+      var n = isX ? null : Number(k);
+      var open = S.openWeeks.hasOwnProperty(k) ? S.openWeeks[k] : (!isX && n === cur);
       var dn = list.filter(function (m) { return S.done[m.id]; }).length;
+      var wpct = Math.round(dn / list.length * 100);
+      var range = isX ? null : weekRange(S.hire, n);
       var mins = list.reduce(function (a, m) { return a + (Number(m.duration_min) || 0); }, 0);
-      html += '<div class="tr-week">' +
-        '<div class="tr-week-head"><span class="tr-week-name">' + esc(weekLabel(k === 'x' ? null : Number(k))) + '</span>' +
-        '<span class="tr-week-meta">' + dn + ' of ' + list.length + ' complete, about ' + mins + ' min</span></div>';
-      list.forEach(function (m) {
-        var d = S.done[m.id];
-        var pill = d
-          ? (d.pending
-            ? '<span class="pill pill-yellow">In review</span>'
-            : '<span class="pill pill-approved">Complete</span>')
-          : '<span class="pill pill-gray">Not started</span>';
-        var score = d && d.max ? '<span class="tr-score">' + d.score + ' / ' + d.max + '</span>' : '';
-        html += '<div class="tr-row" onclick="trOpen(\'' + esc(m.id) + '\')">' +
-          '<div class="tr-row-l"><div class="tr-row-title">' + esc(m.title) + '</div>' +
-          '<div class="tr-row-meta">' + esc(m.id) + ' &bull; ' + esc(m.track || '') +
-          ' &bull; ' + (Number(m.duration_min) || 0) + ' min' +
-          (m.has_quiz ? ' &bull; quiz' : '') + '</div></div>' +
-          '<div class="tr-row-r">' + score + pill + '</div></div>';
+      var hrs = mins >= 90 ? (Math.round(mins / 6) / 10) + ' hrs' : mins + ' min';
+
+      html += '<section class="tr-wk' + (open ? ' tr-wk-open' : '') + (n === cur ? ' tr-wk-now' : '') + '">' +
+        '<button type="button" class="tr-wk-head" onclick="trToggleWeek(\'' + esc(k) + '\')" aria-expanded="' + open + '">' +
+        '<span class="tr-wk-id">' + (isX ? 'Extra' : 'Week ' + n) + '</span>' +
+        '<span class="tr-wk-when">' + (range ? esc(rangeLabel(range)) : 'Anytime') + '</span>' +
+        '<span class="tr-wk-count">' + dn + ' / ' + list.length + '</span>' +
+        '<span class="tr-wk-bar">' + bar(wpct) + '</span>' +
+        '<span class="tr-wk-hrs">' + hrs + '</span>' +
+        '<span class="tr-wk-chev">&#9662;</span>' +
+        '</button><div class="tr-wk-body">';
+
+      var lives = list.filter(isLive).sort(function (a, b) {
+        return String(a.session_date || '') < String(b.session_date || '') ? -1 : 1;
       });
-      html += '</div>';
+      var selfs = list.filter(function (m) { return !isLive(m); });
+
+      if (lives.length) html += '<div class="tr-lives">' + lives.map(liveCard).join('') + '</div>';
+      if (selfs.length) html += '<div class="tr-grid">' + selfs.map(moduleCard).join('') + '</div>';
+      if (!lives.length && !selfs.length) html += '<div class="empty-state">Nothing here yet.</div>';
+
+      html += '</div></section>';
     });
 
     el('tr-root').innerHTML = html;
@@ -340,36 +477,68 @@
   function renderModule(m) {
     S.current = m.id;
     var d = S.done[m.id];
-    var total = quizTotal(m);
+    var live = isLive(m);
+    var when = parseDate(m.session_date);
 
-    var html = '<div class="tr-back"><a class="back-link" href="#" onclick="trBack();return false;">Back to all modules</a></div>' +
-      '<div class="tr-mod-head"><div class="tr-mod-title">' + esc(m.title) + '</div>' +
-      '<div class="tr-mod-meta">' + esc(m.id) + ' &bull; ' + esc(m.track || '') + ' &bull; ' +
-      (Number(m.duration_min) || 0) + ' min' + (m.tier === 'advanced' ? ' &bull; advanced' : '') + '</div></div>';
+    var html = '<div class="tr-back"><a class="back-link" href="#" onclick="trBack();return false;">Back to your path</a></div>' +
+      '<div class="tr-mod-head' + (live ? ' tr-mod-live' : '') + '">' +
+      (live ? '<div class="tr-mod-eyebrow">Live session' +
+        (when ? ' &middot; ' + esc(MON[when.getMonth()] + ' ' + when.getDate()) : '') +
+        (m.owner ? ' &middot; with ' + esc(m.owner) : '') + '</div>' : '') +
+      '<div class="tr-mod-title">' + esc(m.title) + '</div>' +
+      '<div class="tr-mod-meta">' + esc(m.id) + ' &middot; ' + esc(m.track || '') + ' &middot; ' +
+      (Number(m.duration_min) || 0) + ' min' + (m.tier === 'advanced' ? ' &middot; advanced' : '') + '</div></div>';
 
     if (d) {
-      html += '<div class="alert alert-success" style="font-size:13px">Submitted ' + esc(d.completed) +
-        '. Score ' + d.score + ' of ' + d.max +
-        (d.pending ? ', with ' + d.pending + ' points still in review.' : '.') +
-        ' You can retake this quiz; the newest attempt is the one that counts.</div>';
+      html += '<div class="alert alert-success" style="font-size:13px">' +
+        (needsSignoff(m) ? 'Signed off ' + esc(d.completed) + '.'
+          : 'Submitted ' + esc(d.completed) + '. Score ' + d.score + ' of ' + d.max +
+            (d.pending ? ', with ' + d.pending + ' points still in review.' : '.')) +
+        '</div>';
+    }
+
+    var ext = safeUrl(m.external_url);
+    if (ext) {
+      html += '<a class="tr-ext" href="' + ext + '" target="_blank" rel="noopener">' +
+        esc(m.external_label || 'Open the course') + '<span class="tr-ext-arrow">&#8599;</span></a>';
     }
 
     html += videoBlock(m);
-    html += '<div class="tr-body">' + md(m.body_md) + '</div>';
+    if ((m.body_md || '').trim()) html += '<div class="tr-body">' + md(m.body_md) + '</div>';
 
-    if (m.has_quiz && (m.quiz || []).length) {
-      html += '<div class="tr-quiz"><div class="card-title">Quiz</div>' +
-        '<div class="tr-quiz-sub">' + m.quiz.length + ' questions, ' + total + ' points. ' +
-        'Written answers and screenshots are reviewed by Rose and Justin.</div>';
-      m.quiz.forEach(function (q, qi) { html += questionHtml(q, qi); });
-      html += '<div id="tr-quiz-alert"></div>' +
-        '<button class="submit-btn" id="tr-submit" onclick="trSubmit()">Submit Quiz</button></div>';
+    if (needsSignoff(m)) {
+      html += '<div class="alert alert-info" style="font-size:13px">' +
+        (m.owner ? esc(m.owner) : 'Rose or Justin') +
+        ' marks this complete after the session. Nothing to submit here.</div>';
+    } else if (m.has_quiz && (m.quiz || []).length) {
+      html += '<div class="tr-start"><div class="tr-start-l">' +
+        '<div class="tr-start-t">Ready for the quiz?</div>' +
+        '<div class="tr-start-s">' + m.quiz.length + ' questions, ' + quizTotal(m) +
+        ' points. The module closes while you take it, so read it through first.</div></div>' +
+        '<button class="submit-btn" onclick="trStartQuiz()">' + (d ? 'Retake Quiz' : 'Start Quiz') + '</button></div>';
     } else {
       html += '<div id="tr-quiz-alert"></div>' +
         '<button class="submit-btn" id="tr-submit" onclick="trSubmit()">' +
         (d ? 'Mark Complete Again' : 'Mark Complete') + '</button>';
     }
 
+    el('tr-root').innerHTML = html;
+    window.scrollTo(0, 0);
+  }
+
+  /* The quiz replaces the module rather than sitting under it, so the answers
+     are not one scroll away. A second tab defeats this, same as the answer key. */
+  function renderQuiz(m) {
+    S.current = m.id;
+    var html = '<div class="tr-quizhead">' +
+      '<div class="tr-quizhead-l"><div class="tr-quizhead-eyebrow">Quiz</div>' +
+      '<div class="tr-quizhead-t">' + esc(m.title) + '</div></div>' +
+      '<a class="tr-leave" href="#" onclick="trLeaveQuiz();return false;">Leave without submitting</a></div>' +
+      '<div class="tr-quiz"><div class="tr-quiz-sub">' + m.quiz.length + ' questions, ' + quizTotal(m) +
+      ' points. Written answers and screenshots are reviewed by Rose and Justin.</div>';
+    m.quiz.forEach(function (q, qi) { html += questionHtml(q, qi); });
+    html += '<div id="tr-quiz-alert"></div>' +
+      '<button class="submit-btn" id="tr-submit" onclick="trSubmit()">Submit Quiz</button></div>';
     el('tr-root').innerHTML = html;
     window.scrollTo(0, 0);
   }
@@ -513,6 +682,8 @@
       };
 
       showFeedback(results);
+      var head = document.querySelector('.tr-quizhead .tr-leave');
+      if (head) { head.textContent = 'Back to your path'; }
       if (alertEl) {
         alertEl.innerHTML = '<div class="alert alert-success">Submitted. ' + score + ' of ' + autoMax +
           ' on the auto-graded questions' +
@@ -572,6 +743,23 @@
 
   window.trBack = function () { renderList(); };
 
+  window.trToggleWeek = function (k) {
+    var mods = pathModules();
+    var numbered = mods.map(function (m) { return m.week; })
+      .filter(function (w) { return w !== null && w !== undefined; }).map(Number);
+    var cur = currentWeek(S.hire, numbered.length ? Math.max.apply(null, numbered) : 1);
+    var wasOpen = S.openWeeks.hasOwnProperty(k) ? S.openWeeks[k] : (k !== 'x' && Number(k) === cur);
+    S.openWeeks[k] = !wasOpen;
+    renderList();
+  };
+
+  window.trStartQuiz = function () {
+    var m = S.modules.filter(function (x) { return x.id === S.current; })[0];
+    if (m && m.has_quiz && (m.quiz || []).length) renderQuiz(m);
+  };
+
+  window.trLeaveQuiz = function () { renderList(); };
+
   window.trSubmit = function () {
     if (!S.current) return;
     var m = S.modules.filter(function (x) { return x.id === S.current; })[0];
@@ -583,58 +771,126 @@
   function injectStyles() {
     if (el('tr-style')) return;
     var css = [
-      '.tr-head{display:flex;align-items:center;gap:20px;background:#fff;border:1px solid #e4dbd0;border-radius:8px;padding:16px 20px;margin-bottom:16px}',
-      '.tr-head-num{font-family:"Barlow Condensed",Arial,sans-serif;font-size:26px;font-weight:700;color:#1a1a1a;line-height:1}',
-      '.tr-head-lbl{font-size:12px;color:#aaa;text-transform:uppercase;letter-spacing:0.1em;margin-top:2px}',
-      '.tr-head-r{flex:1}',
-      '.tr-bar{background:#edeae4;border-radius:99px;height:8px;overflow:hidden}',
-      '.tr-bar-fill{background:#c4581f;height:100%;border-radius:99px;transition:width .3s}',
-      '.tr-week{margin-bottom:22px}',
-      '.tr-week-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}',
-      '.tr-week-name{font-family:"Barlow Condensed",Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#1a1a1a}',
-      '.tr-week-meta{font-size:12px;color:#aaa}',
-      '.tr-row{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#fff;border:1px solid #e4dbd0;border-radius:6px;padding:12px 14px;margin-bottom:6px;cursor:pointer;transition:border-color .15s}',
-      '.tr-row:hover{border-color:#c4581f}',
-      '.tr-row-title{font-weight:600;font-size:14px;color:#1a1a1a}',
-      '.tr-row-meta{font-size:11px;color:#aaa;margin-top:2px}',
-      '.tr-row-r{display:flex;align-items:center;gap:8px;white-space:nowrap}',
-      '.tr-score{font-size:12px;color:#888;font-weight:600}',
-      '.tr-back{margin-bottom:10px}',
-      '.tr-mod-title{font-family:"Barlow Condensed",Arial,sans-serif;font-size:24px;font-weight:700;letter-spacing:0.04em;color:#1a1a1a}',
-      '.tr-mod-meta{font-size:12px;color:#aaa;margin:2px 0 14px}',
+      /* hero */
+      '.tr-hero{background:#1a1a1a;border-radius:10px;padding:18px 22px;margin-bottom:18px}',
+      '.tr-hero-top{display:flex;justify-content:space-between;align-items:baseline}',
+      '.tr-hero-eyebrow{font-family:"Barlow Condensed",Arial,sans-serif;font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#888}',
+      '.tr-hero-pct{font-family:"Barlow Condensed",Arial,sans-serif;font-size:34px;font-weight:700;color:#fff;line-height:1}',
+      '.tr-hero-bar{margin:10px 0 8px}',
+      '.tr-hero-bar .tr-bar{background:#333}',
+      '.tr-hero-sub{font-size:12px;color:#999}',
+      '.tr-bar{display:block;background:#edeae4;border-radius:99px;height:6px;overflow:hidden;width:100%}',
+      '.tr-bar-fill{display:block;background:#c4581f;height:100%;border-radius:99px;transition:width .3s}',
+      /* week panel */
+      '.tr-wk{border:1px solid #e4dbd0;border-radius:10px;background:#fff;margin-bottom:12px;overflow:hidden}',
+      '.tr-wk-now{border-color:#c4581f}',
+      '.tr-wk-head{display:grid;grid-template-columns:auto 1fr auto 120px auto auto;align-items:center;gap:14px;width:100%;background:none;border:0;padding:15px 18px;cursor:pointer;text-align:left;font-family:inherit}',
+      '.tr-wk-head:hover{background:#faf6f0}',
+      '.tr-wk-head:focus-visible{outline:2px solid #c4581f;outline-offset:-2px}',
+      '.tr-wk-id{font-family:"Barlow Condensed",Arial,sans-serif;font-size:19px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#1a1a1a;white-space:nowrap}',
+      '.tr-wk-now .tr-wk-id{color:#c4581f}',
+      '.tr-wk-when{font-size:13px;color:#999}',
+      '.tr-wk-count{font-size:12px;color:#888;font-weight:600;white-space:nowrap}',
+      '.tr-wk-hrs{font-size:12px;color:#bbb;white-space:nowrap}',
+      '.tr-wk-chev{color:#bbb;font-size:12px;transition:transform .2s}',
+      '.tr-wk-open .tr-wk-chev{transform:rotate(180deg)}',
+      '.tr-wk-body{display:none;padding:0 18px 18px}',
+      '.tr-wk-open .tr-wk-body{display:block}',
+      /* live sessions */
+      '.tr-lives{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}',
+      '.tr-live{background:#1a1a1a;border-radius:8px;padding:14px 16px;cursor:pointer;border-left:4px solid #c4581f;transition:transform .15s}',
+      '.tr-live:hover{transform:translateX(2px)}',
+      '.tr-live-eyebrow{font-family:"Barlow Condensed",Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#c4581f;margin-bottom:3px}',
+      '.tr-live-title{font-size:15px;font-weight:600;color:#fff;line-height:1.35}',
+      '.tr-live-foot{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:7px;font-size:12px;color:#999}',
+      '.tr-live-who{color:#ddd}',
+      '.tr-live-state{margin-left:auto;color:#888}',
+      '.tr-live-done{color:#28a745;font-weight:600}',
+      /* module cards */
+      '.tr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}',
+      '.tr-card{border:1px solid #e4dbd0;border-radius:8px;padding:13px 15px;cursor:pointer;background:#fff;display:flex;flex-direction:column;gap:6px;transition:border-color .15s,transform .15s}',
+      '.tr-card:hover{border-color:#c4581f;transform:translateY(-2px)}',
+      '.tr-card-done{background:#faf9f7;border-color:#edeae4}',
+      '.tr-card-done .tr-card-title{color:#888}',
+      '.tr-card-top{display:flex;align-items:center;justify-content:space-between}',
+      '.tr-chip{font-family:"Barlow Condensed",Arial,sans-serif;font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#aaa;background:#f4f1ec;border-radius:99px;padding:2px 9px}',
+      '.tr-mark{width:18px;height:18px;border-radius:99px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}',
+      '.tr-mark-open{border:1.5px dashed #d8d0c4}',
+      '.tr-mark-done{background:#28a745;color:#fff}',
+      '.tr-mark-wait{background:#f0ece6;color:#c4581f;letter-spacing:1px}',
+      '.tr-card-title{font-size:14px;font-weight:600;color:#1a1a1a;line-height:1.35}',
+      '.tr-card-meta{font-size:11px;color:#aaa;margin-top:auto}',
+      /* module detail */
+      '.tr-back{margin-bottom:12px}',
+      '.tr-mod-head{margin-bottom:16px}',
+      '.tr-mod-live{border-left:4px solid #c4581f;padding-left:14px}',
+      '.tr-mod-eyebrow{font-family:"Barlow Condensed",Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#c4581f;margin-bottom:3px}',
+      '.tr-mod-title{font-family:"Barlow Condensed",Arial,sans-serif;font-size:26px;font-weight:700;letter-spacing:0.03em;color:#1a1a1a;line-height:1.15}',
+      '.tr-mod-meta{font-size:12px;color:#aaa;margin-top:3px}',
+      '.tr-ext{display:inline-flex;align-items:center;gap:8px;background:#c4581f;color:#fff !important;text-decoration:none;font-weight:600;font-size:14px;padding:11px 18px;border-radius:6px;margin-bottom:16px}',
+      '.tr-ext:hover{background:#a84a19}',
+      '.tr-ext-arrow{font-size:15px}',
       '.tr-video{position:relative;padding-bottom:56.25%;height:0;margin-bottom:18px;border-radius:8px;overflow:hidden;background:#1a1a1a}',
       '.tr-video iframe{position:absolute;top:0;left:0;width:100%;height:100%}',
-      '.tr-body{background:#fff;border:1px solid #e4dbd0;border-radius:8px;padding:20px 22px;margin-bottom:18px}',
-      '.tr-body .tr-h{font-family:"Barlow Condensed",Arial,sans-serif;letter-spacing:0.06em;text-transform:uppercase;color:#1a1a1a;margin:18px 0 8px}',
-      '.tr-body h2.tr-h{font-size:19px}.tr-body h3.tr-h{font-size:16px}.tr-body h4.tr-h{font-size:14px}',
+      '.tr-body{background:#fff;border:1px solid #e4dbd0;border-radius:8px;padding:26px 30px;margin-bottom:16px}',
+      /* heading levels have to look different, not just smaller */
+      '.tr-body .tr-h{font-family:"Barlow Condensed",Arial,sans-serif;letter-spacing:0.07em;text-transform:uppercase;color:#1a1a1a}',
+      '.tr-body h2.tr-h{font-size:21px;margin:34px 0 14px;padding-bottom:7px;border-bottom:2px solid #1a1a1a}',
+      '.tr-body h3.tr-h{font-size:15px;color:#c4581f;margin:26px 0 9px;letter-spacing:0.13em}',
+      '.tr-body h4.tr-h{font-size:13px;color:#9a9086;margin:20px 0 7px;letter-spacing:0.15em}',
       '.tr-body .tr-h:first-child{margin-top:0}',
-      '.tr-p{font-size:14px;line-height:1.65;color:#333;margin:0 0 12px}',
-      '.tr-ul,.tr-ol{font-size:14px;line-height:1.65;color:#333;margin:0 0 12px;padding-left:22px}',
-      '.tr-ul li,.tr-ol li{margin-bottom:5px}',
-      '.tr-bq{border-left:3px solid #c4581f;background:#faf6f0;margin:0 0 12px;padding:10px 14px;font-size:14px;line-height:1.6;color:#555}',
+      '.tr-p{font-size:15px;line-height:1.7;color:#2e2e2e;margin:0 0 14px;max-width:70ch}',
+      '.tr-ul,.tr-ol{font-size:15px;line-height:1.7;color:#2e2e2e;margin:0 0 14px;padding-left:22px;max-width:70ch}',
+      '.tr-ul li,.tr-ol li{margin-bottom:6px}',
+      '.tr-bq{border-left:3px solid #c4581f;background:#faf6f0;margin:0 0 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;color:#4a4a4a;max-width:70ch}',
+      /* term and explanation, the shape most of the reference content is in */
+      '.tr-defs{margin:0 0 16px;max-width:74ch;border-top:1px solid #eee7dd}',
+      '.tr-def{padding:11px 0 11px 13px;border-bottom:1px solid #eee7dd;border-left:3px solid #f0ece6;font-size:15px;line-height:1.65}',
+      '.tr-def-t{font-weight:700;color:#1a1a1a}',
+      '.tr-def-d{color:#4f4f4f}',
       '.tr-code{background:#f0ece6;padding:1px 5px;border-radius:3px;font-size:13px}',
+      '.tr-link{color:#c4581f;font-weight:600}',
+      /* start quiz */
+      '.tr-start{display:flex;flex-wrap:wrap;align-items:center;gap:16px;background:#f5ede0;border-radius:8px;padding:18px 20px}',
+      '.tr-start-l{flex:1;min-width:220px}',
+      '.tr-start-t{font-family:"Barlow Condensed",Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#1a1a1a}',
+      '.tr-start-s{font-size:12.5px;color:#7a7266;margin-top:3px;line-height:1.5}',
+      '.tr-start .submit-btn{margin:0;white-space:nowrap}',
+      /* quiz view */
+      '.tr-quizhead{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid #1a1a1a}',
+      '.tr-quizhead-eyebrow{font-family:"Barlow Condensed",Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#c4581f}',
+      '.tr-quizhead-t{font-family:"Barlow Condensed",Arial,sans-serif;font-size:24px;font-weight:700;letter-spacing:0.03em;color:#1a1a1a;line-height:1.15}',
+      '.tr-leave{font-size:12.5px;color:#999;text-decoration:underline}',
       '.tr-quiz{background:#fff;border:1px solid #e4dbd0;border-radius:8px;padding:20px 22px}',
-      '.tr-quiz-sub{font-size:12px;color:#aaa;margin:-6px 0 16px}',
-      '.tr-q{border-top:1px solid #edeae4;padding:16px 0}',
+      '.tr-quiz-sub{font-size:12px;color:#aaa;margin-bottom:16px}',
+      '.tr-q{border-top:1px solid #edeae4;padding:18px 0}',
       '.tr-q:first-of-type{border-top:none;padding-top:0}',
-      '.tr-q-head{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}',
-      '.tr-q-n{background:#1a1a1a;color:#fff;border-radius:99px;min-width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}',
-      '.tr-q-text{flex:1;font-size:14px;font-weight:600;color:#1a1a1a;line-height:1.5}',
+      '.tr-q-head{display:flex;align-items:baseline;gap:9px;margin-bottom:11px}',
+      '.tr-q-n{background:#1a1a1a;color:#fff;border-radius:99px;min-width:21px;height:21px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}',
+      '.tr-q-text{flex:1;font-size:14.5px;font-weight:600;color:#1a1a1a;line-height:1.5}',
       '.tr-q-pts{font-size:11px;color:#aaa;white-space:nowrap}',
       '.tr-q-img{margin:0 0 12px}',
       '.tr-q-img img{max-width:100%;border:1px solid #e4dbd0;border-radius:6px}',
-      '.tr-opts{display:flex;flex-direction:column;gap:6px}',
-      '.tr-opt{display:flex;align-items:flex-start;gap:8px;font-size:14px;color:#333;cursor:pointer;padding:6px 8px;border-radius:5px}',
-      '.tr-opt:hover{background:#faf6f0}',
+      '.tr-opts{display:flex;flex-direction:column;gap:4px}',
+      '.tr-opt{display:flex;align-items:flex-start;gap:9px;font-size:14px;color:#333;cursor:pointer;padding:8px 10px;border-radius:6px;border:1px solid transparent}',
+      '.tr-opt:hover{background:#faf6f0;border-color:#e4dbd0}',
       '.tr-opts-img{flex-direction:row;flex-wrap:wrap;gap:10px}',
-      '.tr-opt-img{display:block;border:2px solid #e4dbd0;border-radius:6px;padding:6px;cursor:pointer;max-width:320px}',
+      '.tr-opt-img{display:block;border:2px solid #e4dbd0;border-radius:6px;padding:7px;cursor:pointer;max-width:330px}',
       '.tr-opt-img:hover{border-color:#c4581f}',
       '.tr-opt-img img{max-width:100%;display:block;margin-top:6px}',
       '.tr-match-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}',
       '.tr-match-lbl{flex:1;min-width:180px;font-size:14px;color:#333}',
-      '.tr-match-sel{width:180px}',
-      '.tr-q-fb{margin-top:10px}',
-      '.tr-why{font-size:13px;color:#666;line-height:1.55;margin-top:6px;padding-left:2px}'
+      '.tr-match-sel{width:190px}',
+      '.tr-q-fb{margin-top:11px}',
+      '.tr-why{font-size:13px;color:#666;line-height:1.55;margin-top:7px}',
+      /* small screens */
+      '@media(max-width:640px){',
+      '.tr-wk-head{grid-template-columns:auto 1fr auto;row-gap:6px}',
+      '.tr-wk-bar,.tr-wk-hrs{display:none}',
+      '.tr-grid{grid-template-columns:1fr}',
+      '.tr-hero-pct{font-size:28px}',
+      '}',
+      '@media(prefers-reduced-motion:reduce){.tr-card,.tr-live,.tr-bar-fill,.tr-wk-chev{transition:none}}'
     ].join('');
     var st = document.createElement('style');
     st.id = 'tr-style';
@@ -653,6 +909,7 @@
     root.innerHTML = '<div class="loading">Loading training...</div>';
     try {
       await loadModules();
+      await loadHireDate();
       await loadCompletions();
       renderList();
     } catch (e) {
