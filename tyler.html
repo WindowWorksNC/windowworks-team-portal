@@ -11,12 +11,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
-<title>Jimmie Coleman | Window Works Team Portal</title>
+<title>Tyler Wallace | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="portal.css?v=174">
 </head>
 <body>
-<script>window.WW_EMPLOYEE='Jimmie Coleman';</script>
+<script>window.WW_EMPLOYEE='Tyler Wallace';</script>
 <script src="gate.js?v=174"></script>
     
     <div class="header">
@@ -30,7 +30,7 @@
 <div class="body">
 <div class="employee-header">
   <div>
-    <div class="employee-name">Jimmie Coleman</div>
+    <div class="employee-name">Tyler Wallace</div>
     <div class="employee-role">In-Home Sales</div>
     <div class="employee-meta" id="hire-meta"></div>
   </div>
@@ -59,10 +59,10 @@
   </div>
 </div>
 <div class="card">
-  <div class="card-title" style="cursor:pointer" onclick="togglePrevPeriods_jimmie(this)">Previous Periods <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="prev-toggle-label_jimmie">(click to expand)</span></div>
-  <div id="prev-periods-wrap_jimmie" style="display:none">
-    <div id="prev-periods-loading_jimmie" class="loading">Loading...</div>
-    <div id="prev-periods-body_jimmie"></div>
+  <div class="card-title" style="cursor:pointer" onclick="togglePrevPeriods_tyler(this)">Previous Periods <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="prev-toggle-label_tyler">(click to expand)</span></div>
+  <div id="prev-periods-wrap_tyler" style="display:none">
+    <div id="prev-periods-loading_tyler" class="loading">Loading...</div>
+    <div id="prev-periods-body_tyler"></div>
   </div>
 </div>
 </div></div><div class="tab-content" id="tab-expenses">
@@ -249,13 +249,13 @@
       <option value="projects">Larger Projects</option>
       <option value="waiting">Waiting On</option>
     </select>
-    <button class="tb-add-btn" onclick="tbAdd_jimmie()">+ Add</button>
+    <button class="tb-add-btn" onclick="tbAdd_tyler()">+ Add</button>
   </div>
   <div class="tb-grid">
-    <div class="tb-col" data-bucket="this-week"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-this-week" onclick="tbRenameBucket_jimmie('this-week')">This Week</span></span><span class="tb-col-count" id="tc-this-week">0</span></div><div class="tb-list" id="tl-this-week"></div></div>
+    <div class="tb-col" data-bucket="this-week"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-this-week" onclick="tbRenameBucket_tyler('this-week')">This Week</span></span><span class="tb-col-count" id="tc-this-week">0</span></div><div class="tb-list" id="tl-this-week"></div></div>
     <div class="tb-col" data-bucket="recurring"><div class="tb-col-header"><span class="tb-col-label"><span id="th-recurring">Recurring</span></span><span class="tb-col-count" id="tc-recurring">0</span></div><div class="tb-list" id="tl-recurring"></div></div>
-    <div class="tb-col" data-bucket="projects"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-projects" onclick="tbRenameBucket_jimmie('projects')">Larger Projects</span></span><span class="tb-col-count" id="tc-projects">0</span></div><div class="tb-list" id="tl-projects"></div></div>
-    <div class="tb-col" data-bucket="waiting"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-waiting" onclick="tbRenameBucket_jimmie('waiting')">Waiting On</span></span><span class="tb-col-count" id="tc-waiting">0</span></div><div class="tb-list" id="tl-waiting"></div></div>
+    <div class="tb-col" data-bucket="projects"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-projects" onclick="tbRenameBucket_tyler('projects')">Larger Projects</span></span><span class="tb-col-count" id="tc-projects">0</span></div><div class="tb-list" id="tl-projects"></div></div>
+    <div class="tb-col" data-bucket="waiting"><div class="tb-col-header"><span class="tb-col-label"><span class="tb-bucket-name" id="th-waiting" onclick="tbRenameBucket_tyler('waiting')">Waiting On</span></span><span class="tb-col-count" id="tc-waiting">0</span></div><div class="tb-list" id="tl-waiting"></div></div>
   </div>
 </div>
 </div>
@@ -892,7 +892,7 @@ async function addEquipment(employee){
 }
 
 
-const EMPLOYEE='Jimmie Coleman';
+const EMPLOYEE='Tyler Wallace';
 loadPTOBalances(EMPLOYEE);
 loadMyRequests(EMPLOYEE);
 loadMyReimbursements(EMPLOYEE);
@@ -921,11 +921,11 @@ function calcWorkingDays() {
 </script>
 
 <script src="taskboard.js?v=174"></script>
-<script>initTaskBoard("jimmie");</script>
+<script>initTaskBoard("tyler");</script>
 <script src="resources.js?v=174"></script>
 <script src="docnaming.js?v=174"></script>
 <script>
-function getCurrentPayPeriodLabel_jimmie() {
+function getCurrentPayPeriodLabel_tyler() {
   const startMs=Date.UTC(2025,11,18);
   const now=new Date();
   const todayMs=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());
@@ -936,7 +936,7 @@ function getCurrentPayPeriodLabel_jimmie() {
   return fmt(psMs)+' - '+fmt(peMs);
 }
 
-async function loadCommission_jimmie() {
+async function loadCommission_tyler() {
   const loadEl=document.getElementById('comm-loading');
   const emptyEl=document.getElementById('comm-empty');
   const tableWrap=document.getElementById('comm-table-wrap');
@@ -948,8 +948,8 @@ async function loadCommission_jimmie() {
     const ai=cc('Approved By')>=0?cc('Approved By'):cc('Approved by');
     const adi=cc('Approved Date')>=0?cc('Approved Date'):cc('Date Approved');
     const np=s=>(s||'').toString().replace(/[\u2013\u2014]/g,'-').trim();
-    const rows=d.data.slice(1).filter(r=>(r[cc('Employee')]||'').toString().trim()==='Jimmie Coleman'&&r.some(c=>c));
-    const currentPeriod=getCurrentPayPeriodLabel_jimmie();
+    const rows=d.data.slice(1).filter(r=>(r[cc('Employee')]||'').toString().trim()==='Tyler Wallace'&&r.some(c=>c));
+    const currentPeriod=getCurrentPayPeriodLabel_tyler();
     const periodLabel=document.getElementById('comm-period-label');
     if(periodLabel)periodLabel.textContent=currentPeriod;
     const currentRows=rows.filter(r=>np(r[cc('Pay Period')])===np(currentPeriod));
@@ -965,13 +965,13 @@ async function loadCommission_jimmie() {
       const tbody=document.getElementById('comm-body');
       if(tbody)tbody.innerHTML=currentRows.slice().reverse().map(r=>`<tr><td>${fmtDate(r[cc('Date')])}</td><td>${r[cc('Deal Name')]||''}${wwDealLink(r[cc('Deal ID')])}</td><td>${fmtMoney(r[cc('Deal Value')])}</td><td>${(r[cc('Rate')]||'').toString().trim()}</td><td><strong style="color:#c4581f">${fmtMoney(r[cc('Commission')])}</strong></td><td>${(ai>=0&&r[ai])?r[ai]:'<span style="color:#aaa">Pending</span>'}</td><td>${adi>=0?fmtDate(r[adi]):''}</td></tr>`).join('');
     }
-    loadPrevPeriods_jimmie(rows,currentPeriod,cc,ai,adi);
-  }catch(e){if(loadEl)loadEl.style.display='none';console.error('loadCommission_jimmie',e);}
+    loadPrevPeriods_tyler(rows,currentPeriod,cc,ai,adi);
+  }catch(e){if(loadEl)loadEl.style.display='none';console.error('loadCommission_tyler',e);}
 }
 
-function loadPrevPeriods_jimmie(rows,currentPeriod,cc,ai,adi){
-  const body=document.getElementById('prev-periods-body_jimmie');
-  const loading=document.getElementById('prev-periods-loading_jimmie');
+function loadPrevPeriods_tyler(rows,currentPeriod,cc,ai,adi){
+  const body=document.getElementById('prev-periods-body_tyler');
+  const loading=document.getElementById('prev-periods-loading_tyler');
   if(loading)loading.style.display='none';
   if(!body)return;
   const np=s=>(s||'').toString().replace(/[\u2013\u2014]/g,'-').trim();
@@ -988,16 +988,16 @@ function loadPrevPeriods_jimmie(rows,currentPeriod,cc,ai,adi){
   }).join('');
 }
 
-function togglePrevPeriods_jimmie(el){
-  const wrap=document.getElementById('prev-periods-wrap_jimmie');
-  const label=document.getElementById('prev-toggle-label_jimmie');
+function togglePrevPeriods_tyler(el){
+  const wrap=document.getElementById('prev-periods-wrap_tyler');
+  const label=document.getElementById('prev-toggle-label_tyler');
   if(!wrap)return;
   const isOpen=wrap.style.display!=='none';
   wrap.style.display=isOpen?'none':'block';
   if(label)label.textContent=isOpen?'(click to expand)':'(click to collapse)';
 }
 
-loadCommission_jimmie();
+loadCommission_tyler();
 </script>
 <script>
 (function(){
