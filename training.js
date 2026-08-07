@@ -245,6 +245,37 @@
   }
 
   function isLive(m) { return (m.format || '') === 'live'; }
+
+  /* A chain is a run of modules that build toward one assessment, for example
+     the eight Pipedrive modules feeding the Pipedrive exit quiz. The data
+     carries this as series plus one module flagged assessment. */
+  function chainOf(m) {
+    if (!m.series && m.series !== 0) return null;
+    var key = String(m.series);
+    var all = pathModules().filter(function (x) { return String(x.series) === key; });
+    all.sort(function (a, b) { return a.id < b.id ? -1 : 1; });
+    var assess = all.filter(function (x) { return x.assessment; })[0] || null;
+    var steps = all.filter(function (x) { return !x.assessment; });
+    return { key: key, label: all[0].series_label || key, steps: steps, assess: assess, all: all };
+  }
+
+  function chainStrip(m) {
+    var c = chainOf(m);
+    if (!c || !c.assess) return '';
+    var done = c.steps.filter(function (x) { return S.done[x.id]; }).length;
+    var pct = Math.round(done / c.steps.length * 100);
+    if (m.assessment) {
+      return '<div class="tr-chainstrip"><div class="tr-chainstrip-t">' +
+        'This is the assessment for ' + esc(c.label) + '</div>' +
+        '<div class="tr-chainstrip-s">' + done + ' of ' + c.steps.length +
+        ' modules done beforehand</div>' + bar(pct) + '</div>';
+    }
+    var pos = c.steps.map(function (x) { return x.id; }).indexOf(m.id) + 1;
+    return '<div class="tr-chainstrip"><div class="tr-chainstrip-t">' +
+      esc(c.label) + ', part ' + pos + ' of ' + c.steps.length + '</div>' +
+      '<div class="tr-chainstrip-s">No quiz on this one. It builds toward ' +
+      esc(c.assess.title) + '.</div>' + bar(pct) + '</div>';
+  }
   function needsSignoff(m) { return (m.signoff || '') === 'approver'; }
 
   /* ---------- data ---------- */
@@ -321,6 +352,14 @@
     return '<span class="tr-bar"><span class="tr-bar-fill" style="width:' + pct + '%"></span></span>';
   }
 
+  function chipFor(m) {
+    if (m.tool) {
+      return '<span class="tr-chip tr-chip-tool">' + esc(m.tool) +
+        (m.tool_kind ? '<span class="tr-chip-sep">&middot;</span>' + esc(m.tool_kind) : '') + '</span>';
+    }
+    return '<span class="tr-chip">' + esc(m.track || '') + '</span>';
+  }
+
   function statusMark(m) {
     var d = S.done[m.id];
     if (!d) return '<span class="tr-mark tr-mark-open"></span>';
@@ -348,12 +387,53 @@
   function moduleCard(m) {
     var d = S.done[m.id];
     return '<div class="tr-card' + (d && !d.pending ? ' tr-card-done' : '') + '" onclick="trOpen(\'' + esc(m.id) + '\')">' +
-      '<div class="tr-card-top"><span class="tr-chip">' + esc(m.track || '') + '</span>' + statusMark(m) + '</div>' +
+      '<div class="tr-card-top">' + chipFor(m) + statusMark(m) + '</div>' +
       '<div class="tr-card-title">' + esc(m.title) + '</div>' +
       '<div class="tr-card-meta">' + (Number(m.duration_min) || 0) + ' min' +
       (hasQuiz(m) ? ' &middot; quiz' : '') +
       (d && d.max ? ' &middot; ' + d.score + '/' + d.max : '') +
       '</div></div>';
+  }
+
+  var TRACK_ORDER = ['session', 'hr', 'playbook', 'process', 'product', 'reference'];
+  var TRACK_NAME = {
+    session: 'Live and offsite', hr: 'People and policy', playbook: 'How we sell',
+    process: 'Systems and quoting', product: 'Product knowledge', reference: 'Reference'
+  };
+
+  function stepCard(m, n) {
+    var d = S.done[m.id];
+    return '<div class="tr-step' + (d ? ' tr-step-done' : '') + '" onclick="trOpen(\'' + esc(m.id) + '\')">' +
+      '<span class="tr-step-n">' + n + '</span>' +
+      '<span class="tr-step-t">' + esc(m.title) + '</span>' +
+      '<span class="tr-step-m">' + (Number(m.duration_min) || 0) + ' min</span></div>';
+  }
+
+  function assessCard(m) {
+    var d = S.done[m.id];
+    return '<div class="tr-assess' + (d ? ' tr-assess-done' : '') + '" onclick="trOpen(\'' + esc(m.id) + '\')">' +
+      '<span class="tr-assess-eyebrow">Assessment</span>' +
+      '<span class="tr-assess-t">' + esc(m.title) + '</span>' +
+      '<span class="tr-assess-m">' + (d && d.max ? d.score + ' / ' + d.max : quizTotal(m) + ' points') +
+      '</span></div>';
+  }
+
+  function chainBlock(c) {
+    var done = c.steps.filter(function (x) { return S.done[x.id]; }).length;
+    var pct = Math.round(done / c.steps.length * 100);
+    var h = '<div class="tr-chain">' +
+      '<div class="tr-chain-head"><span class="tr-chain-name">' + esc(c.label) + '</span>' +
+      '<span class="tr-chain-count">' + done + ' of ' + c.steps.length + '</span>' +
+      '<span class="tr-chain-bar">' + bar(pct) + '</span></div>' +
+      '<div class="tr-chain-flow">';
+    c.steps.forEach(function (m, i) {
+      if (i) h += '<span class="tr-arrow">&#8594;</span>';
+      h += stepCard(m, i + 1);
+    });
+    if (c.assess) {
+      h += '<span class="tr-arrow tr-arrow-final">&#8594;</span>' + assessCard(c.assess);
+    }
+    return h + '</div></div>';
   }
 
   function renderList() {
@@ -401,8 +481,6 @@
       var dn = list.filter(function (m) { return S.done[m.id]; }).length;
       var wpct = Math.round(dn / list.length * 100);
       var range = isX ? null : weekRange(S.hire, n);
-      /* If a week's own sessions start later than its Monday, say so. A week
-         opening on a holiday should not advertise the holiday. */
       if (range) {
         var ds = list.map(function (m) { return parseDate(m.session_date); })
           .filter(Boolean).sort(function (a, b) { return a - b; });
@@ -421,14 +499,52 @@
         '<span class="tr-wk-chev">&#9662;</span>' +
         '</button><div class="tr-wk-body">';
 
-      var lives = list.filter(isLive).sort(function (a, b) {
-        return String(a.session_date || '') < String(b.session_date || '') ? -1 : 1;
+      /* Within a week: sections by track, and inside each, chains render as a
+         flow with the assessment at the end. Chains that span weeks show only
+         the part that belongs to this week. */
+      var byTrack = {};
+      list.forEach(function (m) {
+        var t = m.track || 'other';
+        (byTrack[t] = byTrack[t] || []).push(m);
       });
-      var selfs = list.filter(function (m) { return !isLive(m); });
+      var tracks = Object.keys(byTrack).sort(function (a, b) {
+        var ia = TRACK_ORDER.indexOf(a), ib = TRACK_ORDER.indexOf(b);
+        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+      });
 
-      if (lives.length) html += '<div class="tr-lives">' + lives.map(liveCard).join('') + '</div>';
-      if (selfs.length) html += '<div class="tr-grid">' + selfs.map(moduleCard).join('') + '</div>';
-      if (!lives.length && !selfs.length) html += '<div class="empty-state">Nothing here yet.</div>';
+      tracks.forEach(function (t) {
+        var items = byTrack[t];
+        html += '<div class="tr-sec"><div class="tr-sec-name">' +
+          esc(TRACK_NAME[t] || t) + '</div>';
+
+        var seenChain = {}, loose = [];
+        items.forEach(function (m) {
+          var c = chainOf(m);
+          if (c && c.assess) {
+            if (!seenChain[c.key]) {
+              seenChain[c.key] = true;
+              var inWeek = {
+                key: c.key, label: c.label,
+                steps: c.steps.filter(function (x) { return String(x.week) === String(m.week); }),
+                assess: String(c.assess.week) === String(m.week) ? c.assess : null
+              };
+              if (inWeek.steps.length) html += chainBlock(inWeek);
+              else if (inWeek.assess) html += '<div class="tr-chain">' +
+                '<div class="tr-chain-head"><span class="tr-chain-name">' + esc(c.label) +
+                '</span></div><div class="tr-chain-flow">' + assessCard(inWeek.assess) + '</div></div>';
+            }
+          } else if (isLive(m)) { loose.push(m); }
+          else { loose.push(m); }
+        });
+
+        var lives = loose.filter(isLive).sort(function (a, b) {
+          return String(a.session_date || '') < String(b.session_date || '') ? -1 : 1;
+        });
+        var selfs = loose.filter(function (m) { return !isLive(m); });
+        if (lives.length) html += '<div class="tr-lives">' + lives.map(liveCard).join('') + '</div>';
+        if (selfs.length) html += '<div class="tr-grid">' + selfs.map(moduleCard).join('') + '</div>';
+        html += '</div>';
+      });
 
       html += '</div></section>';
     });
@@ -520,13 +636,12 @@
         esc(m.external_label || 'Open the course') + '<span class="tr-ext-arrow">&#8599;</span></a>';
     }
 
+    html += chainStrip(m);
     html += videoBlock(m);
     if ((m.body_md || '').trim()) html += '<div class="tr-body">' + md(m.body_md) + '</div>';
 
     if (needsSignoff(m)) {
-      html += '<div class="alert alert-info" style="font-size:13px">' +
-        (m.owner ? esc(m.owner) : 'Rose or Justin') +
-        ' marks this complete after the session. Nothing to submit here.</div>';
+      /* nothing to submit; the meta line already says it is a live session */
     } else if (hasQuiz(m)) {
       html += '<div class="tr-start"><div class="tr-start-l">' +
         '<div class="tr-start-t">Ready for the quiz?</div>' +
@@ -538,8 +653,6 @@
         '<button class="submit-btn" id="tr-submit" onclick="trSubmit()">' +
         (d ? 'Mark Complete Again' : 'Mark Complete') + '</button>';
     }
-
-    html += askBlock(m);
 
     el('tr-root').innerHTML = html;
     window.scrollTo(0, 0);
@@ -753,39 +866,6 @@
     } catch (e) { console.error('review email failed', e); }
   }
 
-  function askBlock(m) {
-    return '<div class="tr-ask" id="tr-ask">' +
-      '<div class="tr-ask-t">Something here not landing?</div>' +
-      '<div class="tr-ask-s">Ask about this module and someone will get back to you. ' +
-      'Asking is the fast version, not the lazy one.</div>' +
-      '<textarea class="form-textarea" id="tr-ask-text" rows="2" placeholder="What is not clear?"></textarea>' +
-      '<button class="tr-ask-btn" onclick="trAsk()">Send question</button>' +
-      '<div id="tr-ask-msg"></div></div>';
-  }
-
-  window.trAsk = async function () {
-    var box = el('tr-ask-text'), msg = el('tr-ask-msg');
-    if (!box || !msg) return;
-    var q = (box.value || '').trim();
-    if (!q) { msg.innerHTML = '<div class="alert alert-error">Type your question first.</div>'; return; }
-    var m = S.modules.filter(function (x) { return x.id === S.current; })[0];
-    msg.innerHTML = '<div class="loading">Sending...</div>';
-    try {
-      await api({
-        action: 'send_email',
-        to_key: 'training',
-        subject: 'Training question: ' + S.employee + ' - ' + (m ? m.title : S.current),
-        body: '<p>' + esc(S.employee) + ' asked about <strong>' + esc(m ? m.title : '') +
-              '</strong> (' + esc(S.current) + '):</p><p>' + esc(q) + '</p>'
-      });
-      msg.innerHTML = '<div class="alert alert-success">Sent. You will hear back.</div>';
-      box.value = '';
-    } catch (e) {
-      console.error(e);
-      msg.innerHTML = '<div class="alert alert-error">Could not send. Try again, or just ask in person.</div>';
-    }
-  };
-
   /* ---------- window hooks ---------- */
 
   window.trOpen = function (id) {
@@ -846,7 +926,7 @@
       '.tr-wk-hrs{font-size:12px;color:#bbb;white-space:nowrap}',
       '.tr-wk-chev{color:#bbb;font-size:12px;transition:transform .2s}',
       '.tr-wk-open .tr-wk-chev{transform:rotate(180deg)}',
-      '.tr-wk-body{display:none;padding:0 18px 18px}',
+      '.tr-wk-body{display:none;padding:0 18px 18px}','.tr-sec{margin-top:16px}','.tr-sec:first-child{margin-top:4px}','.tr-sec-name{font-family:"Barlow Condensed",Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#b3a99c;padding-bottom:6px;margin-bottom:10px;border-bottom:1px solid #f0ece6}','.tr-chain{border:1px solid #eee7dd;border-radius:9px;background:#fcfbf9;padding:13px 15px;margin-bottom:10px}','.tr-chain-head{display:flex;align-items:center;gap:12px;margin-bottom:11px}','.tr-chain-name{font-family:"Barlow Condensed",Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#1a1a1a}','.tr-chain-count{font-size:11px;color:#aaa;font-weight:600;white-space:nowrap}','.tr-chain-bar{flex:1;max-width:170px}','.tr-chain-flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:5px}','.tr-arrow{display:flex;align-items:center;color:#d5cabb;font-size:14px;padding:0 1px}','.tr-arrow-final{color:#c4581f;font-size:16px;padding:0 4px}','.tr-step{display:flex;flex-direction:column;gap:3px;background:#fff;border:1px solid #e4dbd0;border-radius:6px;padding:9px 11px;cursor:pointer;min-width:132px;max-width:190px;transition:border-color .15s}','.tr-step:hover{border-color:#c4581f}','.tr-step-done{background:#f6f4f0;border-color:#eee7dd}','.tr-step-done .tr-step-t{color:#9a9086}','.tr-step-n{font-family:"Barlow Condensed",Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.1em;color:#c4581f}','.tr-step-done .tr-step-n{color:#bdb3a6}','.tr-step-t{font-size:12.5px;font-weight:600;color:#1a1a1a;line-height:1.3}','.tr-step-m{font-size:10.5px;color:#b3a99c;margin-top:auto}','.tr-assess{display:flex;flex-direction:column;gap:3px;background:#1a1a1a;border:1px solid #1a1a1a;border-radius:6px;padding:10px 13px;cursor:pointer;min-width:150px;max-width:210px;transition:transform .15s}','.tr-assess:hover{transform:translateY(-2px)}','.tr-assess-eyebrow{font-family:"Barlow Condensed",Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#c4581f}','.tr-assess-t{font-size:12.5px;font-weight:600;color:#fff;line-height:1.3}','.tr-assess-m{font-size:10.5px;color:#8a8a8a;margin-top:auto}','.tr-assess-done{background:#28a745;border-color:#28a745}','.tr-assess-done .tr-assess-eyebrow{color:#d6f5de}','.tr-assess-done .tr-assess-m{color:#e6f8ea}','.tr-chainstrip{background:#f5ede0;border-radius:8px;padding:13px 16px;margin-bottom:16px;max-width:760px}','.tr-chainstrip-t{font-family:"Barlow Condensed",Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1a1a1a}','.tr-chainstrip-s{font-size:12.5px;color:#7a7266;margin:2px 0 9px}','.tr-chip-tool{color:#7a7266;background:#f0ece6}','.tr-chip-sep{margin:0 5px;opacity:.5}',
       '.tr-wk-open .tr-wk-body{display:block}',
       /* live sessions */
       '.tr-lives{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}',
@@ -939,7 +1019,7 @@
       '@media(max-width:640px){',
       '.tr-wk-head{grid-template-columns:auto 1fr auto;row-gap:6px}',
       '.tr-wk-bar,.tr-wk-hrs{display:none}',
-      '.tr-grid{grid-template-columns:1fr}',
+      '.tr-grid{grid-template-columns:1fr}','.tr-step,.tr-assess{max-width:none;flex:1 1 100%}','.tr-arrow{display:none}','.tr-chain-bar{display:none}',
       '.tr-hero-pct{font-size:28px}',
       '}',
       '@media(prefers-reduced-motion:reduce){.tr-card,.tr-live,.tr-bar-fill,.tr-wk-chev{transition:none}}'
