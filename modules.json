@@ -273,6 +273,7 @@
     },
     {
       "id": "PB-010",
+      "start_here": true,
       "title": "Our installation story",
       "track": "playbook",
       "tier": "basic",
@@ -376,7 +377,7 @@
     {
       "id": "PB-070",
       "title": "MileIQ and expense submission",
-      "track": "playbook",
+      "track": "hr",
       "tier": "basic",
       "roles": [
         "sales-b2c",
@@ -441,7 +442,7 @@
     {
       "id": "PB-080",
       "title": "How you get paid",
-      "track": "playbook",
+      "track": "hr",
       "tier": "basic",
       "roles": [
         "sales-b2c"
