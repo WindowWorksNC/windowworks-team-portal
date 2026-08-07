@@ -1,67 +1,7 @@
 {
-  "generated": "2026-08-06",
-  "count": 69,
+  "generated": "2026-08-07",
+  "count": 68,
   "modules": [
-    {
-      "id": "HR-010",
-      "title": "Welcome and onboarding paperwork",
-      "track": "hr",
-      "tier": "basic",
-      "roles": [
-        "sales-b2c",
-        "sales-b2b",
-        "pm",
-        "admin-csr"
-      ],
-      "week": 1,
-      "duration_min": 10,
-      "video": "https://www.loom.com/share/3f7b249b987d4e0288fc2e26771211db",
-      "video_source": "loom",
-      "last_verified": null,
-      "prereq": [],
-      "pass_points": 15,
-      "path": "content/hr/HR-010-onboarding-paperwork.md",
-      "body_md": "Housekeeping first. Three documents and one login, and then you can start\ntraining.\n\n## ADP Total Source\n\nADP handles payroll, health benefits, and retirement. Window Works has used ADP\nfor about twenty years and Total Source for the last three.\n\nOnce you are in the system you get an email to log in and set up your account.\nThat is where you elect or decline healthcare, choose retirement options, and\nmake changes later. They have an 800 number and they will usually answer\nbenefits questions better than the office can.\n\nThe onboarding email goes to your personal email address, since you may not\nhave a company address yet. That is the one exception to the rule that company\nbusiness runs through your company email.\n\n## The three documents\n\n**W-4.** Tax withholding. Goes to ADP.\n\n**I-9.** Confirms you are eligible to work in the United States. Bring a\ndriver's license, social security card, passport, or birth certificate. We\nupload it to ADP.\n\n**Direct deposit authorization.** Encouraged but not required. Bank name,\naccount number, routing number. Bring a voided check so we can verify the\nnumbers.\n\n## One thing to expect\n\nDirect deposit can take one or two payroll cycles to start. Until then you get\na live check handed to you on payday. Nothing has gone wrong if that happens.",
-      "has_quiz": true,
-      "quiz": [
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "What should you bring for the I-9?",
-          "options": [
-            "Nothing, it is handled electronically",
-            "A driver's license, social security card, passport, or birth certificate",
-            "A voided check only",
-            "Your most recent tax return"
-          ],
-          "k": "DEsPRlVGW00FSUlVPQYBTz5aVlIdFgUACA0KBFcKHgIUHgsHCAYDDk8GBFMABhwPTxYZC1IFFhINHUQcAgcfHRkHHgcJRAsYFBofDh0DGkBGEg=="
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "Where do you manage your health and retirement benefits?",
-          "options": [
-            "Through the office admin",
-            "Pipedrive",
-            "ADP Total Source",
-            "The HR portal"
-          ],
-          "k": "DEsPRlVFW00FSUlVKCo0Tx8WARYHFgRJBxBPEx4dFwgHGxBOBQETVwcTGFMWB05cX0dXAQcGERIbTgIABVceBw4AAwABChxZVRI="
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "Your first paycheck arrives as a live check rather than a direct deposit. What happened?",
-          "options": [
-            "Your direct deposit form was rejected",
-            "Normal. Direct deposit can take one or two payroll cycles to start.",
-            "You are still in the probationary period",
-            "Direct deposit only starts after 90 days"
-          ],
-          "k": "DEsPRlVGW00FSUlVLBYUChQDTxsfXVcnARAHHhkIUgIAVx4cCwEQWU0P"
-        }
-      ]
-    },
     {
       "id": "HR-020",
       "title": "Our team and values",
@@ -82,7 +22,7 @@
       "pass_points": 25,
       "review_needed": true,
       "path": "content/hr/HR-020-team-and-values.md",
-      "body_md": "## Who we are\n\nJeff is CEO and founded the company about twenty years ago, with over 45 years\nin windows and doors. His son runs operations and grew up in the business,\nworking deliveries, warehouse, and sales. Rose is Chief Technology Officer.\nJeff's wife is part owner and works behind the scenes.\n\nBelow leadership: project manager, sales team, and admin. The PM hires,\noversees, and manages the installation subcontractors, and is the direct\ncontact for much of the installation work with homeowners.\n\nSales splits into B2B and B2C. B2B works with contractors, custom home\nbuilders, and DIYers. B2C is homeowners and in-home sales, and we usually\ninstall. People work one side or the other, not both.\n\n## These things are true at Window Works\n\n**Customer service is everyone's job.** Not sales, not the installer, not the\nPM. Every person is empowered to make sure the customer has a good experience.\n\n**Each of us is a guide.** We exist to help customers find windows and doors\nthey will love. Whatever your role, your primary task is creating conversations\nand tools that educate them so they make the right choice.\n\n**Good judgment is valued and usually rewarded.** If a decision needs making\nand nobody is around, use your best judgment.\n\n**Fast is better than slow** unless there is a compelling reason to go slow.\nThat does not mean rushing into mistakes.\n\n**Our time and energy are our most valuable assets.** This is why we hold\nproduct minimums, service area limits, and other boundaries so firmly.\n\n**We are preparing for growth,** which means stretching and changing. If you\nare fearful or resistant to change, this is probably not the right job. Things\nput in place one way may change in six or twelve months.\n\n**Always be thinking about streamlining.** If you find a way to save time and\neffort that also improves the customer experience, tell us. There is a good\nchance it becomes how we do it.\n\n**Never guarantee something you cannot personally deliver.** If a customer asks\nfor Jeff and he is out, do not promise he will call back today. Say you will\ntell him they called as soon as he returns. This builds trust. Promising what\nyou cannot deliver breaks it.\n\n**We do not do silos.** Teams share openly across functions.\n\n**Do it, then report it.** If someone asks you to do something, do not say you\nwill work on it. Get it done and tell them it is done. Always close the\ncommunication loop.\n\n**Work each day as if it is your last,** meaning keep information accessible to\neveryone. Subscriptions go to the company address, not your personal one. We\nnever use personal email for company business.\n\n**Occasional overtime is normal. Consistent overtime is a planning or\ncommunication failure** and we need to look at it.\n\n**Own your mistakes.** Examine them, learn, tell people as soon as you notice,\nthen move on. Did you have a bad day, or a few bad minutes in an otherwise fine\nday? The difference matters.\n\n**More knowledge makes us more successful.** Every role here goes deep on\ntechnical detail, whether tech stack or product. We cannot hold your hand\nthrough all of it. Read, ask, watch, and seek out what you need to know.",
+      "body_md": "## Who we are\n\nWindow Works has been taking care of homes in the Triangle since 2007. It is\nfamily owned, and the expertise behind it goes back a lot further than the\ncompany does. That history is worth knowing because customers ask about it, and\nbecause most of the rules in this training exist for a reason somebody learned\nthe hard way.\n\nThe company runs in four functions.\n\n**Leadership** sets direction and owns the decisions that cross departments.\n\n**Project management** hires and oversees the installation subcontractors, and\nis the main contact for homeowners once a job moves into install.\n\n**Admin** handles payroll, scheduling, and the paperwork behind every job.\n\n**Sales** splits into B2B and B2C. B2B works with contractors, custom home\nbuilders, and DIYers. B2C is homeowners and in-home sales, and we usually\ninstall. People work one side or the other, not both.\n\nNobody expects you to have this straight in week one.\n\n## These things are true at Window Works\n\n**Customer service is everyone's job.** Not sales, not the installer, not the\nPM. Every person is empowered to make sure the customer has a good experience.\n\n**Each of us is a guide.** We exist to help customers find windows and doors\nthey will love. Whatever your role, your primary task is creating conversations\nand tools that educate them so they make the right choice.\n\n**Good judgment is valued and usually rewarded.** If a decision needs making\nand nobody is around, use your best judgment.\n\n**Fast is better than slow** unless there is a compelling reason to go slow.\nThat does not mean rushing into mistakes.\n\n**Our time and energy are our most valuable assets.** This is why we hold\nproduct minimums, service area limits, and other boundaries so firmly.\n\n**We are preparing for growth,** which means stretching and changing. If you\nare fearful or resistant to change, this is probably not the right job. Things\nput in place one way may change in six or twelve months.\n\n**Always be thinking about streamlining.** If you find a way to save time and\neffort that also improves the customer experience, tell us. There is a good\nchance it becomes how we do it.\n\n**Never guarantee something you cannot personally deliver.** If a customer asks\nfor Jeff and he is out, do not promise he will call back today. Say you will\ntell him they called as soon as he returns. This builds trust. Promising what\nyou cannot deliver breaks it.\n\n**We do not do silos.** Teams share openly across functions.\n\n**Do it, then report it.** If someone asks you to do something, do not say you\nwill work on it. Get it done and tell them it is done. Always close the\ncommunication loop.\n\n**Work each day as if it is your last,** meaning keep information accessible to\neveryone. Subscriptions go to the company address, not your personal one. We\nnever use personal email for company business.\n\n**Occasional overtime is normal. Consistent overtime is a planning or\ncommunication failure** and we need to look at it.\n\n**Own your mistakes.** Examine them, learn, tell people as soon as you notice,\nthen move on. Did you have a bad day, or a few bad minutes in an otherwise fine\nday? The difference matters.\n\n**More knowledge makes us more successful.** Every role here goes deep on\ntechnical detail, whether tech stack or product. We cannot hold your hand\nthrough all of it. Read, ask, watch, and seek out what you need to know.",
       "author_note": "Video names Keith as project manager and Brandon as admin. Confirm the org\nchart is current before this goes in front of a new hire. Consider splitting\nthe org chart into its own short clip so the values half stays stable when\npeople change.",
       "has_quiz": true,
       "quiz": [
@@ -138,7 +78,10 @@
           "type": "short_answer",
           "points": 5,
           "review": "human",
-          "q": "You set up a new subscription service the company needs. Which email address do you route it to, and why does it matter?"
+          "q": "You set up a new subscription service the company needs. Which email address do you route it to, and why does it matter?\n",
+          "roles": [
+            "admin-csr"
+          ]
         }
       ]
     },
@@ -158,12 +101,10 @@
       "video": "https://www.loom.com/share/7190886e74ae437180d6a1769c5d313f",
       "video_source": "loom",
       "last_verified": null,
-      "prereq": [
-        "HR-010"
-      ],
+      "prereq": [],
       "pass_points": 40,
       "path": "content/hr/HR-030-contract-and-policies.md",
-      "body_md": "Third and last of the general HR videos. Your contract, the company policies,\nthe dress code, internal communication, vehicle use, and PTO.\n\n## Your contract\n\nFilled in per person: start date, position title, compensation. Covers benefits\nyou are entitled to, the 90 day probationary period with a review at the end,\nour right to drug and alcohol testing, maintenance and return of company\nproperty, and paid time off that does not apply during probation. Both sides\nsign and you keep a copy.\n\n## Conduct\n\nNon-discriminatory workplace. Harassment or discrimination against coworkers,\ncustomers, or anyone else based on protected characteristics is prohibited.\nReport anything immediately to your supervisor, or above them if they are\ninvolved. Investigated promptly and confidentially.\n\nDivisive topics can be discussed respectfully, but not where it becomes\ndisruptive or creates a hostile environment. No offensive language or imagery\non clothing.\n\nConduct yourself professionally regardless of who is present. Vendors, drivers,\nsubcontractors, and clients move through constantly.\n\nTell your supervisor about any accommodation you need, including medical\nconditions we should be aware of.\n\n## Hours and attendance\n\nStore hours are Monday to Friday, 8:30 to 5. Full time is 40 hours within\nthose. Roles that need different hours, like a PM meeting a crew early, can\nadapt with reasonable discretion as long as they stay at 40. A permanent\nalternate schedule needs written supervisor approval.\n\n**In-home sales hours are more flexible.** You are on the clock when you are\nworking, you may take a 6:30 appointment or meet someone on a weekend, and you\nare not expected in the office at 8:30.\n\n**Overtime is approved in advance only.** Not paid after the fact.\n\n**Absence: phone or text your supervisor no later than 30 minutes before your\nstart time.** Check in each day you are out unexpectedly, unless your\nsupervisor already knows the situation and roughly how long you will be gone.\n\n**Three consecutive no call no show days is voluntary job abandonment and\nresults in termination.**\n\nPerformance evaluation at 90 days, then annually.\n\n## Equipment and appearance\n\nZero tolerance on working under the influence of drugs or alcohol.\n\nEveryone keeps their own space clean and we collectively handle shared areas\nand trash. Cleaners come weekly or biweekly, we cover the gaps.\n\nYou maintain the equipment assigned to you. Negligence or loss may be your\nfinancial responsibility. Normal wear and tear is not.\n\nDress code applies to all customer-facing and office roles including sales,\nadmin, operations, and project management. Highlights: clean and wrinkle-free,\nno holes or stains, logos smaller than a credit card, company name tag at a\ncustomer's house but not needed in the office. Company or vendor branded tops\nare fine. No hoods unless Window Works branded. Khaki, navy, black, or gray\nbottoms, clean jeans acceptable, no cargo, no stretch or knit pants. Closed toe\nprofessional shoes, no sandals or crocs. Natural hair colors. Only Window Works\nor vendor branded hats. Tasteful jewelry, nothing that becomes a hazard when\nyou are handling product. Deviations allowed when you are doing physical work\nlike unloading, but keep it clean and safe.\n\n## Technology and confidentiality\n\nUse company technology responsibly and for business. Nothing illegal or\ninappropriate.\n\nDo not disclose proprietary, financial, customer, or operational information\noutside the company. What you see in a customer's home stays there. If\nsomething in someone's house strikes you as odd, you do not photograph it and\npost it.\n\nFollow security protocols including password protection.\n\nOn personal social media you speak for yourself, but confidentiality and\nanti-harassment still apply.\n\n## Internal communication\n\n**Pipedrive is the primary channel** for anything about a specific customer or\njob. Email is next where Pipedrive does not fit.\n\n**All business through your company email.** Never personal.\n\n**Respond to email within four business hours.** If it is informational,\nacknowledge it. If it asks for a short action, do it and say it is done. Do not\nreply saying you will work on it. If it is a longer task, give your best\nestimate and email again when it is finished.\n\nTexting and calls are for genuine urgency, though some customers and\nsubcontractors prefer text and that is fine.\n\nOut for more than four business days: set an out of office naming your backup,\nand confirm with that person at least two weeks ahead so they are not\nsurprised.\n\n## Personal vehicle and mileage\n\nReimbursed at 72.5 cents per mile, the federal standard rate. That covers fuel,\ninsurance, maintenance, and depreciation. Nothing vehicle-related is reimbursed\non top of it.\n\n**MileIQ is required.** Classify every trip business or personal by the first\nof the following month or it does not get paid.\n\nYour daily commute is not reimbursable. Work to a jobsite, client, or errand\nis. A temporary worksite like a coffee shop or library counts only if you are\nactually conducting business there. Personal detours are not reimbursable.\n\nNC minimum liability of 30/60/25 required, and a copy of your license on file\nfrom day one. Your personal insurance is primary. The company does not cover\ndamage to your vehicle or your deductible. Parking and tolls between\nappointments are reimbursable with receipts. Violations are yours.\n\n## PTO\n\nBiweekly pay, 26 periods a year. Current year dates are issued separately.\n\nFive sick days, ten vacation days, eleven paid holidays.\n\nSick leave covers you or a child, spouse, or parent who needs care.\n\nSubmit PTO requests to the admin professional, who submits their own to the\noperations officer. **It is not approved until you receive written approval.**\nIf you have not heard back, follow up. Do not assume.\n\nVacation requests in writing at least 30 days ahead. Changes need a new request\nand new approval. Requests around Thanksgiving, Christmas, or New Year go in by\nOctober 1 so staffing can be planned.\n\nNo rollover. Up to five unused vacation days are paid out annually. Everything\nis forfeited on resignation or termination.\n\nFirst year: accrual begins after the 90 day probation, at 0.4167 sick days and\n0.833 vacation days per full month worked. After the first year you get the\nfull annual allowance, reset January 1.",
+      "body_md": "Third and last of the general HR videos. Your contract, the company policies,\nthe dress code, internal communication, vehicle use, and PTO.\n\n## Your contract\n\nFilled in per person: start date, position title, compensation. Covers benefits\nyou are entitled to, the 90 day probationary period with a review at the end,\nour right to drug and alcohol testing, maintenance and return of company\nproperty, and paid time off that does not apply during probation. Both sides\nsign and you keep a copy.\n\n## Conduct\n\nNon-discriminatory workplace. Harassment or discrimination against coworkers,\ncustomers, or anyone else based on protected characteristics is prohibited.\nReport anything immediately to your supervisor, or above them if they are\ninvolved. Investigated promptly and confidentially.\n\nDivisive topics can be discussed respectfully, but not where it becomes\ndisruptive or creates a hostile environment. No offensive language or imagery\non clothing.\n\nVendors, drivers, subcontractors, and clients move through constantly. The\noffice is never as private as it feels.\n\nTell your supervisor about any accommodation you need, including medical\nconditions we should be aware of.\n\n## Hours and attendance\n\nStore hours are Monday to Friday, 8:30 to 5. Full time is 40 hours within\nthose. Roles that need different hours, like a PM meeting a crew early, can\nadapt with reasonable discretion as long as they stay at 40. A permanent\nalternate schedule needs written supervisor approval.\n\n**In-home sales hours are more flexible.** You are on the clock when you are\nworking, you may take a 6:30 appointment or meet someone on a weekend, and you\nare not expected in the office at 8:30.\n\n**Overtime needs approval in advance.** We cannot pay it retroactively.\n\n**Absence: phone or text your supervisor no later than 30 minutes before your\nstart time.** Check in each day you are out unexpectedly, unless your\nsupervisor already knows the situation and roughly how long you will be gone.\n\n**Three consecutive no call no show days is voluntary job abandonment and\nresults in termination.**\n\nPerformance evaluation at 90 days, then annually.\n\n## Equipment and appearance\n\nZero tolerance on working under the influence of drugs or alcohol.\n\nEveryone keeps their own space clean and we collectively handle shared areas\nand trash. Cleaners come weekly or biweekly, we cover the gaps.\n\nYou maintain the equipment assigned to you. Negligence or loss may be your\nfinancial responsibility. Normal wear and tear is not.\n\nDress code applies to all customer-facing and office roles including sales,\nadmin, operations, and project management. Highlights: clean and wrinkle-free,\nno holes or stains, logos smaller than a credit card, name tag at a\ncustomer's house and when you are on assigned showroom coverage, not needed\notherwise in the office. Company or vendor branded tops\nare fine. No hoods unless Window Works branded. Khaki, navy, black, or gray\nbottoms, clean jeans acceptable, no cargo, no stretch or knit pants. Closed toe\nprofessional shoes, no sandals or crocs. Natural hair colors. Only Window Works\nor vendor branded hats. Tasteful jewelry, nothing that becomes a hazard when\nyou are handling product. Deviations allowed when you are doing physical work\nlike unloading, but keep it clean and safe.\n\n## Technology and confidentiality\n\nCompany technology is for business use.\n\nDo not disclose proprietary, financial, customer, or operational information\noutside the company. What you see in a customer's home stays there.\n\nFollow security protocols including password protection.\n\nOn personal social media you speak for yourself, but confidentiality and\nanti-harassment still apply.\n\n## Internal communication\n\n**Pipedrive is the primary channel** for anything about a specific customer or\njob. Email is next where Pipedrive does not fit.\n\n**All business through your company email.** Never personal.\n\n**Respond to email within four business hours.** If it is informational,\nacknowledge it. If it asks for a short action, do it and say it is done. Do not\nreply saying you will work on it. If it is a longer task, give your best\nestimate and email again when it is finished.\n\nTexting and calls are for genuine urgency, though some customers and\nsubcontractors prefer text and that is fine.\n\nOut for a full day or more: set an out of office naming your backup.\n\n## Personal vehicle and mileage\n\nReimbursed at the federal standard mileage rate, which covers fuel, insurance,\nmaintenance, and depreciation.\n[Look up the current rate](https://www.irs.gov/tax-professionals/standard-mileage-rates). Nothing vehicle-related is reimbursed\non top of it.\n\n**MileIQ is required.** Classify each trip as business or personal by the first\nof the following month so it can be reimbursed.\n\nYour daily commute is not reimbursable. Work to a jobsite, client, or errand\nis. A temporary worksite like a coffee shop or library counts only if you are\nactually conducting business there. Personal detours are not reimbursable.\n\nNC minimum liability of 30/60/25 required, and a copy of your license on file\nfrom day one. Your personal insurance is primary. The company does not cover\ndamage to your vehicle or your deductible. Parking and tolls between\nappointments are reimbursable with receipts. Traffic violations are your responsibility.\n\n## PTO\n\nBiweekly pay, 26 periods a year. Current year dates are issued separately.\n\nFive sick days, ten vacation days, eleven paid holidays.\n\nSick leave covers you or a child, spouse, or parent who needs care.\n\nSubmit PTO requests to the admin professional, who submits their own to the\noperations officer. **It is not approved until you receive written approval.**\nIf you have not heard back, follow up.\n\nVacation requests in writing at least 30 days ahead. Changes need a new request\nand new approval. Requests around Thanksgiving, Christmas, or New Year go in by\nOctober 1 so staffing can be planned.\n\nNo rollover. Up to five unused vacation days are paid out annually. Everything\nis forfeited on resignation or termination.\n\nFirst year: accrual begins after the 90 day probation, at 0.4167 sick days and\n0.833 vacation days per full month worked. After the first year you get the\nfull annual allowance, reset January 1.",
       "has_quiz": true,
       "quiz": [
         {
@@ -203,30 +144,6 @@
           "k": "DEsPRlVGW00FSUlVOgcIChkUClICAFcHARBPFgcfAAQFFgVARDsWHAYcDFMCBw8UHwUYGRcPUxsMDxIKVxQOHEsREgoBCQpXFk8WAgAUAB4IBhkWHQtLHhYdGgEdVxIZFwVTHg9OHQACVwsbD1MEDAAATwMfClIZFgYcCxcbWSsBUBY="
         },
         {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "You drive from home to the office, then to a customer's house, then home. Which portion is reimbursable?",
-          "options": [
-            "All of it",
-            "Home to office only",
-            "Office to customer only",
-            "Nothing, commuting is never reimbursed"
-          ],
-          "k": "DEsPRlVFW00FSUlVKgEJAgIDBhwMUx4aTgoAA1cdFwIeFRwcFw4VGwpcSzECGgcKCgQETwYZEgEMAkQJBRgCUhIcAhtOEwAFHB8eChASSQcXQSsZTQ8="
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "What is the deadline for classifying MileIQ trips?",
-          "options": [
-            "End of each week",
-            "The first of the following month",
-            "Within 30 days of the trip",
-            "Before your next paycheck"
-          ],
-          "k": "DEsPRlVGW00FSUlVJAcXHFceG1IKHRNJGgwOA1cCHQUHH04dRAIeGwoTDBZXDQEBHFcZAAZLFBIdThQOHhNBUBY="
-        },
-        {
           "type": "multi_select",
           "points": 5,
           "q": "Sick leave can be used for which of these? Check all that apply.",
@@ -254,7 +171,7 @@
           "type": "short_answer",
           "points": 5,
           "review": "human",
-          "q": "You will be out for a week. What two things does policy require you to do about coverage, and how far in advance?"
+          "q": "You will be out for a week. What two things does policy require you to do about coverage, and how far in advance?\n"
         }
       ]
     },
@@ -270,17 +187,15 @@
         "admin-csr"
       ],
       "week": 1,
-      "duration_min": 8,
+      "duration_min": 12,
       "video": null,
       "video_source": "none",
       "last_verified": null,
-      "prereq": [
-        "HR-010"
-      ],
+      "prereq": [],
       "pass_points": null,
       "review_needed": true,
       "path": "content/hr/HR-040-hr-portal.md",
-      "body_md": "Not yet recorded. Needed for day 1.\n\nKeep it short and narrow. Portals get redesigned and a twenty minute\nwalkthrough goes stale as one artifact. Suggested scope:\n\n- Logging in for the first time\n- Where your training path lives and how completion is recorded\n- Where to find documents you have signed\n- Where to submit a PTO request\n- Who to ask when something is not working\n\nLeave payroll and benefits to HR-010, since those live in ADP.\n",
+      "body_md": "Video not yet recorded.\n\nKeep it short and narrow. Portals get redesigned and a twenty minute\nwalkthrough goes stale as one artifact. Suggested scope:\n\n- Logging in for the first time\n- Where your training path lives and how completion is recorded\n- Where to find documents you have signed\n- Where to submit a PTO request\n- What to do when something is not working\n\nThe two sidebars below were their own module until we folded them in here.\n\n## Sidebar: ADP Total Source\n\nADP handles payroll, health benefits, and retirement. Window Works has used ADP\nsince the early days of the company, and Total Source since 2023.\n\nOnce you are in the system you get an email to log in and set up your account.\nThat is where you elect or decline healthcare, choose retirement options, and\nmake changes later. They have an 800 number, and for anything about your\nbenefits they will usually have a better answer than the office will.\n\nThat onboarding email goes to your personal address, since you may not have a\ncompany one yet. It is the one exception to the rule that company business runs\nthrough your company email.\n\n## Sidebar: your first paycheck\n\nDirect deposit can take a payroll cycle or two to start. Until then you get a\nlive check handed to you on payday. Nothing has gone wrong if that happens.\n",
       "has_quiz": false,
       "quiz": null
     },
@@ -366,8 +281,8 @@
       ],
       "week": 1,
       "duration_min": 15,
-      "video": null,
-      "video_source": "none",
+      "video": "https://www.loom.com/share/0d361a98562a41da9e430094d56adf06",
+      "video_source": "loom",
       "last_verified": "2026-08-06",
       "prereq": [],
       "pass_points": 55,
@@ -377,18 +292,6 @@
       "author_note": "Written from Rose's three differentiators plus the installation spec in the\nValue Match Guarantee terms. Needs Rose to confirm:\n\n- Specific foam and sealant products, if reps should name them\n- Whether the seventeen-year crew detail should be used with customers\n- Whether 5/16 is still the standard recommendation",
       "has_quiz": true,
       "quiz": [
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "A customer has a competing quote that includes capping the exterior trim. How do you frame it?\n",
-          "options": [
-            "It is a reasonable way to save money",
-            "Capping wraps aluminum over the existing wood. It hides whatever is underneath, including rot, rather than fixing it. That is a different job, not a cheaper version of ours.",
-            "Capping is fine as long as the wood is sound",
-            "We can match it if they want"
-          ],
-          "k": "DEsPRlVGW00FSUkZHAIIEg=="
-        },
         {
           "type": "multiple_choice",
           "points": 5,
@@ -466,30 +369,6 @@
             "Competitors make the same claims"
           ],
           "k": "DEsPRlVGW00FSUlVPgYNDB9XBgFLBB8QTh0AAlcdEwIAEkkHEE8VEgkdGRZXHQYBTwcFBhEOUxQGABIKBQQOBgIcGUVOCgADVw4UHxYFR0wZ"
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "A customer says they can get the same windows for $4,000 less. What do you do first?\n",
-          "options": [
-            "Drop the price to stay competitive",
-            "Ask what their quote says about the foam, the sealant, and whether they are capping",
-            "Tell them the other company cuts corners",
-            "Offer the Value Match Guarantee and move on"
-          ],
-          "k": "DEsPRlVGW00FSUlVPQYBTwYCCgEfGhgHTgAAEgRPBgMWVx4BFgRZVyIdGAdXGBsLGxIETxYEUxkGGkQOExMdFxgAVwgAHU8YEU8bH19XCAAATwMfDgZLGgRJAwsdElcfFxkAAggdDRkSVxsaCh1XCE4HAxYeAlIKERgcGkQbHxJPEQQeBwwaDRsYBUEuBVEK"
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "The customer genuinely wants the cheaper scope. What is the move?",
-          "options": [
-            "Let them go, they are not our customer",
-            "Match the price",
-            "Offer to re-spec our quote down to that scope so the choice is theirs and informed",
-            "Tell them we cannot do it"
-          ],
-          "k": "DEsPRlVFW00FSUkZHAIIEg=="
         }
       ]
     },
@@ -514,7 +393,7 @@
       "pass_points": 15,
       "review_needed": true,
       "path": "content/playbook/PB-070-mileiq-and-expenses.md",
-      "body_md": "You drive a lot in this role. This is how you get paid for it.\n\n## The rate\n\n72.5 cents per mile, the federal standard. It covers fuel, insurance,\nmaintenance, and depreciation. There is no separate gas reimbursement, because\nthe rate already includes it.\n\n## The deadline that costs you money\n\nEvery trip has to be classified business or personal in the MileIQ app **by the\nfirst of the following month**. Miss it and that month does not get paid. Set a\nrecurring reminder for the last day of each month.\n\n## What counts\n\nReimbursable: office to a jobsite, office to a client, an errand you were asked\nto run, travel between appointments.\n\nNot reimbursable: your daily commute from home to work and back. Personal\nerrands. A stop at your house on the way back from a client.\n\nA coffee shop or library counts only if you are actually working there, meeting\na client, or meeting a subcontractor. Going to Starbucks on your break does\nnot.\n\n## Parking and tolls\n\nReimbursable between appointments, logged as incidental expenses with receipts\nattached. Traffic and parking violations are yours.\n\n## Insurance\n\nYou need North Carolina liability coverage of at least 30/60/25, and a copy of\nyour license on file from day one. Your personal insurance is primary in an\naccident. The company does not cover damage to your vehicle or your deductible.",
+      "body_md": "You drive a lot in this role. This is how you get paid for it.\n\n## The rate\n\nThe federal standard mileage rate.\n[Look up the current rate](https://www.irs.gov/tax-professionals/standard-mileage-rates). It covers fuel, insurance,\nmaintenance, and depreciation. There is no separate gas reimbursement, because\nthe rate already includes it.\n\n## The deadline that costs you money\n\nEvery trip has to be classified business or personal in the MileIQ app **by the\nfirst of the following month**. Miss it and that month does not get paid. Set a\nrecurring reminder for the last day of each month.\n\n## What counts\n\nReimbursable: office to a jobsite, office to a client, an errand you were asked\nto run, travel between appointments.\n\nNot reimbursable: your daily commute from home to work and back. Personal\nerrands. A stop at your house on the way back from a client.\n\nA coffee shop or library counts only if you are actually working there, meeting\na client, or meeting a subcontractor. Going to Starbucks on your break does\nnot.\n\n## Parking and tolls\n\nReimbursable between appointments, logged as incidental expenses with receipts\nattached. Traffic and parking violations are yours.\n\n## Insurance\n\nYou need North Carolina liability coverage of at least 30/60/25, and a copy of\nyour license on file from day one. Your personal insurance is primary in an\naccident. The company does not cover damage to your vehicle or your deductible.",
       "author_note": "Written from the HR policies video rather than recorded separately. Consider a\nshort screen recording of the MileIQ app itself. Rate and NC minimums need\nannual review.",
       "has_quiz": true,
       "quiz": [
@@ -549,7 +428,7 @@
           "options": [
             "The gas receipt as an expense",
             "Gas receipt plus mileage",
-            "Nothing. The 72.5 cents per mile already covers fuel.",
+            "Nothing. The per mile rate already covers fuel.",
             "Half the receipt"
           ],
           "k": "DEsPRlVFW00FSUkZHAIIEg=="
@@ -574,7 +453,7 @@
       "depends_on": "none",
       "review_needed": true,
       "path": "content/playbook/PB-080-how-you-get-paid.md",
-      "body_md": "Read this in week one, not week six. It changes how you work.\n\n## The structure\n\n**Base salary: $20,000 per year.**\n\nThat is deliberately low, because this is a commission role. The base is a\nfloor, not a living. Your income comes from what you sell.\n\n**Your first four weeks are paid at the equivalent of $40,000 annually.**\nTraining pay, so you are not trying to learn the job and produce at the same\ntime. It ends when you go live in the field.\n\n## Commission\n\n| | Up to $2M | Over $2M |\n|---|---|---|\n| Company generated leads | 8% | 10% |\n| Rep generated leads | 10% | 13% |\n\n**Read that table again.** A lead you source yourself pays two to three points\nmore than one we hand you. On a $30,000 job that is $600 more in your pocket\nfor the same appointment.\n\nOver the course of a year that difference is not small. A rep who does $500,000\nof self-sourced volume earns $10,000 more than a rep who does the same volume\noff company leads.\n\nWe generate a steady flow of vetted leads and you will not run short. But the\nstructure is telling you something: the reps who do best here are the ones who\nalso build their own pipeline. Referrals, past customers, neighbors of jobs in\nprogress, contractors who like working with you.\n\n**Example from the comp plan:** a rep at $2.5M total volume, with $500,000 of\nthat self-sourced, earns roughly $230,000 including base.\n\n## What a discount actually costs you\n\nCommission is on sale price. Not gross profit, not margin. So a discount\nreduces your commission proportionally.\n\nOn a $30,000 sale at 8%, you earn $2,400. Discount it 10% to $27,000 and you\nearn $2,160. That discount cost you $240.\n\nIt cost the company about $3,000 in gross profit.\n\nSo you carry roughly 8% of every discount and the company carries the rest.\nThat is worth understanding honestly. It means discounting will always feel\ncheaper to you than it is, and it is why there is a hard wall at 20% that goes\nto Rose and Justin.\n\nThe discount stack is there to help you close a deal you would otherwise lose.\nIt is not a tool for handling an objection. See the pricing module.\n\n## What else you get\n\n**Medical and dental** for you and your family.\n\n**401(k)** with a company match.\n\n**Mileage** at the federal rate, $0.725 per mile for 2026, plus use of company\nvehicles when available. Classify your trips in MileIQ by the first of the\nfollowing month or that month does not pay.\n\n**An iPad** with everything on it.\n\n## When you get paid\n\n**Commission pays on the deposit.**\n\nThat is faster than most places in this trade, where reps wait until a job is\ninstalled and paid in full. Here, the 50% deposit gets collected at the\nMeasurement Confirmation appointment, and your commission follows from there.\n\nSo a deal you close in your first week can be earning that same week.\n\n**Financed jobs pay you the same way, and this one is worth understanding.**\n\nOn a financed job the customer puts down nothing, and Window Works receives\nnothing from Synchrony until the job is complete. Even so, you are paid as\nthough a 50% deposit came in at the same point you would be paid on a cash job.\n\nThe company carries that cash flow so you do not have to.\n\nTwo things follow. There is no reason to steer a customer toward cash to get\npaid faster, so sell them whichever way suits them. And do not take it for\ngranted. It costs the company real money to do it this way, and it is done\nbecause we would rather our people not be waiting on a lender to get paid for\nwork they already did.\n\n## The ramp\n\nTraining pay covers your first four weeks and ends when you go live. After that\nyou are on base plus commission.\n\nBecause commission follows the deposit rather than completion, the gap is\nshorter than you might expect. But it is not zero. There is still a stretch\nbetween your first appointment and your first check, and the reps who struggle\nare usually the ones who did not plan for it.",
+      "body_md": "Worth reading in week one rather than week six. It changes how you work.\n\n## The structure\n\n**Base salary: $20,000 per year.**\n\nThat is deliberately low, because this is a commission role. The base is a\nfloor, not a living. Your income comes from what you sell.\n\n**Your first four weeks are paid at the equivalent of $40,000 annually.**\nTraining pay, so you are not trying to learn the job and produce at the same\ntime. It ends when you go live in the field.\n\n## Commission\n\n| | Up to $2M | Over $2M |\n|---|---|---|\n| Company generated leads | 8% | 10% |\n| Rep generated leads | 10% | 13% |\n\n**That table is worth a second look.** A lead you source yourself pays two to three points\nmore than one we hand you. On a $30,000 job that is $600 more in your pocket\nfor the same appointment.\n\nOver the course of a year that difference is not small. A rep who does $500,000\nof self-sourced volume earns $10,000 more than a rep who does the same volume\noff company leads.\n\nWe generate a steady flow of vetted leads and you will not run short. But the\nstructure is telling you something: the reps who do best here are the ones who\nalso build their own pipeline. Referrals, past customers, neighbors of jobs in\nprogress, contractors who like working with you.\n\n**Example from the comp plan:** a rep at $2.5M total volume, with $500,000 of\nthat self-sourced, earns roughly $230,000 including base.\n\n## What a discount actually costs you\n\nCommission is on sale price. Not gross profit, not margin. So a discount\nreduces your commission proportionally.\n\nOn a $30,000 sale at 8%, you earn $2,400. Discount it 10% to $27,000 and you\nearn $2,160. That discount cost you $240.\n\nIt cost the company about $3,000 in gross profit.\n\nSo you carry roughly 8% of every discount and the company carries the rest.\nThat is worth understanding honestly. It means discounting will always feel\ncheaper to you than it is, and it is why there is a hard wall at 20% that goes\nto Rose and Justin.\n\nThe discount stack is there to help you close a deal you would otherwise lose.\nIt is not a tool for handling an objection. See the pricing module.\n\n## What else you get\n\n**Medical and dental** for you and your family.\n\n**401(k)** with a company match.\n\n**Mileage** at the federal standard rate, plus use of company vehicles when\navailable. Classify your trips in MileIQ by the first of the following month so\nthey are reimbursed.\n\n**An iPad** with everything on it.\n\n## When you get paid\n\n**Commission pays on the deposit.**\n\nThat is faster than most places in this trade, where reps wait until a job is\ninstalled and paid in full. Here, the 50% deposit gets collected at the\nMeasurement Confirmation appointment, and your commission follows from there.\n\nSo a deal you close in your first week can be earning that same week.\n\n**Financed jobs pay you the same way, and this one is worth understanding.**\n\nOn a financed job the customer puts down nothing, and Window Works receives\nnothing from Synchrony until the job is complete. Even so, you are paid as\nthough a 50% deposit came in at the same point you would be paid on a cash job.\n\nThe company carries that cash flow so you do not have to.\n\nTwo things follow. There is no reason to steer a customer toward cash to get\npaid faster, so sell them whichever way suits them. It costs the company real money to do it this way, and it is done\nbecause we would rather our people not be waiting on a lender to get paid for\nwork they already did.\n\n## The ramp\n\nTraining pay covers your first four weeks and ends when you go live. After that\nyou are on base plus commission.\n\nBecause commission follows the deposit rather than completion, the gap is\nshorter than you might expect. But it is not zero. There is still a stretch\nbetween your first appointment and your first check, so plan for it.",
       "author_note": "Needs Rose to confirm:\n\n- **Is the $2M threshold total annual volume, or per lead category?** The\n  worked example only reconciles to $230,000 if the tiers apply within each\n  category separately. On a total-volume reading the same rep earns closer to\n  $245,000. Reps will run this math in their first month and the difference is\n  real money. Worth stating plainly in the comp document.\n- Whether commission is calculated on the full sale price triggered by the\n  deposit, or on the deposit amount. Written here as the former.\n- Whether a lead counts as rep generated by a defined rule, or by judgment.\n  Worth pinning down before the first disagreement rather than after.",
       "has_quiz": true,
       "quiz": [
@@ -637,18 +516,6 @@
             "There is no base, it is commission only"
           ],
           "k": "DEsPRlVGW00FSUkZHAIIEg=="
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "What is the mileage rate for 2026 and what is the deadline?",
-          "options": [
-            "$0.655 per mile, classified weekly",
-            "$0.725 per mile, classified by the first of the following month",
-            "$0.725 per mile, classified within 90 days",
-            "Actual expenses with receipts"
-          ],
-          "k": "DEsPRlVGW00FSUkZHAIIEg=="
         }
       ]
     },
@@ -673,7 +540,7 @@
       "pass_points": 25,
       "review_needed": true,
       "path": "content/product/PK-AW-010-andersen-line-overview.md",
-      "body_md": "Andersen is our number one brand. This is the map of their lines and where each\none fits. Every other Andersen module assumes you know this.\n\n## The series\n\n**E-Series.** Architectural collection. Aluminum clad over a wood frame, so no\nrot on the exterior. The most versatile line they make.\n\n**A-Series.** Fiberglass clad, Fibrex framing, real fiberglass sashes. Built\nfor coastal and high wind load. Excellent, low volume in our market.\n\n**Big doors.** Moving glass wall systems: bifold, lift and slide, multi-glide.\nThey need serious wall engineering, minimum 2x6, and will not work on 2x4. That\nsuits new construction, not replacement. We have sold them to restaurants and\nhomeowners.\n\n**400 Series.** Vinyl clad except the Woodwright. Mid-price. The workhorse,\nproven over many years.\n\n**200 Series.** Also vinyl clad. Windows use nominal sizing that cannot be\ncustomized, so mostly new construction. But the 200 Series sliding glass door\nis a top seller and a great product.\n\n**100 Series.** Fibrex composite, no wood at all. Newer, evolving, and we sell\na lot of it. The new 100 Series double hung should become one of our top\nsellers over the next decade. Their gliding windows are already our go-to for\nscreened porch conversions.\n\n**Andersen Aluminum.** Exists. We do not sell it.\n\n**Renewal by Andersen.** All Fibrex, slightly upgraded profile over the 100\nSeries. One of our top competitors. We do not sell it, and you will be asked\nabout it.\n\n## Why we sell them\n\nOver 120 years old, still family and employee owned, not publicly traded. Great\ncustomer service. Parts available for windows that have not been made since the\n1960s.\n\nHans Andersen ran a family lumber company in Bayport, Minnesota, bought his\nbrothers out, and started making windows. Shipping assembled windows was hard,\nso he sold frames knocked down for assembly on site and boxed the sashes\nseparately, then shipped nationally by rail. He also built it as a mass\nproduction line. Henry Ford was the Andersen of windows.\n\nThey invented the vinyl window in the 1960s, decided it was not structurally\nsound, and abandoned it. Today they make no all-vinyl window.\n\nThe strongest thing you can say: we have them in our own homes.",
+      "body_md": "Andersen is our number one brand. This is the map of their lines and where each\none fits. Every other Andersen module assumes you know this.\n\n## The series\n\n**E-Series.** Architectural collection. Aluminum clad over a wood frame, so no\nrot on the exterior. The most versatile line they make.\n\n**A-Series.** Fiberglass clad, Fibrex framing, real fiberglass sashes. Built\nfor coastal and high wind load. Excellent, low volume in our market.\n\n**Big doors.** Moving glass wall systems: bifold, lift and slide, multi-glide.\nThey need serious wall engineering, minimum 2x6, and will not work on 2x4. That\nsuits new construction, not replacement. We have sold them to restaurants and\nhomeowners.\n\n**400 Series.** Vinyl clad except the Woodwright. Mid-price. The workhorse,\nproven over many years.\n\n**200 Series.** Also vinyl clad. Windows use nominal sizing that cannot be\ncustomized, so mostly new construction. But the 200 Series sliding glass door\nis a top seller and a great product.\n\n**100 Series.** Fibrex composite, no wood at all. Newer, evolving, and we sell\na lot of it. The new 100 Series double hung should become one of our top\nsellers over the next decade. Their gliding windows are already our go-to for\nscreened porch conversions.\n\n**Andersen Aluminum.** Exists. We do not sell it.\n\n**Renewal by Andersen.** All Fibrex, slightly upgraded profile over the 100\nSeries. One of our top competitors. We do not sell it, and you will be asked\nabout it.\n\n## Why we sell them\n\nFounded in 1903, still family and employee owned, not publicly traded. Great\ncustomer service. Parts available for windows that have not been made since the\n1960s.\n\nHans Andersen ran a family lumber company in Bayport, Minnesota, bought his\nbrothers out, and started making windows. Shipping assembled windows was hard,\nso he sold frames knocked down for assembly on site and boxed the sashes\nseparately, then shipped nationally by rail. He also built it as a mass\nproduction line. Henry Ford was the Andersen of windows.\n\nThey invented the vinyl window in the 1960s, decided it was not structurally\nsound, and abandoned it. Today they make no all-vinyl window.\n\nThe strongest thing you can say: we have them in our own homes.",
       "author_note": "Speaker misstates at 14:45, calling this an E-Series overview. It is the full\nline intro. Fibrex is promised here and never explained; see the Fibrex\nreference sheet. E-Series is being renamed to 500 Series, so this module needs\nreview when that lands.",
       "has_quiz": true,
       "quiz": [
@@ -724,12 +591,6 @@
             "Picture windows"
           ],
           "k": "DEsPRlVFW00FSUlVW15UTyQSHRsOAFceBwoLGAAcUh4AEkkACwIeGQ4eSwAeEwcKCFcWARZLEgUMTgkABAMDC0sdEh5OBwAZBBsAHhADAAEKQVcjBxdLABsACg0BEFcIHgoABEkKCwAFVwYBSxJXDQcCCRIFChwfUwQdARYWWSsBUBY="
-        },
-        {
-          "type": "short_answer",
-          "points": 5,
-          "review": "human",
-          "q": "A customer is worried about being able to get parts in twenty years. What can you tell them about Andersen?"
         }
       ]
     },
@@ -781,64 +642,8 @@
       "path": "content/process/PR-002-navigating-homeowner-pipeline.md",
       "body_md": "Most of your work as a B2C salesperson happens in the homeowner pipeline. We\nalso run pipelines for professional accounts, installation and services, and\nsoliciting reviews at the end.\n\nEach deal card is a customer. By default you see only the deals you own.\n\nPipedrive is built on the idea that sales success comes from managing stages\nand activities. Stages are the customer's journey: initial contact, measure\nscheduled, quote delivered, initial deposit, and on to final payment.\nActivities are the things you do to move them along: calls, emails, the visit.\n\n## Card shading\n\n**White** means open and actively being worked.\n\n**Red** means rotting. Each stage has a set amount of time we would expect\nbetween touches. Past that with no interaction, the card turns red and you are\nat risk of losing the deal.\n\n**Green** means won, and it also gets a green won sticker.\n\n## Activity icons\n\nThe small circle on the card, which is different from the card shading.\n\n**Red** is an overdue activity. Something you scheduled did not get marked\ndone.\n\n**Yellow** is no next activity scheduled. That is a problem, because we always\nwant to know what happens next.\n\n**Green** is something due today. Your to-do list.\n\n**Gray** is scheduled for a future date.\n\n**When it's all gray, you're done for the day.** Every deal you own should show\nonly gray icons when you finish work. Red means you missed something. Yellow\nmeans we do not know what happens next. Green means something today is not\ndone.\n\n## Won deals disappearing\n\nPipedrive is designed for one-and-done sales, so by default a won deal vanishes\nfrom view. That does not work for us. If your later stages look empty, or the\ninstallation pipeline looks empty, go to filters and turn on the all deals\nfilter. It is company-set and already available to you.",
       "author_note": "Quiz image needs exporting from the Google Form and\nrehosting.",
-      "has_quiz": true,
-      "quiz": [
-        {
-          "type": "image_question",
-          "points": 5,
-          "review": "human",
-          "image": "quiz-pipedrive-red-card.png",
-          "q": "What does the color of this deal card mean?",
-          "options": [
-            "The deal is rotting",
-            "The deal is lost",
-            "There is an overdue activity"
-          ],
-          "k": "DEsPRlVHW00FSUlVPQYBTxQWHRZLAB8ICg0BEFcOHA9TAwELRA4UAwYEAgcOSQcHABlXDgAOUwMeAUQLHhEJFxkWGR1OFwYQGQ4eGF1XOwsATwQfDhYCHRBJBxdPBRgbBgIdEEdOMAcSVxgTGR0eBwlEBhQYAVICAFcIThcKBxYdEx8WVwQLFxwWEApcNx1VFA=="
-        },
-        {
-          "type": "matching",
-          "points": 5,
-          "q": "Match the activity icon color to its meaning",
-          "rows": [
-            "No next activity scheduled",
-            "Activity scheduled in the future",
-            "Activity scheduled today",
-            "Activity overdue"
-          ],
-          "columns": [
-            "Red",
-            "Green",
-            "Yellow",
-            "Gray"
-          ],
-          "k": "DEsPRlUsRUNBR0JbWTNITQBVVRweHxsU"
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "What is the rhyme for your activity status?",
-          "options": [
-            "When it's all green, your schedule is clean",
-            "When it's all red, you can go to bed",
-            "When it's all gray, you're done for the day",
-            "When it's all yellow, you're a caught up fellow"
-          ],
-          "k": "DEsPRlVFW00FSUkZHAIIEg=="
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "Your later pipeline stages look empty even though you have closed deals. What is going on?",
-          "options": [
-            "The deals were reassigned",
-            "Pipedrive hides won deals by default. Turn on the all deals filter.",
-            "Won deals move to a separate pipeline you cannot see",
-            "Someone deleted them"
-          ],
-          "k": "DEsPRlVGW00FSUkZHAIIEg=="
-        }
-      ]
+      "has_quiz": false,
+      "quiz": null
     },
     {
       "id": "PR-003",
@@ -1107,12 +912,6 @@
           "k": "DEsPRlVGW00FSUlVIBpEGB4bA1IFHANJDxEbGBQAHxsfEh0LRA4ZE08bH1MAAAIITxkYG1IFHAMACB1PAx8KH0VRCg=="
         },
         {
-          "type": "short_answer",
-          "points": 5,
-          "review": "human",
-          "q": "If a customer's zip code is not visible, how can you see it?"
-        },
-        {
           "type": "multiple_choice",
           "points": 5,
           "q": "Ideally, when should you update activities, stages, and statuses in Pipedrive?\n",
@@ -1134,20 +933,6 @@
             "It can be reopened, but some customer information must be reentered"
           ],
           "k": "DEsPRlVHW00FSUkZHAIIEg=="
-        },
-        {
-          "type": "multi_select",
-          "points": 5,
-          "q": "What can you use as a Pipedrive profile picture?",
-          "options": [
-            "A photo of yourself",
-            "A cartoon or memoji of yourself",
-            "A picture of your pet",
-            "A picture of a pineapple",
-            "A graphic with your initials",
-            "Nothing, no profile picture is required"
-          ],
-          "k": "DEsPRlUsR0NDR0FbWkJQMltVGFBRHQIFAhk="
         },
         {
           "type": "multiple_choice",
@@ -1177,7 +962,7 @@
           "type": "file_upload",
           "points": 5,
           "review": "human",
-          "q": "Upload a screenshot of your Pipedrive dashboard showing that you have created at least two insight reports for yourself."
+          "q": "Upload a screenshot of your Pipedrive dashboard showing that you have created at least two insight reports for yourself.\n"
         }
       ]
     },
@@ -1379,18 +1164,6 @@
         {
           "type": "multiple_choice",
           "points": 5,
-          "q": "You are adding the Vinyl Design package adder in Vendo. Taxable service, on or off?\n",
-          "options": [
-            "On, windows are taxable",
-            "Off. Vinyl Design already includes the 7.25%.",
-            "On, then discount the tax back out",
-            "It does not affect the total"
-          ],
-          "k": "DEsPRlVGW00FSUkZHAIIEg=="
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
           "q": "Installation is finished but a screen arrived damaged and a replacement is on order. The customer wants to hold back payment. What is our position?\n",
           "options": [
             "Reasonable, hold the balance until the screen arrives",
@@ -1399,24 +1172,6 @@
             "Refer it to the office"
           ],
           "k": "DEsPRlVGW00FSUlVOgsQTwMfBgFLFg8ZCwcbFgMGHQVTExwcDQEQVxsaDlMWGR4LBhkDAhcFB1cbDxAHEgVPBgMSGUkPFggCHgEVSxIDSRoMClcSARZFLxlLEw=="
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "A customer says a competitor quoted $5,000 less. What do you do first?\n",
-          "options": [
-            "Apply the 10% authorized discount",
-            "Offer the three day deal",
-            "Ask what their quote says about the foam, the sealant, and whether they are capping",
-            "Explain that we cannot match it"
-          ],
-          "k": "DEsPRlVFW00FSUlVPQYBTwQDDhEAUxIRBxcbBFcbHUsbEgUeRBYYAk8RBxwEDEJEARgDTwYEUxYHHRMKBVcOHEscFQMLBxseGAFcSz8SCAoNARBXGBsfG1cZHA0MElcbFwoQHwwdRAwCBBsdBhYFGk4QAFcZChUEBx4IGgFBKxlNDw=="
-        },
-        {
-          "type": "short_answer",
-          "points": 5,
-          "review": "human",
-          "q": "A customer wants to think it over and get one more quote. Walk through what you would say, in order, before you offer any discount."
         }
       ]
     },
@@ -2222,24 +1977,6 @@
             "Tell them the guarantee rarely pays out"
           ],
           "k": "DEsPRlVFW00FSUkZHAIIEg=="
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "A customer genuinely wants the cheaper build the competitor described. What do you offer?\n",
-          "options": [
-            "Match the price",
-            "Let them go",
-            "Offer to re-spec our quote down to that scope so the choice is theirs and informed",
-            "Apply the maximum discount"
-          ],
-          "k": "DEsPRlVFW00FSUkZHAIIEg=="
-        },
-        {
-          "type": "short_answer",
-          "points": 5,
-          "review": "human",
-          "q": "A customer says a competitor is $6,000 cheaper for the same windows. Walk through what you say, in order, before you consider any discount."
         }
       ]
     },
@@ -2779,18 +2516,6 @@
         {
           "type": "multiple_choice",
           "points": 5,
-          "q": "A customer wants hand lifts on their new windows. Which is true?\n",
-          "options": [
-            "Fine on both Tilt Wash and Woodwright",
-            "Never sell them on either",
-            "Never on Tilt Wash. Fine on Woodwright.",
-            "Never on Woodwright. Fine on Tilt Wash."
-          ],
-          "k": "DEsPRlVFW00FSUlVKAAACgUEChxLHhgfCwBPEQUOHwIdEEkbFE8YGU8GAxZXPQcIG1cgDgEDUxEGHEQKGRIdFRJTBwwcAgAFGg4cCBZXCAAATwMfClIHGhEdTgwOBRMYExkWVwcBRAMYGQgXGVMbAAABHFcCH1xLJx8MF0QcAx4DHksAEgUCRAYDWU8lDlMTBk4KAANZMxxJDg=="
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
           "q": "You are doing a full frame tear-out on a house of old wood double hungs. The customer wants 400 Series casements instead. What changes?\n",
           "options": [
             "Nothing, casements come in the same sizes",
@@ -2835,42 +2560,6 @@
             "Three size ranges"
           ],
           "k": "DEsPRlVFW00FSUlVJA8QDB9XGxoOUwcADRAaBRJPBQIdEwYZRBsYVxsaDlMbAAABTwMfClIIBgQdAQkKBVcMGgQAEkkBFk8DHwpSDh8SHw8QBhgZTx4EHBwaThMdGBkIXEs6A0kBCgMOVxwaBAQESRsUTx4ZTwYDFlcYGwsbHhkIUhgcER0ZBR0SW08cBAdXHQYBTwASDQECBxJHMgpNCg=="
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "You are replacing a standard 6'8\" exterior door with an Andersen patio door. Which height do you select?\n",
-          "options": [
-            "6'8\", it matches",
-            "6'11\", 82-3/8\". Andersen undersizes and their 6'8\" is 79.5\".",
-            "Custom, always",
-            "8'0\""
-          ],
-          "k": "DEsPRlVGW00FSUkZHAIIEg=="
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "How do we order 400 Series gliding patio doors?",
-          "options": [
-            "Assembled, so the crew does not have to build them",
-            "Knockdown, always",
-            "Whichever the customer prefers",
-            "Assembled for homeowners, knockdown for contractors"
-          ],
-          "k": "DEsPRlVGW00FSUlVOg8CCgVXGx1LGxYHCggKW1cDFxgAVw0PCQ4QEk8bBVMDGw8KHB4DQ1IEHRJJHgEdBBgBUggSGUkKAQMeAQoASxoDRU4XAhYbA1IbAR4KC0QNBRIOGUVTOBwcRAwFEhgBSxIEGgsJDRsSTxsFU0ZcThAAV0VfUgYaGRwaARxZVzgXSxcYSQALG1cYCRQOAVcIHRcKGhUDFw9dKwdMGQ=="
-        },
-        {
-          "type": "multi_select",
-          "points": 5,
-          "q": "Which of these do we include without asking the customer? Check all that apply.\n",
-          "options": [
-            "The auxiliary foot lock on gliding doors",
-            "The sill cover for shipping protection",
-            "Estate locking keeper hardware",
-            "Andersen exterior trim"
-          ],
-          "k": "DEsPRlUsR0NDNl9VHkxeTTEYAAZLHxgKBUQGBFcOEAQGA0lKV19XAwBST0BCSQ8KC1ceHFIKUwUMDwhPExIOFgkcGx1ARDweGwNSCBwBDBxEBgRXDlIIHAIZAgFPGBFPFgQfGwgcF08WGQtSGwEYHQsHGwRXGxoOUwQAAghPHhlPBhkSGRoHEEFXMhwGCgcSSQYFHRMADgAOUx4aTgVPFAIcBgQeEhtOBwcYHgwXRVMgDE4RHBJXPyQoUwMbBwlDVxkABksyGQ0LFhwSGUgBRVEK"
         }
       ]
     },
@@ -3309,18 +2998,6 @@
         {
           "type": "multiple_choice",
           "points": 5,
-          "q": "You are replacing a standard 6'8\" front door with an Andersen patio door. Which height do you select?\n",
-          "options": [
-            "6'8\"",
-            "6'11\", which is 82-3/8",
-            "8'0\"",
-            "Custom"
-          ],
-          "k": "DEsPRlVGW00FSUlVKAAACgUEChxMAFcaGgUbEhNPGg4aEAEaRAYZFAMHDxYESRoMClcRHRMGFltJHQtPAx8KGxlTQU5WOE1XHhxSXEpZXE4NARQfCgFFUyMBC0RZUEZeLklTFAYcFgoEBwAcDwBXHQFEDlcEGxMFFxYbCkRZUE8zUEscBwwADQEQWTMcSQ4="
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
           "q": "A Vinyl Design insert is going into a 28 by 54 wood opening. What do you enter?\n",
           "options": [
             "28 by 54",
@@ -3351,18 +3028,6 @@
             "Tilt Wash and Woodwright",
             "Casements and awnings",
             "Only the 100 Series"
-          ],
-          "k": "DEsPRlVGW00FSUkZHAIIEg=="
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "A customer wants a small 100 Series picture window, about 14 by 14, in a closet. What do you tell them?\n",
-          "options": [
-            "Good choice, it goes down to 1x1",
-            "The frame is 3-1/4 per side, so most of it will be frame. Look at a specialty window.",
-            "It needs to be at least 24 inches",
-            "Quote it and flag it for the installer"
           ],
           "k": "DEsPRlVGW00FSUkZHAIIEg=="
         }
@@ -3427,18 +3092,6 @@
           "k": "DEsPRlVFW00FSUlVJwFEHRYATwUEHBNJAQpPAx8KUgQGAxoHAApZVykACh4SST0FGRIFTx0ZUyc/LUhPFhkLUjslNEkZDAoZVxsaDlMTBgEWTx4ETxwEB1cZHAFCER4BGxgbEg1AOAFVCg=="
         },
         {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "A competitor quoted triple pane and the customer is asking about it. What is our position?\n",
-          "options": [
-            "Match it, we can get it",
-            "Very expensive for minimal energy gain in this market. Quote it if they insist, but try to talk them out of it.",
-            "Refuse to quote it",
-            "It is not available through any of our brands"
-          ],
-          "k": "DEsPRlVGW00FSUkZHAIIEg=="
-        },
-        {
           "type": "multi_select",
           "points": 5,
           "q": "Which of these do we include automatically without presenting as an option? Check all that apply.\n",
@@ -3450,18 +3103,6 @@
             "Estate locking keeper hardware"
           ],
           "k": "DEsPRlUsR0NDR0EqRUwTTU0ZGh4HDg=="
-        },
-        {
-          "type": "multiple_choice",
-          "points": 5,
-          "q": "How do we order Andersen gliding patio doors?\n",
-          "options": [
-            "Knockdown on the 400 Series. The 100 Series cannot be ordered knockdown.",
-            "Knockdown, all series",
-            "Assembled, all series",
-            "Whichever the customer prefers"
-          ],
-          "k": "DEsPRlVHW00FSUlVPQYBT0ZHX1I4FgUACxdPEQUOHw5THhpODQEDEggACh8bEE4GGh4bG1IKHRNJCgsKBFcBHR9TFAYDAU8WBw4AH11XJh4UAAQeGxdLHBFJGgwKV0NfQksgEhsHARxXBRoeDl1VFA=="
         }
       ]
     },

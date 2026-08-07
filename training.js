@@ -255,8 +255,18 @@
     });
   }
 
+  /* A question can be scoped to a role, so a shared module can carry something
+     only admin needs without the sales path being graded on it. */
+  function visibleQuiz(m) {
+    return (m.quiz || []).filter(function (q) {
+      return !q.roles || q.roles.indexOf(S.role) >= 0;
+    });
+  }
+
+  function hasQuiz(m) { return visibleQuiz(m).length > 0; }
+
   function quizTotal(m) {
-    return (m.quiz || []).reduce(function (a, q) { return a + (Number(q.points) || 0); }, 0);
+    return visibleQuiz(m).reduce(function (a, q) { return a + (Number(q.points) || 0); }, 0);
   }
 
   async function loadModules() {
@@ -341,7 +351,7 @@
       '<div class="tr-card-top"><span class="tr-chip">' + esc(m.track || '') + '</span>' + statusMark(m) + '</div>' +
       '<div class="tr-card-title">' + esc(m.title) + '</div>' +
       '<div class="tr-card-meta">' + (Number(m.duration_min) || 0) + ' min' +
-      (m.has_quiz ? ' &middot; quiz' : '') +
+      (hasQuiz(m) ? ' &middot; quiz' : '') +
       (d && d.max ? ' &middot; ' + d.score + '/' + d.max : '') +
       '</div></div>';
   }
@@ -391,6 +401,13 @@
       var dn = list.filter(function (m) { return S.done[m.id]; }).length;
       var wpct = Math.round(dn / list.length * 100);
       var range = isX ? null : weekRange(S.hire, n);
+      /* If a week's own sessions start later than its Monday, say so. A week
+         opening on a holiday should not advertise the holiday. */
+      if (range) {
+        var ds = list.map(function (m) { return parseDate(m.session_date); })
+          .filter(Boolean).sort(function (a, b) { return a - b; });
+        if (ds.length && ds[0] > range.start && ds[0] <= range.end) range.start = ds[0];
+      }
       var mins = list.reduce(function (a, m) { return a + (Number(m.duration_min) || 0); }, 0);
       var hrs = mins >= 90 ? (Math.round(mins / 6) / 10) + ' hrs' : mins + ' min';
 
@@ -480,7 +497,7 @@
     var live = isLive(m);
     var when = parseDate(m.session_date);
 
-    var html = '<div class="tr-back"><a class="back-link" href="#" onclick="trBack();return false;">Back to your path</a></div>' +
+    var html = '<div class="tr-back"><a class="tr-backlink" href="#" onclick="trBack();return false;"><span class="tr-backlink-a">&#8592;</span> Back to your path</a></div>' +
       '<div class="tr-mod-head' + (live ? ' tr-mod-live' : '') + '">' +
       (live ? '<div class="tr-mod-eyebrow">Live session' +
         (when ? ' &middot; ' + esc(MON[when.getMonth()] + ' ' + when.getDate()) : '') +
@@ -510,10 +527,10 @@
       html += '<div class="alert alert-info" style="font-size:13px">' +
         (m.owner ? esc(m.owner) : 'Rose or Justin') +
         ' marks this complete after the session. Nothing to submit here.</div>';
-    } else if (m.has_quiz && (m.quiz || []).length) {
+    } else if (hasQuiz(m)) {
       html += '<div class="tr-start"><div class="tr-start-l">' +
         '<div class="tr-start-t">Ready for the quiz?</div>' +
-        '<div class="tr-start-s">' + m.quiz.length + ' questions, ' + quizTotal(m) +
+        '<div class="tr-start-s">' + visibleQuiz(m).length + ' questions, ' + quizTotal(m) +
         ' points. The module closes while you take it, so read it through first.</div></div>' +
         '<button class="submit-btn" onclick="trStartQuiz()">' + (d ? 'Retake Quiz' : 'Start Quiz') + '</button></div>';
     } else {
@@ -521,6 +538,8 @@
         '<button class="submit-btn" id="tr-submit" onclick="trSubmit()">' +
         (d ? 'Mark Complete Again' : 'Mark Complete') + '</button>';
     }
+
+    html += askBlock(m);
 
     el('tr-root').innerHTML = html;
     window.scrollTo(0, 0);
@@ -534,9 +553,9 @@
       '<div class="tr-quizhead-l"><div class="tr-quizhead-eyebrow">Quiz</div>' +
       '<div class="tr-quizhead-t">' + esc(m.title) + '</div></div>' +
       '<a class="tr-leave" href="#" onclick="trLeaveQuiz();return false;">Leave without submitting</a></div>' +
-      '<div class="tr-quiz"><div class="tr-quiz-sub">' + m.quiz.length + ' questions, ' + quizTotal(m) +
+      '<div class="tr-quiz"><div class="tr-quiz-sub">' + visibleQuiz(m).length + ' questions, ' + quizTotal(m) +
       ' points. Written answers and screenshots are reviewed by Rose and Justin.</div>';
-    m.quiz.forEach(function (q, qi) { html += questionHtml(q, qi); });
+    visibleQuiz(m).forEach(function (q, qi) { html += questionHtml(q, qi); });
     html += '<div id="tr-quiz-alert"></div>' +
       '<button class="submit-btn" id="tr-submit" onclick="trSubmit()">Submit Quiz</button></div>';
     el('tr-root').innerHTML = html;
@@ -601,7 +620,7 @@
     if (S.busy) return;
     var alertEl = el('tr-quiz-alert');
     var btn = el('tr-submit');
-    var qs = m.quiz || [];
+    var qs = visibleQuiz(m);
 
     var results = [], unanswered = [];
     qs.forEach(function (q, qi) {
@@ -734,6 +753,39 @@
     } catch (e) { console.error('review email failed', e); }
   }
 
+  function askBlock(m) {
+    return '<div class="tr-ask" id="tr-ask">' +
+      '<div class="tr-ask-t">Something here not landing?</div>' +
+      '<div class="tr-ask-s">Ask about this module and someone will get back to you. ' +
+      'Asking is the fast version, not the lazy one.</div>' +
+      '<textarea class="form-textarea" id="tr-ask-text" rows="2" placeholder="What is not clear?"></textarea>' +
+      '<button class="tr-ask-btn" onclick="trAsk()">Send question</button>' +
+      '<div id="tr-ask-msg"></div></div>';
+  }
+
+  window.trAsk = async function () {
+    var box = el('tr-ask-text'), msg = el('tr-ask-msg');
+    if (!box || !msg) return;
+    var q = (box.value || '').trim();
+    if (!q) { msg.innerHTML = '<div class="alert alert-error">Type your question first.</div>'; return; }
+    var m = S.modules.filter(function (x) { return x.id === S.current; })[0];
+    msg.innerHTML = '<div class="loading">Sending...</div>';
+    try {
+      await api({
+        action: 'send_email',
+        to_key: 'training',
+        subject: 'Training question: ' + S.employee + ' - ' + (m ? m.title : S.current),
+        body: '<p>' + esc(S.employee) + ' asked about <strong>' + esc(m ? m.title : '') +
+              '</strong> (' + esc(S.current) + '):</p><p>' + esc(q) + '</p>'
+      });
+      msg.innerHTML = '<div class="alert alert-success">Sent. You will hear back.</div>';
+      box.value = '';
+    } catch (e) {
+      console.error(e);
+      msg.innerHTML = '<div class="alert alert-error">Could not send. Try again, or just ask in person.</div>';
+    }
+  };
+
   /* ---------- window hooks ---------- */
 
   window.trOpen = function (id) {
@@ -755,7 +807,7 @@
 
   window.trStartQuiz = function () {
     var m = S.modules.filter(function (x) { return x.id === S.current; })[0];
-    if (m && m.has_quiz && (m.quiz || []).length) renderQuiz(m);
+    if (m && hasQuiz(m)) renderQuiz(m);
   };
 
   window.trLeaveQuiz = function () { renderList(); };
@@ -821,7 +873,7 @@
       '.tr-card-title{font-size:14px;font-weight:600;color:#1a1a1a;line-height:1.35}',
       '.tr-card-meta{font-size:11px;color:#aaa;margin-top:auto}',
       /* module detail */
-      '.tr-back{margin-bottom:12px}',
+      '.tr-back{margin-bottom:14px}','.tr-backlink{display:inline-flex;align-items:center;gap:7px;font-family:"Barlow Condensed",Arial,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.11em;text-transform:uppercase;color:#c4581f;text-decoration:none;border:1px solid #e4dbd0;background:#fff;border-radius:99px;padding:7px 15px}','.tr-backlink:hover{border-color:#c4581f;background:#faf6f0}','.tr-backlink-a{font-size:14px;line-height:1}',
       '.tr-mod-head{margin-bottom:16px}',
       '.tr-mod-live{border-left:4px solid #c4581f;padding-left:14px}',
       '.tr-mod-eyebrow{font-family:"Barlow Condensed",Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#c4581f;margin-bottom:3px}',
@@ -832,20 +884,20 @@
       '.tr-ext-arrow{font-size:15px}',
       '.tr-video{position:relative;padding-bottom:56.25%;height:0;margin-bottom:18px;border-radius:8px;overflow:hidden;background:#1a1a1a}',
       '.tr-video iframe{position:absolute;top:0;left:0;width:100%;height:100%}',
-      '.tr-body{background:#fff;border:1px solid #e4dbd0;border-radius:8px;padding:26px 30px;margin-bottom:16px}',
+      '.tr-body{background:#fff;border:1px solid #e4dbd0;border-radius:8px;padding:26px 32px;margin-bottom:16px;max-width:760px}',
       /* heading levels have to look different, not just smaller */
       '.tr-body .tr-h{font-family:"Barlow Condensed",Arial,sans-serif;letter-spacing:0.07em;text-transform:uppercase;color:#1a1a1a}',
       '.tr-body h2.tr-h{font-size:21px;margin:34px 0 14px;padding-bottom:7px;border-bottom:2px solid #1a1a1a}',
       '.tr-body h3.tr-h{font-size:15px;color:#c4581f;margin:26px 0 9px;letter-spacing:0.13em}',
       '.tr-body h4.tr-h{font-size:13px;color:#9a9086;margin:20px 0 7px;letter-spacing:0.15em}',
       '.tr-body .tr-h:first-child{margin-top:0}',
-      '.tr-p{font-size:15px;line-height:1.7;color:#2e2e2e;margin:0 0 14px;max-width:70ch}',
-      '.tr-ul,.tr-ol{font-size:15px;line-height:1.7;color:#2e2e2e;margin:0 0 14px;padding-left:22px;max-width:70ch}',
+      '.tr-p{font-size:15px;line-height:1.58;color:#2e2e2e;margin:0 0 12px}',
+      '.tr-ul,.tr-ol{font-size:15px;line-height:1.58;color:#2e2e2e;margin:0 0 12px;padding-left:22px}',
       '.tr-ul li,.tr-ol li{margin-bottom:6px}',
-      '.tr-bq{border-left:3px solid #c4581f;background:#faf6f0;margin:0 0 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;color:#4a4a4a;max-width:70ch}',
+      '.tr-bq{border-left:3px solid #c4581f;background:#faf6f0;margin:0 0 14px;padding:13px 16px;font-size:14.5px;line-height:1.55;color:#4a4a4a}',
       /* term and explanation, the shape most of the reference content is in */
-      '.tr-defs{margin:0 0 16px;max-width:74ch;border-top:1px solid #eee7dd}',
-      '.tr-def{padding:11px 0 11px 13px;border-bottom:1px solid #eee7dd;border-left:3px solid #f0ece6;font-size:15px;line-height:1.65}',
+      '.tr-defs{margin:0 0 16px;border-top:1px solid #eee7dd}',
+      '.tr-def{padding:10px 0 10px 13px;border-bottom:1px solid #eee7dd;border-left:3px solid #f0ece6;font-size:15px;line-height:1.55}',
       '.tr-def-t{font-weight:700;color:#1a1a1a}',
       '.tr-def-d{color:#4f4f4f}',
       '.tr-code{background:#f0ece6;padding:1px 5px;border-radius:3px;font-size:13px}',
@@ -874,15 +926,15 @@
       '.tr-opts{display:flex;flex-direction:column;gap:4px}',
       '.tr-opt{display:flex;align-items:flex-start;gap:9px;font-size:14px;color:#333;cursor:pointer;padding:8px 10px;border-radius:6px;border:1px solid transparent}',
       '.tr-opt:hover{background:#faf6f0;border-color:#e4dbd0}',
-      '.tr-opts-img{flex-direction:row;flex-wrap:wrap;gap:10px}',
-      '.tr-opt-img{display:block;border:2px solid #e4dbd0;border-radius:6px;padding:7px;cursor:pointer;max-width:330px}',
+      '.tr-opts-img{flex-direction:column;flex-wrap:nowrap;gap:10px}',
+      '.tr-opt-img{display:block;border:2px solid #e4dbd0;border-radius:6px;padding:9px;cursor:pointer;width:100%}',
       '.tr-opt-img:hover{border-color:#c4581f}',
-      '.tr-opt-img img{max-width:100%;display:block;margin-top:6px}',
+      '.tr-opt-img img{width:100%;height:auto;display:block;margin-top:7px}',
       '.tr-match-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}',
       '.tr-match-lbl{flex:1;min-width:180px;font-size:14px;color:#333}',
       '.tr-match-sel{width:190px}',
       '.tr-q-fb{margin-top:11px}',
-      '.tr-why{font-size:13px;color:#666;line-height:1.55;margin-top:7px}',
+      '.tr-why{font-size:13px;color:#666;line-height:1.55;margin-top:7px}','.tr-ask{margin-top:18px;max-width:760px;background:#f5ede0;border-radius:8px;padding:18px 20px}','.tr-ask-t{font-family:"Barlow Condensed",Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#1a1a1a}','.tr-ask-s{font-size:13px;color:#7a7266;margin:3px 0 10px;line-height:1.5}','.tr-ask .form-textarea{background:#fff}','.tr-ask-btn{margin-top:9px;background:#1a1a1a;color:#fff;border:0;border-radius:6px;padding:9px 18px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}','.tr-ask-btn:hover{background:#000}',
       /* small screens */
       '@media(max-width:640px){',
       '.tr-wk-head{grid-template-columns:auto 1fr auto;row-gap:6px}',
