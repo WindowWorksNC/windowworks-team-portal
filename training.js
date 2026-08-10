@@ -150,7 +150,7 @@
   /* Reference content is written as "**Term.** explanation" over and over.
      Rendered as plain paragraphs that is an unreadable gray wall, so runs of
      them become a divided list with the term picked out. */
-  var DEF_RE = /^\*\*(.{2,70}?)\*\*\s+(\S[\s\S]*)$/;
+  var DEF_RE = /^\*\*([^:*]{2,60}?\.)\*\*\s+(\S[\s\S]*)$/;
 
   function md(src) {
     var lines = String(src || '').replace(/\r/g, '').split('\n');
@@ -1091,9 +1091,9 @@
       '.tr-bq{border-left:3px solid #c4581f;background:#faf6f0;margin:0 0 16px;padding:15px 18px;font-size:16.5px;line-height:1.62;color:#3a3a3a;max-width:72ch}',
       /* term and explanation, the shape most of the reference content is in */
       '.tr-defs{margin:0 0 16px;border-top:1px solid #eee7dd}',
-      '.tr-def{padding:10px 0 10px 13px;border-bottom:1px solid #eee7dd;border-left:3px solid #f0ece6;font-size:15px;line-height:1.55}',
+      '.tr-def{padding:11px 0 11px 14px;border-bottom:1px solid #eee7dd;border-left:3px solid #f0ece6;font-size:16.5px;line-height:1.62;max-width:72ch}',
       '.tr-def-t{font-weight:700;color:#1a1a1a}',
-      '.tr-def-d{color:#4f4f4f}',
+      '.tr-def-d{color:#242424}',
       '.tr-code{background:#f0ece6;padding:1px 5px;border-radius:3px;font-size:13px}',
       '.tr-link{color:#c4581f;font-weight:600}',
       /* start quiz */
@@ -1118,7 +1118,7 @@
       '.tr-q-img{margin:0 0 12px}',
       '.tr-q-img img{max-width:100%;border:1px solid #e4dbd0;border-radius:6px}',
       '.tr-opts{display:flex;flex-direction:column;gap:5px;max-width:620px}',
-      '.tr-opt{display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.45;color:#2e2e2e;cursor:pointer;padding:9px 12px;border-radius:6px;border:1px solid #f0ece6}',
+      '.tr-opt{display:flex;align-items:flex-start;gap:10px;font-size:16px;line-height:1.5;color:#242424;cursor:pointer;padding:9px 12px;border-radius:6px;border:1px solid #f0ece6}',
       '.tr-opt:hover{background:#faf6f0;border-color:#c4581f}',
       '.tr-opts-img{flex-direction:column;flex-wrap:nowrap;gap:10px}',
       '.tr-opt-img{display:block;border:2px solid #e4dbd0;border-radius:6px;padding:9px;cursor:pointer;width:100%}',
