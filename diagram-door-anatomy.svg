@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 476" width="780" height="476" role="img" aria-label="An entry door with sidelites, parts labeled">
+  <title>Entry door with sidelites, parts labeled</title>
+  <style>
+    .lbl{font-family:Barlow,"Helvetica Neue",Arial,sans-serif;font-size:15px;fill:#1a1a1a}
+    .sub{font-family:Barlow,"Helvetica Neue",Arial,sans-serif;font-size:12.5px;fill:#7d7468}
+    .lead{stroke:#c4581f;stroke-width:1.3;fill:none}
+    .dot{fill:#c4581f}
+    .wood{fill:#f5ede0;stroke:#1a1a1a;stroke-width:1.4}
+    .wood2{fill:#edeae4;stroke:#1a1a1a;stroke-width:1.4}
+    .slab{fill:#e6ded1;stroke:#1a1a1a;stroke-width:1.4}
+    .glass{fill:#dfe8ec;stroke:#1a1a1a;stroke-width:1.1}
+  </style>
+
+  <!-- exterior trim -->
+  <rect class="wood" x="260" y="60" width="260" height="392" rx="2"/>
+  <!-- frame -->
+  <rect class="wood2" x="274" y="74" width="232" height="362"/>
+  <!-- sidelites -->
+  <rect class="wood" x="288" y="88" width="34" height="334"/>
+  <rect class="glass" x="296" y="96" width="18" height="318"/>
+  <rect class="wood" x="458" y="88" width="34" height="334"/>
+  <rect class="glass" x="466" y="96" width="18" height="318"/>
+  <!-- slab -->
+  <rect class="slab" x="330" y="88" width="120" height="334"/>
+  <!-- top rail -->
+  <rect class="wood" x="330" y="88" width="120" height="16"/>
+  <!-- glazing, a quarter lite -->
+  <rect class="glass" x="344" y="104" width="92" height="64"/>
+  <!-- cross rail below the glass -->
+  <rect class="wood" x="330" y="168" width="120" height="16"/>
+  <!-- panels, split by a center stile -->
+  <rect class="wood2" x="344" y="192" width="38" height="186"/>
+  <rect class="wood2" x="398" y="192" width="38" height="186"/>
+  <!-- bottom rail -->
+  <rect class="wood" x="330" y="386" width="120" height="36"/>
+  <!-- handle set on the lock stile -->
+  <circle cx="337" cy="246" r="3.4" fill="#1a1a1a"/>
+  <rect x="334.4" y="256" width="5.2" height="26" rx="2.6" fill="#1a1a1a"/>
+  <!-- sill, sloped to the outside -->
+  <polygon class="wood" points="274,436 506,436 514,452 266,452"/>
+
+  <!-- left labels -->
+  <g class="lead">
+    <path d="M254 82 H300"/>
+    <path d="M254 136 H368"/>
+    <path d="M254 250 H328"/>
+    <path d="M254 330 H360"/>
+    <path d="M254 370 H386"/>
+    <path d="M254 444 H300"/>
+  </g>
+  <g class="dot">
+    <circle cx="300" cy="82" r="2.6"/>
+    <circle cx="368" cy="136" r="2.6"/>
+    <circle cx="328" cy="250" r="2.6"/>
+    <circle cx="360" cy="330" r="2.6"/>
+    <circle cx="386" cy="370" r="2.6"/>
+    <circle cx="300" cy="444" r="2.6"/>
+  </g>
+  <g class="lbl" text-anchor="end">
+    <text x="246" y="86">Frame</text>
+    <text x="246" y="133">Glazing</text>
+    <text x="246" y="247">Lock stile</text>
+    <text x="246" y="334">Panel</text>
+    <text x="246" y="374">Center stile</text>
+    <text x="246" y="441">Sill</text>
+  </g>
+  <g class="sub" text-anchor="end">
+    <text x="246" y="149">a 1/4 lite in this case</text>
+    <text x="246" y="263">the lock is in this one</text>
+    <text x="246" y="457">also called the threshold</text>
+  </g>
+
+  <!-- right labels -->
+  <g class="lead">
+    <path d="M526 96 H424"/>
+    <path d="M526 150 H502"/>
+    <path d="M526 250 H452"/>
+    <path d="M526 330 H478"/>
+    <path d="M526 404 H424"/>
+  </g>
+  <g class="dot">
+    <circle cx="424" cy="96" r="2.6"/>
+    <circle cx="502" cy="150" r="2.6"/>
+    <circle cx="452" cy="250" r="2.6"/>
+    <circle cx="478" cy="330" r="2.6"/>
+    <circle cx="424" cy="404" r="2.6"/>
+  </g>
+  <g class="lbl">
+    <text x="534" y="100">Top rail</text>
+    <text x="534" y="154">Jamb</text>
+    <text x="534" y="247">Hinge stile</text>
+    <text x="534" y="334">Sidelite</text>
+    <text x="534" y="408">Bottom rail</text>
+  </g>
+  <g class="sub">
+    <text x="534" y="263">the hinges are on this one</text>
+    <text x="534" y="424">this one sweeps the sill</text>
+  </g>
+
+
+</svg>

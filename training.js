@@ -27,6 +27,7 @@
     current: null,
     hire: null,
     openWeeks: {},
+    openPhases: {},
     busy: false
   };
 
@@ -90,7 +91,9 @@
     /* Images before links, since the syntax is a link with a bang in front. */
     t = t.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, function (m, alt, url) {
       var u = safeUrl(url);
-      return u ? '<img class="tr-img" src="' + u + '" alt="' + alt + '">' : alt;
+      /* a labeled diagram is unreadable at thumbnail width */
+      var cls = /(^|\/)diagram-/.test(url) ? 'tr-img tr-img-wide' : 'tr-img';
+      return u ? '<img class="' + cls + '" src="' + u + '" alt="' + alt + '">' : alt;
     });
     /* module to module: [Tempered glass and code](module:REF-050) */
     t = t.replace(/\[([^\]]+)\]\(module:([A-Za-z0-9\-]+)\)/g, function (m, label, id) {
@@ -237,6 +240,7 @@
      calendar, so this works for the next cohort without a code change.
      Week 1 is the Mon to Fri of the hire week. */
   var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   function parseDate(v) {
     if (!v) return null;
@@ -277,6 +281,40 @@
   }
 
   function isLive(m) { return (m.format || '') === 'live'; }
+
+  function firstName(n) { return String(n || '').trim().split(/\s+/)[0]; }
+
+  /* Times are stored as 24 hour strings because that sorts. Nobody reads them
+     that way, so nothing reaches the screen without going through here. */
+  function time12(t) {
+    var m = /^(\d{1,2}):(\d{2})$/.exec(String(t || '').trim());
+    if (!m) return '';
+    var h = Number(m[1]), ap = h < 12 ? 'AM' : 'PM';
+    var hh = h % 12; if (hh === 0) hh = 12;
+    return hh + ':' + m[2] + ' ' + ap;
+  }
+
+  /* One session, two arrival times: the mock and the Ingage test out are run
+     per person. A plain string means both hires share the slot. */
+  function sessionTime(m) {
+    var t = m.session_time;
+    if (!t) return '';
+    if (typeof t === 'string') return t;
+    return t[firstName(S.hire)] || '';
+  }
+
+  /* Nothing is hidden. Something is locked only when it has a prerequisite that
+     is genuinely outstanding, and then the row says which one. */
+  function lockState(m) {
+    var unmet = (m.prereq || []).filter(function (id) { return !S.done[id]; });
+    return { open: !unmet.length, unmet: unmet };
+  }
+
+  function titleOf(id) {
+    var m = S.modules.filter(function (x) { return x.id === id; })[0];
+    return m ? m.title : id;
+  }
+
 
   /* A chain is a run of modules that build toward one assessment, for example
      the eight Pipedrive modules feeding the Pipedrive exit quiz. The data
@@ -469,6 +507,103 @@
       (d ? ' &middot; done' : '') + '</div></div>';
   }
 
+  /* ---------- the week strip ---------- */
+
+  function mondayOf(d) {
+    var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var dow = x.getDay();
+    x.setDate(x.getDate() - ((dow + 6) % 7));
+    return x;
+  }
+
+  function sameDay(a, b) {
+    return a && b && a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  }
+
+  /* The strip answers one question: where do I have to be, and when. Only the
+     items that carry a time appear in it. */
+  function weekStrip(mods) {
+    var timed = mods.filter(function (m) { return m.session_date && sessionTime(m); });
+    if (!timed.length) return '';
+    var dates = timed.map(function (m) { return parseDate(m.session_date); })
+      .filter(Boolean).sort(function (a, b) { return a - b; });
+    var first = dates[0], last = dates[dates.length - 1];
+    var mon = mondayOf(new Date());
+    if (mon < mondayOf(first)) mon = mondayOf(first);
+    if (mon > mondayOf(last)) mon = mondayOf(last);
+
+    var cells = '', booked = 0;
+    for (var i = 0; i < 5; i++) {
+      var day = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + i);
+      var onDay = timed.filter(function (m) { return sameDay(parseDate(m.session_date), day); })
+        .sort(function (a, b) { return sessionTime(a) < sessionTime(b) ? -1 : 1; });
+      var blocks = onDay.map(function (m) {
+        booked += Number(m.duration_min) || 0;
+        return '<div class="tr-slot' + (m.assessment ? ' tr-slot-assess' : '') +
+          '" onclick="trOpen(\'' + esc(m.id) + '\')">' +
+          '<div class="tr-slot-when">' + esc(time12(sessionTime(m))) +
+          (m.owner ? ' &middot; ' + esc(m.owner) : '') + '</div>' +
+          '<div class="tr-slot-title">' + esc(m.title) + '</div>' +
+          (m.assessment ? '<div class="tr-slot-tag">Assessment</div>' : '') +
+          '</div>';
+      }).join('');
+      cells += '<div class="tr-day"><div class="tr-day-name">' + DOW[i] + ' ' +
+        day.getDate() + '</div>' + (blocks || '<div class="tr-day-free">Your own time</div>') +
+        '</div>';
+    }
+    var hrs = Math.round(booked / 6) / 10;
+    return '<section class="tr-strip"><div class="tr-strip-head">' +
+      '<span class="tr-strip-when">' + MON[mon.getMonth()] + ' ' + mon.getDate() + '</span>' +
+      '<span class="tr-strip-sub">' + hrs + ' hrs booked this week</span></div>' +
+      '<div class="tr-days">' + cells + '</div>' +
+      '<div class="tr-key">' +
+      '<span><i class="tr-sw tr-sw-time"></i>Has a time</span>' +
+      '<span><i class="tr-sw tr-sw-assess"></i>Assessment</span>' +
+      '<span><i class="tr-sw tr-sw-own"></i>Your own time</span>' +
+      '</div></section>';
+  }
+
+  /* ---------- rows in a phase ---------- */
+
+  function unmetLabel(unmet) {
+    var names = unmet.map(titleOf);
+    if (names.length === 1) return 'Opens after ' + esc(names[0]);
+    var head = 'Opens after ' + esc(names[0]) + ' and ' + esc(names[1]);
+    if (names.length === 2) return head;
+    var rest = names.slice(2).map(esc).join(', ');
+    var id = 'pr' + Math.random().toString(36).slice(2, 8);
+    return head + ' <button type="button" class="tr-more-pre" data-label="and ' +
+      (names.length - 2) + ' more" onclick="trTogglePre(event,\'' +
+      id + '\')">and ' + (names.length - 2) + ' more</button>' +
+      '<span class="tr-pre-rest" id="' + id + '">' + rest + '</span>';
+  }
+
+  function phaseRow(m) {
+    var d = S.done[m.id];
+    var st = lockState(m);
+    var t = sessionTime(m);
+    var when = parseDate(m.session_date);
+    var cls = 'tr-row';
+    if (m.assessment) cls += ' tr-row-assess';
+    else if (t) cls += ' tr-row-timed';
+    else if (d && !d.pending) cls += ' tr-row-done';
+    else if (!st.open) cls += ' tr-row-locked';
+    var icon = d && !d.pending ? '&#10003;' : (t ? '&#9200;' : (st.open ? '&#9654;' : '&#128274;'));
+    var right = t
+      ? esc(DOW[((when.getDay() + 6) % 7)] + ' ' + when.getDate() + ', ' + time12(t))
+      : (Number(m.duration_min) || 0) + ' m';
+    var sub = '';
+    if (d && d.pending) sub = 'In review';
+    else if (!st.open && !t) sub = unmetLabel(st.unmet);
+    var click = (st.open || t) ? ' onclick="trOpen(\'' + esc(m.id) + '\')"' : '';
+    return '<div class="' + cls + '"' + click + '>' +
+      '<span class="tr-row-ico">' + icon + '</span>' +
+      '<span class="tr-row-main"><span class="tr-row-title">' + esc(m.title) + '</span>' +
+      (sub ? '<span class="tr-row-sub">' + sub + '</span>' : '') + '</span>' +
+      '<span class="tr-row-right">' + right + '</span></div>';
+  }
+
   function chainBlock(c) {
     var done = c.steps.filter(function (x) { return S.done[x.id]; }).length;
     var pct = Math.round(done / c.steps.length * 100);
@@ -490,21 +625,12 @@
       return;
     }
 
-    var groups = {}, weeks = [];
-    mods.forEach(function (m) {
-      var k = (m.week === null || m.week === undefined) ? 'x' : String(m.week);
-      if (!groups[k]) { groups[k] = []; weeks.push(k); }
-      groups[k].push(m);
+    /* Grouped by phase, ordered by phases.json. Week numbers still exist in the
+       data but they are not what a trainee navigates by. */
+    var hasOrder = mods.some(function (m) { return m.order; });
+    mods = mods.slice().sort(function (a, b) {
+      return (a.order || 999) - (b.order || 999);
     });
-    weeks.sort(function (a, b) {
-      if (a === 'x') return 1;
-      if (b === 'x') return -1;
-      return Number(a) - Number(b);
-    });
-
-    var numbered = weeks.filter(function (k) { return k !== 'x'; }).map(Number);
-    var maxWeek = numbered.length ? Math.max.apply(null, numbered) : 1;
-    var cur = currentWeek(S.hire, maxWeek);
 
     var doneCount = mods.filter(function (m) { return S.done[m.id]; }).length;
     var pct = Math.round(doneCount / mods.length * 100);
@@ -519,83 +645,66 @@
       '<div class="tr-hero-sub">' + doneCount + ' of ' + mods.length + ' complete' +
       (pending ? ', ' + pending + ' points with Rose and Justin for review' : '') + '</div></div>';
 
-    weeks.forEach(function (k) {
-      var list = groups[k];
-      var isX = k === 'x';
-      var n = isX ? null : Number(k);
-      var open = S.openWeeks.hasOwnProperty(k) ? S.openWeeks[k] : (!isX && n === cur);
+    html += weekStrip(mods);
+
+    if (!hasOrder) {
+      html += '<div class="empty-state">The phase order has not been built yet.</div>';
+      el('tr-root').innerHTML = html;
+      return;
+    }
+
+    var phases = [], byPhase = {};
+    mods.forEach(function (m) {
+      var k = m.phase || 'Everything else';
+      if (!byPhase[k]) { byPhase[k] = []; phases.push(k); }
+      byPhase[k].push(m);
+    });
+
+    /* The current phase is the first one with anything left in it. */
+    var cur = null;
+    phases.forEach(function (k) {
+      if (cur === null && byPhase[k].some(function (m) { return !S.done[m.id]; })) cur = k;
+    });
+
+    phases.forEach(function (k) {
+      var list = byPhase[k];
       var dn = list.filter(function (m) { return S.done[m.id]; }).length;
-      var wpct = Math.round(dn / list.length * 100);
-      var range = isX ? null : weekRange(S.hire, n);
-      if (range) {
-        var ds = list.map(function (m) { return parseDate(m.session_date); })
-          .filter(Boolean).sort(function (a, b) { return a - b; });
-        if (ds.length && ds[0] > range.start && ds[0] <= range.end) range.start = ds[0];
-      }
+      var complete = dn === list.length;
+      var open = S.openPhases.hasOwnProperty(k) ? S.openPhases[k] : (k === cur);
       var mins = list.reduce(function (a, m) { return a + (Number(m.duration_min) || 0); }, 0);
       var hrs = mins >= 90 ? (Math.round(mins / 6) / 10) + ' hrs' : mins + ' min';
 
-      html += '<section class="tr-wk' + (open ? ' tr-wk-open' : '') + (n === cur ? ' tr-wk-now' : '') + '">' +
-        '<button type="button" class="tr-wk-head" onclick="trToggleWeek(\'' + esc(k) + '\')" aria-expanded="' + open + '">' +
-        '<span class="tr-wk-id">' + (isX ? 'Extra' : 'Week ' + n) + '</span>' +
-        '<span class="tr-wk-when">' + (range ? esc(rangeLabel(range)) : 'Anytime') + '</span>' +
-        '<span class="tr-wk-count">' + dn + ' / ' + list.length + '</span>' +
-        '<span class="tr-wk-bar">' + bar(wpct) + '</span>' +
-        '<span class="tr-wk-hrs">' + hrs + '</span>' +
-        '<span class="tr-wk-chev">&#9662;</span>' +
-        '</button><div class="tr-wk-body">';
+      html += '<section class="tr-ph' + (open ? ' tr-ph-open' : '') +
+        (k === cur ? ' tr-ph-now' : '') + (complete ? ' tr-ph-done' : '') + '">' +
+        '<button type="button" class="tr-ph-head" onclick="trTogglePhase(\'' + esc(k) + '\')" aria-expanded="' + open + '">' +
+        '<span class="tr-ph-name">' + (complete ? '<span class="tr-ph-tick">&#10003;</span> ' : '') + esc(k) + '</span>' +
+        '<span class="tr-ph-count">' + dn + ' / ' + list.length + '</span>' +
+        '<span class="tr-ph-bar">' + bar(Math.round(dn / list.length * 100)) + '</span>' +
+        '<span class="tr-ph-hrs">' + hrs + '</span>' +
+        '<span class="tr-ph-chev">&#9662;</span>' +
+        '</button><div class="tr-ph-body">' +
+        (list[0] && list[0].phase_blurb ? '<div class="tr-ph-blurb">' + esc(list[0].phase_blurb) + '</div>' : '');
 
-      /* Within a week: sections by track, and inside each, chains render as a
-         flow with the assessment at the end. Chains that span weeks show only
-         the part that belongs to this week. */
-      var starters = list.filter(function (m) { return m.start_here; });
-      starters.forEach(function (m) { html += startCard(m); });
-
-      var byTrack = {};
-      list.filter(function (m) { return !m.start_here; }).forEach(function (m) {
-        var t = m.track || 'other';
-        (byTrack[t] = byTrack[t] || []).push(m);
-      });
-      var tracks = Object.keys(byTrack).sort(function (a, b) {
-        var ia = TRACK_ORDER.indexOf(a), ib = TRACK_ORDER.indexOf(b);
-        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+      /* Show everything available, then the next two that are not, then fold the
+         rest away. Seeing what is coming matters; scrolling past it does not. */
+      var shown = [], hidden = [], lockedShown = 0;
+      list.forEach(function (m) {
+        var st = lockState(m);
+        var avail = st.open || sessionTime(m) || S.done[m.id];
+        if (avail) { shown.push(m); return; }
+        if (lockedShown < 2) { lockedShown++; shown.push(m); return; }
+        hidden.push(m);
       });
 
-      tracks.forEach(function (t) {
-        var items = byTrack[t];
-        html += '<div class="tr-sec"><div class="tr-sec-name">' +
-          esc(TRACK_NAME[t] || t) + '</div>';
-
-        var seenChain = {}, loose = [];
-        items.forEach(function (m) {
-          var c = chainOf(m);
-          if (c && c.assess) {
-            if (!seenChain[c.key]) {
-              seenChain[c.key] = true;
-              var inWeek = {
-                key: c.key, label: c.label,
-                steps: c.steps.filter(function (x) { return String(x.week) === String(m.week); }),
-                assess: String(c.assess.week) === String(m.week) ? c.assess : null
-              };
-              if (inWeek.steps.length) html += chainBlock(inWeek);
-              else if (inWeek.assess) html += '<div class="tr-chain">' +
-                '<div class="tr-chain-head"><span class="tr-chain-name">' + esc(c.label) +
-                '</span></div><div class="tr-chain-flow">' + assessCard(inWeek.assess) + '</div></div>';
-            }
-          } else if (isLive(m)) { loose.push(m); }
-          else { loose.push(m); }
-        });
-
-        var lives = loose.filter(isLive).sort(function (a, b) {
-          return String(a.session_date || '') < String(b.session_date || '') ? -1 : 1;
-        });
-        var selfs = loose.filter(function (m) { return !isLive(m); });
-        if (lives.length) html += '<div class="tr-lives">' + lives.map(liveCard).join('') + '</div>';
-        if (selfs.length) html += '<div class="tr-grid">' + selfs.map(moduleCard).join('') + '</div>';
-        html += '</div>';
-      });
-
+      html += '<div class="tr-rows">' + shown.map(phaseRow).join('') + '</div>';
+      if (hidden.length) {
+        var hid = 'ph' + String(k).replace(/[^A-Za-z0-9]/g, '');
+        html += '<button type="button" class="tr-more" onclick="trToggleRest(\'' + hid + '\')">' +
+          '<span>Show ' + hidden.length + ' more in this phase</span></button>' +
+          '<div class="tr-rows tr-rest" id="' + hid + '">' + hidden.map(phaseRow).join('') + '</div>';
+      }
       html += '</div></section>';
+
     });
 
     el('tr-root').innerHTML = html;
@@ -630,8 +739,11 @@
       h += '</div>';
     } else if (t === 'matching') {
       h += '<div class="tr-match">';
+      var rimg = q.row_images || [];
       (q.rows || []).forEach(function (r, ri) {
-        h += '<div class="tr-match-row"><span class="tr-match-lbl">' + esc(r) + '</span>' +
+        var fig = rimg[ri] ? '<img class="tr-match-img" src="' + esc(rimg[ri]) + '" alt="">' : '';
+        h += '<div class="tr-match-row' + (rimg[ri] ? ' tr-match-row-img' : '') + '">' + fig +
+          '<span class="tr-match-lbl">' + esc(r) + '</span>' +
           '<select class="form-input tr-match-sel" name="' + name + '" data-row="' + ri + '">' +
           '<option value="">Choose...</option>';
         (q.columns || []).forEach(function (cName, ci) {
@@ -990,6 +1102,39 @@
     }
   };
 
+  window.trTogglePhase = function (k) {
+    var mods = pathModules().slice().sort(function (a, b) {
+      return (a.order || 999) - (b.order || 999);
+    });
+    var cur = null;
+    mods.forEach(function (m) {
+      if (cur === null && !S.done[m.id]) cur = m.phase || 'Everything else';
+    });
+    var wasOpen = S.openPhases.hasOwnProperty(k) ? S.openPhases[k] : (k === cur);
+    S.openPhases[k] = !wasOpen;
+    renderList();
+  };
+
+  /* Local show and hide, so the whole list does not repaint under the tap. */
+  window.trToggleRest = function (id) {
+    var box = document.getElementById(id);
+    if (!box) return;
+    var on = box.classList.toggle('tr-rest-open');
+    var btn = box.previousElementSibling;
+    if (btn && btn.firstChild) {
+      var n = box.children.length;
+      btn.firstChild.textContent = on ? 'Hide the rest' : 'Show ' + n + ' more in this phase';
+    }
+  };
+
+  window.trTogglePre = function (ev, id) {
+    ev.stopPropagation();
+    var sp = document.getElementById(id);
+    if (!sp) return;
+    var on = sp.classList.toggle('tr-pre-open');
+    ev.target.textContent = on ? 'show less' : ev.target.getAttribute('data-label') || 'and more';
+  };
+
   window.trToggleWeek = function (k) {
     var mods = pathModules();
     var numbered = mods.map(function (m) { return m.week; })
@@ -1125,8 +1270,10 @@
       '.tr-opt-img:hover{border-color:#c4581f}',
       '.tr-opt-img img{width:100%;height:auto;display:block;margin-top:7px}',
       '.tr-match-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}',
+      '.tr-match-row-img{align-items:flex-start;margin-bottom:14px}',
+      '.tr-match-img{width:104px;height:auto;flex:0 0 auto;border:1px solid #e4dbd0;border-radius:6px;background:#fff;padding:4px}',
       '.tr-match-lbl{flex:1;min-width:180px;font-size:15px;color:#333}',
-      '.tr-match-sel{width:190px}','.tr-img{display:block;max-width:200px;width:100%;height:auto;margin:14px 0;border:1px solid #e4dbd0;border-radius:8px;background:#fff;padding:6px}','.tr-answer{display:block;width:100%;max-width:620px;box-sizing:border-box;font-family:inherit;font-size:15px;line-height:1.5;color:#2e2e2e;background:#fff;border:1px solid #d8d0c4;border-radius:6px;padding:11px 13px;min-height:104px;resize:vertical}','.tr-answer-one{min-height:0;height:44px;resize:none}','.tr-answer:focus{outline:none;border-color:#c4581f;box-shadow:0 0 0 3px rgba(196,88,31,.12)}','.tr-answer::placeholder{color:#a49a8d}',
+      '.tr-match-sel{width:190px}','.tr-strip{margin:0 0 18px}','.tr-strip-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}','.tr-strip-when{font-family:"Barlow Condensed",sans-serif;font-size:17px;letter-spacing:.02em;text-transform:uppercase}','.tr-strip-sub{font-size:12.5px;color:#7d7468}','.tr-days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}','@media(max-width:720px){.tr-days{grid-template-columns:repeat(2,minmax(0,1fr))}}','.tr-day{background:#fff;border:1px solid #e4dbd0;border-radius:10px;padding:8px;min-height:74px}','.tr-day-name{font-size:11.5px;color:#9a9184;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}','.tr-day-free{font-size:12px;color:#b5aa9b}','.tr-slot{background:#f7e6dc;border-radius:6px;padding:5px 7px;margin-bottom:4px;cursor:pointer}','.tr-slot:last-child{margin-bottom:0}','.tr-slot:hover{background:#f2d9c9}','.tr-slot-when{font-size:11px;color:#8f4318}','.tr-slot-title{font-size:12.5px;color:#1a1a1a;line-height:1.3}','.tr-slot-assess{background:#1a1a1a}','.tr-slot-assess:hover{background:#333}','.tr-slot-assess .tr-slot-when{color:#c9bfae}','.tr-slot-assess .tr-slot-title{color:#f5ede0}','.tr-slot-tag{font-size:10.5px;color:#a89c8a;text-transform:uppercase;letter-spacing:.05em}','.tr-key{display:flex;gap:16px;font-size:12px;color:#7d7468;margin-top:8px;flex-wrap:wrap}','.tr-sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}','.tr-sw-time{background:#e8a878}','.tr-sw-assess{background:#1a1a1a}','.tr-sw-own{background:#fff;border:1px solid #cfc6ba}','.tr-ph{border:1px solid #e4dbd0;border-radius:10px;background:#fff;margin-bottom:8px;overflow:hidden}','.tr-ph-now{border-color:#c4581f}','.tr-ph-done .tr-ph-name{color:#7d7468}','.tr-ph-head{display:flex;align-items:center;gap:10px;width:100%;padding:11px 13px;background:none;border:0;cursor:pointer;text-align:left;font:inherit}','.tr-ph-head:hover{background:#faf7f2}','.tr-ph-name{flex:1;font-family:"Barlow Condensed",sans-serif;font-size:17px;letter-spacing:.01em}','.tr-ph-tick{color:#28a745}','.tr-ph-count{font-size:12px;color:#7d7468;white-space:nowrap}','.tr-ph-bar{width:64px}','.tr-ph-hrs{font-size:12px;color:#9a9184;white-space:nowrap}','.tr-ph-chev{color:#9a9184;transition:transform .15s}','.tr-ph-open .tr-ph-chev{transform:rotate(180deg)}','.tr-ph-body{display:none;padding:0 13px 12px}','.tr-ph-open .tr-ph-body{display:block}','.tr-ph-blurb{font-size:13px;color:#7d7468;margin:0 0 10px}','.tr-rows{display:flex;flex-direction:column;gap:6px}','.tr-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid #e4dbd0;border-radius:8px;background:#fff;cursor:pointer}','.tr-row:hover{border-color:#cfc6ba;background:#faf7f2}','.tr-row-ico{font-size:13px;color:#c4581f;width:15px;text-align:center;flex:0 0 auto}','.tr-row-main{flex:1;min-width:0}','.tr-row-title{display:block;font-size:14px;line-height:1.35}','.tr-row-sub{display:block;font-size:12px;color:#9a9184;margin-top:2px}','.tr-row-right{font-size:12px;color:#7d7468;white-space:nowrap;flex:0 0 auto}','.tr-row-done{background:#faf9f6}','.tr-row-done .tr-row-title{color:#9a9184;text-decoration:line-through}','.tr-row-done .tr-row-ico{color:#28a745}','.tr-row-locked{cursor:default}','.tr-row-locked:hover{border-color:#e4dbd0;background:#fff}','.tr-row-locked .tr-row-ico{color:#c0b7a8}','.tr-row-locked .tr-row-title{color:#7d7468}','.tr-row-timed{background:#fdf4ee;border-color:#e8a878}','.tr-row-timed .tr-row-right{color:#8f4318}','.tr-row-assess{background:#1a1a1a;border-color:#1a1a1a}','.tr-row-assess .tr-row-title{color:#f5ede0}','.tr-row-assess .tr-row-sub,.tr-row-assess .tr-row-right{color:#a89c8a}','.tr-row-assess .tr-row-ico{color:#e8a878}','.tr-more{display:flex;align-items:center;justify-content:center;width:100%;margin-top:6px;padding:7px;font:inherit;font-size:12.5px;color:#7d7468;background:none;border:1px dashed #d8d0c4;border-radius:8px;cursor:pointer}','.tr-more:hover{color:#1a1a1a;border-color:#c4581f}','.tr-rest{display:none;margin-top:6px}','.tr-rest-open{display:flex}','.tr-more-pre{font:inherit;font-size:12px;color:#c4581f;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}','.tr-pre-rest{display:none}','.tr-pre-open{display:inline}','.tr-img-wide{max-width:620px}','.tr-img{display:block;max-width:200px;width:100%;height:auto;margin:14px 0;border:1px solid #e4dbd0;border-radius:8px;background:#fff;padding:6px}','.tr-answer{display:block;width:100%;max-width:620px;box-sizing:border-box;font-family:inherit;font-size:15px;line-height:1.5;color:#2e2e2e;background:#fff;border:1px solid #d8d0c4;border-radius:6px;padding:11px 13px;min-height:104px;resize:vertical}','.tr-answer-one{min-height:0;height:44px;resize:none}','.tr-answer:focus{outline:none;border-color:#c4581f;box-shadow:0 0 0 3px rgba(196,88,31,.12)}','.tr-answer::placeholder{color:#a49a8d}',
       '.tr-q-fb{margin-top:11px}',
       '.tr-why{font-size:13px;color:#5c554c;line-height:1.55;margin-top:7px}','.tr-ask{margin-top:18px;max-width:1000px;background:#f5ede0;border-radius:8px;padding:18px 20px}','.tr-ask-t{font-family:"Barlow Condensed",Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#1a1a1a}','.tr-ask-s{font-size:13px;color:#7a7266;margin:3px 0 10px;line-height:1.5}','.tr-ask .form-textarea{background:#fff}','.tr-ask-btn{margin-top:9px;background:#1a1a1a;color:#fff;border:0;border-radius:6px;padding:9px 18px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}','.tr-ask-btn:hover{background:#000}',
       /* small screens */

@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 510" width="780" height="510" role="img" aria-label="A double hung window with its parts labeled">
+  <title>Double hung window, parts labeled</title>
+  <style>
+    .lbl{font-family:Barlow,"Helvetica Neue",Arial,sans-serif;font-size:15px;fill:#1a1a1a}
+    .sub{font-family:Barlow,"Helvetica Neue",Arial,sans-serif;font-size:12.5px;fill:#7d7468}
+    .lead{stroke:#c4581f;stroke-width:1.3;fill:none}
+    .dot{fill:#c4581f}
+    .wood{fill:#f5ede0;stroke:#1a1a1a;stroke-width:1.4}
+    .wood2{fill:#edeae4;stroke:#1a1a1a;stroke-width:1.4}
+    .glass{fill:#dfe8ec;stroke:#1a1a1a;stroke-width:1.1}
+  </style>
+
+  <!-- casing, the outer trim -->
+  <rect class="wood" x="250" y="70" width="280" height="370" rx="2"/>
+  <!-- frame -->
+  <rect class="wood2" x="268" y="88" width="244" height="318"/>
+  <!-- upper sash -->
+  <rect class="wood" x="282" y="102" width="216" height="156"/>
+  <rect class="glass" x="296" y="116" width="188" height="128"/>
+  <!-- meeting rail -->
+  <rect class="wood" x="282" y="258" width="216" height="14"/>
+  <!-- lower sash -->
+  <rect class="wood" x="282" y="272" width="216" height="134"/>
+  <rect class="glass" x="296" y="286" width="188" height="106"/>
+  <!-- sill, sloped to the outside -->
+  <polygon class="wood" points="268,406 512,406 520,424 260,424"/>
+  <!-- stool, the interior shelf -->
+  <rect class="wood" x="250" y="424" width="280" height="16"/>
+
+  <!-- left labels -->
+  <g class="lead">
+    <path d="M244 95 H300"/>
+    <path d="M244 165 H312 V109"/>
+    <path d="M244 265 H336"/>
+    <path d="M244 335 H312 V279"/>
+    <path d="M244 415 H286"/>
+  </g>
+  <g class="dot">
+    <circle cx="300" cy="95" r="2.6"/>
+    <circle cx="312" cy="109" r="2.6"/>
+    <circle cx="336" cy="265" r="2.6"/>
+    <circle cx="312" cy="279" r="2.6"/>
+    <circle cx="286" cy="415" r="2.6"/>
+  </g>
+  <g class="lbl" text-anchor="end">
+    <text x="236" y="99">Head jamb</text>
+    <text x="236" y="169">Upper sash</text>
+    <text x="236" y="262">Meeting rail</text>
+    <text x="236" y="339">Lower sash</text>
+    <text x="236" y="419">Sill</text>
+  </g>
+  <text class="sub" x="236" y="278" text-anchor="end">also called the check rail</text>
+
+  <!-- right labels -->
+  <g class="lead">
+    <path d="M536 80 H520"/>
+    <path d="M536 122 H505"/>
+    <path d="M536 178 H420"/>
+    <path d="M536 236 H501"/>
+    <path d="M536 300 H491"/>
+    <path d="M536 396 H460"/>
+  </g>
+  <g class="dot">
+    <circle cx="520" cy="80" r="2.6"/>
+    <circle cx="505" cy="122" r="2.6"/>
+    <circle cx="420" cy="178" r="2.6"/>
+    <circle cx="501" cy="236" r="2.6"/>
+    <circle cx="491" cy="300" r="2.6"/>
+    <circle cx="460" cy="396" r="2.6"/>
+  </g>
+  <g class="lbl">
+    <text x="544" y="84">Casing</text>
+    <text x="544" y="126">Side jamb</text>
+    <text x="544" y="182">Lite</text>
+    <text x="544" y="240">Jamb liner</text>
+    <text x="544" y="304">Stile</text>
+    <text x="544" y="400">Rail</text>
+  </g>
+  <g class="sub">
+    <text x="544" y="100">also called moulding</text>
+    <text x="544" y="198">one pane of glass</text>
+    <text x="544" y="256">the sash slides in this</text>
+    <text x="544" y="320">vertical piece of a sash</text>
+    <text x="544" y="416">horizontal piece of a sash</text>
+  </g>
+
+  <!-- apron, the trim under the stool -->
+  <rect class="wood2" x="276" y="440" width="228" height="26"/>
+
+  <!-- stool and apron, below -->
+  <path class="lead" d="M330 494 V434"/>
+  <circle class="dot" cx="330" cy="434" r="2.6"/>
+  <text class="lbl" x="330" y="490" text-anchor="middle">Stool</text>
+  <path class="lead" d="M452 494 V456"/>
+  <circle class="dot" cx="452" cy="456" r="2.6"/>
+  <text class="lbl" x="452" y="490" text-anchor="middle">Apron</text>
+</svg>
