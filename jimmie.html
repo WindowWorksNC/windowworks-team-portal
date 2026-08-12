@@ -5,19 +5,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=205">
-<link rel="manifest" href="site.webmanifest?v=205">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=206">
+<link rel="manifest" href="site.webmanifest?v=206">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Jimmie Coleman | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=205">
+<link rel="stylesheet" href="portal.css?v=206">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Jimmie Coleman';</script>
-<script src="gate.js?v=205"></script>
+<script src="gate.js?v=206"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -920,10 +920,10 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=205"></script>
+<script src="taskboard.js?v=206"></script>
 <script>initTaskBoard("jimmie");</script>
-<script src="resources.js?v=205"></script>
-<script src="docnaming.js?v=205"></script>
+<script src="resources.js?v=206"></script>
+<script src="docnaming.js?v=206"></script>
 <script>
 function getCurrentPayPeriodLabel_jimmie() {
   const startMs=Date.UTC(2025,11,18);
@@ -1007,6 +1007,11 @@ loadCommission_jimmie();
   var b=document.createElement('div');
   b.textContent='v'+(ver||'?');
   b.title='Deployed portal build';
+  /* Content ships on its own, so the badge names both or it names neither. */
+  fetch('modules.json?t='+Date.now()).then(function(r){return r.ok?r.json():null;}).then(function(d){
+    if(d&&d.content_id){b.textContent='v'+(ver||'?')+' \u00b7 '+d.content_id;
+      b.title='Portal build v'+(ver||'?')+', training content '+d.content_id+' generated '+(d.generated||'');}
+  }).catch(function(){});
   b.style.cssText='position:fixed;bottom:8px;right:10px;font-family:Barlow,Arial,sans-serif;font-size:11px;font-weight:600;color:#999;background:rgba(245,237,224,0.92);border:1px solid #e0d8c8;padding:2px 8px;border-radius:10px;z-index:99999;pointer-events:none';
   document.body.appendChild(b);
 })();

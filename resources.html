@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=205">
-<link rel="manifest" href="site.webmanifest?v=205">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=206">
+<link rel="manifest" href="site.webmanifest?v=206">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Company Resources | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=205">
+<link rel="stylesheet" href="portal.css?v=206">
 </head>
 <body>
 <div class="header">
@@ -63,7 +63,7 @@
   <div class="footer-r">(919) 854-6121</div>
 </div>
 
-<script src="resources.js?v=205"></script>
+<script src="resources.js?v=206"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
@@ -72,6 +72,11 @@
   var b=document.createElement('div');
   b.textContent='v'+(ver||'?');
   b.title='Deployed portal build';
+  /* Content ships on its own, so the badge names both or it names neither. */
+  fetch('modules.json?t='+Date.now()).then(function(r){return r.ok?r.json():null;}).then(function(d){
+    if(d&&d.content_id){b.textContent='v'+(ver||'?')+' \u00b7 '+d.content_id;
+      b.title='Portal build v'+(ver||'?')+', training content '+d.content_id+' generated '+(d.generated||'');}
+  }).catch(function(){});
   b.style.cssText='position:fixed;bottom:8px;right:10px;font-family:Barlow,Arial,sans-serif;font-size:11px;font-weight:600;color:#999;background:rgba(245,237,224,0.92);border:1px solid #e0d8c8;padding:2px 8px;border-radius:10px;z-index:99999;pointer-events:none';
   document.body.appendChild(b);
 })();
