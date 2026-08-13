@@ -4776,5 +4776,15 @@
     }
    ]
   }
+ ],
+ "days_off": [
+  {
+   "date": "2026-08-26",
+   "label": "Off, after Top Rep Live"
+  },
+  {
+   "date": "2026-09-07",
+   "label": "Labor Day"
+  }
  ]
 }
