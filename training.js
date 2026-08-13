@@ -28,6 +28,7 @@
     hire: null,
     openWeeks: {},
     openPhases: {},
+    order: [],
     busy: false
   };
 
@@ -306,7 +307,7 @@
   /* Nothing is hidden. Something is locked only when it has a prerequisite that
      is genuinely outstanding, and then the row says which one. */
   function lockState(m) {
-    var unmet = (m.prereq || []).filter(function (id) { return !S.done[id]; });
+    var unmet = (m.prereq || []).filter(function (id) { return !isDone(id); });
     return { open: !unmet.length, unmet: unmet };
   }
 
@@ -332,7 +333,7 @@
   function chainStrip(m) {
     var c = chainOf(m);
     if (!c || !c.assess) return '';
-    var done = c.steps.filter(function (x) { return S.done[x.id]; }).length;
+    var done = c.steps.filter(function (x) { return isDone(x.id); }).length;
     var pct = Math.round(done / c.steps.length * 100);
     if (m.assessment) {
       return '<div class="tr-chainstrip"><div class="tr-chainstrip-t">' +
@@ -370,6 +371,45 @@
     return visibleQuiz(m).reduce(function (a, q) { return a + (Number(q.points) || 0); }, 0);
   }
 
+  /* Every quiz passes at 80 percent, derived here rather than read from the
+     module data so the rule cannot drift module to module. Questions are worth
+     whole points, so 80 percent of the total is often not a score anyone can
+     actually get: the mark is the lowest reachable score at or above 80 percent.
+     On a three or four question quiz that comes out as every question, which is
+     accepted. pass_points in modules.json is ignored. */
+  function passPoints(m) {
+    var pv = visibleQuiz(m).map(function (q) { return Number(q.points) || 0; });
+    var tot = pv.reduce(function (a, b) { return a + b; }, 0);
+    if (!tot) return 0;
+    var need = tot * 0.8;
+    var reach = [];
+    for (var i = 0; i <= tot; i++) reach.push(false);
+    reach[0] = true;
+    pv.forEach(function (p) {
+      for (var v = tot - p; v >= 0; v--) { if (reach[v]) reach[v + p] = true; }
+    });
+    for (var t = 0; t <= tot; t++) { if (reach[t] && t >= need - 1e-9) return t; }
+    return tot;
+  }
+
+  function moduleById(id) {
+    return S.modules.filter(function (x) { return x.id === id; })[0] || null;
+  }
+
+  /* One derivation of state for the trainee view and the approver panel, so the
+     two can never disagree about what done means. Passed is the only state that
+     counts as complete: a failed quiz stays open and keeps its prerequisites
+     locked until it is retaken. */
+  function stateOf(m) {
+    var d = S.done[m.id];
+    return d ? d.state : 'none';
+  }
+
+  function isDone(id) {
+    var d = S.done[id];
+    return !!(d && d.state === 'passed');
+  }
+
   async function loadModules() {
     var res = await fetch(MODULES_URL + '?t=' + Date.now());
     if (!res.ok) throw new Error('modules.json ' + res.status);
@@ -390,24 +430,81 @@
     } catch (e) { console.error('hire date', e); }
   }
 
+  /* Awaiting Review carries a points number from a quiz and the word Yes from a
+     signoff claim, so it is read as text and interpreted per module rather than
+     coerced to a number. Reviewer Note, Reviewed By and Waived resolve through
+     cols() and come back empty if those headers are not on the sheet yet. */
+  function readDoneRows(data) {
+    var c = cols(data[0]);
+    var out = [];
+    for (var i = 1; i < data.length; i++) {
+      var r = data[i];
+      var id = (r[c('Module ID')] || '').toString().trim();
+      if (!id) continue;
+      out.push({
+        rowIndex: i + 1,
+        employee: (r[c('Employee')] || '').toString().trim(),
+        id: id,
+        title: (r[c('Module Title')] || '').toString(),
+        week: (r[c('Week')] || '').toString(),
+        score: Number(r[c('Score')]) || 0,
+        max: Number(r[c('Max Points')]) || 0,
+        awaiting: (r[c('Awaiting Review')] || '').toString().trim(),
+        attempt: Number(r[c('Attempt')]) || 1,
+        completed: (r[c('Completed')] || '').toString().trim(),
+        note: (r[c('Reviewer Note')] || '').toString().trim(),
+        reviewedBy: (r[c('Reviewed By')] || '').toString().trim(),
+        waived: /^y/i.test((r[c('Waived')] || '').toString().trim()),
+        row: r
+      });
+    }
+    return out;
+  }
+
+  function reduceAttempts(m, rows) {
+    var sorted = rows.slice().sort(function (a, b) {
+      return (a.attempt - b.attempt) || (a.rowIndex - b.rowIndex);
+    });
+    var last = sorted[sorted.length - 1];
+    var need = (m && hasQuiz(m)) ? passPoints(m) : 0;
+    var best = 0, bestRow = last;
+    sorted.forEach(function (r) { if (r.score > best) { best = r.score; bestRow = r; } });
+    var waived = sorted.some(function (r) { return r.waived; });
+    var awaitingSignoff = /^yes$/i.test(last.awaiting);
+    var pendingPts = awaitingSignoff ? 0 : (Number(last.awaiting) || 0);
+
+    var state;
+    if (waived) state = 'passed';
+    else if (m && needsSignoff(m)) {
+      if (awaitingSignoff) state = 'awaiting';
+      else if (last.completed) state = 'passed';
+      else if (last.note) state = 'returned';
+      else state = 'none';
+    } else if (pendingPts > 0) state = 'review';
+    else if (m && hasQuiz(m)) state = (best >= need) ? 'passed' : 'failed';
+    else state = last.completed ? 'passed' : 'none';
+
+    return {
+      state: state, score: best, latestScore: last.score,
+      max: last.max || (m ? quizTotal(m) : 0), need: need,
+      pending: pendingPts, attempts: sorted.length, attempt: last.attempt,
+      completed: last.completed, note: last.note, reviewedBy: last.reviewedBy,
+      waived: waived, rowIndex: last.rowIndex, bestRowIndex: bestRow.rowIndex,
+      rows: sorted
+    };
+  }
+
   async function loadCompletions() {
     S.done = {};
     var d = await api({ action: 'read', tab: TAB_DONE });
     if (!d || !d.success || !d.data || !d.data.length) return;
-    var c = cols(d.data[0]);
-    d.data.slice(1).forEach(function (r) {
-      if ((r[c('Employee')] || '').toString().trim() !== S.employee) return;
-      var id = (r[c('Module ID')] || '').toString().trim();
-      if (!id) return;
-      var prev = S.done[id];
-      var rec = {
-        score: Number(r[c('Score')]) || 0,
-        max: Number(r[c('Max Points')]) || 0,
-        pending: Number(r[c('Awaiting Review')]) || 0,
-        attempt: Number(r[c('Attempt')]) || 1,
-        completed: (r[c('Completed')] || '').toString()
-      };
-      if (!prev || rec.attempt >= prev.attempt) S.done[id] = rec;
+    var byMod = {};
+    readDoneRows(d.data).forEach(function (r) {
+      if (r.employee !== S.employee) return;
+      (byMod[r.id] = byMod[r.id] || []).push(r);
+    });
+    Object.keys(byMod).forEach(function (id) {
+      S.done[id] = reduceAttempts(moduleById(id), byMod[id]);
     });
   }
 
@@ -432,21 +529,28 @@
     return '';
   }
 
+  /* Waiting on a human and needing another go are the two states worth naming,
+     so they get words rather than a mark. */
   function statusMark(m) {
-    var d = S.done[m.id];
-    if (!d) return '<span class="tr-mark tr-mark-open"></span>';
-    /* Waiting on a human is the state most worth naming, so it gets a word. */
-    if (d.pending) return '<span class="tr-wait">In review</span>';
-    return '<span class="tr-mark tr-mark-done">&#10003;</span>';
+    var st = stateOf(m);
+    if (st === 'passed') return '<span class="tr-mark tr-mark-done">&#10003;</span>';
+    if (st === 'awaiting' || st === 'review') return '<span class="tr-wait">In review</span>';
+    if (st === 'failed') return '<span class="tr-wait tr-wait-again">Retake</span>';
+    if (st === 'returned') return '<span class="tr-wait tr-wait-again">Sent back</span>';
+    return '<span class="tr-mark tr-mark-open"></span>';
   }
 
   function liveCard(m) {
     var when = parseDate(m.session_date);
     var whenTxt = when ? MON[when.getMonth()] + ' ' + when.getDate() : '';
-    var d = S.done[m.id];
-    var state = d
+    var st = stateOf(m);
+    var state = st === 'passed'
       ? '<span class="tr-live-state tr-live-done">Signed off</span>'
-      : '<span class="tr-live-state">' + (needsSignoff(m) ? 'Not yet signed off' : 'Not started') + '</span>';
+      : st === 'awaiting'
+        ? '<span class="tr-live-state">Waiting on sign off</span>'
+        : st === 'returned'
+          ? '<span class="tr-live-state">Sent back</span>'
+          : '<span class="tr-live-state">' + (needsSignoff(m) ? 'Not yet signed off' : 'Not started') + '</span>';
     return '<div class="tr-live" onclick="trOpen(\'' + esc(m.id) + '\')">' +
       '<div class="tr-live-eyebrow">Live session' + (whenTxt ? ' &middot; ' + esc(whenTxt) : '') + '</div>' +
       '<div class="tr-live-title">' + esc(m.title) + '</div>' +
@@ -459,7 +563,7 @@
 
   function moduleCard(m) {
     var d = S.done[m.id];
-    return '<div class="tr-card' + (d && !d.pending ? ' tr-card-done' : '') + '" onclick="trOpen(\'' + esc(m.id) + '\')">' +
+    return '<div class="tr-card' + (isDone(m.id) ? ' tr-card-done' : '') + '" onclick="trOpen(\'' + esc(m.id) + '\')">' +
       '<div class="tr-card-top">' + chipFor(m) + statusMark(m) + '</div>' +
       '<div class="tr-card-title">' + esc(m.title) + '</div>' +
       '<div class="tr-card-meta">' + (Number(m.duration_min) || 0) + ' min' +
@@ -476,7 +580,7 @@
 
   function stepCard(m, n) {
     var d = S.done[m.id];
-    return '<div class="tr-card tr-step' + (d ? ' tr-card-done' : '') +
+    return '<div class="tr-card tr-step' + (isDone(m.id) ? ' tr-card-done' : '') +
       '" onclick="trOpen(\'' + esc(m.id) + '\')">' +
       '<div class="tr-card-top"><span class="tr-step-n">' + n + '</span>' + statusMark(m) + '</div>' +
       '<div class="tr-card-title">' + esc(m.title) + '</div>' +
@@ -489,7 +593,7 @@
     var d = S.done[m.id];
     return '<div class="tr-card tr-assess" onclick="trOpen(\'' + esc(m.id) + '\')">' +
       '<div class="tr-card-top"><span class="tr-assess-eyebrow">Assessment</span>' +
-      (d && !d.pending ? '<span class="tr-mark tr-mark-done">&#10003;</span>' : '') + '</div>' +
+      (isDone(m.id) ? '<span class="tr-mark tr-mark-done">&#10003;</span>' : '') + '</div>' +
       '<div class="tr-card-title">' + esc(m.title) + '</div>' +
       '<div class="tr-card-meta">' + (d && d.max ? d.score + ' / ' + d.max : quizTotal(m) + ' points') +
       '</div></div>';
@@ -498,13 +602,13 @@
   function startCard(m) {
     var d = S.done[m.id];
     var hasVid = m.video && m.video !== 'none';
-    return '<div class="tr-start-here' + (d ? ' tr-start-here-done' : '') +
+    return '<div class="tr-start-here' + (isDone(m.id) ? ' tr-start-here-done' : '') +
       '" onclick="trOpen(\'' + esc(m.id) + '\')">' +
       '<div class="tr-sh-eyebrow">Start here</div>' +
       '<div class="tr-sh-title">' + esc(m.title) + '</div>' +
       '<div class="tr-sh-meta">' + (Number(m.duration_min) || 0) + ' min' +
       (hasVid ? ' &middot; video' : '') + (hasQuiz(m) ? ' &middot; quiz' : '') +
-      (d ? ' &middot; done' : '') + '</div></div>';
+      (isDone(m.id) ? ' &middot; done' : '') + '</div></div>';
   }
 
   /* ---------- the week strip ---------- */
@@ -580,21 +684,24 @@
   }
 
   function phaseRow(m) {
-    var d = S.done[m.id];
+    var state = stateOf(m);
+    var done = state === 'passed';
     var st = lockState(m);
     var t = sessionTime(m);
     var when = parseDate(m.session_date);
     var cls = 'tr-row';
     if (m.assessment) cls += ' tr-row-assess';
     else if (t) cls += ' tr-row-timed';
-    else if (d && !d.pending) cls += ' tr-row-done';
+    else if (done) cls += ' tr-row-done';
     else if (!st.open) cls += ' tr-row-locked';
-    var icon = d && !d.pending ? '&#10003;' : (t ? '&#9200;' : (st.open ? '&#9654;' : '&#128274;'));
+    var icon = done ? '&#10003;' : (t ? '&#9200;' : (st.open ? '&#9654;' : '&#128274;'));
     var right = t
       ? esc(DOW[((when.getDay() + 6) % 7)] + ' ' + when.getDate() + ', ' + time12(t))
       : (Number(m.duration_min) || 0) + ' m';
     var sub = '';
-    if (d && d.pending) sub = 'In review';
+    if (state === 'awaiting' || state === 'review') sub = 'In review';
+    else if (state === 'failed') sub = 'Take it again to pass';
+    else if (state === 'returned') sub = 'Sent back';
     else if (!st.open && !t) sub = unmetLabel(st.unmet);
     var click = (st.open || t) ? ' onclick="trOpen(\'' + esc(m.id) + '\')"' : '';
     return '<div class="' + cls + '"' + click + '>' +
@@ -605,7 +712,7 @@
   }
 
   function chainBlock(c) {
-    var done = c.steps.filter(function (x) { return S.done[x.id]; }).length;
+    var done = c.steps.filter(function (x) { return isDone(x.id); }).length;
     var pct = Math.round(done / c.steps.length * 100);
     var h = '<div class="tr-chain">' +
       '<div class="tr-chain-head"><span class="tr-chain-name">' + esc(c.label) + '</span>' +
@@ -632,18 +739,24 @@
       return (a.order || 999) - (b.order || 999);
     });
 
-    var doneCount = mods.filter(function (m) { return S.done[m.id]; }).length;
+    var doneCount = mods.filter(function (m) { return isDone(m.id); }).length;
     var pct = Math.round(doneCount / mods.length * 100);
-    var pending = mods.reduce(function (a, m) {
-      return a + (S.done[m.id] ? S.done[m.id].pending : 0);
-    }, 0);
+    var waiting = mods.filter(function (m) {
+      var x = stateOf(m);
+      return x === 'awaiting' || x === 'review';
+    }).length;
+    var again = mods.filter(function (m) {
+      var x = stateOf(m);
+      return x === 'failed' || x === 'returned';
+    }).length;
 
     var html = '<div class="tr-hero">' +
       '<div class="tr-hero-top"><span class="tr-hero-eyebrow">Your onboarding</span>' +
       '<span class="tr-hero-pct">' + pct + '%</span></div>' +
       '<div class="tr-hero-bar">' + bar(pct) + '</div>' +
       '<div class="tr-hero-sub">' + doneCount + ' of ' + mods.length + ' complete' +
-      (pending ? ', ' + pending + ' points with Rose and Justin for review' : '') + '</div></div>';
+      (waiting ? ', ' + waiting + ' waiting on sign off' : '') +
+      (again ? ', ' + again + ' to take again' : '') + '</div></div>';
 
     html += weekStrip(mods);
 
@@ -663,12 +776,12 @@
     /* The current phase is the first one with anything left in it. */
     var cur = null;
     phases.forEach(function (k) {
-      if (cur === null && byPhase[k].some(function (m) { return !S.done[m.id]; })) cur = k;
+      if (cur === null && byPhase[k].some(function (m) { return !isDone(m.id); })) cur = k;
     });
 
     phases.forEach(function (k) {
       var list = byPhase[k];
-      var dn = list.filter(function (m) { return S.done[m.id]; }).length;
+      var dn = list.filter(function (m) { return isDone(m.id); }).length;
       var complete = dn === list.length;
       var open = S.openPhases.hasOwnProperty(k) ? S.openPhases[k] : (k === cur);
       var mins = list.reduce(function (a, m) { return a + (Number(m.duration_min) || 0); }, 0);
@@ -712,7 +825,8 @@
 
   /* ---------- module view ---------- */
 
-  function questionHtml(q, qi) {
+  function questionHtml(item, qi) {
+    var q = item.q;
     var name = 'trq' + qi;
     var h = '<div class="tr-q" id="trq-wrap-' + qi + '">' +
       '<div class="tr-q-head"><span class="tr-q-n">' + (qi + 1) + '</span>' +
@@ -726,28 +840,29 @@
     var t = q.type;
     if (t === 'image_options') {
       h += '<div class="tr-opts tr-opts-img">';
-      (q.options || []).forEach(function (o, oi) {
+      item.opts.forEach(function (oi, pos) {
         h += '<label class="tr-opt-img"><input type="radio" name="' + name + '" value="' + oi + '">' +
-          '<img src="' + esc(o) + '" alt="Option ' + (oi + 1) + '"></label>';
+          '<img src="' + esc((q.options || [])[oi]) + '" alt="Option ' + (pos + 1) + '"></label>';
       });
       h += '</div>';
     } else if (t === 'multi_select') {
       h += '<div class="tr-opts">';
-      (q.options || []).forEach(function (o, oi) {
-        h += '<label class="tr-opt"><input type="checkbox" name="' + name + '" value="' + oi + '"><span>' + esc(o) + '</span></label>';
+      item.opts.forEach(function (oi) {
+        h += '<label class="tr-opt"><input type="checkbox" name="' + name + '" value="' + oi + '"><span>' +
+          esc((q.options || [])[oi]) + '</span></label>';
       });
       h += '</div>';
     } else if (t === 'matching') {
       h += '<div class="tr-match">';
       var rimg = q.row_images || [];
-      (q.rows || []).forEach(function (r, ri) {
+      item.rows.forEach(function (ri) {
         var fig = rimg[ri] ? '<img class="tr-match-img" src="' + esc(rimg[ri]) + '" alt="">' : '';
         h += '<div class="tr-match-row' + (rimg[ri] ? ' tr-match-row-img' : '') + '">' + fig +
-          '<span class="tr-match-lbl">' + esc(r) + '</span>' +
+          '<span class="tr-match-lbl">' + esc((q.rows || [])[ri]) + '</span>' +
           '<select class="form-input tr-match-sel" name="' + name + '" data-row="' + ri + '">' +
           '<option value="">Choose...</option>';
-        (q.columns || []).forEach(function (cName, ci) {
-          h += '<option value="' + ci + '">' + esc(cName) + '</option>';
+        item.cols.forEach(function (ci) {
+          h += '<option value="' + ci + '">' + esc((q.columns || [])[ci]) + '</option>';
         });
         h += '</select></div>';
       });
@@ -758,8 +873,9 @@
       h += '<input type="text" class="tr-answer tr-answer-one" id="' + name + '" placeholder="Paste a OneDrive or Drive link to your screenshot">';
     } else {
       h += '<div class="tr-opts">';
-      (q.options || []).forEach(function (o, oi) {
-        h += '<label class="tr-opt"><input type="radio" name="' + name + '" value="' + oi + '"><span>' + esc(o) + '</span></label>';
+      item.opts.forEach(function (oi) {
+        h += '<label class="tr-opt"><input type="radio" name="' + name + '" value="' + oi + '"><span>' +
+          esc((q.options || [])[oi]) + '</span></label>';
       });
       h += '</div>';
     }
@@ -784,11 +900,29 @@
       (Number(m.duration_min) || 0) + ' min' + (m.tier === 'advanced' ? ' &middot; advanced' : '') + '</div></div>';
 
     if (d) {
-      html += '<div class="alert alert-success" style="font-size:13px">' +
-        (needsSignoff(m) ? 'Signed off ' + esc(d.completed) + '.'
-          : 'Submitted ' + esc(d.completed) + '. Score ' + d.score + ' of ' + d.max +
-            (d.pending ? ', with ' + d.pending + ' points still in review.' : '.')) +
-        '</div>';
+      var cls = d.state === 'passed' ? 'alert-success'
+        : (d.state === 'failed' || d.state === 'returned') ? 'alert-error' : 'alert-info';
+      var msg;
+      if (needsSignoff(m)) {
+        msg = d.state === 'passed'
+          ? 'Signed off' + (d.completed ? ' ' + esc(d.completed) : '') + '.'
+          : d.state === 'awaiting'
+            ? 'You have said this is finished. It is waiting on sign off.'
+            : d.state === 'returned'
+              ? 'Sent back' + (d.note ? ': ' + esc(d.note) : '. Have another go, then tell us again.')
+              : 'Not signed off yet.';
+      } else if (hasQuiz(m)) {
+        msg = 'Attempt ' + d.attempt + (d.attempts > 1 ? ' of ' + d.attempts : '') +
+          '. Best score ' + d.score + ' of ' + d.max + ', pass mark ' + d.need + '. ' +
+          (d.state === 'passed'
+            ? (d.waived ? 'Passed, signed off by ' + esc(d.reviewedBy || 'an owner') + '.' : 'Passed.')
+            : d.state === 'review'
+              ? 'Some points are still with Rose and Justin.'
+              : 'Not there yet. Take it again.');
+      } else {
+        msg = 'Marked complete ' + esc(d.completed) + '.';
+      }
+      html += '<div class="alert ' + cls + '" style="font-size:13px">' + msg + '</div>';
     }
 
     var ext = safeUrl(m.external_url);
@@ -804,7 +938,7 @@
     if (needsSignoff(m)) {
       /* The trainee can't mark this complete, but they can tell us they've
          finished so somebody knows to go and check. */
-      if (!d) {
+      if (!d || d.state === 'returned') {
         html += '<div id="tr-quiz-alert"></div>' +
           '<div class="tr-start"><div class="tr-start-l">' +
           '<div class="tr-start-t">Finished this?</div>' +
@@ -815,9 +949,12 @@
       }
     } else if (hasQuiz(m)) {
       html += '<div class="tr-start"><div class="tr-start-l">' +
-        '<div class="tr-start-t">Ready for the quiz?</div>' +
+        '<div class="tr-start-t">' +
+        (d && d.state === 'failed' ? 'Ready to try again?' : 'Ready for the quiz?') + '</div>' +
         '<div class="tr-start-s">' + visibleQuiz(m).length + ' questions, ' + quizTotal(m) +
-        ' points. The module closes while you take it, so read it through first.</div></div>' +
+        ' points, pass mark ' + passPoints(m) + '. The module closes while you take it, ' +
+        'so read it through first. The questions and answers come up in a different order ' +
+        'every time.</div></div>' +
         '<button class="submit-btn" onclick="trStartQuiz()">' + (d ? 'Retake Quiz' : 'Start Quiz') + '</button></div>';
     } else {
       html += '<div id="tr-quiz-alert"></div>' +
@@ -829,6 +966,33 @@
     window.scrollTo(0, 0);
   }
 
+  function shuffledOrder(n) {
+    var a = [];
+    for (var i = 0; i < n; i++) a.push(i);
+    for (var j = a.length - 1; j > 0; j--) {
+      var k = Math.floor(Math.random() * (j + 1)), t = a[j];
+      a[j] = a[k]; a[k] = t;
+    }
+    return a;
+  }
+
+  /* Reshuffled on every attempt, first one included, because two reps start the
+     same day and sit near each other. This is display order only: every input
+     still carries its original index as its value, so the encoded answer keys
+     and gradeOne stay untouched. */
+  function buildOrder(m) {
+    var qs = visibleQuiz(m);
+    return shuffledOrder(qs.length).map(function (oi) {
+      var q = qs[oi];
+      return {
+        q: q,
+        opts: shuffledOrder((q.options || []).length),
+        rows: shuffledOrder((q.rows || []).length),
+        cols: shuffledOrder((q.columns || []).length)
+      };
+    });
+  }
+
   /* The quiz replaces the module rather than sitting under it, so the answers
      are not one scroll away. A second tab defeats this, same as the answer key. */
   function renderQuiz(m) {
@@ -836,9 +1000,10 @@
     var c = m.assessment ? chainOf(m) : null;
     var eyebrow = 'Quiz';
     if (c) {
-      var dn = c.steps.filter(function (x) { return S.done[x.id]; }).length;
+      var dn = c.steps.filter(function (x) { return isDone(x.id); }).length;
       eyebrow = 'Assessment &middot; ' + esc(c.label) + ' &middot; ' + dn + ' of ' + c.steps.length + ' modules done';
     }
+    S.order = buildOrder(m);
     var lead = (m.body_md || '').trim().replace(/[#*`]/g, '').trim();
     var html = '<div class="tr-quizhead">' +
       '<div class="tr-quizhead-l"><div class="tr-quizhead-eyebrow">' + eyebrow + '</div>' +
@@ -846,9 +1011,9 @@
       '<a class="tr-leave" href="#" onclick="trLeaveQuiz();return false;">Leave without submitting</a></div>' +
       '<div class="tr-quiz"><div class="tr-quiz-sub">' +
       (m.assessment && lead && lead.length < 200 ? esc(lead) + ' ' : '') +
-      visibleQuiz(m).length + ' questions, ' + quizTotal(m) +
-      ' points. Written answers and screenshots are reviewed by Rose and Justin.</div>';
-    visibleQuiz(m).forEach(function (q, qi) { html += questionHtml(q, qi); });
+      visibleQuiz(m).length + ' questions, ' + quizTotal(m) + ' points. ' +
+      'You need ' + passPoints(m) + ' to pass, and you can take it again if you miss it.</div>';
+    S.order.forEach(function (item, qi) { html += questionHtml(item, qi); });
     html += '<div id="tr-quiz-alert"></div>' +
       '<button class="submit-btn" id="tr-submit" onclick="trSubmit()">Submit Quiz</button></div>';
     el('tr-root').innerHTML = html;
@@ -869,12 +1034,16 @@
     }
     if (t === 'matching') {
       var sels = document.querySelectorAll('select[name="' + name + '"]');
+      var rows = (q.rows || []);
       var vals = [], txt = [];
+      for (var vi = 0; vi < rows.length; vi++) vals.push(null);
       Array.prototype.forEach.call(sels, function (s) {
+        var ri = Number(s.getAttribute('data-row'));
         var v = s.value === '' ? null : Number(s.value);
-        vals.push(v);
-        txt.push((q.rows || [])[Number(s.getAttribute('data-row'))] + ' = ' +
-          (v === null ? '(blank)' : (q.columns || [])[v]));
+        vals[ri] = v;
+      });
+      rows.forEach(function (label, ri) {
+        txt.push(label + ' = ' + (vals[ri] === null ? '(blank)' : (q.columns || [])[vals[ri]]));
       });
       return { value: vals, text: txt.join('; ') };
     }
@@ -913,10 +1082,11 @@
     if (S.busy) return;
     var alertEl = el('tr-quiz-alert');
     var btn = el('tr-submit');
-    var qs = visibleQuiz(m);
+    var order = (S.order && S.order.length) ? S.order : buildOrder(m);
 
     var results = [], unanswered = [];
-    qs.forEach(function (q, qi) {
+    order.forEach(function (item, qi) {
+      var q = item.q;
       var resp = readResponse(q, qi);
       var empty = (resp.value === null) ||
         (Array.isArray(resp.value) && (!resp.value.length || resp.value.indexOf(null) >= 0)) ||
@@ -942,7 +1112,10 @@
       else pending += r.grade.max;
     });
     var maxTotal = autoMax + pending;
-    var attempt = (S.done[m.id] ? S.done[m.id].attempt : 0) + 1;
+    var prev = S.done[m.id];
+    var attempt = (prev ? prev.attempt : 0) + 1;
+    var need = passPoints(m);
+    var passed = !pending && score >= need;
 
     try {
       // Read each header row once, not once per question.
@@ -989,19 +1162,32 @@
       if (pending) await emailReview(m, results, attempt);
 
       S.done[m.id] = {
-        score: score, max: maxTotal, pending: pending,
-        attempt: attempt, completed: todayStr()
+        state: pending ? 'review' : (passed ? 'passed' : 'failed'),
+        score: Math.max(score, prev ? prev.score : 0), latestScore: score,
+        max: maxTotal, need: need, pending: pending,
+        attempts: (prev ? prev.attempts || 0 : 0) + 1, attempt: attempt,
+        completed: todayStr(), note: '', reviewedBy: '', waived: false,
+        rowIndex: 0, bestRowIndex: 0, rows: []
       };
 
       showFeedback(results);
       var head = document.querySelector('.tr-quizhead .tr-leave');
       if (head) { head.textContent = 'Back to your path'; }
       if (alertEl) {
-        alertEl.innerHTML = '<div class="alert alert-success">Submitted. ' + score + ' of ' + autoMax +
-          ' on the auto-graded questions' +
-          (pending ? ', plus ' + pending + ' points now with Rose and Justin for review.' : '.') + '</div>';
+        alertEl.innerHTML = '<div class="alert ' + (pending || passed ? 'alert-success' : 'alert-error') + '">' +
+          'Submitted. ' + score + ' of ' + autoMax + ' on the auto-graded questions' +
+          (pending ? ', plus ' + pending + ' points now with Rose and Justin for review.'
+            : '. Pass mark ' + need + '. ' + (passed ? 'Passed.'
+              : 'Not there yet. Read the notes below, then take it again.')) + '</div>';
       }
-      if (btn) { btn.textContent = 'Submitted'; }
+      if (btn) {
+        if (pending || passed) { btn.textContent = 'Submitted'; }
+        else {
+          btn.disabled = false;
+          btn.textContent = 'Take It Again';
+          btn.setAttribute('onclick', 'trStartQuiz()');
+        }
+      }
     } catch (e) {
       console.error(e);
       if (alertEl) alertEl.innerHTML = '<div class="alert alert-error">Could not save your quiz. Please try again.</div>';
@@ -1035,7 +1221,7 @@
       '</strong> (' + esc(m.id) + '), attempt ' + attempt + '.</p>' +
       '<p>' + lines.length + ' answer' + (lines.length === 1 ? '' : 's') + ' need review:</p>' +
       lines.join('') +
-      '<p>Open the Training Progress tab in the portal to record a decision.</p>';
+      '<p>Open the Training tab in the portal to record a decision.</p>';
     try {
       await api({
         action: 'send_email',
@@ -1065,21 +1251,24 @@
     var btn = el('tr-submit');
     if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
     try {
-      await api({
-        action: 'append',
-        tab: 'Training_Completions',
-        row: {
-          'Employee': S.employee,
-          'Module ID': m.id,
-          'Module Title': m.title,
-          'Week': m.week || '',
-          'Score': '',
-          'Max Points': '',
-          'Awaiting Review': 'Yes',
-          'Attempt': 1,
-          'Completed': ''
-        }
-      });
+      /* Built through cols() and stringified. An object literal here reaches the
+         proxy as [object Object], which is how every claim was being lost. */
+      var dd = await api({ action: 'read', tab: TAB_DONE });
+      if (!dd || !dd.success || !dd.data || !dd.data.length) throw new Error('completions header');
+      var dc = cols(dd.data[0]);
+      var prevRec = S.done[m.id];
+      var row = buildRow(dd.data[0].length, dc, [
+        ['Employee', S.employee],
+        ['Module ID', m.id],
+        ['Module Title', m.title],
+        ['Week', m.week === null || m.week === undefined ? '' : m.week],
+        ['Score', ''],
+        ['Max Points', ''],
+        ['Awaiting Review', 'Yes'],
+        ['Attempt', (prevRec ? prevRec.attempt : 0) + 1],
+        ['Completed', '']
+      ]);
+      await api({ action: 'append', tab: TAB_DONE, row: JSON.stringify(row) });
       try {
         await api({
           action: 'send_email',
@@ -1087,9 +1276,16 @@
           subject: 'Ready to sign off: ' + S.employee + ' - ' + m.title,
           body: '<p><strong>' + esc(S.employee) + '</strong> says they have finished <strong>' +
                 esc(m.title) + '</strong> (' + esc(m.id) + ').</p>' +
-                '<p>Check it and sign it off in the portal when you are happy.</p>'
+                '<p>Sign it off in the Training tab of the portal when you are happy.</p>'
         });
       } catch (e) { console.error('signoff email failed', e); }
+      S.done[m.id] = {
+        state: 'awaiting', score: 0, latestScore: 0, max: 0, need: 0, pending: 0,
+        attempts: (prevRec ? prevRec.attempts || 0 : 0) + 1,
+        attempt: (prevRec ? prevRec.attempt : 0) + 1,
+        completed: '', note: '', reviewedBy: '', waived: false,
+        rowIndex: 0, bestRowIndex: 0, rows: []
+      };
       var a = el('tr-quiz-alert');
       if (a) a.innerHTML = '<div class="alert alert-success">Thanks, ' +
         "we'll take a look. This stays open until it's signed off.</div>";
@@ -1108,7 +1304,7 @@
     });
     var cur = null;
     mods.forEach(function (m) {
-      if (cur === null && !S.done[m.id]) cur = m.phase || 'Everything else';
+      if (cur === null && !isDone(m.id)) cur = m.phase || 'Everything else';
     });
     var wasOpen = S.openPhases.hasOwnProperty(k) ? S.openPhases[k] : (k === cur);
     S.openPhases[k] = !wasOpen;
@@ -1274,6 +1470,7 @@
       '.tr-match-img{width:104px;height:auto;flex:0 0 auto;border:1px solid #e4dbd0;border-radius:6px;background:#fff;padding:4px}',
       '.tr-match-lbl{flex:1;min-width:180px;font-size:15px;color:#333}',
       '.tr-match-sel{width:190px}','.tr-strip{margin:0 0 18px}','.tr-strip-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}','.tr-strip-when{font-family:"Barlow Condensed",sans-serif;font-size:17px;letter-spacing:.02em;text-transform:uppercase}','.tr-strip-sub{font-size:12.5px;color:#7d7468}','.tr-days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}','@media(max-width:720px){.tr-days{grid-template-columns:repeat(2,minmax(0,1fr))}}','.tr-day{background:#fff;border:1px solid #e4dbd0;border-radius:10px;padding:8px;min-height:74px}','.tr-day-name{font-size:11.5px;color:#9a9184;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}','.tr-day-free{font-size:12px;color:#b5aa9b}','.tr-slot{background:#f7e6dc;border-radius:6px;padding:5px 7px;margin-bottom:4px;cursor:pointer}','.tr-slot:last-child{margin-bottom:0}','.tr-slot:hover{background:#f2d9c9}','.tr-slot-when{font-size:11px;color:#8f4318}','.tr-slot-title{font-size:12.5px;color:#1a1a1a;line-height:1.3}','.tr-slot-assess{background:#1a1a1a}','.tr-slot-assess:hover{background:#333}','.tr-slot-assess .tr-slot-when{color:#c9bfae}','.tr-slot-assess .tr-slot-title{color:#f5ede0}','.tr-slot-tag{font-size:10.5px;color:#a89c8a;text-transform:uppercase;letter-spacing:.05em}','.tr-key{display:flex;gap:16px;font-size:12px;color:#7d7468;margin-top:8px;flex-wrap:wrap}','.tr-sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}','.tr-sw-time{background:#e8a878}','.tr-sw-assess{background:#1a1a1a}','.tr-sw-own{background:#fff;border:1px solid #cfc6ba}','.tr-ph{border:1px solid #e4dbd0;border-radius:10px;background:#fff;margin-bottom:8px;overflow:hidden}','.tr-ph-now{border-color:#c4581f}','.tr-ph-done .tr-ph-name{color:#7d7468}','.tr-ph-head{display:flex;align-items:center;gap:10px;width:100%;padding:11px 13px;background:none;border:0;cursor:pointer;text-align:left;font:inherit}','.tr-ph-head:hover{background:#faf7f2}','.tr-ph-name{flex:1;font-family:"Barlow Condensed",sans-serif;font-size:17px;letter-spacing:.01em}','.tr-ph-tick{color:#28a745}','.tr-ph-count{font-size:12px;color:#7d7468;white-space:nowrap}','.tr-ph-bar{width:64px}','.tr-ph-hrs{font-size:12px;color:#9a9184;white-space:nowrap}','.tr-ph-chev{color:#9a9184;transition:transform .15s}','.tr-ph-open .tr-ph-chev{transform:rotate(180deg)}','.tr-ph-body{display:none;padding:0 13px 12px}','.tr-ph-open .tr-ph-body{display:block}','.tr-ph-blurb{font-size:13px;color:#7d7468;margin:0 0 10px}','.tr-rows{display:flex;flex-direction:column;gap:6px}','.tr-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid #e4dbd0;border-radius:8px;background:#fff;cursor:pointer}','.tr-row:hover{border-color:#cfc6ba;background:#faf7f2}','.tr-row-ico{font-size:13px;color:#c4581f;width:15px;text-align:center;flex:0 0 auto}','.tr-row-main{flex:1;min-width:0}','.tr-row-title{display:block;font-size:14px;line-height:1.35}','.tr-row-sub{display:block;font-size:12px;color:#9a9184;margin-top:2px}','.tr-row-right{font-size:12px;color:#7d7468;white-space:nowrap;flex:0 0 auto}','.tr-row-done{background:#faf9f6}','.tr-row-done .tr-row-title{color:#9a9184;text-decoration:line-through}','.tr-row-done .tr-row-ico{color:#28a745}','.tr-row-locked{cursor:default}','.tr-row-locked:hover{border-color:#e4dbd0;background:#fff}','.tr-row-locked .tr-row-ico{color:#c0b7a8}','.tr-row-locked .tr-row-title{color:#7d7468}','.tr-row-timed{background:#fdf4ee;border-color:#e8a878}','.tr-row-timed .tr-row-right{color:#8f4318}','.tr-row-assess{background:#1a1a1a;border-color:#1a1a1a}','.tr-row-assess .tr-row-title{color:#f5ede0}','.tr-row-assess .tr-row-sub,.tr-row-assess .tr-row-right{color:#a89c8a}','.tr-row-assess .tr-row-ico{color:#e8a878}','.tr-more{display:flex;align-items:center;justify-content:center;width:100%;margin-top:6px;padding:7px;font:inherit;font-size:12.5px;color:#7d7468;background:none;border:1px dashed #d8d0c4;border-radius:8px;cursor:pointer}','.tr-more:hover{color:#1a1a1a;border-color:#c4581f}','.tr-rest{display:none;margin-top:6px}','.tr-rest-open{display:flex}','.tr-more-pre{font:inherit;font-size:12px;color:#c4581f;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}','.tr-pre-rest{display:none}','.tr-pre-open{display:inline}','.tr-img-wide{max-width:620px}','.tr-img{display:block;max-width:200px;width:100%;height:auto;margin:14px 0;border:1px solid #e4dbd0;border-radius:8px;background:#fff;padding:6px}','.tr-answer{display:block;width:100%;max-width:620px;box-sizing:border-box;font-family:inherit;font-size:15px;line-height:1.5;color:#2e2e2e;background:#fff;border:1px solid #d8d0c4;border-radius:6px;padding:11px 13px;min-height:104px;resize:vertical}','.tr-answer-one{min-height:0;height:44px;resize:none}','.tr-answer:focus{outline:none;border-color:#c4581f;box-shadow:0 0 0 3px rgba(196,88,31,.12)}','.tr-answer::placeholder{color:#a49a8d}',
+      '.tr-wait-again{background:#f8d7da;color:#721c24}',
       '.tr-q-fb{margin-top:11px}',
       '.tr-why{font-size:13px;color:#5c554c;line-height:1.55;margin-top:7px}','.tr-ask{margin-top:18px;max-width:1000px;background:#f5ede0;border-radius:8px;padding:18px 20px}','.tr-ask-t{font-family:"Barlow Condensed",Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#1a1a1a}','.tr-ask-s{font-size:13px;color:#7a7266;margin:3px 0 10px;line-height:1.5}','.tr-ask .form-textarea{background:#fff}','.tr-ask-btn{margin-top:9px;background:#1a1a1a;color:#fff;border:0;border-radius:6px;padding:9px 18px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}','.tr-ask-btn:hover{background:#000}',
       /* small screens */
@@ -1292,6 +1489,469 @@
   }
 
   /* ---------- init ---------- */
+
+
+  /* ---------- approver panel ----------
+
+     Rose and Justin only. Reads the same two tabs the trainee pages write, and
+     runs every module through the same stateOf derivation, so the panel and the
+     rep's own page can never disagree about what is done. Sign off and send back
+     write to the claimed row by rowIndex; nothing is appended, so the history
+     stays one row per attempt. */
+
+  var R = {
+    root: null, reps: [], viewer: '', badge: '',
+    doneRows: [], doneHeaders: [], resp: [],
+    loaded: false, busy: false, open: {}, stamp: ''
+  };
+
+  function repShort(n) { return String(n || '').trim().split(' ')[0]; }
+
+  function keyOf(empl, id) {
+    return (repShort(empl) + '-' + id).replace(/[^A-Za-z0-9-]/g, '');
+  }
+
+  function hasHeader(name) {
+    return cols(R.doneHeaders)(name) >= 0;
+  }
+
+  async function reviewLoad() {
+    var d = await api({ action: 'read', tab: TAB_DONE });
+    R.doneHeaders = (d && d.success && d.data && d.data.length) ? d.data[0] : [];
+    R.doneRows = R.doneHeaders.length ? readDoneRows(d.data) : [];
+
+    R.resp = [];
+    var q = await api({ action: 'read', tab: TAB_RESP });
+    if (q && q.success && q.data && q.data.length) {
+      var c = cols(q.data[0]);
+      for (var i = 1; i < q.data.length; i++) {
+        var r = q.data[i];
+        R.resp.push({
+          employee: (r[c('Employee')] || '').toString().trim(),
+          id: (r[c('Module ID')] || '').toString().trim(),
+          attempt: Number(r[c('Attempt')]) || 1,
+          question: (r[c('Question')] || '').toString(),
+          type: (r[c('Type')] || '').toString(),
+          response: (r[c('Response')] || '').toString(),
+          score: Number(r[c('Auto Score')]) || 0,
+          max: Number(r[c('Max Points')]) || 0,
+          needsReview: (r[c('Needs Review')] || '').toString().trim(),
+          submitted: (r[c('Submitted')] || '').toString().trim()
+        });
+      }
+    }
+    R.stamp = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  }
+
+  /* Borrows the trainee-side state machine by swapping in one rep's records,
+     then puts S back exactly as it was. */
+  function repView(person) {
+    var prevRole = S.role, prevDone = S.done;
+    var rows = {};
+    R.doneRows.forEach(function (r) {
+      if (r.employee !== person.name) return;
+      (rows[r.id] = rows[r.id] || []).push(r);
+    });
+    S.role = person.role;
+    S.done = {};
+    Object.keys(rows).forEach(function (id) {
+      S.done[id] = reduceAttempts(moduleById(id), rows[id]);
+    });
+
+    var out = {
+      person: person, done: S.done, mods: [], minsDone: 0, minsAll: 0,
+      passed: [], failed: [], awaiting: [], review: [], returned: [], last: null
+    };
+    out.mods = pathModules().slice().sort(function (a, b) {
+      return (a.order || 999) - (b.order || 999);
+    });
+    out.mods.forEach(function (m) {
+      var mins = Number(m.duration_min) || 0;
+      out.minsAll += mins;
+      var st = stateOf(m);
+      if (st === 'passed') { out.passed.push(m); out.minsDone += mins; }
+      else if (st === 'failed') out.failed.push(m);
+      else if (st === 'awaiting') out.awaiting.push(m);
+      else if (st === 'review') out.review.push(m);
+      else if (st === 'returned') out.returned.push(m);
+    });
+    Object.keys(S.done).forEach(function (id) {
+      var when = parseDate(S.done[id].completed);
+      if (when && (!out.last || when > out.last)) out.last = when;
+    });
+
+    S.role = prevRole;
+    S.done = prevDone;
+    return out;
+  }
+
+  function actionRow(v, m, kind) {
+    var d = v.done[m.id];
+    var k = keyOf(v.person.name, m.id);
+    var right;
+    if (kind === 'awaiting') {
+      right = '<button class="action-btn btn-approve trrev-btn" onclick="trRevApprove(' + d.rowIndex +
+        ',\'' + k + '\')">Sign off</button>' +
+        '<button class="action-btn btn-deny trrev-btn" onclick="trRevReturn(' + d.rowIndex +
+        ',\'' + k + '\')">Send back</button>';
+    } else {
+      right = '<button class="action-btn btn-approve trrev-btn" onclick="trRevWaive(' + d.bestRowIndex +
+        ',\'' + k + '\')">Pass anyway</button>';
+    }
+    var sub = kind === 'awaiting'
+      ? 'Says it is finished, attempt ' + d.attempt
+      : 'Best ' + d.score + ' of ' + d.max + ', pass mark ' + d.need + ', ' +
+        d.attempts + ' attempt' + (d.attempts === 1 ? '' : 's');
+
+    return '<div class="trrev-item">' +
+      '<div class="trrev-item-main">' +
+      '<div class="trrev-item-t">' + esc(v.person.name) + '<span class="trrev-dot">&middot;</span>' +
+      esc(m.title) + '</div>' +
+      '<div class="trrev-item-s">' + sub + '</div>' +
+      '<input type="text" class="form-input trrev-note" id="trrev-note-' + k +
+      '" placeholder="Note back to them, optional">' +
+      '</div><div class="trrev-item-act">' + right + '</div></div>';
+  }
+
+  /* The answers a rep gave, latest attempt, wrong ones first. Everything is
+     click-graded, so this is for seeing what they missed, not for marking. */
+  function answerBlock(v, m) {
+    var rows = R.resp.filter(function (r) {
+      return r.employee === v.person.name && r.id === m.id;
+    });
+    if (!rows.length) return '<div class="trrev-empty">No answers recorded.</div>';
+    var top = rows.reduce(function (a, r) { return Math.max(a, r.attempt); }, 0);
+    var latest = rows.filter(function (r) { return r.attempt === top; });
+    var missed = latest.filter(function (r) { return r.score < r.max; });
+    var got = latest.filter(function (r) { return r.score >= r.max; });
+    var h = '<div class="trrev-ans-head">Attempt ' + top +
+      (latest[0] && latest[0].submitted ? ' &middot; ' + esc(latest[0].submitted) : '') +
+      ' &middot; ' + missed.length + ' missed of ' + latest.length + '</div>';
+    missed.concat(got).forEach(function (r) {
+      var ok = r.score >= r.max;
+      h += '<div class="trrev-ans' + (ok ? '' : ' trrev-ans-bad') + '">' +
+        '<div class="trrev-ans-q">' + esc(r.question) + '</div>' +
+        '<div class="trrev-ans-a">' +
+        (ok ? '<span class="pill pill-approved">Correct</span>'
+            : '<span class="pill pill-denied">Missed</span>') +
+        '<span class="trrev-ans-txt">' + esc(r.response || '(blank)') + '</span></div></div>';
+    });
+    return h;
+  }
+
+  function moduleLine(v, m) {
+    var d = v.done[m.id];
+    var k = keyOf(v.person.name, m.id);
+    var st = d ? d.state : 'none';
+    var pill = st === 'passed' ? '<span class="pill pill-approved">Passed</span>'
+      : st === 'failed' ? '<span class="pill pill-denied">Retake</span>'
+      : st === 'awaiting' ? '<span class="pill pill-pending">Awaiting sign off</span>'
+      : st === 'review' ? '<span class="pill pill-pending">In review</span>'
+      : st === 'returned' ? '<span class="pill pill-denied">Sent back</span>'
+      : '<span class="pill pill-gray">Not started</span>';
+    var score = (d && d.max) ? d.score + ' / ' + d.max : '';
+    var clickable = !!(d && d.rows && d.rows.length && hasQuiz(m));
+    return '<div class="trrev-line' + (clickable ? ' trrev-line-open' : '') + '"' +
+      (clickable ? ' onclick="trRevAnswers(\'' + k + '\')"' : '') + '>' +
+      '<span class="trrev-line-t">' + esc(m.title) + '</span>' +
+      '<span class="trrev-line-sc">' + score + '</span>' + pill + '</div>' +
+      (clickable ? '<div class="trrev-ans-wrap" id="trrev-ans-' + k + '"></div>' : '');
+  }
+
+  function weekBars(v) {
+    var buckets = {}, order = [];
+    v.mods.forEach(function (m) {
+      var w = (m.week === null || m.week === undefined || m.week === '') ? 'Reference' : 'Week ' + m.week;
+      if (!buckets[w]) { buckets[w] = { done: 0, all: 0 }; order.push(w); }
+      buckets[w].all++;
+      if (v.done[m.id] && v.done[m.id].state === 'passed') buckets[w].done++;
+    });
+    order.sort();
+    return order.map(function (w) {
+      var b = buckets[w];
+      var pct = Math.round(b.done / b.all * 100);
+      return '<div class="trrev-wk"><span class="trrev-wk-n">' + esc(w) + '</span>' +
+        '<span class="trrev-wk-bar">' + bar(pct) + '</span>' +
+        '<span class="trrev-wk-c">' + b.done + ' / ' + b.all + '</span></div>';
+    }).join('');
+  }
+
+  function repCard(v) {
+    var pct = v.mods.length ? Math.round(v.passed.length / v.mods.length * 100) : 0;
+    var hrs = Math.round(v.minsDone / 6) / 10;
+    var allHrs = Math.round(v.minsAll / 6) / 10;
+    var openId = 'trrev-mods-' + repShort(v.person.name);
+    var isOpen = !!R.open[openId];
+
+    return '<div class="trrev-rep">' +
+      '<div class="trrev-rep-head">' +
+      '<div><div class="trrev-rep-name">' + esc(v.person.name) + '</div>' +
+      '<div class="trrev-rep-sub">' + v.passed.length + ' of ' + v.mods.length +
+      ' passed &middot; ' + hrs + ' of ' + allHrs + ' hrs' +
+      (v.last ? ' &middot; last activity ' + esc(fmtShort(v.last)) : '') + '</div></div>' +
+      '<div class="trrev-rep-pct">' + pct + '%</div></div>' +
+      '<div class="trrev-rep-bar">' + bar(pct) + '</div>' +
+      '<div class="trrev-tags">' +
+      (v.awaiting.length ? '<span class="pill pill-pending">' + v.awaiting.length + ' awaiting sign off</span>' : '') +
+      (v.failed.length ? '<span class="pill pill-denied">' + v.failed.length + ' to retake</span>' : '') +
+      (v.review.length ? '<span class="pill pill-pending">' + v.review.length + ' in review</span>' : '') +
+      (v.returned.length ? '<span class="pill pill-denied">' + v.returned.length + ' sent back</span>' : '') +
+      '</div>' +
+      weekBars(v) +
+      '<button type="button" class="trrev-toggle" onclick="trRevToggle(\'' + openId + '\')">' +
+      (isOpen ? 'Hide all modules' : 'Show all ' + v.mods.length + ' modules') + '</button>' +
+      '<div class="trrev-mods' + (isOpen ? ' trrev-mods-open' : '') + '" id="' + openId + '">' +
+      v.mods.map(function (m) { return moduleLine(v, m); }).join('') +
+      '</div></div>';
+  }
+
+  function fmtShort(d) {
+    return MON[d.getMonth()] + ' ' + d.getDate();
+  }
+
+  function renderReview() {
+    if (!R.root) return;
+    var views = R.reps.map(repView);
+    var queue = '';
+    views.forEach(function (v) {
+      v.awaiting.forEach(function (m) { queue += actionRow(v, m, 'awaiting'); });
+    });
+    views.forEach(function (v) {
+      v.failed.forEach(function (m) { queue += actionRow(v, m, 'failed'); });
+    });
+
+    var warn = '';
+    if (!hasHeader('Waived') || !hasHeader('Reviewer Note') || !hasHeader('Reviewed By')) {
+      warn = '<div class="alert alert-info" style="font-size:12.5px">' +
+        'Add the Reviewer Note, Reviewed By and Waived columns to Training_Completions ' +
+        'to record notes back to a rep and to pass a missed quiz. Sign off works without them.</div>';
+    }
+
+    var h = '<div class="trrev-top">' +
+      '<span class="trrev-stamp">Live from the sheet' + (R.stamp ? ', read at ' + esc(R.stamp) : '') + '</span>' +
+      '<button type="button" class="trrev-refresh" onclick="trRevRefresh()">Refresh</button></div>' + warn +
+      '<div class="trrev-sec">Needs you</div>' +
+      (queue || '<div class="trrev-empty">Nothing waiting. Every quiz taken is either passed or already retaken.</div>') +
+      '<div class="trrev-sec">Progress</div>' +
+      views.map(repCard).join('');
+
+    R.root.innerHTML = h;
+    setBadge(views);
+  }
+
+  function setBadge(views) {
+    if (!R.badge) return;
+    var b = el(R.badge);
+    if (!b) return;
+    var n = 0;
+    views.forEach(function (v) { n += v.awaiting.length + v.failed.length; });
+    b.textContent = n ? String(n) : '';
+    b.style.display = n ? '' : 'none';
+  }
+
+  function setCell(row, c, name, val) {
+    var ix = c(name);
+    if (ix >= 0) row[ix] = val;
+  }
+
+  async function writeDone(rowIndex, pairs) {
+    var src = R.doneRows.filter(function (r) { return r.rowIndex === rowIndex; })[0];
+    if (!src) throw new Error('that row has moved, refresh and try again');
+    var c = cols(R.doneHeaders);
+    var row = src.row.slice();
+    while (row.length < R.doneHeaders.length) row.push('');
+    pairs.forEach(function (p) { setCell(row, c, p[0], p[1]); });
+    var res = await api({
+      action: 'update', tab: TAB_DONE, rowIndex: rowIndex, row: JSON.stringify(row)
+    });
+    if (!res || !res.success) throw new Error('the sheet did not accept that write');
+  }
+
+  function noteFor(k) {
+    var f = el('trrev-note-' + k);
+    return f ? (f.value || '').trim() : '';
+  }
+
+  async function runAction(k, pairs) {
+    if (R.busy) return;
+    R.busy = true;
+    try {
+      await pairs();
+      await reviewLoad();
+      renderReview();
+    } catch (e) {
+      console.error(e);
+      var f = el('trrev-note-' + k);
+      if (f) {
+        f.value = '';
+        f.setAttribute('placeholder', 'That did not save: ' + (e.message || 'try again'));
+      }
+    }
+    R.busy = false;
+  }
+
+  window.trRevApprove = function (rowIndex, k) {
+    var note = noteFor(k);
+    runAction(k, function () {
+      return writeDone(rowIndex, [
+        ['Completed', todayStr()],
+        ['Awaiting Review', ''],
+        ['Reviewed By', R.viewer],
+        ['Reviewer Note', note]
+      ]);
+    });
+  };
+
+  window.trRevReturn = function (rowIndex, k) {
+    var note = noteFor(k) || 'Have another look at this one, then tell us again.';
+    runAction(k, function () {
+      return writeDone(rowIndex, [
+        ['Completed', ''],
+        ['Awaiting Review', ''],
+        ['Reviewed By', R.viewer],
+        ['Reviewer Note', note]
+      ]);
+    });
+  };
+
+  window.trRevWaive = function (rowIndex, k) {
+    if (!hasHeader('Waived')) return;
+    var note = noteFor(k);
+    runAction(k, function () {
+      return writeDone(rowIndex, [
+        ['Waived', 'Yes'],
+        ['Reviewed By', R.viewer],
+        ['Reviewer Note', note]
+      ]);
+    });
+  };
+
+  window.trRevToggle = function (id) {
+    R.open[id] = !R.open[id];
+    renderReview();
+  };
+
+  window.trRevAnswers = function (k) {
+    var box = el('trrev-ans-' + k);
+    if (!box) return;
+    if (box.innerHTML) { box.innerHTML = ''; return; }
+    var found = null;
+    R.reps.forEach(function (p) {
+      if (found) return;
+      var v = repView(p);
+      v.mods.forEach(function (m) {
+        if (!found && keyOf(p.name, m.id) === k) found = { v: v, m: m };
+      });
+    });
+    if (found) box.innerHTML = answerBlock(found.v, found.m);
+  };
+
+  window.trRevRefresh = async function () {
+    if (!R.root) return;
+    R.root.innerHTML = '<div class="loading">Loading training...</div>';
+    try {
+      if (!S.modules.length) await loadModules();
+      await reviewLoad();
+      renderReview();
+    } catch (e) {
+      console.error(e);
+      R.root.innerHTML = '<div class="alert alert-error">Could not load training progress. Refresh to try again.</div>';
+    }
+  };
+
+  /* modules.json is the biggest file the portal loads, so the panel does not
+     touch it until the tab is opened. The badge only needs the sheet. */
+  window.trReviewOpen = function () {
+    if (R.loaded) return;
+    R.loaded = true;
+    window.trRevRefresh();
+  };
+
+  function injectReviewStyles() {
+    if (el('trrev-style')) return;
+    var css = [
+      '.trrev-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}',
+      '.trrev-stamp{font-size:12px;color:#8a8175}',
+      '.trrev-refresh{font:inherit;font-size:12px;color:#c4581f;background:none;border:1px solid #e0d8c8;border-radius:6px;padding:5px 11px;cursor:pointer}',
+      '.trrev-refresh:hover{border-color:#c4581f}',
+      '.trrev-sec{font-family:"Barlow Condensed",Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#1a1a1a;margin:18px 0 9px;padding-bottom:5px;border-bottom:1px solid #edeae4}',
+      '.trrev-empty{font-size:13px;color:#8a8175;padding:10px 0}',
+      '.trrev-item{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;background:#fff;border:1px solid #e4dbd0;border-radius:8px;padding:12px 14px;margin-bottom:8px}',
+      '.trrev-item-main{flex:1;min-width:0}',
+      '.trrev-item-t{font-size:14.5px;font-weight:600;color:#1a1a1a;line-height:1.35}',
+      '.trrev-dot{color:#c0b7a8;margin:0 6px}',
+      '.trrev-item-s{font-size:12.5px;color:#8a8175;margin:2px 0 8px}',
+      '.trrev-note{max-width:420px;font-size:13px;padding:6px 9px}',
+      '.trrev-item-act{display:flex;flex-direction:column;gap:6px;flex:0 0 auto}',
+      '.trrev-btn{white-space:nowrap;min-width:104px}',
+      '.trrev-rep{background:#faf7f2;border:1px solid #e4dbd0;border-radius:8px;padding:14px 16px;margin-bottom:12px}',
+      '.trrev-rep-head{display:flex;justify-content:space-between;align-items:baseline}',
+      '.trrev-rep-name{font-family:"Barlow Condensed",Arial,sans-serif;font-size:19px;letter-spacing:0.01em;color:#1a1a1a}',
+      '.trrev-rep-sub{font-size:12.5px;color:#8a8175;margin-top:1px}',
+      '.trrev-rep-pct{font-family:"Barlow Condensed",Arial,sans-serif;font-size:26px;font-weight:700;color:#c4581f;line-height:1}',
+      '.trrev-rep-bar{margin:9px 0 10px}',
+      '.trrev-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}',
+      '.trrev-tags:empty{display:none}',
+      '.trrev-wk{display:flex;align-items:center;gap:10px;margin-bottom:5px}',
+      '.trrev-wk-n{font-size:12.5px;color:#5c554c;width:82px;flex:0 0 auto}',
+      '.trrev-wk-bar{flex:1;max-width:280px}',
+      '.trrev-wk-c{font-size:12px;color:#8a8175;white-space:nowrap}',
+      '.trrev-toggle{font:inherit;font-size:12.5px;color:#7d7468;background:none;border:1px dashed #d8d0c4;border-radius:8px;padding:6px 11px;margin-top:10px;cursor:pointer}',
+      '.trrev-toggle:hover{color:#1a1a1a;border-color:#c4581f}',
+      '.trrev-mods{display:none;margin-top:9px}',
+      '.trrev-mods-open{display:block}',
+      '.trrev-line{display:flex;align-items:center;gap:10px;padding:7px 10px;background:#fff;border:1px solid #edeae4;border-radius:6px;margin-bottom:4px}',
+      '.trrev-line-open{cursor:pointer}',
+      '.trrev-line-open:hover{border-color:#c4581f}',
+      '.trrev-line-t{flex:1;font-size:13.5px;color:#2e2e2e;min-width:0}',
+      '.trrev-line-sc{font-size:12px;color:#8a8175;white-space:nowrap}',
+      '.trrev-ans-wrap:empty{display:none}',
+      '.trrev-ans-wrap{background:#fff;border:1px solid #edeae4;border-radius:6px;padding:10px 12px;margin:0 0 6px}',
+      '.trrev-ans-head{font-size:12px;color:#8a8175;margin-bottom:7px}',
+      '.trrev-ans{padding:7px 0;border-top:1px solid #f4f1ec}',
+      '.trrev-ans:first-of-type{border-top:none}',
+      '.trrev-ans-q{font-size:13px;color:#1a1a1a;line-height:1.4}',
+      '.trrev-ans-a{display:flex;gap:8px;align-items:baseline;margin-top:4px}',
+      '.trrev-ans-txt{font-size:12.5px;color:#5c554c;line-height:1.45}',
+      '.trrev-ans-bad .trrev-ans-txt{color:#721c24}',
+      '@media(max-width:640px){.trrev-item{flex-direction:column}.trrev-item-act{flex-direction:row;width:100%}.trrev-wk-n{width:66px}}'
+    ].join('');
+    var st = document.createElement('style');
+    st.id = 'trrev-style';
+    st.textContent = css;
+    document.head.appendChild(st);
+  }
+
+  /* Called on the owner pages. reps is [{name, role}]. The badge is filled from
+     one sheet read now; the panel itself waits for the tab. */
+  window.initTrainingReview = async function (rootId, reps, opts) {
+    var o = opts || {};
+    R.root = el(rootId);
+    R.reps = reps || [];
+    R.viewer = o.viewer || '';
+    R.badge = o.badgeId || '';
+    if (!R.root) return;
+    injectStyles();
+    injectReviewStyles();
+    R.root.innerHTML = '<div class="loading">Loading training...</div>';
+    try {
+      await reviewLoad();
+      var waiting = R.doneRows.filter(function (r) {
+        return r.employee && /^yes$/i.test(r.awaiting);
+      }).length;
+      if (R.badge) {
+        var b = el(R.badge);
+        if (b) {
+          b.textContent = waiting ? String(waiting) : '';
+          b.style.display = waiting ? '' : 'none';
+        }
+      }
+      R.root.innerHTML = '<div class="loading">Open this tab to load training progress.</div>';
+    } catch (e) {
+      console.error(e);
+      R.root.innerHTML = '<div class="alert alert-error">Could not reach the training sheet.</div>';
+    }
+  };
 
   window.initTraining = async function (employee, role) {
     S.employee = employee;
