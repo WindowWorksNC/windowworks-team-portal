@@ -247,10 +247,20 @@
   var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+  /* A bare yyyy-mm-dd is midnight UTC per the language spec, which reads as the
+     previous evening anywhere west of Greenwich, so every date in the portal
+     came out a day early. Date only strings are built as local dates. Anything
+     carrying a time or an offset is left to the engine. */
   function parseDate(v) {
     if (!v) return null;
-    var d = new Date(v);
-    return isNaN(d.getTime()) ? null : d;
+    var s = String(v).trim();
+    var m = /^(\d{4})-(\d{2})-(\d{2})(?:[T ]00:00(?::00(?:\.000)?)?Z?)?$/.exec(s);
+    if (m) {
+      var d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+      return isNaN(d.getTime()) ? null : d;
+    }
+    var x = new Date(s);
+    return isNaN(x.getTime()) ? null : x;
   }
 
   function weekRange(hire, n) {
