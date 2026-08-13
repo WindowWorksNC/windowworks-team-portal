@@ -28,6 +28,7 @@
     hire: null,
     openWeeks: {},
     openPhases: {},
+    wkView: null,
     order: [],
     busy: false
   };
@@ -283,6 +284,38 @@
     return maxWeek;
   }
 
+  /* A session can run more than one day. session_end_date is inclusive, and
+     duration_min is the total across all of them, so the per day figure is the
+     total divided by the day count. */
+  function sessionDays(m) {
+    var a = parseDate(m.session_date);
+    if (!a) return [];
+    var b = parseDate(m.session_end_date) || a;
+    var out = [], cur = new Date(a.getFullYear(), a.getMonth(), a.getDate());
+    var last = new Date(b.getFullYear(), b.getMonth(), b.getDate());
+    while (cur <= last && out.length < 14) {
+      if (cur.getDay() !== 0 && cur.getDay() !== 6) out.push(new Date(cur.getTime()));
+      cur.setDate(cur.getDate() + 1);
+    }
+    return out;
+  }
+
+  /* Anything half a day or longer gets a finish time, because a start time on
+     its own does not tell you the day is gone. */
+  function sessionSpan(m) {
+    var t = sessionTime(m);
+    if (!t) return '';
+    var days = sessionDays(m).length || 1;
+    var per = (Number(m.duration_min) || 0) / days;
+    if (per < 180) return time12(t);
+    var hm = /^(\d{1,2}):(\d{2})$/.exec(t);
+    if (!hm) return time12(t);
+    var mins = Number(hm[1]) * 60 + Number(hm[2]) + per;
+    var eh = Math.floor(mins / 60) % 24, em = Math.round(mins % 60);
+    var end = (eh < 10 ? '0' : '') + eh + ':' + (em < 10 ? '0' : '') + em;
+    return time12(t) + ' to ' + time12(end);
+  }
+
   function isLive(m) { return (m.format || '') === 'live'; }
 
   function firstName(n) { return String(n || '').trim().split(/\s+/)[0]; }
@@ -303,7 +336,8 @@
     var t = m.session_time;
     if (!t) return '';
     if (typeof t === 'string') return t;
-    return t[firstName(S.hire)] || '';
+    /* keyed on the trainee's first name, not the hire date */
+    return t[firstName(S.employee)] || '';
   }
 
   /* Nothing is hidden. Something is locked only when it has a prerequisite that
@@ -628,40 +662,99 @@
   }
 
   /* The strip answers one question: where do I have to be, and when. Only the
-     items that carry a time appear in it. */
+     items that carry a time appear in it.
+
+     Weeks are anchored on the hire date, so week 1 is the Mon to Fri of the week
+     they start and the numbering matches the week field on the modules. Without a
+     hire date on file it falls back to the Monday of the first session. The rep
+     can tab to any week; it opens on the one holding today, and once the last
+     session is behind them the strip stops rendering, since a finished rep still
+     needs the modules but not the calendar. */
+  function stripAnchor(timed) {
+    if (S.hire) return mondayOf(S.hire);
+    var first = null;
+    timed.forEach(function (m) {
+      sessionDays(m).forEach(function (d) { if (!first || d < first) first = d; });
+    });
+    return first ? mondayOf(first) : null;
+  }
+
   function weekStrip(mods) {
     var timed = mods.filter(function (m) { return m.session_date && sessionTime(m); });
     if (!timed.length) return '';
-    var dates = timed.map(function (m) { return parseDate(m.session_date); })
-      .filter(Boolean).sort(function (a, b) { return a - b; });
-    var first = dates[0], last = dates[dates.length - 1];
-    var mon = mondayOf(new Date());
-    if (mon < mondayOf(first)) mon = mondayOf(first);
-    if (mon > mondayOf(last)) mon = mondayOf(last);
+    var anchor = stripAnchor(timed);
+    if (!anchor) return '';
 
-    var cells = '', booked = 0;
+    var last = null;
+    timed.forEach(function (m) {
+      sessionDays(m).forEach(function (d) { if (!last || d > last) last = d; });
+    });
+    var nowMon = mondayOf(new Date());
+    if (last && nowMon > mondayOf(last)) return '';
+
+    var weeks = Math.round((mondayOf(last) - anchor) / 604800000) + 1;
+    mods.forEach(function (m) {
+      var w = Number(m.week);
+      if (w && w > weeks) weeks = w;
+    });
+    if (weeks < 1) weeks = 1;
+    if (weeks > 26) weeks = 26;
+
+    var nowWeek = Math.round((nowMon - anchor) / 604800000) + 1;
+    if (nowWeek < 1) nowWeek = 1;
+    if (nowWeek > weeks) nowWeek = weeks;
+
+    var view = Number(S.wkView) || nowWeek;
+    if (view < 1) view = 1;
+    if (view > weeks) view = weeks;
+
+    var mon = new Date(anchor.getTime());
+    mon.setDate(mon.getDate() + (view - 1) * 7);
+    var fri = new Date(mon.getTime());
+    fri.setDate(fri.getDate() + 4);
+    var today = new Date();
+
+    var tabs = '';
+    for (var w = 1; w <= weeks; w++) {
+      var ws = new Date(anchor.getTime());
+      ws.setDate(ws.getDate() + (w - 1) * 7);
+      var we = new Date(ws.getTime());
+      we.setDate(we.getDate() + 4);
+      tabs += '<button type="button" class="tr-wkt-b' + (w === view ? ' tr-wkt-on' : '') +
+        '" onclick="trWeekTab(' + w + ')">' +
+        '<span class="tr-wkt-n">Week ' + w + '</span>' +
+        '<span class="tr-wkt-d">' + esc(rangeLabel({ start: ws, end: we })) + '</span>' +
+        (w === nowWeek && nowMon >= anchor ? '<i class="tr-wkt-dot"></i>' : '') +
+        '</button>';
+    }
+
+    var cells = '', counted = {}, booked = 0;
     for (var i = 0; i < 5; i++) {
       var day = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + i);
-      var onDay = timed.filter(function (m) { return sameDay(parseDate(m.session_date), day); })
-        .sort(function (a, b) { return sessionTime(a) < sessionTime(b) ? -1 : 1; });
+      var onDay = timed.filter(function (m) {
+        return sessionDays(m).some(function (d) { return sameDay(d, day); });
+      }).sort(function (a, b) { return sessionTime(a) < sessionTime(b) ? -1 : 1; });
       var blocks = onDay.map(function (m) {
-        booked += Number(m.duration_min) || 0;
+        /* a session spanning two days is one booking, not two */
+        if (!counted[m.id]) { counted[m.id] = 1; booked += Number(m.duration_min) || 0; }
         return '<div class="tr-slot' + (m.assessment ? ' tr-slot-assess' : '') +
           '" onclick="trOpen(\'' + esc(m.id) + '\')">' +
-          '<div class="tr-slot-when">' + esc(time12(sessionTime(m))) +
+          '<div class="tr-slot-when">' + esc(sessionSpan(m)) +
           (m.owner ? ' &middot; ' + esc(m.owner) : '') + '</div>' +
           '<div class="tr-slot-title">' + esc(m.title) + '</div>' +
           (m.assessment ? '<div class="tr-slot-tag">Assessment</div>' : '') +
           '</div>';
       }).join('');
-      cells += '<div class="tr-day"><div class="tr-day-name">' + DOW[i] + ' ' +
-        day.getDate() + '</div>' + (blocks || '<div class="tr-day-free">Your own time</div>') +
-        '</div>';
+      cells += '<div class="tr-day' + (sameDay(day, today) ? ' tr-day-today' : '') + '">' +
+        '<div class="tr-day-name">' + DOW[i] + ' ' + day.getDate() + '</div>' +
+        (blocks || '<div class="tr-day-free">Your own time</div>') + '</div>';
     }
     var hrs = Math.round(booked / 6) / 10;
     return '<section class="tr-strip"><div class="tr-strip-head">' +
-      '<span class="tr-strip-when">' + MON[mon.getMonth()] + ' ' + mon.getDate() + '</span>' +
+      '<span class="tr-strip-when">Week ' + view + ', ' +
+      esc(rangeLabel({ start: mon, end: fri })) + '</span>' +
       '<span class="tr-strip-sub">' + hrs + ' hrs booked this week</span></div>' +
+      '<div class="tr-wkt">' + tabs + '</div>' +
       '<div class="tr-days">' + cells + '</div>' +
       '<div class="tr-key">' +
       '<span><i class="tr-sw tr-sw-time"></i>Has a time</span>' +
@@ -697,8 +790,12 @@
     else if (done) cls += ' tr-row-done';
     else if (!st.open) cls += ' tr-row-locked';
     var icon = done ? '&#10003;' : (t ? '&#9200;' : (st.open ? '&#9654;' : '&#128274;'));
+    var days = sessionDays(m);
+    var endD = days.length > 1 ? days[days.length - 1] : null;
     var right = t
-      ? esc(DOW[((when.getDay() + 6) % 7)] + ' ' + when.getDate() + ', ' + time12(t))
+      ? esc(DOW[((when.getDay() + 6) % 7)] + ' ' + when.getDate() +
+            (endD ? ' to ' + DOW[((endD.getDay() + 6) % 7)] + ' ' + endD.getDate() : '') +
+            ', ' + sessionSpan(m))
       : (Number(m.duration_min) || 0) + ' m';
     var sub = '';
     if (state === 'awaiting' || state === 'review') sub = 'In review';
@@ -1334,6 +1431,11 @@
     ev.target.textContent = on ? 'show less' : ev.target.getAttribute('data-label') || 'and more';
   };
 
+  window.trWeekTab = function (n) {
+    S.wkView = Number(n) || 1;
+    renderList();
+  };
+
   window.trToggleWeek = function (k) {
     var mods = pathModules();
     var numbered = mods.map(function (m) { return m.week; })
@@ -1572,7 +1674,7 @@
       '.tr-match-row-img{align-items:flex-start;margin-bottom:14px}',
       '.tr-match-img{width:132px;height:auto;flex:0 0 auto;border:1px solid #e4dbd0;border-radius:6px;background:#fff;padding:4px;cursor:zoom-in}','.tr-match-img:hover{border-color:#c4581f}',
       '.tr-match-lbl{flex:1;min-width:180px;font-size:15px;color:#333}',
-      '.tr-match-sel{width:190px}','.tr-strip{margin:0 0 18px}','.tr-strip-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}','.tr-strip-when{font-family:"Barlow Condensed",sans-serif;font-size:17px;letter-spacing:.02em;text-transform:uppercase}','.tr-strip-sub{font-size:12.5px;color:#7d7468}','.tr-days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}','@media(max-width:720px){.tr-days{grid-template-columns:repeat(2,minmax(0,1fr))}}','.tr-day{background:#fff;border:1px solid #e4dbd0;border-radius:10px;padding:8px;min-height:74px}','.tr-day-name{font-size:11.5px;color:#9a9184;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}','.tr-day-free{font-size:12px;color:#b5aa9b}','.tr-slot{background:#f7e6dc;border-radius:6px;padding:5px 7px;margin-bottom:4px;cursor:pointer}','.tr-slot:last-child{margin-bottom:0}','.tr-slot:hover{background:#f2d9c9}','.tr-slot-when{font-size:11px;color:#8f4318}','.tr-slot-title{font-size:12.5px;color:#1a1a1a;line-height:1.3}','.tr-slot-assess{background:#1a1a1a}','.tr-slot-assess:hover{background:#333}','.tr-slot-assess .tr-slot-when{color:#c9bfae}','.tr-slot-assess .tr-slot-title{color:#f5ede0}','.tr-slot-tag{font-size:10.5px;color:#a89c8a;text-transform:uppercase;letter-spacing:.05em}','.tr-key{display:flex;gap:16px;font-size:12px;color:#7d7468;margin-top:8px;flex-wrap:wrap}','.tr-sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}','.tr-sw-time{background:#e8a878}','.tr-sw-assess{background:#1a1a1a}','.tr-sw-own{background:#fff;border:1px solid #cfc6ba}','.tr-ph{border:1px solid #e4dbd0;border-radius:10px;background:#fff;margin-bottom:8px;overflow:hidden}','.tr-ph-now{border-color:#c4581f}','.tr-ph-done .tr-ph-name{color:#7d7468}','.tr-ph-head{display:flex;align-items:center;gap:10px;width:100%;padding:11px 13px;background:none;border:0;cursor:pointer;text-align:left;font:inherit}','.tr-ph-head:hover{background:#faf7f2}','.tr-ph-name{flex:1;font-family:"Barlow Condensed",sans-serif;font-size:17px;letter-spacing:.01em}','.tr-ph-tick{color:#28a745}','.tr-ph-count{font-size:12px;color:#7d7468;white-space:nowrap}','.tr-ph-bar{width:64px}','.tr-ph-hrs{font-size:12px;color:#9a9184;white-space:nowrap}','.tr-ph-chev{color:#9a9184;transition:transform .15s}','.tr-ph-open .tr-ph-chev{transform:rotate(180deg)}','.tr-ph-body{display:none;padding:0 13px 12px}','.tr-ph-open .tr-ph-body{display:block}','.tr-ph-blurb{font-size:13px;color:#7d7468;margin:0 0 10px}','.tr-rows{display:flex;flex-direction:column;gap:6px}','.tr-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid #e4dbd0;border-radius:8px;background:#fff;cursor:pointer}','.tr-row:hover{border-color:#cfc6ba;background:#faf7f2}','.tr-row-ico{font-size:13px;color:#c4581f;width:15px;text-align:center;flex:0 0 auto}','.tr-row-main{flex:1;min-width:0}','.tr-row-title{display:block;font-size:14px;line-height:1.35}','.tr-row-sub{display:block;font-size:12px;color:#9a9184;margin-top:2px}','.tr-row-right{font-size:12px;color:#7d7468;white-space:nowrap;flex:0 0 auto}','.tr-row-done{background:#faf9f6}','.tr-row-done .tr-row-title{color:#9a9184;text-decoration:line-through}','.tr-row-done .tr-row-ico{color:#28a745}','.tr-row-locked{cursor:default}','.tr-row-locked:hover{border-color:#e4dbd0;background:#fff}','.tr-row-locked .tr-row-ico{color:#c0b7a8}','.tr-row-locked .tr-row-title{color:#7d7468}','.tr-row-timed{background:#fdf4ee;border-color:#e8a878}','.tr-row-timed .tr-row-right{color:#8f4318}','.tr-row-assess{background:#1a1a1a;border-color:#1a1a1a}','.tr-row-assess .tr-row-title{color:#f5ede0}','.tr-row-assess .tr-row-sub,.tr-row-assess .tr-row-right{color:#a89c8a}','.tr-row-assess .tr-row-ico{color:#e8a878}','.tr-more{display:flex;align-items:center;justify-content:center;width:100%;margin-top:6px;padding:7px;font:inherit;font-size:12.5px;color:#7d7468;background:none;border:1px dashed #d8d0c4;border-radius:8px;cursor:pointer}','.tr-more:hover{color:#1a1a1a;border-color:#c4581f}','.tr-rest{display:none;margin-top:6px}','.tr-rest-open{display:flex}','.tr-more-pre{font:inherit;font-size:12px;color:#c4581f;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}','.tr-pre-rest{display:none}','.tr-pre-open{display:inline}','.tr-img.tr-img-wide{max-width:760px}','.tr-img{display:block;max-width:270px;width:100%;height:auto;margin:14px 0;border:1px solid #e4dbd0;border-radius:8px;background:#fff;padding:6px;cursor:zoom-in}','.tr-img:hover{border-color:#c4581f}','.tr-answer{display:block;width:100%;max-width:620px;box-sizing:border-box;font-family:inherit;font-size:15px;line-height:1.5;color:#2e2e2e;background:#fff;border:1px solid #d8d0c4;border-radius:6px;padding:11px 13px;min-height:104px;resize:vertical}','.tr-answer-one{min-height:0;height:44px;resize:none}','.tr-answer:focus{outline:none;border-color:#c4581f;box-shadow:0 0 0 3px rgba(196,88,31,.12)}','.tr-answer::placeholder{color:#a49a8d}',
+      '.tr-match-sel{width:190px}','.tr-strip{margin:0 0 18px}','.tr-strip-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}','.tr-strip-when{font-family:"Barlow Condensed",sans-serif;font-size:17px;letter-spacing:.02em;text-transform:uppercase}','.tr-strip-sub{font-size:12.5px;color:#7d7468}','.tr-wkt{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}','.tr-wkt-b{display:flex;align-items:baseline;gap:7px;padding:6px 11px;border:1px solid #d8d0c4;border-radius:99px;background:#fff;font:inherit;font-size:13px;color:#5c554c;cursor:pointer;white-space:nowrap}','.tr-wkt-b:hover{border-color:#c4581f}','.tr-wkt-n{font-family:"Barlow Condensed",Arial,sans-serif;font-size:15px;letter-spacing:.03em;text-transform:uppercase;color:#1a1a1a}','.tr-wkt-d{font-size:12px;color:#9a9184}','.tr-wkt-on{background:#1a1a1a;border-color:#1a1a1a}','.tr-wkt-on .tr-wkt-n{color:#fff}','.tr-wkt-on .tr-wkt-d{color:#c9bfae}','.tr-wkt-dot{width:6px;height:6px;border-radius:50%;background:#c4581f;flex:0 0 auto;align-self:center}','.tr-day-today{border-color:#c4581f}','.tr-days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}','@media(max-width:720px){.tr-days{grid-template-columns:repeat(2,minmax(0,1fr))}}','.tr-day{background:#fff;border:1px solid #e4dbd0;border-radius:10px;padding:8px;min-height:74px}','.tr-day-name{font-size:11.5px;color:#9a9184;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}','.tr-day-free{font-size:12px;color:#b5aa9b}','.tr-slot{background:#f7e6dc;border-radius:6px;padding:5px 7px;margin-bottom:4px;cursor:pointer}','.tr-slot:last-child{margin-bottom:0}','.tr-slot:hover{background:#f2d9c9}','.tr-slot-when{font-size:11px;color:#8f4318}','.tr-slot-title{font-size:12.5px;color:#1a1a1a;line-height:1.3}','.tr-slot-assess{background:#1a1a1a}','.tr-slot-assess:hover{background:#333}','.tr-slot-assess .tr-slot-when{color:#c9bfae}','.tr-slot-assess .tr-slot-title{color:#f5ede0}','.tr-slot-tag{font-size:10.5px;color:#a89c8a;text-transform:uppercase;letter-spacing:.05em}','.tr-key{display:flex;gap:16px;font-size:12px;color:#7d7468;margin-top:8px;flex-wrap:wrap}','.tr-sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}','.tr-sw-time{background:#e8a878}','.tr-sw-assess{background:#1a1a1a}','.tr-sw-own{background:#fff;border:1px solid #cfc6ba}','.tr-ph{border:1px solid #e4dbd0;border-radius:10px;background:#fff;margin-bottom:8px;overflow:hidden}','.tr-ph-now{border-color:#c4581f}','.tr-ph-done .tr-ph-name{color:#7d7468}','.tr-ph-head{display:flex;align-items:center;gap:10px;width:100%;padding:11px 13px;background:none;border:0;cursor:pointer;text-align:left;font:inherit}','.tr-ph-head:hover{background:#faf7f2}','.tr-ph-name{flex:1;font-family:"Barlow Condensed",sans-serif;font-size:17px;letter-spacing:.01em}','.tr-ph-tick{color:#28a745}','.tr-ph-count{font-size:12px;color:#7d7468;white-space:nowrap}','.tr-ph-bar{width:64px}','.tr-ph-hrs{font-size:12px;color:#9a9184;white-space:nowrap}','.tr-ph-chev{color:#9a9184;transition:transform .15s}','.tr-ph-open .tr-ph-chev{transform:rotate(180deg)}','.tr-ph-body{display:none;padding:0 13px 12px}','.tr-ph-open .tr-ph-body{display:block}','.tr-ph-blurb{font-size:13px;color:#7d7468;margin:0 0 10px}','.tr-rows{display:flex;flex-direction:column;gap:6px}','.tr-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid #e4dbd0;border-radius:8px;background:#fff;cursor:pointer}','.tr-row:hover{border-color:#cfc6ba;background:#faf7f2}','.tr-row-ico{font-size:13px;color:#c4581f;width:15px;text-align:center;flex:0 0 auto}','.tr-row-main{flex:1;min-width:0}','.tr-row-title{display:block;font-size:14px;line-height:1.35}','.tr-row-sub{display:block;font-size:12px;color:#9a9184;margin-top:2px}','.tr-row-right{font-size:12px;color:#7d7468;white-space:nowrap;flex:0 0 auto}','.tr-row-done{background:#faf9f6}','.tr-row-done .tr-row-title{color:#9a9184;text-decoration:line-through}','.tr-row-done .tr-row-ico{color:#28a745}','.tr-row-locked{cursor:default}','.tr-row-locked:hover{border-color:#e4dbd0;background:#fff}','.tr-row-locked .tr-row-ico{color:#c0b7a8}','.tr-row-locked .tr-row-title{color:#7d7468}','.tr-row-timed{background:#fdf4ee;border-color:#e8a878}','.tr-row-timed .tr-row-right{color:#8f4318}','.tr-row-assess{background:#1a1a1a;border-color:#1a1a1a}','.tr-row-assess .tr-row-title{color:#f5ede0}','.tr-row-assess .tr-row-sub,.tr-row-assess .tr-row-right{color:#a89c8a}','.tr-row-assess .tr-row-ico{color:#e8a878}','.tr-more{display:flex;align-items:center;justify-content:center;width:100%;margin-top:6px;padding:7px;font:inherit;font-size:12.5px;color:#7d7468;background:none;border:1px dashed #d8d0c4;border-radius:8px;cursor:pointer}','.tr-more:hover{color:#1a1a1a;border-color:#c4581f}','.tr-rest{display:none;margin-top:6px}','.tr-rest-open{display:flex}','.tr-more-pre{font:inherit;font-size:12px;color:#c4581f;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}','.tr-pre-rest{display:none}','.tr-pre-open{display:inline}','.tr-img.tr-img-wide{max-width:760px}','.tr-img{display:block;max-width:270px;width:100%;height:auto;margin:14px 0;border:1px solid #e4dbd0;border-radius:8px;background:#fff;padding:6px;cursor:zoom-in}','.tr-img:hover{border-color:#c4581f}','.tr-answer{display:block;width:100%;max-width:620px;box-sizing:border-box;font-family:inherit;font-size:15px;line-height:1.5;color:#2e2e2e;background:#fff;border:1px solid #d8d0c4;border-radius:6px;padding:11px 13px;min-height:104px;resize:vertical}','.tr-answer-one{min-height:0;height:44px;resize:none}','.tr-answer:focus{outline:none;border-color:#c4581f;box-shadow:0 0 0 3px rgba(196,88,31,.12)}','.tr-answer::placeholder{color:#a49a8d}',
       '.tr-wait-again{background:#f8d7da;color:#721c24}',
       '.tr-q-fb{margin-top:11px}',
       '.tr-why{font-size:13px;color:#5c554c;line-height:1.55;margin-top:7px}','.tr-ask{margin-top:18px;max-width:1000px;background:#f5ede0;border-radius:8px;padding:18px 20px}','.tr-ask-t{font-family:"Barlow Condensed",Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#1a1a1a}','.tr-ask-s{font-size:13px;color:#7a7266;margin:3px 0 10px;line-height:1.5}','.tr-ask .form-textarea{background:#fff}','.tr-ask-btn{margin-top:9px;background:#1a1a1a;color:#fff;border:0;border-radius:6px;padding:9px 18px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}','.tr-ask-btn:hover{background:#000}',

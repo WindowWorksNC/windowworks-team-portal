@@ -470,7 +470,7 @@
     "sales-b2c"
    ],
    "week": 2,
-   "duration_min": 960,
+   "duration_min": 840,
    "video": null,
    "video_source": "none",
    "format": "live",
@@ -488,7 +488,9 @@
    "phase": "Sales training with Top Rep",
    "phase_index": 2,
    "phase_blurb": "The online course, the live session, and the AI assisted sales simulator.",
-   "order": 14
+   "order": 14,
+   "session_time": "09:00",
+   "session_end_date": "2026-08-25"
   },
   {
    "id": "LV-030",
@@ -2607,15 +2609,15 @@
    "roles": [
     "sales-b2c"
    ],
-   "week": 4,
+   "week": 3,
    "duration_min": 45,
    "video": null,
    "video_source": "none",
    "format": "live",
    "owner": "Justin",
-   "session_time": "10:00",
+   "session_time": "09:00",
    "signoff": "approver",
-   "session_date": "2026-08-31",
+   "session_date": "2026-09-04",
    "reviewed": "2026-08-10",
    "last_verified": "2026-08-06",
    "prereq": [],
@@ -4248,7 +4250,7 @@
    "roles": [
     "sales-b2c"
    ],
-   "week": 4,
+   "week": 3,
    "duration_min": 90,
    "format": "live",
    "owner": "Rose",
@@ -4280,7 +4282,7 @@
    "roles": [
     "sales-b2c"
    ],
-   "week": 4,
+   "week": 3,
    "assessment": true,
    "duration_min": 60,
    "format": "live",
