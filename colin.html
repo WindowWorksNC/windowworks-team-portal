@@ -2011,17 +2011,11 @@ applyCloseGateColinYear();
   var b=document.createElement('div');
   b.textContent='v'+(ver||'?');
   b.title='Deployed portal build';
-  // Content id is hashed from modules.json by build.py and is independent of the
-  // build number, so a content only upload changes this half and leaves v alone.
-  function stamp(id,gen){
-    b.textContent='v'+(ver||'?')+' \u00b7 '+id;
-    b.title='Build v'+(ver||'?')+', content '+id+(gen?', compiled '+gen:'');
-  }
-  try{
-    fetch('modules.json?v='+(ver||'0')).then(function(r){ return r.ok?r.json():null; })
-      .then(function(d){ if(d&&d.content_id) stamp(d.content_id,d.generated); })
-      .catch(function(){});
-  }catch(e){}
+  /* Content ships on its own, so the badge names both or it names neither. */
+  fetch('modules.json?t='+Date.now()).then(function(r){return r.ok?r.json():null;}).then(function(d){
+    if(d&&d.content_id){b.textContent='v'+(ver||'?')+' \u00b7 '+d.content_id;
+      b.title='Portal build v'+(ver||'?')+', training content '+d.content_id+' generated '+(d.generated||'');}
+  }).catch(function(){});
   b.style.cssText='position:fixed;bottom:8px;right:10px;font-family:Barlow,Arial,sans-serif;font-size:11px;font-weight:600;color:#999;background:rgba(245,237,224,0.92);border:1px solid #e0d8c8;padding:2px 8px;border-radius:10px;z-index:99999;pointer-events:none';
   document.body.appendChild(b);
 })();
