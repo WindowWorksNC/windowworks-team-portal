@@ -47,6 +47,14 @@
 
   function todayStr() { return new Date().toLocaleDateString('en-US'); }
 
+  /* Sheets stores the Completed cell as a real date, so it reads back as
+     2026-08-17T04:00:00.000Z rather than the string that was written. Show
+     the day, and fall back to the raw value if it will not parse. */
+  function dayStr(v) {
+    var d = parseDate(v);
+    return d ? d.toLocaleDateString('en-US') : String(v == null ? '' : v);
+  }
+
   function decKey(s) {
     try {
       var bin = atob(s);
@@ -1048,7 +1056,7 @@
       var msg;
       if (needsSignoff(m)) {
         msg = d.state === 'passed'
-          ? 'Signed off' + (d.completed ? ' ' + esc(d.completed) : '') + '.'
+          ? 'Signed off' + (d.completed ? ' ' + esc(dayStr(d.completed)) : '') + '.'
           : d.state === 'awaiting'
             ? 'You have said this is finished. It is waiting on sign off.'
             : d.state === 'returned'
@@ -1063,7 +1071,7 @@
               ? 'Some points are still with Rose and Justin.'
               : 'Not there yet. Take it again.');
       } else {
-        msg = 'Marked complete ' + esc(d.completed) + '.';
+        msg = 'Marked complete ' + esc(dayStr(d.completed)) + '.';
       }
       html += '<div class="alert ' + cls + '" style="font-size:13px">' + msg + '</div>';
     }
