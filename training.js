@@ -31,6 +31,7 @@
     openPhases: {},
     wkView: null,
     order: [],
+    orderFor: null,
     busy: false
   };
 
@@ -394,7 +395,17 @@
       '<div class="tr-chainstrip-s">No quiz on this one. It builds toward ' +
       esc(c.assess.title) + '.</div>' + bar(pct) + '</div>';
   }
-  function needsSignoff(m) { return (m.signoff || '') === 'approver'; }
+  /* Live sessions carried signoff: approver, which meant a rep finished one,
+     told us, and then sat behind it until an owner signed it off. Everything
+     downstream of it stayed locked in the meantime. Completion is now self
+     certified: pass the quiz where there is one, otherwise mark it complete
+     and carry on. The signoff field stays in the module data and the approver
+     panel still shows every module, score and answer, so this is one flag. */
+  var SELF_CERTIFY = true;
+
+  function needsSignoff(m) {
+    return !SELF_CERTIFY && (m.signoff || '') === 'approver';
+  }
 
   /* ---------- data ---------- */
 
@@ -1016,6 +1027,8 @@
 
   function renderModule(m) {
     S.current = m.id;
+    S.order = [];
+    S.orderFor = null;
     var d = S.done[m.id];
     var live = isLive(m);
     var when = parseDate(m.session_date);
@@ -1029,7 +1042,7 @@
       '<div class="tr-mod-meta">' + esc(m.id) + ' &middot; ' + esc(m.track || '') + ' &middot; ' +
       (Number(m.duration_min) || 0) + ' min' + (m.tier === 'advanced' ? ' &middot; advanced' : '') + '</div></div>';
 
-    if (d) {
+    if (d && d.state !== 'none') {
       var cls = d.state === 'passed' ? 'alert-success'
         : (d.state === 'failed' || d.state === 'returned') ? 'alert-error' : 'alert-info';
       var msg;
@@ -1089,7 +1102,7 @@
     } else {
       html += '<div id="tr-quiz-alert"></div>' +
         '<button class="submit-btn" id="tr-submit" onclick="trSubmit()">' +
-        (d ? 'Mark Complete Again' : 'Mark Complete') + '</button>';
+        (d && d.state === 'passed' ? 'Mark Complete Again' : 'Mark Complete') + '</button>';
     }
 
     el('tr-root').innerHTML = html;
@@ -1134,6 +1147,7 @@
       eyebrow = 'Assessment &middot; ' + esc(c.label) + ' &middot; ' + dn + ' of ' + c.steps.length + ' modules done';
     }
     S.order = buildOrder(m);
+    S.orderFor = m.id;
     var lead = (m.body_md || '').trim().replace(/[#*`]/g, '').trim();
     var html = '<div class="tr-quizhead">' +
       '<div class="tr-quizhead-l"><div class="tr-quizhead-eyebrow">' + eyebrow + '</div>' +
@@ -1212,7 +1226,13 @@
     if (S.busy) return;
     var alertEl = el('tr-quiz-alert');
     var btn = el('tr-submit');
-    var order = (S.order && S.order.length) ? S.order : buildOrder(m);
+    /* S.order belongs to whichever quiz was last opened, and it used to
+       survive navigation. A no-quiz module then got graded against the
+       previous module's questions, none of which were on the page, so Mark
+       Complete answered itself with Missing: 1, 2, 3 and never wrote a row.
+       The order is only reusable when it was built for this module. */
+    var order = (S.orderFor === m.id && S.order && S.order.length)
+      ? S.order : buildOrder(m);
 
     var results = [], unanswered = [];
     order.forEach(function (item, qi) {
