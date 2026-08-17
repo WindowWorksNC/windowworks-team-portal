@@ -78,67 +78,55 @@
   // The gate carries its own styles so it still renders if portal.css fails to load.
   var GS = 'html #ww-gate,html #ww-gate *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;box-sizing:border-box}'
     + '#ww-gate .ww-gate-card{margin:auto;background:#edeae4;border-radius:10px;padding:28px 24px 24px;max-width:340px;width:92%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.45)}'
-    + '#ww-gate .ww-gate-disp{height:48px;line-height:48px;border:1px solid #c9bfae;border-radius:6px;background:#fff;color:#1a1a1a;font-size:28px;letter-spacing:12px;text-indent:12px;overflow:hidden;white-space:nowrap}'
-    + '#ww-gate .ww-gate-disp.empty{font-family:\'Barlow Condensed\',Arial,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.14em;text-indent:0;text-transform:uppercase;color:#b3a894}'
-    + '#ww-gate .ww-gate-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}'
-    + '#ww-gate .ww-gate-key{height:54px;border:1px solid #d6cbb8;border-radius:6px;background:#fff;color:#1a1a1a;font-family:\'Barlow Condensed\',Arial,sans-serif;font-size:26px;font-weight:700;padding:0;cursor:pointer;touch-action:manipulation}'
-    + '#ww-gate .ww-gate-key.word{font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#777}'
-    + '#ww-gate .ww-gate-key:active{background:#e6ded0;border-color:#c4581f}'
+    + '#ww-gate .ww-gate-field{width:100%;height:56px;border:1px solid #c9bfae;border-radius:6px;background:#fff;color:#1a1a1a;font-family:Barlow,Arial,sans-serif;font-size:24px;letter-spacing:10px;text-align:center;padding:0 8px;-webkit-text-security:disc;-webkit-user-select:text;user-select:text}'
+    + '#ww-gate .ww-gate-field:focus{outline:none;border-color:#c4581f}'
     + '#ww-gate .ww-gate-go{width:100%;margin-top:10px;padding:15px;background:#c4581f;color:#fff;border:none;border-radius:6px;font-family:\'Barlow Condensed\',Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;touch-action:manipulation}'
     + '#ww-gate .ww-gate-go:disabled{opacity:0.6}';
-
-  function keypad(){
-    var out = '';
-    for (var n = 1; n <= 9; n++) out += '<button type="button" class="ww-gate-key" data-d="' + n + '">' + n + '</button>';
-    out += '<button type="button" class="ww-gate-key word" data-act="clear">Clear</button>';
-    out += '<button type="button" class="ww-gate-key" data-d="0">0</button>';
-    out += '<button type="button" class="ww-gate-key word" data-act="del">Delete</button>';
-    return out;
-  }
 
   ov.innerHTML =
     '<div class="ww-gate-card">' +
       '<div style="font-family:\'Barlow Condensed\',Arial,sans-serif;font-weight:800;font-size:22px;letter-spacing:0.12em;text-transform:uppercase;color:#1a1a1a">WINDOW <span style="color:#c4581f">WORKS</span></div>' +
       '<div style="font-size:13px;color:#888;margin:6px 0 16px">Enter your PIN to continue</div>' +
-      '<div id="ww-gate-disp" class="ww-gate-disp empty"></div>' +
-      '<div id="ww-gate-err" style="color:#c0392b;font-size:13px;min-height:18px;margin:6px 0 10px"></div>' +
-      '<div class="ww-gate-pad">' + keypad() + '</div>' +
+      '<input id="ww-gate-pin" class="ww-gate-field" type="text" inputmode="numeric" pattern="[0-9]*" ' +
+        'maxlength="8" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" ' +
+        'aria-label="PIN" placeholder="">' +
+      '<div id="ww-gate-err" style="color:#c0392b;font-size:13px;min-height:18px;margin:8px 0 4px"></div>' +
       '<button id="ww-gate-btn" type="button" class="ww-gate-go">Unlock</button>' +
     '</div>';
 
-  // Entry buffer. Nothing here is focusable, so no keyboard is ever required.
-  var buf = '';
-  var DOT = String.fromCharCode(8226);
+  // The field is the buffer. Digits only, whatever the keyboard sends.
+  function field(){ return document.getElementById('ww-gate-pin'); }
+  function value(){ var f = field(); return f ? (f.value || '').replace(/[^0-9]/g, '') : ''; }
+  function wipe(){ var f = field(); if (f) f.value = ''; }
 
-  function draw(){
-    var d = document.getElementById('ww-gate-disp');
-    if (!d) return;
-    if (!buf) { d.className = 'ww-gate-disp empty'; d.textContent = 'Tap your PIN below'; return; }
-    d.className = 'ww-gate-disp';
-    d.textContent = new Array(buf.length + 1).join(DOT);
-  }
-  function push(dig){
-    if (buf.length >= 8) return;
-    buf += dig;
+  function onInput(){
+    var f = field();
+    if (!f) return;
+    var v = (f.value || '').replace(/[^0-9]/g, '').slice(0, 8);
+    if (f.value !== v) f.value = v;
     if (state !== 'failed') setErr('');
-    draw();
-    if (state === 'ready' && buf.length >= 4 && anyMatch(buf)) check(buf);
+    if (state === 'ready' && v.length >= 4 && anyMatch(v)) check(v);
   }
-  function back(){ buf = buf.slice(0, -1); draw(); }
-  function wipe(){ buf = ''; draw(); }
 
   function attach(){
     document.body.appendChild(ov);
-    draw();
+    var f = field();
+    if (f) {
+      // Masking without type="password", which is what iPadOS ignores inputmode on
+      // and what AutoFill interferes with. Fall back where the property is missing.
+      var ok = false;
+      try { ok = window.CSS && CSS.supports && CSS.supports('-webkit-text-security', 'disc'); } catch(e){}
+      if (!ok) { f.type = 'password'; f.setAttribute('inputmode', 'numeric'); }
+      f.addEventListener('input', onInput);
+      f.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.keyCode === 13) { e.preventDefault(); onSubmit(); }
+      });
+      // No forced focus on touch: a tap is the gesture iOS reliably opens a keyboard for.
+      try { if (!('ontouchstart' in window)) f.focus(); } catch(e){}
+    }
     ov.addEventListener('click', function(e){
       var t = e.target;
-      if (!t || !t.getAttribute) return;
-      var d = t.getAttribute('data-d');
-      if (d !== null) { push(d); return; }
-      var a = t.getAttribute('data-act');
-      if (a === 'clear') { wipe(); return; }
-      if (a === 'del') { back(); return; }
-      if (t.id === 'ww-gate-btn') onSubmit();
+      if (t && t.id === 'ww-gate-btn') onSubmit();
     });
   }
   function showOverlay(){
@@ -266,20 +254,12 @@
     wipe();
   }
   function onSubmit(){
-    var pin = buf.replace(/[^0-9]/g,'');
+    var pin = value();
     if (state === 'failed') { if (pin) pending = pin; retry(); return; }
     if (!pin) { setErr('Enter your PIN'); return; }
     if (state !== 'ready') { pending = pin; setErr('Checking your PIN...'); setBtn('Checking', true); return; }
     check(pin);
   }
-  // Hardware keyboard path. The overlay owns its own clicks, so no document click hook.
-  document.addEventListener('keydown', function(e){
-    if (!document.getElementById('ww-gate')) return;
-    if (e.key === 'Enter' || e.keyCode === 13) { e.preventDefault(); onSubmit(); return; }
-    if (e.key === 'Backspace' || e.keyCode === 8) { e.preventDefault(); back(); return; }
-    if (e.key && e.key.length === 1 && e.key >= '0' && e.key <= '9') { e.preventDefault(); push(e.key); }
-  });
-
   // Self-service PIN change, called from the My Record tab.
   window.wwChangePin = async function(){
     var a = document.getElementById('chpin-alert');
