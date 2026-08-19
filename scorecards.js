@@ -117,15 +117,55 @@ window.WWSC = (function () {
   }
 
   // ---- Keith domain 2: Data Integrity ----
+  // Scored on the share of scheduled work days with zero overdue Pipedrive
+  // activities, full at 98 percent or better. The nightly job writes a row
+  // every day, so weekends and company holidays are filtered out first: he is
+  // not expected to be clearing activities on days the office is closed.
+  // Holidays come from getHolidays(year) in resources.js, the same source that
+  // drives the Resources tab, so the scorecard and the published holiday list
+  // cannot disagree. Ranges are expanded to individual days, and the prior
+  // year is included because the Christmas and New Year's closure can start in
+  // December and end in January.
+  var _holCache = {};
+  function dkey(x) { return x.getFullYear() + '-' + (x.getMonth() + 1) + '-' + x.getDate(); }
+  function holidaySet(year) {
+    if (_holCache[year]) return _holCache[year];
+    var set = {};
+    if (typeof getHolidays === 'function') {
+      [year - 1, year].forEach(function (y) {
+        var hs = [];
+        try { hs = getHolidays(y) || []; } catch (e) { hs = []; }
+        hs.forEach(function (h) {
+          if (!h || !h.start || !h.end) return;
+          var d = new Date(h.start.getFullYear(), h.start.getMonth(), h.start.getDate(), 12, 0, 0);
+          var end = new Date(h.end.getFullYear(), h.end.getMonth(), h.end.getDate(), 12, 0, 0);
+          var guard = 0;
+          while (d <= end && guard++ < 60) {
+            set[dkey(d)] = 1;
+            d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 12, 0, 0);
+          }
+        });
+      });
+    }
+    _holCache[year] = set;
+    return set;
+  }
+  function isScoredDay(s) {
+    var x = pql(s); if (!x) return false;
+    var g = x.getDay(); if (g < 1 || g > 5) return false;
+    return !holidaySet(x.getFullYear())[dkey(x)];
+  }
   async function kData() {
     try {
       var d = await api({ action: 'read', tab: 'Overdue_Activities' });
       if (d.success) {
         var c = cols((d.data && d.data[0]) || []); var di = c('Date'), ei = c('Employee'), oi = c('Overdue Count');
-        var rows = d.data.slice(1).filter(function (r) { return (r[ei] || '').trim() === 'Keith Howze' && inQ(r[di]); });
+        var rows = d.data.slice(1).filter(function (r) { return (r[ei] || '').trim() === 'Keith Howze' && inQ(r[di]) && isScoredDay(r[di]); });
         if (rows.length) {
           var total = rows.reduce(function (a, r) { return a + Number(r[oi] || 0); }, 0); var avg = total / rows.length;
-          return { tier: avg === 0 ? 'full' : 'none', display: avg.toFixed(1) + ' avg', extra: { rows: rows, di: di, oi: oi, total: total, avg: avg } };
+          var clean = rows.filter(function (r) { return Number(r[oi] || 0) === 0; }).length;
+          var pct = (clean / rows.length) * 100;
+          return { tier: pct >= 98 ? 'full' : 'none', display: clean + '/' + rows.length + ' days (' + pct.toFixed(1) + '%)', extra: { rows: rows, di: di, oi: oi, total: total, avg: avg, clean: clean, pct: pct } };
         }
         return { tier: 'pending', display: 'No data this quarter', extra: null };
       }

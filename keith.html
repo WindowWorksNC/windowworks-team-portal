@@ -5,20 +5,20 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=221">
-<link rel="manifest" href="site.webmanifest?v=221">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=223">
+<link rel="manifest" href="site.webmanifest?v=223">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Keith Howze | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=221">
+<link rel="stylesheet" href="portal.css?v=223">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Keith Howze';</script>
-<script src="gate.js?v=221"></script>
-<script src="scorecards.js?v=221"></script>
+<script src="gate.js?v=223"></script>
+<script src="scorecards.js?v=223"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -70,7 +70,7 @@
       <div class="type-label">2. Data Integrity <span id="d2-pill" style="margin-left:8px"></span></div>
       <div class="incentive-row-body">
         <div>
-          <div class="incentive-row-detail">Average daily overdue Pipedrive activities must be 0. Full $1,250 at zero, none otherwise.</div>
+          <div class="incentive-row-detail">Share of your scheduled work days with zero overdue Pipedrive activities. Weekends and company paid holidays are not counted. Full $1,250 at 98% or higher, none under 98%.</div>
           <div style="font-size:13px;color:#aaa;margin-top:6px">Fed automatically from Pipedrive overdue activity tracking.</div>
         </div>
         <div class="incentive-row-right">
@@ -1018,7 +1018,7 @@ async function loadScorecard(){
     if(bd){
       if(dd&&dd.rows&&dd.rows.length){
         var srt=dd.rows.slice().sort(function(a,b){return String(a[dd.di]).localeCompare(String(b[dd.di]));});
-        bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">Every weeknight the portal records how many of your Pipedrive activities are overdue. The score is the average across every logged day this quarter, including days at zero: <strong>'+dd.total+' total overdue over '+dd.rows.length+' logged days = '+dd.avg.toFixed(1)+' average</strong>. The domain pays out only when that average is 0.</div>'
+        bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">Every weeknight the portal records how many of your Pipedrive activities are overdue. The score is the share of your scheduled work days this quarter that ended with zero overdue activities. Weekends and company paid holidays are not counted: <strong>'+dd.clean+' clean days out of '+dd.rows.length+' work days = '+dd.pct.toFixed(1)+'%</strong>. The domain pays out at 98% or higher. Total overdue activities logged this quarter: '+dd.total+'.</div>'
           +'<div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th style="text-align:right">Overdue activities</th></tr></thead><tbody>'
           +srt.map(function(r){var n=Number(r[dd.oi]||0);return '<tr><td>'+fmtDate(r[dd.di])+'</td><td style="text-align:right;font-weight:700;color:'+(n>0?'#c0392b':'#bbb')+'">'+n+'</td></tr>';}).join('')
           +'</tbody></table></div>';
@@ -1066,7 +1066,7 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=221"></script>
+<script src="taskboard.js?v=223"></script>
 <script>initTaskBoard("keith");</script>
 <script>
 async function applyCloseGateKeith(){
@@ -1188,8 +1188,8 @@ async function loadScorecardArchiveKeith() {
 }
 
 loadScorecardArchiveKeith();</script>
-<script src="resources.js?v=221"></script>
-<script src="docnaming.js?v=221"></script>
+<script src="resources.js?v=223"></script>
+<script src="docnaming.js?v=223"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
