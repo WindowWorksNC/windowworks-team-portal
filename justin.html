@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=227">
-<link rel="manifest" href="site.webmanifest?v=227">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=228">
+<link rel="manifest" href="site.webmanifest?v=228">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Justin Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=227">
+<link rel="stylesheet" href="portal.css?v=228">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Justin Reif';</script>
-<script src="gate.js?v=227"></script>
-<script src="scorecards.js?v=227"></script>
+<script src="gate.js?v=228"></script>
+<script src="scorecards.js?v=228"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -305,7 +305,8 @@
   <div class="card-title">Employee Records <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Edit and save per employee</span></div>
   <div id="records-admin-loading" class="loading">Loading...</div>
   <div class="form-row" id="records-filter-row" style="display:none;align-items:flex-end;margin-bottom:4px">
-    <div class="form-group" style="flex:2"><label class="form-label">Search</label><input type="text" class="form-input" id="rec-search" placeholder="Name or role" oninput="renderRecordsList()"></div>
+    <div class="form-group" style="flex:2"><label class="form-label">Search name</label><input type="text" class="form-input" id="rec-search" placeholder="Name" oninput="renderRecordsList()"></div>
+    <div class="form-group"><label class="form-label">Role</label><select class="form-input" id="rec-role-filter" onchange="renderRecordsList()"><option value="">All roles</option></select></div>
     <div class="form-group"><label class="form-label">Show</label><select class="form-input" id="rec-status-filter" onchange="renderRecordsList()"><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="All">All</option></select></div>
     <div class="form-group"><label class="form-label">Sort by</label><select class="form-input" id="rec-sort" onchange="renderRecordsList()"><option value="name">Name</option><option value="role">Role</option><option value="hire">Hire date</option></select></div>
   </div>
@@ -624,7 +625,7 @@ async function api(params){
 }
 
 function fmtMoney(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function fmtDate(d){if(!d)return '';try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}catch(e){return d}}
+function fmtDate(d){if(!d)return '';try{var s=String(d);var x=/^\d{4}-\d{2}-\d{2}$/.test(s)?new Date(s+'T12:00:00'):new Date(s);return x.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}catch(e){return d}}
 function statusPill(s){const map={Pending:'pill-pending',Approved:'pill-approved',Denied:'pill-denied'};return `<span class="pill ${map[s]||'pill-pending'}">${s||'Pending'}</span>`;}
 function passFailPill(pass,pending){if(pending)return '<span class="pill pill-gray">Pending Data</span>';return pass?'<span class="pill pill-approved">Pass</span>':'<span class="pill pill-denied">Fail</span>';}
 function missingPill(){return '<span class="pill pill-denied">Missing</span>';}
@@ -1384,13 +1385,24 @@ function renderRecordsList(){
   const sort=(document.getElementById('rec-sort')||{}).value||'name';
   const needle=q.trim().toLowerCase();
 
+  // Role is its own pick list now, built from the roles actually in the sheet, so it
+  // stays current without a code change when a title is added or renamed.
+  const roleSel=document.getElementById('rec-role-filter');
+  const rf=roleSel?roleSel.value:'';
+  if(roleSel){
+    const roles=[...new Set(REC_CACHE.rows.map(o=>String(o.r[c('Role')]||'').trim()).filter(Boolean))].sort();
+    const want='<option value="">All roles</option>'+roles.map(x=>'<option value="'+x.replace(/"/g,'&quot;')+'">'+x+'</option>').join('');
+    if(roleSel.innerHTML!==want){roleSel.innerHTML=want;roleSel.value=roles.indexOf(rf)>=0?rf:'';}
+  }
+  const roleWant=roleSel?roleSel.value:'';
+
   let list=REC_CACHE.rows.filter(o=>{
     const off=isInactive_(o.r[c('Status')]);
     if(sf==='Active'&&off)return false;
     if(sf==='Inactive'&&!off)return false;
+    if(roleWant&&String(o.r[c('Role')]||'').trim()!==roleWant)return false;
     if(!needle)return true;
-    const hay=(String(o.r[c('Employee')]||'')+' '+String(o.r[c('Role')]||'')).toLowerCase();
-    return hay.indexOf(needle)>=0;
+    return String(o.r[c('Employee')]||'').toLowerCase().indexOf(needle)>=0;
   });
   const asc=(sort==='hire')?-1:1; // newest hires first, names and roles A to Z
   list.sort((a,b)=>{const x=recSortKey_(a,c,sort),y=recSortKey_(b,c,sort);return x<y?-1*asc:x>y?1*asc:0;});
@@ -1405,24 +1417,26 @@ function renderRecordsList(){
           const off=isInactive_(o.r[c('Status')]);
           const open=(REC_SELECTED===o.rowIndex);
           const hire=o.r[c('Hire Date')]?fmtDate(o.r[c('Hire Date')]):'';
-          return '<div onclick="selectRecord('+o.rowIndex+')" style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:6px;border-radius:4px;border:1px solid '+(open?'#c4581f':'#e6e1d8')+';background:'+(open?'#f5ede0':'#fff')+'">'
+          // Selected state reads as a darker outline on cream rather than orange, which
+          // was competing with the orange action buttons inside the card itself.
+          const row='<div onclick="selectRecord('+o.rowIndex+')" style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:4px;border:1px solid '+(open?'#1a1a1a':'#e6e1d8')+';background:'+(open?'#edeae4':'#fff')+';margin-bottom:'+(open?'0':'6px')+'">'
             +'<div style="flex:1;min-width:0"><div style="font-family:\'Barlow Condensed\',Barlow,Arial,sans-serif;font-size:15px;letter-spacing:0.03em;text-transform:uppercase;color:#1a1a1a">'+name+'</div>'
             +'<div style="font-size:12px;color:#888">'+(o.r[c('Role')]||'')+(hire?' &bull; since '+hire:'')+'</div></div>'
             +(off?'<span style="font-size:10px;background:#e9e4dc;color:#888;padding:2px 9px;border-radius:99px;letter-spacing:0.08em;text-transform:uppercase">Inactive</span>':'')
-            +'<span style="color:#c4581f;font-size:16px">'+(open?'&minus;':'+')+'</span></div>';
+            +'<span style="color:#1a1a1a;font-size:16px">'+(open?'&minus;':'+')+'</span></div>';
+          // The card is injected directly beneath the row that was clicked instead of at
+          // the bottom of the list, so the record you opened stays where your eye is.
+          return open?row+'<div style="border:1px solid #1a1a1a;border-top:none;border-radius:0 0 4px 4px;background:#edeae4;padding:2px 10px 10px;margin-bottom:6px">'+recordCardHtml_(o)+'</div>':row;
         }).join('');
     }
   }
-  if(listEl)listEl.innerHTML=(REC_SELECTED==null)?'':recordCardHtml_(REC_CACHE.rows.filter(o=>o.rowIndex===REC_SELECTED)[0]);
+  if(listEl)listEl.innerHTML=''; // card now renders inline under its own row
 }
 
 function selectRecord(rowIndex){
   REC_SELECTED=(REC_SELECTED===rowIndex)?null:rowIndex;
   renderRecordsList();
-  if(REC_SELECTED!=null){
-    const el=document.getElementById('records-admin-list');
-    if(el&&el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'nearest'});
-  }
+
 }
 
 function recordCardHtml_(o){
@@ -2574,17 +2588,17 @@ loadDocs(EMPLOYEE,null);
 loadEquipment(EMPLOYEE);
 </script>
 
-<script src="training.js?v=227"></script>
+<script src="training.js?v=228"></script>
 <script>
 initTrainingReview("tr-review-root", [
   {name:"Tyler Wallace", role:"sales-b2c"},
   {name:"Michael King",  role:"sales-b2c"}
 ], {viewer:"Justin Reif", badgeId:"badge-training"});
 </script>
-<script src="taskboard.js?v=227"></script>
+<script src="taskboard.js?v=228"></script>
 <script>initTaskBoard("justin");</script>
-<script src="resources.js?v=227"></script>
-<script src="docnaming.js?v=227"></script>
+<script src="resources.js?v=228"></script>
+<script src="docnaming.js?v=228"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
