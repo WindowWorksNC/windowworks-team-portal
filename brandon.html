@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=224">
-<link rel="manifest" href="site.webmanifest?v=224">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=225">
+<link rel="manifest" href="site.webmanifest?v=225">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=224">
+<link rel="stylesheet" href="portal.css?v=225">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Brandon McClure';</script>
-<script src="gate.js?v=224"></script>
-<script src="scorecards.js?v=224"></script>
+<script src="gate.js?v=225"></script>
+<script src="scorecards.js?v=225"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -1124,7 +1124,7 @@ async function loadAllBalances(){
     document.getElementById('balances-loading').style.display='none';
     if(!d.success)return;
     const c=cols(d.data[0]);
-    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim());
+    const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()&&INACTIVE.indexOf((r[c('Employee')]||'').trim())<0);
     if(!rows.length)return;
     const usedVac={},usedSick={};
     try{
@@ -1203,7 +1203,9 @@ async function loadExpiryAlerts(){
     if(!d.success)return;
     const c=cols(d.data[0]);
     const docsIdx=c('Documents')>=0?c('Documents'):8;
-    const rows=d.data.slice(1).filter(r=>r[c('Employee')]);
+    const si=c('Status');
+    // A departed employee's expiring ID is not an action item.
+    const rows=d.data.slice(1).filter(r=>r[c('Employee')]&&!(si>=0&&isInactive_(r[si])));
     const withExpiry=rows.map(r=>{
       let expiry='';
       if(r[docsIdx]){try{const doc=JSON.parse(r[docsIdx]);expiry=doc['Government ID - Expiry']||'';}catch(e){}}
@@ -1367,14 +1369,16 @@ async function loadRecordsAdmin(){
       const safe='rec-'+name.replace(/[^a-z0-9]/gi,'');
       const hire=toInputDate(r[c('Hire Date')]);
       const ninety=r[c('Review Due 90Day')]?fmtDate(r[c('Review Due 90Day')]):(hire?fmtDate(addDays(hire,90)):'--');
+      const tdi=c('Termination Date');
+      const offBadge=isInactive_(status)?' <span style="font-size:10px;background:#e9e4dc;color:#888;padding:2px 9px;border-radius:99px;letter-spacing:0.08em;text-transform:uppercase;margin-left:8px;vertical-align:middle">Inactive'+(tdi>=0&&r[tdi]?' '+fmtDate(r[tdi]):'')+'</span>':'';
       const pinField=hasPin?`<div class="form-group" style="max-width:120px"><label class="form-label">PIN</label><input type="text" class="form-input" id="${safe}-pin" value="${r[c('PIN')]||''}"></div>`:'';
       return `<div class="card" style="background:#faf8f5;margin-bottom:14px">
-        <div class="card-title" style="font-size:15px">${name}${status==='Inactive'?' <span style="font-size:10px;background:#e9e4dc;color:#888;padding:2px 9px;border-radius:99px;letter-spacing:0.08em;text-transform:uppercase;margin-left:8px;vertical-align:middle">Inactive</span>':''}</div>
+        <div class="card-title" style="font-size:15px">${name}${offBadge}</div>
         <div id="${safe}-alert"></div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Role</label><input type="text" class="form-input" id="${safe}-role" value="${r[c('Role')]||''}"></div>
           <div class="form-group"><label class="form-label">Hire Date</label><input type="date" class="form-input" id="${safe}-hire" value="${hire}"></div>
-          <div class="form-group"><label class="form-label">Status</label><select class="form-input" id="${safe}-status"><option ${(r[c('Status')]||'')==='Active'?'selected':''}>Active</option><option ${(r[c('Status')]||'')==='Inactive'?'selected':''}>Inactive</option></select></div>
+          <div class="form-group"><label class="form-label">Status</label><select class="form-input" id="${safe}-status"><option ${isInactive_(r[c('Status')])?'':'selected'}>Active</option><option ${isInactive_(r[c('Status')])?'selected':''}>Inactive</option></select></div>
           ${pinField}
         </div>
         <div class="form-row">
@@ -1461,9 +1465,10 @@ async function setEmployeeStatus(rowIndex,newStatus){
 }
 
 async function terminateEmployee(name,rowIndex){
-  if(!confirm('Mark '+name+' as Inactive? Their records are kept, not deleted, and you can reactivate later.'))return;
+  if(!confirm('Mark '+name+' as Inactive?\n\nTheir records are kept, not deleted, and you can reactivate later. Their PIN is replaced with a random one and their dashboard stops opening, including on any device where they had already unlocked it.'))return;
   try{
     await setEmployeeStatus(rowIndex,'Inactive');
+    await stampOffboarding_(rowIndex);
     let msg='';
     try{
       const e=await api({action:'read',tab:'Equipment'});
@@ -1477,6 +1482,25 @@ async function terminateEmployee(name,rowIndex){
     alert(name+' is now Inactive.'+msg);
     loadRecordsAdmin();
   }catch(e){ alert('Error updating status. Please try again.'); }
+}
+
+// Records the end date and replaces the PIN with a random one. Never blanks the PIN:
+// gate.js reads a blank PIN as 'not set up yet' and leaves the page ungated.
+async function stampOffboarding_(rowIndex){
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const orig=d.data[rowIndex-1];
+    if(!orig)return;
+    const row=orig.slice();
+    const td=c('Termination Date');
+    const pi=c('PIN');
+    const t=new Date();t.setHours(0,0,0,0);
+    if(td>=0&&!String(row[td]==null?'':row[td]).trim())row[td]=t.toISOString().split('T')[0];
+    if(pi>=0)row[pi]=String(Math.floor(100000+Math.random()*900000));
+    await api({action:'update',tab:'Employee_Records',rowIndex:rowIndex,row:JSON.stringify(row)});
+  }catch(e){console.error(e);}
 }
 
 async function reactivateEmployee(name,rowIndex){
@@ -2030,31 +2054,43 @@ async function loadEquipment(employee){
 }
 
 // ---------- Populate admin selects ----------
-let TERMINATED=[];
+let INACTIVE=[];
+
+// Single definition of departed, used by every panel that needs to know. Status is the
+// column the portal has always used; 'Terminated' is accepted as a synonym so a value
+// typed by hand still registers instead of silently reading as Active.
+function isInactive_(v){ const s=String(v==null?'':v).trim().toLowerCase(); return s==='inactive'||s==='terminated'; }
+
 function populateAdminSelects(){
   const sel=document.getElementById('admin-pto-emp');
-  const keep=ROSTER.filter(e=>TERMINATED.indexOf(e)<0);
+  const keep=ROSTER.filter(e=>INACTIVE.indexOf(e)<0);
   if(sel)sel.innerHTML=keep.map(e=>`<option>${e}</option>`).join('');
 }
 
-// Anyone whose Status reads Terminated in Employee_Records drops out of the new-entry
-// dropdowns on the next load, so an offboarding is a sheet edit and not a deploy.
-// Historical panels are untouched: a departed rep still shows in commission history.
-async function loadActiveRoster(){
+// One read drives every place a departed employee should stop appearing: new PTO,
+// PTO balances, document expiry alerts, and the ordering of the equipment dropdown.
+// Panels that are historical by nature are deliberately left alone, since removing a
+// name from them would hide real records: Employee Records, commission history, the
+// equipment ledger, the PTO request history, and the scorecard archive.
+async function loadInactiveRoster(){
   try{
     const d=await api({action:'read',tab:'Employee_Records'});
     if(!d.success||!d.data||d.data.length<2)return;
     const c=cols(d.data[0]);
     const ei=c('Employee'),si=c('Status');
-    if(si<0)return; // no Status column yet: nothing to filter
-    TERMINATED=d.data.slice(1)
-      .filter(r=>String(r[si]==null?'':r[si]).trim().toLowerCase()==='terminated')
+    if(si<0)return; // no Status column: nothing to filter
+    INACTIVE=d.data.slice(1)
+      .filter(r=>isInactive_(r[si]))
       .map(r=>String(r[ei]==null?'':r[ei]).trim())
       .filter(n=>n);
     populateAdminSelects();
+    if(INACTIVE.length){
+      if(typeof loadAllBalances==='function')loadAllBalances();
+      if(typeof loadEquipAdminEmployees==='function')loadEquipAdminEmployees();
+    }
   }catch(e){}
 }
-loadActiveRoster();
+loadInactiveRoster();
 
 // ---------- Stash commission header indices for prev-comm ----------
 async function cacheCommissionHeaders(){
@@ -2081,9 +2117,16 @@ async function loadEquipAdminEmployees(){
     const d=await api({action:'read',tab:'Employee_Records'});
     if(!d.success)return;
     const c=cols(d.data[0]);
-    const emps=[...new Set(d.data.slice(1).map(r=>(r[c('Employee')]||'').trim()).filter(Boolean))].sort();
-    sel.innerHTML=emps.map(e=>`<option value="${e}">${e}</option>`).join('');
-    if(emps.length)loadEquipAdmin(emps[0]);
+    const si=c('Status');
+    const seen=d.data.slice(1).map(r=>({n:(r[c('Employee')]||'').trim(),off:si>=0&&isInactive_(r[si])})).filter(o=>o.n);
+    const act=[...new Set(seen.filter(o=>!o.off).map(o=>o.n))].sort();
+    const off=[...new Set(seen.filter(o=>o.off).map(o=>o.n))].sort();
+    // Departed employees stay selectable here on purpose. Outstanding gear still has to
+    // be collected and marked returned, and the ledger stays readable afterward. They
+    // sort to the bottom and are labelled so nobody assigns new equipment by accident.
+    sel.innerHTML=act.map(e=>`<option value="${e}">${e}</option>`).join('')
+      +off.map(e=>`<option value="${e}">${e} (inactive)</option>`).join('');
+    if(act.length)loadEquipAdmin(act[0]); else if(off.length)loadEquipAdmin(off[0]);
   }catch(e){}
 }
 async function loadEquipAdmin(emp){
@@ -2485,10 +2528,10 @@ loadBrandonScorecard();
 loadScorecardArchiveBrandon();
 </script>
 
-<script src="taskboard.js?v=224"></script>
+<script src="taskboard.js?v=225"></script>
 <script>initTaskBoard("brandon");</script>
-<script src="resources.js?v=224"></script>
-<script src="docnaming.js?v=224"></script>
+<script src="resources.js?v=225"></script>
+<script src="docnaming.js?v=225"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');

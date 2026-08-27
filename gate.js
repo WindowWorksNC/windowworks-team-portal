@@ -64,7 +64,7 @@
   // Termination kill switch (v224).
   // A device unlock lives for UNLOCK_DAYS, so scrambling a PIN does not lock a departed
   // employee out of a page that is still live, and a blank PIN leaves a page ungated
-  // entirely. Status = Terminated in Employee_Records revokes the stored unlock on the
+  // entirely. Status = Inactive in Employee_Records revokes the stored unlock on the
   // next load and covers both holes. Owner and admin sessions are exempt so Rose,
   // Justin and Brandon can still open a former employee's page to read history.
   // No Status column means nothing is enforced, which matches the old behavior.
@@ -101,7 +101,7 @@
         var n = (r[ei] == null ? '' : r[ei]).toString().trim();
         if (n !== EMP) return;
         var st = (r[si] == null ? '' : r[si]).toString().trim().toLowerCase();
-        if (st === 'terminated') showRevoked();
+        if (st === 'terminated' || st === 'inactive') showRevoked();
       });
     }).catch(function(){});
   }
