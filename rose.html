@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=225">
-<link rel="manifest" href="site.webmanifest?v=225">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=227">
+<link rel="manifest" href="site.webmanifest?v=227">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Rose Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=225">
+<link rel="stylesheet" href="portal.css?v=227">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Rose Reif';</script>
-<script src="gate.js?v=225"></script>
-<script src="scorecards.js?v=225"></script>
+<script src="gate.js?v=227"></script>
+<script src="scorecards.js?v=227"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -286,7 +286,7 @@
       <tbody id="expiry-body"></tbody>
     </table>
   </div>
-  <div id="expiry-empty" class="empty-state" style="display:none">No expiry data on file.</div>
+  <div id="expiry-empty" class="empty-state" style="display:none">No active employees to check.</div>
 </div>
 <div class="card">
   <div class="card-title">Add Employee</div>
@@ -304,6 +304,12 @@
 <div class="card">
   <div class="card-title">Employee Records <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Edit and save per employee</span></div>
   <div id="records-admin-loading" class="loading">Loading...</div>
+  <div class="form-row" id="records-filter-row" style="display:none;align-items:flex-end;margin-bottom:4px">
+    <div class="form-group" style="flex:2"><label class="form-label">Search</label><input type="text" class="form-input" id="rec-search" placeholder="Name or role" oninput="renderRecordsList()"></div>
+    <div class="form-group"><label class="form-label">Show</label><select class="form-input" id="rec-status-filter" onchange="renderRecordsList()"><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="All">All</option></select></div>
+    <div class="form-group"><label class="form-label">Sort by</label><select class="form-input" id="rec-sort" onchange="renderRecordsList()"><option value="name">Name</option><option value="role">Role</option><option value="hire">Hire date</option></select></div>
+  </div>
+  <div id="records-admin-roster"></div>
   <div id="records-admin-list"></div>
 </div>
 <div class="card">
@@ -1182,14 +1188,23 @@ async function loadExpiryAlerts(){
     const si=c('Status');
     // A departed employee's expiring ID is not an action item.
     const rows=d.data.slice(1).filter(r=>r[c('Employee')]&&!(si>=0&&isInactive_(r[si])));
-    const withExpiry=rows.map(r=>{
+    const list=rows.map(r=>{
       let expiry='';
       if(r[docsIdx]){try{const doc=JSON.parse(r[docsIdx]);expiry=doc['Government ID - Expiry']||'';}catch(e){}}
-      return {name:r[c('Employee')],expiry};
-    }).filter(r=>r.expiry);
-    if(!withExpiry.length){document.getElementById('expiry-empty').style.display='block';return;}
+      return {name:r[c('Employee')],expiry:String(expiry==null?'':expiry).trim()};
+    });
+    // A missing expiry is an outstanding item, not the absence of one. This table used
+    // to drop those rows entirely, which made an employee with nothing on file look
+    // clear. Missing sorts to the top, then soonest expiry.
+    const missing=list.filter(x=>!x.expiry).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+    const dated=list.filter(x=>x.expiry).sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
+    const shown=missing.concat(dated);
+    if(!shown.length){document.getElementById('expiry-empty').style.display='block';return;}
+    document.getElementById('expiry-empty').style.display='none';
     document.getElementById('expiry-table').style.display='table';
-    document.getElementById('expiry-body').innerHTML=withExpiry.sort((a,b)=>new Date(a.expiry)-new Date(b.expiry)).map(r=>`<tr><td><strong>${r.name}</strong></td><td>${fmtDate(r.expiry)}</td><td><span class="${expiryClass(r.expiry)}">${expiryLabel(r.expiry)}</span></td></tr>`).join('');
+    document.getElementById('expiry-body').innerHTML=shown.map(x=>x.expiry
+      ?`<tr><td><strong>${x.name}</strong></td><td>${fmtDate(x.expiry)}</td><td><span class="${expiryClass(x.expiry)}">${expiryLabel(x.expiry)}</span></td></tr>`
+      :`<tr><td><strong>${x.name}</strong></td><td style="color:#c0392b">Not on file</td><td><span class="expiry-danger">Needs entering</span></td></tr>`).join('');
   }catch(e){console.error(e);}
 }
 
@@ -1328,6 +1343,12 @@ async function markReviewDone(rowIndex){
 function addDays(dateStr,n){if(!dateStr)return '';const d=new Date(dateStr+'T12:00:00');if(isNaN(d))return '';d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];}
 function toInputDate(d){if(!d)return '';try{const x=new Date(d);if(isNaN(x))return '';return x.toISOString().split('T')[0];}catch(e){return '';}}
 
+// The records panel used to render every employee as an open card, which does not
+// scale past a handful of people. It now loads once into a cache, shows a filtered
+// roster line per person, and opens one full card at a time on selection.
+let REC_CACHE=null;      // {rows:[{r,rowIndex}], c, hasPin}
+let REC_SELECTED=null;   // rowIndex of the open card, null for none
+
 async function loadRecordsAdmin(){
   const loadEl=document.getElementById('records-admin-loading');
   const listEl=document.getElementById('records-admin-list');
@@ -1336,10 +1357,78 @@ async function loadRecordsAdmin(){
     if(loadEl)loadEl.style.display='none';
     if(!d.success||!listEl)return;
     const c=cols(d.data[0]);
-    const hasPin=c('PIN')>=0;
     const rows=d.data.slice(1).map((r,i)=>({r,rowIndex:i+2})).filter(o=>(o.r[c('Employee')]||'').trim());
     if(!rows.length){listEl.innerHTML='<div class="empty-state">No employee records found.</div>';return;}
-    listEl.innerHTML=rows.map(o=>{
+    REC_CACHE={rows:rows,c:c,hasPin:c('PIN')>=0};
+    const row=document.getElementById('records-filter-row');
+    if(row)row.style.display='flex';
+    if(REC_SELECTED!=null&&!rows.some(o=>o.rowIndex===REC_SELECTED))REC_SELECTED=null;
+    renderRecordsList();
+  }catch(e){if(loadEl)loadEl.style.display='none';console.error(e);}
+}
+
+function recSortKey_(o,c,mode){
+  const r=o.r;
+  if(mode==='role')return String(r[c('Role')]||'').toLowerCase();
+  if(mode==='hire'){const h=r[c('Hire Date')];const t=h?new Date(h).getTime():0;return isNaN(t)?0:t;}
+  return String(r[c('Employee')]||'').toLowerCase();
+}
+
+function renderRecordsList(){
+  if(!REC_CACHE)return;
+  const c=REC_CACHE.c;
+  const rosterEl=document.getElementById('records-admin-roster');
+  const listEl=document.getElementById('records-admin-list');
+  const q=(document.getElementById('rec-search')||{}).value||'';
+  const sf=(document.getElementById('rec-status-filter')||{}).value||'Active';
+  const sort=(document.getElementById('rec-sort')||{}).value||'name';
+  const needle=q.trim().toLowerCase();
+
+  let list=REC_CACHE.rows.filter(o=>{
+    const off=isInactive_(o.r[c('Status')]);
+    if(sf==='Active'&&off)return false;
+    if(sf==='Inactive'&&!off)return false;
+    if(!needle)return true;
+    const hay=(String(o.r[c('Employee')]||'')+' '+String(o.r[c('Role')]||'')).toLowerCase();
+    return hay.indexOf(needle)>=0;
+  });
+  const asc=(sort==='hire')?-1:1; // newest hires first, names and roles A to Z
+  list.sort((a,b)=>{const x=recSortKey_(a,c,sort),y=recSortKey_(b,c,sort);return x<y?-1*asc:x>y?1*asc:0;});
+
+  if(rosterEl){
+    if(!list.length){
+      rosterEl.innerHTML='<div class="empty-state">No employees match that search.</div>';
+    }else{
+      rosterEl.innerHTML='<div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#999;margin:6px 0 8px">'+list.length+' of '+REC_CACHE.rows.length+'</div>'
+        +list.map(o=>{
+          const name=(o.r[c('Employee')]||'').trim();
+          const off=isInactive_(o.r[c('Status')]);
+          const open=(REC_SELECTED===o.rowIndex);
+          const hire=o.r[c('Hire Date')]?fmtDate(o.r[c('Hire Date')]):'';
+          return '<div onclick="selectRecord('+o.rowIndex+')" style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:6px;border-radius:4px;border:1px solid '+(open?'#c4581f':'#e6e1d8')+';background:'+(open?'#f5ede0':'#fff')+'">'
+            +'<div style="flex:1;min-width:0"><div style="font-family:\'Barlow Condensed\',Barlow,Arial,sans-serif;font-size:15px;letter-spacing:0.03em;text-transform:uppercase;color:#1a1a1a">'+name+'</div>'
+            +'<div style="font-size:12px;color:#888">'+(o.r[c('Role')]||'')+(hire?' &bull; since '+hire:'')+'</div></div>'
+            +(off?'<span style="font-size:10px;background:#e9e4dc;color:#888;padding:2px 9px;border-radius:99px;letter-spacing:0.08em;text-transform:uppercase">Inactive</span>':'')
+            +'<span style="color:#c4581f;font-size:16px">'+(open?'&minus;':'+')+'</span></div>';
+        }).join('');
+    }
+  }
+  if(listEl)listEl.innerHTML=(REC_SELECTED==null)?'':recordCardHtml_(REC_CACHE.rows.filter(o=>o.rowIndex===REC_SELECTED)[0]);
+}
+
+function selectRecord(rowIndex){
+  REC_SELECTED=(REC_SELECTED===rowIndex)?null:rowIndex;
+  renderRecordsList();
+  if(REC_SELECTED!=null){
+    const el=document.getElementById('records-admin-list');
+    if(el&&el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+}
+
+function recordCardHtml_(o){
+  if(!o)return '';
+  const c=REC_CACHE.c;const hasPin=REC_CACHE.hasPin;
+  {
       const r=o.r;const name=(r[c('Employee')]||'').trim();
       const status=(r[c('Status')]||'').trim();
       const safe='rec-'+name.replace(/[^a-z0-9]/gi,'');
@@ -1347,7 +1436,14 @@ async function loadRecordsAdmin(){
       const ninety=r[c('Review Due 90Day')]?fmtDate(r[c('Review Due 90Day')]):(hire?fmtDate(addDays(hire,90)):'--');
       const tdi=c('Termination Date');
       const offBadge=isInactive_(status)?' <span style="font-size:10px;background:#e9e4dc;color:#888;padding:2px 9px;border-radius:99px;letter-spacing:0.08em;text-transform:uppercase;margin-left:8px;vertical-align:middle">Inactive'+(tdi>=0&&r[tdi]?' '+fmtDate(r[tdi]):'')+'</span>':'';
-      const pinField=hasPin?`<div class="form-group" style="max-width:120px"><label class="form-label">PIN</label><input type="text" class="form-input" id="${safe}-pin" value="${r[c('PIN')]||''}"></div>`:'';
+      const pinField=(hasPin&&!isInactive_(status))?`<div class="form-group" style="max-width:120px"><label class="form-label">PIN</label><input type="text" class="form-input" id="${safe}-pin" value="${r[c('PIN')]||''}"></div>`:'';
+      // Government ID expiry is stored inside the Documents JSON blob, not in its own
+      // column, so it is read and written through that key. Entering it here saves
+      // walking into the employee's own dashboard during onboarding.
+      const recDocsIdx=c('Documents')>=0?c('Documents'):8;
+      let idexp='';
+      if(r[recDocsIdx]){try{const dj=JSON.parse(r[recDocsIdx]);idexp=dj['Government ID - Expiry']||'';}catch(_){}}
+      const idexpField=isInactive_(status)?'':`<div class="form-group"><label class="form-label">Government ID Expiry</label><input type="date" class="form-input" id="${safe}-idexp" value="${toInputDate(idexp)}"><span class="${expiryClass(idexp)}" style="font-size:11px">${expiryLabel(idexp)}</span></div>`;
       return `<div class="card" style="background:#faf8f5;margin-bottom:14px">
         <div class="card-title" style="font-size:15px">${name}${offBadge}</div>
         <div id="${safe}-alert"></div>
@@ -1358,15 +1454,18 @@ async function loadRecordsAdmin(){
           ${pinField}
         </div>
         <div class="form-row">
+          ${idexpField}
+        </div>
+        ${isInactive_(status)?'':`<div class="form-row">
           <div class="form-group"><label class="form-label">Last Review</label><input type="date" class="form-input" id="${safe}-last" value="${toInputDate(r[c('Last Review')])}"></div>
           <div class="form-group"><label class="form-label">Next Review</label><input type="date" class="form-input" id="${safe}-next" value="${toInputDate(r[c('Next Review')])}"></div>
           <div class="form-group"><label class="form-label">90-Day Review</label><input type="text" class="form-input" value="${ninety}" readonly style="background:#f0ede8;color:#888"></div>
-        </div>
+        </div>`}
+        ${isInactive_(status)?`<div style="font-size:12px;color:#888;margin:4px 0 12px">Review scheduling is hidden for former employees. Their last recorded review stays in the sheet. Reactivate to schedule again.</div>`:''}
         <button class="action-btn btn-approve" onclick="saveRecord('${name.replace(/'/g,"\\'")}',${o.rowIndex},'${safe}')">Save</button>
-        ${status!=='Inactive'?`<button class="action-btn" style="background:#fff;color:#c4581f;border:1px solid #c4581f;margin-left:8px" onclick="terminateEmployee('${name.replace(/'/g,"\\'")}',${o.rowIndex})">Terminate</button>`:`<button class="action-btn" style="background:#fff;color:#28a745;border:1px solid #28a745;margin-left:8px" onclick="reactivateEmployee('${name.replace(/'/g,"\\'")}',${o.rowIndex})">Reactivate</button>`}
+        ${!isInactive_(status)?`<button class="action-btn" style="background:#fff;color:#c4581f;border:1px solid #c4581f;margin-left:8px" onclick="terminateEmployee('${name.replace(/'/g,"\\'")}',${o.rowIndex})">Terminate</button>`:`<button class="action-btn" style="background:#fff;color:#28a745;border:1px solid #28a745;margin-left:8px" onclick="reactivateEmployee('${name.replace(/'/g,"\\'")}',${o.rowIndex})">Reactivate</button>`}
       </div>`;
-    }).join('');
-  }catch(e){if(loadEl)loadEl.style.display='none';console.error(e);}
+  }
 }
 
 async function saveRecord(name,rowIndex,safe){
@@ -1377,18 +1476,31 @@ async function saveRecord(name,rowIndex,safe){
     const c=cols(d.data[0]);
     const row=[...d.data[rowIndex-1]];
     const setIf=(col,val)=>{const i=c(col);if(i>=0)row[i]=val;};
-    const g=id=>{const el=document.getElementById(safe+'-'+id);return el?el.value:'';};
-    setIf('Role',g('role'));
-    const hire=g('hire');
-    setIf('Hire Date',hire);
-    setIf('Status',g('status'));
-    setIf('Last Review',g('last'));
-    setIf('Next Review',g('next'));
-    if(c('PIN')>=0)setIf('PIN',g('pin'));
+    const el_=id=>document.getElementById(safe+'-'+id);
+    const g=id=>{const el=el_(id);return el?el.value:'';};
+    // Only write fields that are actually on screen. An inactive card hides the review
+    // and PIN inputs, and a missing input must leave the stored value alone rather than
+    // overwrite it with an empty string.
+    if(el_('role'))setIf('Role',g('role'));
+    const hire=el_('hire')?g('hire'):'';
+    if(el_('hire'))setIf('Hire Date',hire);
+    if(el_('status'))setIf('Status',g('status'));
+    if(el_('last'))setIf('Last Review',g('last'));
+    if(el_('next'))setIf('Next Review',g('next'));
+    if(c('PIN')>=0&&el_('pin'))setIf('PIN',g('pin'));
     if(c('Review Due 90Day')>=0&&hire)row[c('Review Due 90Day')]=addDays(hire,90);
+    if(el_('idexp')){
+      const dIdx=c('Documents')>=0?c('Documents'):8;
+      let dj={};
+      if(row[dIdx]){try{dj=JSON.parse(row[dIdx]);}catch(_){dj={};}}
+      const v=g('idexp');
+      if(v)dj['Government ID - Expiry']=v; else delete dj['Government ID - Expiry'];
+      row[dIdx]=JSON.stringify(dj);
+    }
     await api({action:'update',tab:'Employee_Records',rowIndex:rowIndex,row:JSON.stringify(row)});
     if(alertEl)alertEl.innerHTML='<div class="alert alert-success">Saved.</div>';
     loadExpiryAlerts();loadReviewAlerts();
+    if(REC_CACHE){const t=REC_CACHE.rows.filter(x=>x.rowIndex===rowIndex)[0];if(t)t.r=row;renderRecordsList();}
   }catch(e){if(alertEl)alertEl.innerHTML='<div class="alert alert-error">Error saving.</div>';}
 }
 
@@ -2462,17 +2574,17 @@ loadDocs(EMPLOYEE,null);
 loadEquipment(EMPLOYEE);
 </script>
 
-<script src="training.js?v=225"></script>
+<script src="training.js?v=227"></script>
 <script>
 initTrainingReview("tr-review-root", [
   {name:"Tyler Wallace", role:"sales-b2c"},
   {name:"Michael King",  role:"sales-b2c"}
 ], {viewer:"Rose Reif", badgeId:"badge-training"});
 </script>
-<script src="taskboard.js?v=225"></script>
+<script src="taskboard.js?v=227"></script>
 <script>initTaskBoard("rose");</script>
-<script src="resources.js?v=225"></script>
-<script src="docnaming.js?v=225"></script>
+<script src="resources.js?v=227"></script>
+<script src="docnaming.js?v=227"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
