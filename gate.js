@@ -61,6 +61,52 @@
     lsClear();
   }
 
+  // Termination kill switch (v224).
+  // A device unlock lives for UNLOCK_DAYS, so scrambling a PIN does not lock a departed
+  // employee out of a page that is still live, and a blank PIN leaves a page ungated
+  // entirely. Status = Terminated in Employee_Records revokes the stored unlock on the
+  // next load and covers both holes. Owner and admin sessions are exempt so Rose,
+  // Justin and Brandon can still open a former employee's page to read history.
+  // No Status column means nothing is enforced, which matches the old behavior.
+  var isPrivileged = (ssGet(OWNER_KEY) === '1' || ssGet(ADMIN_KEY) === '1');
+
+  function showRevoked(){
+    lsClear();
+    try { sessionStorage.removeItem(UNLOCK_KEY); } catch(e){}
+    try { sessionStorage.removeItem(OWNER_KEY); } catch(e){}
+    try { sessionStorage.removeItem(ADMIN_KEY); } catch(e){}
+    var rv = document.createElement('div');
+    rv.id = 'ww-revoked';
+    rv.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:100000;background:#1a1a1a;color:#f5ede0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:Barlow,Arial,sans-serif';
+    rv.innerHTML = '<div style="max-width:340px">'
+      + '<div style="font-family:Barlow Condensed,Barlow,Arial,sans-serif;font-size:26px;letter-spacing:0.02em;margin-bottom:10px">Access ended</div>'
+      + '<div style="font-size:14px;line-height:1.55;color:#c9c4ba">This dashboard is no longer active. Please contact the owners with any questions about your records.</div>'
+      + '</div>';
+    var put = function(){ if (document.getElementById('ww-revoked')) return; document.body.appendChild(rv); };
+    if (document.body) put(); else document.addEventListener('DOMContentLoaded', put);
+  }
+
+  function revokeWatch(waits){
+    if (typeof api !== 'function' || typeof cols !== 'function') {
+      if (waits > 80) return; // about 12 seconds, then give up quietly
+      setTimeout(function(){ revokeWatch(waits + 1); }, 150);
+      return;
+    }
+    api({ action:'read', tab:'Employee_Records' }).then(function(d){
+      if (!d || !d.success || !d.data || d.data.length < 2) return;
+      var c = cols(d.data[0]);
+      var ei = c('Employee'), si = c('Status');
+      if (si < 0) return; // no Status column yet: nothing to enforce
+      d.data.slice(1).forEach(function(r){
+        var n = (r[ei] == null ? '' : r[ei]).toString().trim();
+        if (n !== EMP) return;
+        var st = (r[si] == null ? '' : r[si]).toString().trim().toLowerCase();
+        if (st === 'terminated') showRevoked();
+      });
+    }).catch(function(){});
+  }
+  if (!isPrivileged) revokeWatch(0);
+
   // Already an owner or admin this session, or this dashboard already unlocked: no gate.
   if (ssGet(OWNER_KEY) === '1' || ssGet(ADMIN_KEY) === '1' || ssGet(UNLOCK_KEY) === '1') return;
 

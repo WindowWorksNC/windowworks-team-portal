@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=223">
-<link rel="manifest" href="site.webmanifest?v=223">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=224">
+<link rel="manifest" href="site.webmanifest?v=224">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=223">
+<link rel="stylesheet" href="portal.css?v=224">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Brandon McClure';</script>
-<script src="gate.js?v=223"></script>
-<script src="scorecards.js?v=223"></script>
+<script src="gate.js?v=224"></script>
+<script src="scorecards.js?v=224"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -69,7 +69,7 @@
   <div id="manual-comm-wrap" style="display:none;margin-top:8px">
     <div style="font-size:12px;color:#888;margin-bottom:12px">For deals started before the back-end-only switch, or other agreed partial payouts. New deals pay automatically on completion, so use this only for transition or special cases.</div>
     <div style="display:flex;flex-wrap:wrap;gap:12px">
-      <div style="flex:1;min-width:170px"><label class="form-label">Employee</label><select class="form-input" id="mc-employee" onchange="mcRecalc()"><option>Colin Glenn</option><option>Jimmie Coleman</option></select></div>
+      <div style="flex:1;min-width:170px"><label class="form-label">Employee</label><select class="form-input" id="mc-employee" onchange="mcRecalc()"><option>Colin Glenn</option><option>Michael King</option><option>Tyler Wallace</option></select></div>
       <div style="flex:1;min-width:170px"><label class="form-label">Payout type</label><select class="form-input" id="mc-type" onchange="mcRecalc()"><option value="custom">Custom amount</option><option value="full">Full commission</option></select></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:10px">
@@ -608,8 +608,11 @@
 const PROXY = 'https://script.google.com/macros/s/AKfycbwfE3icMtaSGtMqP6SMfyJyvluAkUyzhiI7EGz_LV07nYtBiG1UupXaOUxbOC5EBhgCBw/exec';
 const EMPLOYEE = 'Brandon McClure';
 const APPROVER = 'Brandon McClure';
-const ROSTER = ['Brandon McClure','Colin Glenn','Jimmie Coleman','Michael King','Tyler Wallace','Keith Howze','Ashley Ball'];
+let ROSTER = ['Brandon McClure','Colin Glenn','Michael King','Tyler Wallace','Keith Howze','Ashley Ball'];
 const COMMISSION_REPS = ['Colin Glenn','Jimmie Coleman','Michael King','Tyler Wallace'];
+// B2C reps earn 8% on a company lead. Colin is B2B at 4.5%. Jimmie stays listed so a
+// recalculation of one of his closed deals still rates at the correct percentage.
+const B2C_REPS = ['Jimmie Coleman','Michael King','Tyler Wallace'];
 const EARNINGS_DOCS={sales:'Commission Earnings Agreement (Sales Consultant)',admin:'Performance Earnings Agreement (Admin Professional)',pm:'Performance Earnings Agreement (Project Manager)'};
 const OPTIONAL_DOCS=['Direct Deposit Form','Lead Generation Agreement','Equipment Assignment Form'];
 function buildDocList(earningsType){
@@ -737,7 +740,7 @@ function toggleManualComm(el){
   w.style.display=open?'none':'block';
   if(t)t.textContent=open?'(click to expand)':'(click to collapse)';
 }
-function mcRate(emp){ return emp==='Jimmie Coleman'?0.08:0.045; }
+function mcRate(emp){ return B2C_REPS.indexOf(emp)>=0?0.08:0.045; }
 function mcRecalc(){
   const typeEl=document.getElementById('mc-type'); if(!typeEl)return;
   if(typeEl.value!=='full')return;
@@ -763,7 +766,7 @@ async function recordCommissionPayout(){
     const header=(d.success&&d.data&&d.data.length)?d.data[0]:['Date','Employee','Deal Name','Deal Value','Deal ID','Rate','Lead Type','Commission','Pay Period','Notes','Approved by','Approved date'];
     const now=new Date();
     const dateStr=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-    const rateDisp=type==='full'?(emp==='Jimmie Coleman'?'8%':'4.5%'):'Manual';
+    const rateDisp=type==='full'?(B2C_REPS.indexOf(emp)>=0?'8%':'4.5%'):'Manual';
     const vals={'Date':dateStr,'Employee':emp,'Deal Name':deal,'Deal Value':value,'Deal ID':dealId,'Rate':rateDisp,'Lead Type':'','Commission':amount.toFixed(2),'Pay Period':getCurrentPeriod(),'Notes':note,'Approved by':'','Approved date':''};
     const row=header.map(h=>{const n=String(h).trim();return (n in vals)?vals[n]:'';});
     const w=await api({action:'append',tab:'Commissions',row:JSON.stringify(row)});
@@ -2027,10 +2030,31 @@ async function loadEquipment(employee){
 }
 
 // ---------- Populate admin selects ----------
+let TERMINATED=[];
 function populateAdminSelects(){
   const sel=document.getElementById('admin-pto-emp');
-  if(sel)sel.innerHTML=ROSTER.map(e=>`<option>${e}</option>`).join('');
+  const keep=ROSTER.filter(e=>TERMINATED.indexOf(e)<0);
+  if(sel)sel.innerHTML=keep.map(e=>`<option>${e}</option>`).join('');
 }
+
+// Anyone whose Status reads Terminated in Employee_Records drops out of the new-entry
+// dropdowns on the next load, so an offboarding is a sheet edit and not a deploy.
+// Historical panels are untouched: a departed rep still shows in commission history.
+async function loadActiveRoster(){
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success||!d.data||d.data.length<2)return;
+    const c=cols(d.data[0]);
+    const ei=c('Employee'),si=c('Status');
+    if(si<0)return; // no Status column yet: nothing to filter
+    TERMINATED=d.data.slice(1)
+      .filter(r=>String(r[si]==null?'':r[si]).trim().toLowerCase()==='terminated')
+      .map(r=>String(r[ei]==null?'':r[ei]).trim())
+      .filter(n=>n);
+    populateAdminSelects();
+  }catch(e){}
+}
+loadActiveRoster();
 
 // ---------- Stash commission header indices for prev-comm ----------
 async function cacheCommissionHeaders(){
@@ -2461,10 +2485,10 @@ loadBrandonScorecard();
 loadScorecardArchiveBrandon();
 </script>
 
-<script src="taskboard.js?v=223"></script>
+<script src="taskboard.js?v=224"></script>
 <script>initTaskBoard("brandon");</script>
-<script src="resources.js?v=223"></script>
-<script src="docnaming.js?v=223"></script>
+<script src="resources.js?v=224"></script>
+<script src="docnaming.js?v=224"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
