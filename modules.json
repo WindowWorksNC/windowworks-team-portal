@@ -1,6 +1,6 @@
 {
  "generated": "2026-08-28",
- "content_id": "d83b5f6-s1",
+ "content_id": "d83b5f6-s2",
  "count": 90,
  "modules": [
   {
@@ -1281,7 +1281,7 @@
    "body_md": "Fifteen minutes with your card reader, hands on.\n\nYou collect the 50 percent deposit at the table whenever you can, and this is the\ntool you do it with. **You will take a card payment in your mock appointment,** so\nthis is where you run one first.\n\nWhat we cover:\n\n- Charging it, pairing it, and checking it before you leave for an appointment\n- Running a payment start to finish\n- Writing down the **card type and the last four digits** for admin, and never\n  the full number\n- What the customer gets as a receipt\n- What you do when the reader will not connect and somebody is holding a card\n\n[How our pricing works](module:PB-020) has the deposit policy, and\n[Winning and losing a deal](module:PR-007) covers what admin does with the\npayment once you hand it over.\n",
    "author_note": "Written 2026-08-16 at Rose's request. Live session, 15 minutes, hands on, Justin.\n\nDrafted first as a self study module and changed to a live session per Rose. The device\nspecifics stay out of the written module for that reason: the reader, the app, pairing,\nreceipts, refunds, and any transaction limit all get covered in the room.\n\nScheduled Tuesday 2026-09-01, which freed up when LV-042 Therma-Tru with Justin and\nLV-045 Vinyl Design with Justin were removed. Those two sessions were replaced by\nPK-TT-010 and PK-VD-010, written 2026-08-16. It is the only Monday to Wednesday day\nbefore Mock Vendo build where Justin has nothing else with the reps.\n\nReps run a test transaction here, again at Mock Vendo build on 2026-09-08, and again in\nthe mock appointment on 2026-09-11.\n\nScheduled 2026-09-01 at 12:00 with Justin, confirmed by Rose 2026-08-16.",
    "session_date": "2026-09-01",
-   "session_time": "13:00"
+   "session_time": "12:00"
   },
   {
    "id": "PB-030",
@@ -3861,7 +3861,7 @@
    "video_source": "none",
    "format": "live",
    "owner": "Justin",
-   "session_time": "11:00",
+   "session_time": "10:45",
    "signoff": "approver",
    "session_date": "2026-09-01",
    "reviewed": "2026-08-10",
