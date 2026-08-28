@@ -1,7 +1,7 @@
 {
  "generated": "2026-08-28",
- "content_id": "d83b5f6-s3",
- "count": 90,
+ "content_id": "d83b5f6-s5",
+ "count": 91,
  "modules": [
   {
    "id": "PB-010",
@@ -1149,6 +1149,38 @@
    "order": 26
   },
   {
+   "id": "LV-009",
+   "title": "Pipedrive review",
+   "track": "session",
+   "tier": "basic",
+   "roles": [
+    "sales-b2c"
+   ],
+   "week": 3,
+   "duration_min": 45,
+   "format": "live",
+   "owner": "Rose",
+   "signoff": "approver",
+   "video": null,
+   "video_source": "none",
+   "reviewed": "2026-08-28",
+   "last_verified": "2026-08-28",
+   "prereq": [],
+   "pass_points": null,
+   "depends_on": "none",
+   "review_needed": true,
+   "path": "content/sessions/LV-009-pipedrive-review.md",
+   "has_quiz": false,
+   "body_md": "Forty five minutes in your own Pipedrive with Rose.\n\nYou have already been through the Pipedrive modules on your own. This session is\nwhere you work in the real thing with someone sitting next to you, so the parts\nthat only make sense once you are clicking through them stop being abstract.\n\nBring your laptop and log in before we start.\n\nWhat we cover:\n\n- **Your homeowner pipeline.** What is in it right now, what each stage means,\n  and what a deal has to have before it moves\n- **The customer record.** The fields we treat as required, and where the\n  measurement and product notes live\n- **Activities.** Scheduling the next step every time, and what an overdue\n  activity looks like from the office side\n- **@ mentions.** Who to tag for what, and why a note on the deal beats a text\n  message\n- **Winning and losing.** Marking a deal won, marking it lost, and choosing a\n  loss reason that is worth reading three months from now\n- **The insights dashboard.** The numbers you will be looking at once the leads\n  are yours\n\nBring questions. If something in the self paced modules did not land, this is the\nsession to say so.\n",
+   "phase": "Pipedrive (CRM)",
+   "phase_index": 3,
+   "phase_blurb": "Set up your account and run a deal from first call through won or lost.",
+   "order": 27,
+   "author_note": "Written 2026-08-28 at Rose's request. Live session, 45 minutes, Rose.\n\nAdded when the training week was compressed so Tyler and Michael could finish by\n2026-09-04 and start in the field 2026-09-08. Pipedrive had no live session: the\nwhole block was self paced in PR-001 through PR-009, and Rose wanted a working\nreview in the reps' own pipelines before they carry real leads.\n\nScoped to sales-b2c only, so the b2b path count is unchanged.\n\nScheduled 2026-09-01 at 10:00 with Rose, confirmed by Rose 2026-08-28.\n",
+   "session_date": "2026-09-01",
+   "session_time": "10:00"
+  },
+  {
    "id": "PB-020",
    "title": "How our pricing works",
    "track": "playbook",
@@ -1248,7 +1280,7 @@
    "phase": "Pricing and product basics",
    "phase_index": 4,
    "phase_blurb": "What we charge for, what we guarantee, and the vocabulary for windows, doors, and openings.",
-   "order": 27
+   "order": 28
   },
   {
    "id": "LV-030B",
@@ -1260,7 +1292,7 @@
     "sales-b2b"
    ],
    "week": 3,
-   "duration_min": 15,
+   "duration_min": 30,
    "format": "live",
    "owner": "Justin",
    "signoff": "approver",
@@ -1277,9 +1309,9 @@
    "phase": "Pricing and product basics",
    "phase_index": 4,
    "phase_blurb": "What we charge for, what we guarantee, and the vocabulary for windows, doors, and openings.",
-   "order": 28,
+   "order": 29,
    "body_md": "Fifteen minutes with your card reader, hands on.\n\nYou collect the 50 percent deposit at the table whenever you can, and this is the\ntool you do it with. **You will take a card payment in your mock appointment,** so\nthis is where you run one first.\n\nWhat we cover:\n\n- Charging it, pairing it, and checking it before you leave for an appointment\n- Running a payment start to finish\n- Writing down the **card type and the last four digits** for admin, and never\n  the full number\n- What the customer gets as a receipt\n- What you do when the reader will not connect and somebody is holding a card\n\n[How our pricing works](module:PB-020) has the deposit policy, and\n[Winning and losing a deal](module:PR-007) covers what admin does with the\npayment once you hand it over.\n",
-   "author_note": "Written 2026-08-16 at Rose's request. Live session, 15 minutes, hands on, Justin.\n\nDrafted first as a self study module and changed to a live session per Rose. The device\nspecifics stay out of the written module for that reason: the reader, the app, pairing,\nreceipts, refunds, and any transaction limit all get covered in the room.\n\nScheduled Tuesday 2026-09-01, which freed up when LV-042 Therma-Tru with Justin and\nLV-045 Vinyl Design with Justin were removed. Those two sessions were replaced by\nPK-TT-010 and PK-VD-010, written 2026-08-16. It is the only Monday to Wednesday day\nbefore Mock Vendo build where Justin has nothing else with the reps.\n\nReps run a test transaction here, again at Mock Vendo build on 2026-09-08, and again in\nthe mock appointment on 2026-09-11.\n\nScheduled 2026-09-01 at 12:00 with Justin, confirmed by Rose 2026-08-16.",
+   "author_note": "Written 2026-08-16 at Rose's request. Live session, 30 minutes, hands on, Justin.\n\nDrafted first as a self study module and changed to a live session per Rose. The device\nspecifics stay out of the written module for that reason: the reader, the app, pairing,\nreceipts, refunds, and any transaction limit all get covered in the room.\n\nScheduled Tuesday 2026-09-01, which freed up when LV-042 Therma-Tru with Justin and\nLV-045 Vinyl Design with Justin were removed. Those two sessions were replaced by\nPK-TT-010 and PK-VD-010, written 2026-08-16. It is the only Monday to Wednesday day\nbefore Mock Vendo build where Justin has nothing else with the reps.\n\nReps run a test transaction here, again at Mock Vendo build on 2026-08-31, and again in\nthe mock appointment on 2026-09-04.\n\nScheduled 2026-09-01 at 12:00 with Justin, confirmed by Rose 2026-08-16.",
    "session_date": "2026-09-01",
    "session_time": "12:00"
   },
@@ -1373,7 +1405,7 @@
    "phase": "Pricing and product basics",
    "phase_index": 4,
    "phase_blurb": "What we charge for, what we guarantee, and the vocabulary for windows, doors, and openings.",
-   "order": 29
+   "order": 30
   },
   {
    "id": "REF-010",
@@ -1474,7 +1506,7 @@
    "phase": "Pricing and product basics",
    "phase_index": 4,
    "phase_blurb": "What we charge for, what we guarantee, and the vocabulary for windows, doors, and openings.",
-   "order": 30
+   "order": 31
   },
   {
    "id": "REF-090",
@@ -1608,7 +1640,7 @@
    "phase": "Pricing and product basics",
    "phase_index": 4,
    "phase_blurb": "What we charge for, what we guarantee, and the vocabulary for windows, doors, and openings.",
-   "order": 31
+   "order": 32
   },
   {
    "id": "REF-100",
@@ -1712,7 +1744,7 @@
    "phase": "Pricing and product basics",
    "phase_index": 4,
    "phase_blurb": "What we charge for, what we guarantee, and the vocabulary for windows, doors, and openings.",
-   "order": 32
+   "order": 33
   },
   {
    "id": "REF-060",
@@ -1790,7 +1822,7 @@
    "phase": "Pricing and product basics",
    "phase_index": 4,
    "phase_blurb": "What we charge for, what we guarantee, and the vocabulary for windows, doors, and openings.",
-   "order": 33
+   "order": 34
   },
   {
    "id": "REF-065",
@@ -1817,7 +1849,7 @@
    "phase": "Pricing and product basics",
    "phase_index": 4,
    "phase_blurb": "What we charge for, what we guarantee, and the vocabulary for windows, doors, and openings.",
-   "order": 34,
+   "order": 35,
    "body_md": "Security comes up in almost every door conversation and in a fair number of\nwindow ones. Most of what a customer has read is about the wrong things, so the\njob is to move the conversation to what actually matters.\n\n## Where security actually sits\n\n**The lock.** More than half of break-ins come through a door that was not\nlocked. That is the whole tip, and it is the one worth saying out loud. A\ncustomer who wants to solve this with product is often better served by a\nwireless lock they can throw from their phone.\n\n**The strike plate.** A deadbolt is only as good as the plate it lands in. Short\nscrews let the plate be pried out of the jamb, and the deadbolt comes with it.\nWe recommend strike plate screws at least 2-1/2 inches long, so they reach past\nthe jamb into the framing.\n\n**The hinges are not the weak point people expect.** On an inswing door the\nhinges are inside the house and cannot be reached. On an outswing door they are\noutside, but riveted hinge pins are the industry standard, so the pin does not\ncome out.\n\n**The glass is already safety glass.** All door glass is tempered by federal\nlaw. Tempered is roughly four times stronger than annealed, and it is hard to\nbreak.\n\n## Sliding patio doors\n\nAn auxiliary foot lock is the modern version of the dowel rod in the track. It\nhas two lock positions, so a customer can vent the door and still have it\nsecured. We include one on every sliding glass door we sell.\n\n## What we tell people not to buy\n\n**Security film.** The glass is already tempered, so the film is buying very\nlittle, and for several manufacturers applying film voids the door warranty.\nTell a customer to check with the manufacturer before they put anything on the\nglass.\n\n**A steel door for security reasons.** Steel is not more secure than fiberglass.\nIt is a common selling point elsewhere and customers arrive believing it. Steel\nis the right answer on price, and fiberglass is what we lead with.\n\n**Impact glass where the customer does not need it.** This is the one that comes\nup most.\n\n## The impact glass conversation\n\nCustomers ask for hurricane glass as a security feature. It is not one.\n\n**Nobody breaks into a house the way a hurricane does.** Impact glass is built\nfor a two by four arriving at highway speed in a storm. That is not how an\nintruder gets in, and a burglar who wants glass out of the way has easier ways\nthan the thing engineered to stop flying debris.\n\nWhere it is not required, what the customer actually buys is:\n\n- **Roughly twice the cost** of the same window in standard glass\n- **Roughly twice the weight,** carried by the sash, the hardware, and the frame\n  for the life of the window\n\nThat second one is the part people do not think about. A heavier unit works its\nhardware harder every time it opens, and weight is not a neutral thing to add to\nan opening that was not designed for it.\n\n**And it does not make them safer than locking the window would.** That is the\nsentence to land on, because it is true and it moves the conversation back to\nthe lock.\n\nImpact glass is the right product where code or exposure calls for it. It is not\na security upgrade, and we do not sell it as one.\n\n## Related reading\n\nOur own post, which a rep can send a customer:\n[Front door security, 5 tips for break-in proof doors](https://www.windowworksnc.com/front-door-security-5-tips-for-break-in-proof-doors-that-every-homeowner-should-know/)\n",
    "quiz": [
     {
@@ -1959,7 +1991,7 @@
    "phase": "Pricing and product basics",
    "phase_index": 4,
    "phase_blurb": "What we charge for, what we guarantee, and the vocabulary for windows, doors, and openings.",
-   "order": 35
+   "order": 36
   },
   {
    "id": "REF-080",
@@ -1989,7 +2021,7 @@
    "phase": "Pricing and product basics",
    "phase_index": 4,
    "phase_blurb": "What we charge for, what we guarantee, and the vocabulary for windows, doors, and openings.",
-   "order": 36
+   "order": 37
   },
   {
    "id": "PK-AW-010",
@@ -2111,7 +2143,7 @@
    "phase": "Pricing and product basics",
    "phase_index": 4,
    "phase_blurb": "What we charge for, what we guarantee, and the vocabulary for windows, doors, and openings.",
-   "order": 37
+   "order": 38
   },
   {
    "id": "PK-AW-100",
@@ -2144,7 +2176,7 @@
    "phase": "Andersen 100 Series",
    "phase_index": 5,
    "phase_blurb": "Our Fibrex line.",
-   "order": 38
+   "order": 39
   },
   {
    "id": "PK-AW-110",
@@ -2177,7 +2209,7 @@
    "phase": "Andersen 100 Series",
    "phase_index": 5,
    "phase_blurb": "Our Fibrex line.",
-   "order": 39
+   "order": 40
   },
   {
    "id": "PK-AW-120",
@@ -2211,7 +2243,7 @@
    "phase": "Andersen 100 Series",
    "phase_index": 5,
    "phase_blurb": "Our Fibrex line.",
-   "order": 40
+   "order": 41
   },
   {
    "id": "PK-AW-130",
@@ -2244,7 +2276,7 @@
    "phase": "Andersen 100 Series",
    "phase_index": 5,
    "phase_blurb": "Our Fibrex line.",
-   "order": 41
+   "order": 42
   },
   {
    "id": "PK-AW-140",
@@ -2277,7 +2309,7 @@
    "phase": "Andersen 100 Series",
    "phase_index": 5,
    "phase_blurb": "Our Fibrex line.",
-   "order": 42
+   "order": 43
   },
   {
    "id": "PK-AW-190",
@@ -2412,7 +2444,7 @@
    "phase": "Andersen 100 Series",
    "phase_index": 5,
    "phase_blurb": "Our Fibrex line.",
-   "order": 43
+   "order": 44
   },
   {
    "id": "PK-AW-200",
@@ -2445,7 +2477,7 @@
    "phase": "Andersen 400 Series",
    "phase_index": 6,
    "phase_blurb": "Our wood line.",
-   "order": 44
+   "order": 45
   },
   {
    "id": "PK-AW-210",
@@ -2478,7 +2510,7 @@
    "phase": "Andersen 400 Series",
    "phase_index": 6,
    "phase_blurb": "Our wood line.",
-   "order": 45
+   "order": 46
   },
   {
    "id": "PK-AW-220",
@@ -2511,7 +2543,7 @@
    "phase": "Andersen 400 Series",
    "phase_index": 6,
    "phase_blurb": "Our wood line.",
-   "order": 46
+   "order": 47
   },
   {
    "id": "PK-AW-230",
@@ -2544,7 +2576,7 @@
    "phase": "Andersen 400 Series",
    "phase_index": 6,
    "phase_blurb": "Our wood line.",
-   "order": 47
+   "order": 48
   },
   {
    "id": "PK-AW-240",
@@ -2577,7 +2609,7 @@
    "phase": "Andersen 400 Series",
    "phase_index": 6,
    "phase_blurb": "Our wood line.",
-   "order": 48
+   "order": 49
   },
   {
    "id": "PK-AW-250",
@@ -2610,7 +2642,7 @@
    "phase": "Andersen 400 Series",
    "phase_index": 6,
    "phase_blurb": "Our wood line.",
-   "order": 49,
+   "order": 50,
    "author_note": "RESOLVED 2026-08-16 with Rose.\n\nCustom sized picture windows: a size the quoting software will not build is not a no.\nThe rep checks with the COO, because it may be available custom sized. The module now\nsays that rather than leaving the claim unqualified.\n\nHalf round: Andersen's stock half round has legs, so it measures taller than half its\nwidth and is not a true half circle. Specialty shapes builds a true half circle without\nthe legs. That is the keyed answer to question 9 in the 400 Series check quiz.\n\nFigure quiz-shape-half-round.png is built from Andersen's own product images of the\nhalf round and quarter round, supplied by Rose, with the mirror test composed from the\nhalf round image.",
    "review_needed": false
   },
@@ -2645,7 +2677,7 @@
    "phase": "Andersen 400 Series",
    "phase_index": 6,
    "phase_blurb": "Our wood line.",
-   "order": 50
+   "order": 51
   },
   {
    "id": "PK-AW-400-CHECK",
@@ -2795,7 +2827,7 @@
    "phase": "Andersen 400 Series",
    "phase_index": 6,
    "phase_blurb": "Our wood line.",
-   "order": 51
+   "order": 52
   },
   {
    "id": "PK-PV-010",
@@ -2944,7 +2976,7 @@
    "phase": "Other brands",
    "phase_index": 7,
    "phase_blurb": "The brands we lead with when the answer is not an Andersen.",
-   "order": 52,
+   "order": 53,
    "reviewed": "2026-08-16"
   },
   {
@@ -2971,7 +3003,7 @@
    "phase": "Other brands",
    "phase_index": 7,
    "phase_blurb": "The brands we lead with when the answer is not an Andersen.",
-   "order": 53,
+   "order": 54,
    "body_md": "Therma-Tru is our other entry door line. **It is more budget friendly than\nProVia,** which is the main reason to reach for it. The lineup says lead with a\nProVia fiberglass door, and that still holds. Therma-Tru is the answer when\nprice is driving the decision.\n\n## Therma-Tru does not build the door you sell\n\nTherma-Tru manufactures the fiberglass slabs and ships them to distributors\naround the country. **The distributor assembles the door in the frame, hangs it,\nand does the prefinishing, in their own shop.**\n\nWe buy through Reeb, who do a good job of it, and their prefinishes are nice.\nOthers in the area over the years have not been. Andersen and ProVia both build\nin house and ship on their own logistics, which is the contrast worth holding on\nto.\n\nMost customers assume a Therma-Tru door is built by Therma-Tru whether they buy\nit from us or a big box store. It is not, and that difference is also why we do\nnot sell their multi-point lock.\n\n## The three lines we sell\n\nAll three have a **composite edge, so no wood is exposed to the elements.** That\nis the reason these three and not the others.\n\n**Classic-Craft.** The premium line. Architecturally correct proportions, 13\nexclusive decorative glass families, and glass that runs wider than other\nstandard fiberglass doors, so more light comes through. Frameless flush glazed\noptions. Woodgrain for staining or painting, or smooth for painting. All clear\nglass is Low-E.\n\n**Fiber-Classic.** The value woodgrain. Realistic Oak and Mahogany for staining\nor painting, 14 decorative glass designs, frameless flush glazed available,\ninternal blinds available.\n\n**Smooth-Star.** Smooth and ready to paint. Same 14 glass designs, frameless\nflush glazed available, internal blinds available. This is the one for a\ncustomer who wants a painted door in a strong color.\n\nOn Therma-Tru's own scale Classic-Craft is their top tier and the other two sit a\ntier below it. All three carry a lifetime warranty on the door.\n\n## What we don't sell from the catalog\n\nTherma-Tru also makes steel and value lines, Pulse, Profiles, and Traditions.\nWe stay on the three composite edge fiberglass lines.\n\nReeb's own economy fiberglass is a Therma-Tru with a wood edge. **It rots in our\nhumidity,** and we have seen one fail in as little as 12 months.\n[Never sell, always include](module:REF-040) has the full list, including the\nmulti-point lock and Reeb sill pans.\n\n## How we spec them\n\nThese are not preferences. Build every Therma-Tru this way unless there is a\nreason not to.\n\n**Always Ultra PVC brickmould.** No raw wood on the outside of a Therma-Tru.\n\n**Always a Frame Saver jamb.** A prefinished door comes with a composite jamb\ninstead, which is fine on a single door.\n\n**On a double door, or a door with sidelites, take the Frame Saver jamb and skip\nthe prefinish.** It is stronger, and a wider unit needs that more than it needs\nthe factory finish.\n\n**Never order Therma-Tru factory staining.** It is unreliable. If a customer\nwants a stained door, either they hire someone to finish it or you move them to\nProVia, whose factory finishing holds up. That is a real reason to leave the\nbudget line and it is worth saying plainly at the table.\n\n## Glass and privacy\n\n13 decorative glass families on Classic-Craft, 14 designs on the other two,\nprivacy and textured options across all three. Internal blinds are offered on\nFiber-Classic and Smooth-Star.\n\n## Warranty\n\nLifetime on slabs, glass, and the composite jamb, and 2 years on other jambs and\nbrickmould. **It does not transfer to a new owner,** which is the one to\nremember, because ProVia's does. [Warranties](module:REF-110) has the comparison.\n\n## Use the showroom\n\nWe have a lot of Therma-Tru on display. A customer choosing between a stained\nwoodgrain and a painted smooth door is making a decision they cannot make from a\nbrochure, and the showroom is the fastest way to settle it.\n\n## Quoting\n\nTherma-Tru is quoted in Reeb 2G, not in Vendo, and imported afterward.\n[Quoting Therma-Tru doors in Reeb 2G](module:PR-040) covers the software,\n[Quoting a custom door in Reeb 2G](module:PR-045) covers anything the software\nwill not build, and [Importing a Reeb quote into Vendo](module:PR-050) covers\ngetting it back. Sizes in Reeb refer to the slab rather than the finished unit,\nwhich [Sizing conventions](module:REF-030) explains.\n\n## Where to look things up\n\n[Product line comparison](https://www.thermatru.com/explore-products/door-collections/product-line-comparison/)\nputs all six lines side by side.\n\n[Decorative and specialty glass](https://www.thermatru.com/explore-products/decorative-and-specialty-glass/)\nhas the glass families.\n\n[Video gallery](https://www.thermatru.com/inspiration/video-gallery/) and\n[Therma-Tru on YouTube](https://www.youtube.com/channel/UClcARUnk2xOFLeGQJkQuV0Q).\n",
    "quiz": [
     {
@@ -3148,7 +3180,7 @@
    "phase": "Other brands",
    "phase_index": 7,
    "phase_blurb": "The brands we lead with when the answer is not an Andersen.",
-   "order": 54
+   "order": 55
   },
   {
    "id": "PK-VD-010",
@@ -3174,7 +3206,7 @@
    "phase": "Other brands",
    "phase_index": 7,
    "phase_blurb": "The brands we lead with when the answer is not an Andersen.",
-   "order": 55,
+   "order": 56,
    "body_md": "Vinyl Design is our vinyl window. The lineup says lead with the Andersen 100\nSeries, and that holds. **Vinyl Design is the vinyl option when the 100 Series is\nout of reach on price.**\n\nThey are a manufacturer rather than a distributor, building since 1988, and they\nsell trim coil, roofing, and plenty else. We sell only their windows.\n\n## The Mountainview 1000\n\nOur line is the Mountainview 1000. It comes as a **double hung, casement,\npicture, or gliding** unit. Vinyl Design also builds sliders, awnings, hoppers,\ngarden windows, and bay and bow.\n\n**Super Spacer comes standard.** It is a polymer foam warm edge spacer with no\nmetal in it. Most manufacturers charge for a warm edge upgrade and Vinyl Design\ndoes not. The number worth carrying: with a conventional metal spacer,\ncondensation starts forming at about 15 percent indoor humidity. With Super\nSpacer it takes about 50 percent.\n\nBeyond that: an interlocking seal system against drafts, a constant force balance\nso the sash moves easily, both sashes tilt in for cleaning, and Energy Star\nratings.\n\n**A half screen comes standard, and a full screen is an upgrade.** Worth raising\nrather than letting the customer discover it, since a half screen is what most\npeople picture on a double hung and a full screen is not expensive.\n\n**It comes in black, which is rare in vinyl.** Black is what customers are asking\nfor and most vinyl lines cannot do it. On a job where the customer wants black\nand the budget will not carry an Andersen, this is the answer, and it is worth\nraising before they assume black means stepping up in price.\n\n## The warranty is the strongest thing about it\n\nLifetime and non-prorated, covering the unit, the hardware, the insulating glass\nagainst seal failure, and **accidental glass breakage.** 10 years on color\ncoatings and on mini-blinds between the glass.\n\n**It is the only window line we sell that covers glass breakage.** Everywhere\nelse a rock or a stray ball is the homeowner's problem. That is a real\ndifferentiator on a vinyl window and most competitors quoting vinyl cannot say it.\n\nTwo conditions to state at the table: the transfer requires the original\npurchaser to give written notice, and registration is due within 30 days.\n[Warranties](module:REF-110) has the comparison.\n\n## Grilles are written differently\n\n**Vinyl Design counts bars. Andersen counts lites.** Two vertical bars and one\nhorizontal bar gives three columns and two rows, which is six lites, so 2V 1H and\nsix over six are the same window. Reading a Vinyl Design quote next to an\nAndersen one, the same window looks like two different windows.\n[Window anatomy](module:REF-090) covers the patterns.\n\n## What we never sell, and what we always include\n\n**Factory painted vinyl windows.** We do not offer them, because the product does\nnot hold up.\n\n**Vinyl Design extension jambs.** Raw unfinished poplar at $50 to $75 per window,\nand they are not well made. Our crew applying them is the better answer, or a\ncontractor buying their own wood. If a customer pushes, you can quote it.\n\n**Sill adaptor and head expander on inserts, always.** If you do not add them\nthey do not ship, and the sill adaptor is what lets the outside be finished\nproperly.\n\n## Sizing\n\nAn insert into an existing wood frame deducts **5/8 inch on the width and 1/2\ninch on the height** from the opening. A 28 by 54 opening becomes 27-5/8 by\n53-1/2.\n\nExisting vinyl windows are **full frame vinyl, always,** whatever goes back in.\nThere is no wood frame to insert into. [Install types](module:REF-010) covers the\ncall.\n\n## Quoting\n\nVinyl Design is quoted in their own portal, not in Vendo, and it is the one brand\nwith no Vendo integration, so getting it back in is a manual workaround.\n[Quoting Vinyl Design](module:PR-046) covers the portal, and\n[Importing a Vinyl Design quote into Vendo](module:PR-070) covers the workaround.\n\nTwo traps worth knowing before you get there. **Wake County's 7.25 percent is\nalready in the Vinyl Design quote,** so the taxable service flag stays off and\nthe package adder stays off. [Adder traps](module:PR-048) has both.\n",
    "quiz": [
     {
@@ -3309,12 +3341,12 @@
     "sales-b2c"
    ],
    "week": 3,
-   "duration_min": 45,
+   "duration_min": 60,
    "video": null,
    "video_source": "none",
    "format": "live",
    "owner": "Justin",
-   "session_time": "10:00",
+   "session_time": "10:45",
    "signoff": "approver",
    "session_date": "2026-09-01",
    "reviewed": "2026-08-10",
@@ -3328,7 +3360,7 @@
    "phase": "Our showroom",
    "phase_index": 8,
    "phase_blurb": "One walkthrough of the display floor, hands on the units you have been studying.",
-   "order": 56
+   "order": 57
   },
   {
    "id": "PB-040",
@@ -3540,7 +3572,7 @@
    "phase": "What to recommend",
    "phase_index": 9,
    "phase_blurb": "Which product to lead with, when code forces your hand, and what the warranty covers.",
-   "order": 57
+   "order": 58
   },
   {
    "id": "REF-050",
@@ -3629,7 +3661,7 @@
    "phase": "What to recommend",
    "phase_index": 9,
    "phase_blurb": "Which product to lead with, when code forces your hand, and what the warranty covers.",
-   "order": 58
+   "order": 59
   },
   {
    "id": "REF-110",
@@ -3738,7 +3770,7 @@
    "phase": "What to recommend",
    "phase_index": 9,
    "phase_blurb": "Which product to lead with, when code forces your hand, and what the warranty covers.",
-   "order": 59
+   "order": 60
   },
   {
    "id": "REF-030",
@@ -3815,7 +3847,7 @@
    "phase": "Measuring",
    "phase_index": 10,
    "phase_blurb": "Sizing conventions on paper, then two hands on sessions.",
-   "order": 60
+   "order": 61
   },
   {
    "id": "LV-040",
@@ -3845,7 +3877,7 @@
    "phase": "Measuring",
    "phase_index": 10,
    "phase_blurb": "Sizing conventions on paper, then two hands on sessions.",
-   "order": 61
+   "order": 62
   },
   {
    "id": "LV-050",
@@ -3856,12 +3888,12 @@
     "sales-b2c"
    ],
    "week": 3,
-   "duration_min": 60,
+   "duration_min": 90,
    "video": null,
    "video_source": "none",
    "format": "live",
    "owner": "Justin",
-   "session_time": "10:45",
+   "session_time": "13:30",
    "signoff": "approver",
    "session_date": "2026-09-01",
    "reviewed": "2026-08-10",
@@ -3875,7 +3907,7 @@
    "phase": "Measuring",
    "phase_index": 10,
    "phase_blurb": "Sizing conventions on paper, then two hands on sessions.",
-   "order": 62
+   "order": 63
   },
   {
    "id": "PR-020",
@@ -3910,7 +3942,7 @@
    "phase": "Quoting the product",
    "phase_index": 11,
    "phase_blurb": "Andersen in Vendo, Therma-Tru in Reeb 2G, and Vinyl Design on the iPad.",
-   "order": 63
+   "order": 64
   },
   {
    "id": "PR-021",
@@ -3944,7 +3976,7 @@
    "phase": "Quoting the product",
    "phase_index": 11,
    "phase_blurb": "Andersen in Vendo, Therma-Tru in Reeb 2G, and Vinyl Design on the iPad.",
-   "order": 64
+   "order": 65
   },
   {
    "id": "PR-025",
@@ -4086,7 +4118,7 @@
    "phase": "Quoting the product",
    "phase_index": 11,
    "phase_blurb": "Andersen in Vendo, Therma-Tru in Reeb 2G, and Vinyl Design on the iPad.",
-   "order": 65,
+   "order": 66,
    "author_note": "RESOLVED 2026-08-16. STC availability came from Andersen's own sound abatement page\nfor professionals: the STC upgrade is offered on the 100 Series and E-Series only, and\nlaminated glass is the sound option elsewhere. The module and question 8 now say so.\nhttps://www.andersenwindows.com/for-professionals/pro-views/sound-abatement\n\nLaminated availability by door is left to Vendo. Per Rose, a rep confirms it in the\nquoting software rather than the module carrying a list.",
    "review_needed": true
   },
@@ -4194,7 +4226,7 @@
    "phase": "Quoting the product",
    "phase_index": 11,
    "phase_blurb": "Andersen in Vendo, Therma-Tru in Reeb 2G, and Vinyl Design on the iPad.",
-   "order": 66
+   "order": 67
   },
   {
    "id": "PR-040",
@@ -4228,7 +4260,7 @@
    "phase": "Quoting the product",
    "phase_index": 11,
    "phase_blurb": "Andersen in Vendo, Therma-Tru in Reeb 2G, and Vinyl Design on the iPad.",
-   "order": 67
+   "order": 68
   },
   {
    "id": "PR-045",
@@ -4321,7 +4353,7 @@
    "phase": "Quoting the product",
    "phase_index": 11,
    "phase_blurb": "Andersen in Vendo, Therma-Tru in Reeb 2G, and Vinyl Design on the iPad.",
-   "order": 68
+   "order": 69
   },
   {
    "id": "PR-046",
@@ -4354,7 +4386,7 @@
    "phase": "Quoting the product",
    "phase_index": 11,
    "phase_blurb": "Andersen in Vendo, Therma-Tru in Reeb 2G, and Vinyl Design on the iPad.",
-   "order": 69
+   "order": 70
   },
   {
    "id": "PR-047",
@@ -4389,7 +4421,7 @@
    "phase": "Vendo adders and change orders",
    "phase_index": 12,
    "phase_blurb": "The adders that carry your labor, the ones reps miss, and how outside quotes come into Vendo.",
-   "order": 70
+   "order": 71
   },
   {
    "id": "PR-048",
@@ -4527,7 +4559,7 @@
    "phase": "Vendo adders and change orders",
    "phase_index": 12,
    "phase_blurb": "The adders that carry your labor, the ones reps miss, and how outside quotes come into Vendo.",
-   "order": 71
+   "order": 72
   },
   {
    "id": "REF-040",
@@ -4606,7 +4638,7 @@
    "phase": "Vendo adders and change orders",
    "phase_index": 12,
    "phase_blurb": "The adders that carry your labor, the ones reps miss, and how outside quotes come into Vendo.",
-   "order": 72
+   "order": 73
   },
   {
    "id": "PR-050",
@@ -4641,7 +4673,7 @@
    "phase": "Vendo adders and change orders",
    "phase_index": 12,
    "phase_blurb": "The adders that carry your labor, the ones reps miss, and how outside quotes come into Vendo.",
-   "order": 73
+   "order": 74
   },
   {
    "id": "PR-070",
@@ -4675,7 +4707,7 @@
    "phase": "Vendo adders and change orders",
    "phase_index": 12,
    "phase_blurb": "The adders that carry your labor, the ones reps miss, and how outside quotes come into Vendo.",
-   "order": 74
+   "order": 75
   },
   {
    "id": "PR-080",
@@ -4795,7 +4827,7 @@
    "phase": "Vendo adders and change orders",
    "phase_index": 12,
    "phase_blurb": "The adders that carry your labor, the ones reps miss, and how outside quotes come into Vendo.",
-   "order": 75
+   "order": 76
   },
   {
    "id": "PR-100",
@@ -4908,7 +4940,7 @@
    "phase": "Vendo adders and change orders",
    "phase_index": 12,
    "phase_blurb": "The adders that carry your labor, the ones reps miss, and how outside quotes come into Vendo.",
-   "order": 76
+   "order": 77
   },
   {
    "id": "PB-050",
@@ -4937,7 +4969,7 @@
    "phase": "Visualizing the job",
    "phase_index": 13,
    "phase_blurb": "Present in Ingage, and document the job in CompanyCam.",
-   "order": 77
+   "order": 78
   },
   {
    "id": "LV-065",
@@ -4948,11 +4980,11 @@
     "sales-b2c"
    ],
    "week": 3,
-   "duration_min": 90,
+   "duration_min": 75,
    "format": "live",
    "owner": "Rose",
    "session_date": "2026-08-31",
-   "session_time": "12:45",
+   "session_time": "13:45",
    "signoff": "approver",
    "video": null,
    "video_source": "none",
@@ -4969,7 +5001,7 @@
    "phase": "Visualizing the job",
    "phase_index": 13,
    "phase_blurb": "Present in Ingage, and document the job in CompanyCam.",
-   "order": 78
+   "order": 79
   },
   {
    "id": "LV-068",
@@ -4981,13 +5013,13 @@
    ],
    "week": 3,
    "assessment": true,
-   "duration_min": 60,
+   "duration_min": 30,
    "format": "live",
    "owner": "Rose",
    "session_date": "2026-09-02",
    "session_time": {
     "Tyler": "10:00",
-    "Michael": "11:15"
+    "Michael": "10:30"
    },
    "signoff": "approver",
    "video": null,
@@ -5007,7 +5039,7 @@
    "phase": "Visualizing the job",
    "phase_index": 13,
    "phase_blurb": "Present in Ingage, and document the job in CompanyCam.",
-   "order": 79
+   "order": 80
   },
   {
    "id": "PB-060",
@@ -5100,7 +5132,7 @@
    "phase": "Visualizing the job",
    "phase_index": 13,
    "phase_blurb": "Present in Ingage, and document the job in CompanyCam.",
-   "order": 80
+   "order": 81
   },
   {
    "id": "LV-078",
@@ -5135,7 +5167,7 @@
    "phase": "Practice, then the real thing",
    "phase_index": 14,
    "phase_blurb": "Mock builds and simulator runs, a real jobsite, then the chance to run a full appointment start to finish.",
-   "order": 81
+   "order": 82
   },
   {
    "id": "LV-055",
@@ -5165,7 +5197,7 @@
    "phase": "Practice, then the real thing",
    "phase_index": 14,
    "phase_blurb": "Mock builds and simulator runs, a real jobsite, then the chance to run a full appointment start to finish.",
-   "order": 82
+   "order": 83
   },
   {
    "id": "LV-090",
@@ -5195,7 +5227,7 @@
    "phase": "Practice, then the real thing",
    "phase_index": 14,
    "phase_blurb": "Mock builds and simulator runs, a real jobsite, then the chance to run a full appointment start to finish.",
-   "order": 83
+   "order": 84
   },
   {
    "id": "LV-100",
@@ -5226,7 +5258,7 @@
    "phase": "Practice, then the real thing",
    "phase_index": 14,
    "phase_blurb": "Mock builds and simulator runs, a real jobsite, then the chance to run a full appointment start to finish.",
-   "order": 84
+   "order": 85
   },
   {
    "id": "LV-085",
@@ -5256,7 +5288,7 @@
    "phase": "Practice, then the real thing",
    "phase_index": 14,
    "phase_blurb": "Mock builds and simulator runs, a real jobsite, then the chance to run a full appointment start to finish.",
-   "order": 85
+   "order": 86
   },
   {
    "id": "LV-110",
@@ -5272,10 +5304,10 @@
    "video": null,
    "video_source": "none",
    "format": "live",
-   "owner": "Rose",
+   "owner": "Rose and Justin",
    "session_time": {
     "Tyler": "10:00",
-    "Michael": "12:45"
+    "Michael": "12:30"
    },
    "signoff": "approver",
    "session_date": "2026-09-04",
@@ -5290,7 +5322,7 @@
    "phase": "Practice, then the real thing",
    "phase_index": 14,
    "phase_blurb": "Mock builds and simulator runs, a real jobsite, then the chance to run a full appointment start to finish.",
-   "order": 86
+   "order": 87
   },
   {
    "id": "LV-120",
@@ -5320,7 +5352,7 @@
    "phase": "Practice, then the real thing",
    "phase_index": 14,
    "phase_blurb": "Mock builds and simulator runs, a real jobsite, then the chance to run a full appointment start to finish.",
-   "order": 87
+   "order": 88
   },
   {
    "id": "PB-090",
@@ -5331,7 +5363,7 @@
     "sales-b2c"
    ],
    "week": 3,
-   "duration_min": 5,
+   "duration_min": 45,
    "video": null,
    "video_source": "none",
    "reviewed": "2026-08-10",
@@ -5341,13 +5373,16 @@
    "depends_on": "none",
    "review_needed": true,
    "path": "content/playbook/PB-090-what-comes-next.md",
-   "body_md": "Training ends and the week of September 14 starts, which is your first week\nrunning your own appointments.\n\nNot much changes on paper. You keep your showroom hours, you keep going to the\ndepartment meeting, and the reference sheets stay where they are. What changes is\nthat the appointments are yours.\n\n**We'll ride along on some of them in the first few weeks.** Watching a real\nappointment is the only way to give you feedback that's worth anything, and it's\neasier to fix something in week one than in month three.\n\n## The first evaluation\n\nYour first evaluation is at 90 days, and the employment contract module covers\nhow it works. It scores the seven core values, and one of them is Strong Sales.\n\nFor a rep, that means four things.\n\n**Closing at or above 30% of the leads assigned to you.** We do our best to\nqualify leads before they reach you, though we can't catch every one.\n\nThirty percent is a starting point rather than the target. Where we want you is\n40% and above, and the gap between those two numbers is roughly what the first\nyear is for.\n\n**Documented follow-up.** Notes and activities in the CRM showing what you did on\nthe deals that didn't close, not only the ones that did.\n\n**Engagement in department meetings.**\n\n**Using your showroom hours well**, on product education and getting your\nquestions answered.\n\nNothing on that list should be a surprise in November. If any of it is off before\nthen, you'll hear about it before then.\n\n## What to go back to\n\nMost of what you'll need again is in the reference sheets rather than the\nmodules. They're written to be reread rather than remembered, so go back to them\nas often as you want.\n\n- **Install types.** Replacement, full frame, and new construction, and how to\n  tell which one you're looking at\n- **Adder traps.** The adders that get missed, and what it costs when they are\n- **Sizing conventions.** How sizes are written and read, so a quote and a\n  measurement mean the same thing\n- **Tempered glass and code.** Where code requires it, and where it's a choice\n- **Never sell, always include.** The things that have to be on a quote whether\n  or not the customer asks\n\nAlright, that's everything. Now get out there and sell some windows and doors.\nWe know you're going to be great at it.\n",
+   "body_md": "Training ends and Tuesday, September 8 is your first day running your own\nappointments. September 7 is Labor Day.\n\nNot much changes on paper. You keep your showroom hours, you keep going to the\ndepartment meeting, and the reference sheets stay where they are. What changes is\nthat the appointments are yours.\n\n**We'll ride along on some of them in the first few weeks.** Watching a real\nappointment is the only way to give you feedback that's worth anything, and it's\neasier to fix something in week one than in month three.\n\n## The first evaluation\n\nYour first evaluation is at 90 days, and the employment contract module covers\nhow it works. It scores the seven core values, and one of them is Strong Sales.\n\nFor a rep, that means four things.\n\n**Closing at or above 30% of the leads assigned to you.** We do our best to\nqualify leads before they reach you, though we can't catch every one.\n\nThirty percent is a starting point rather than the target. Where we want you is\n40% and above, and the gap between those two numbers is roughly what the first\nyear is for.\n\n**Documented follow-up.** Notes and activities in the CRM showing what you did on\nthe deals that didn't close, not only the ones that did.\n\n**Engagement in department meetings.**\n\n**Using your showroom hours well**, on product education and getting your\nquestions answered.\n\nNothing on that list should be a surprise in November. If any of it is off before\nthen, you'll hear about it before then.\n\n## What to go back to\n\nMost of what you'll need again is in the reference sheets rather than the\nmodules. They're written to be reread rather than remembered, so go back to them\nas often as you want.\n\n- **Install types.** Replacement, full frame, and new construction, and how to\n  tell which one you're looking at\n- **Adder traps.** The adders that get missed, and what it costs when they are\n- **Sizing conventions.** How sizes are written and read, so a quote and a\n  measurement mean the same thing\n- **Tempered glass and code.** Where code requires it, and where it's a choice\n- **Never sell, always include.** The things that have to be on a quote whether\n  or not the customer asks\n\nAlright, that's everything. Now get out there and sell some windows and doors.\nWe know you're going to be great at it.\n",
    "has_quiz": false,
    "quiz": null,
    "phase": "Practice, then the real thing",
    "phase_index": 14,
    "phase_blurb": "Mock builds and simulator runs, a real jobsite, then the chance to run a full appointment start to finish.",
-   "order": 88
+   "order": 89,
+   "session_date": "2026-09-03",
+   "session_time": "12:15",
+   "owner": "Rose and Justin"
   },
   {
    "id": "PR-010",
