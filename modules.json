@@ -1,6 +1,6 @@
 {
  "generated": "2026-08-28",
- "content_id": "d83b5f6-s2",
+ "content_id": "d83b5f6-s3",
  "count": 90,
  "modules": [
   {
@@ -5110,7 +5110,7 @@
    "roles": [
     "sales-b2c"
    ],
-   "week": 4,
+   "week": 3,
    "duration_min": 60,
    "format": "live",
    "owner": "Rose and Justin",
@@ -5175,7 +5175,7 @@
    "roles": [
     "sales-b2c"
    ],
-   "week": 4,
+   "week": 3,
    "duration_min": 180,
    "video": null,
    "video_source": "none",
@@ -5205,7 +5205,7 @@
    "roles": [
     "sales-b2c"
    ],
-   "week": 4,
+   "week": 3,
    "assessment": true,
    "duration_min": 30,
    "video": null,
@@ -5236,7 +5236,7 @@
    "roles": [
     "sales-b2c"
    ],
-   "week": 4,
+   "week": 3,
    "duration_min": 60,
    "video": null,
    "video_source": "none",
@@ -5266,7 +5266,7 @@
    "roles": [
     "sales-b2c"
    ],
-   "week": 4,
+   "week": 3,
    "assessment": true,
    "duration_min": 150,
    "video": null,
@@ -5300,7 +5300,7 @@
    "roles": [
     "sales-b2c"
    ],
-   "week": 4,
+   "week": 3,
    "duration_min": 30,
    "video": null,
    "video_source": "none",
@@ -5330,7 +5330,7 @@
    "roles": [
     "sales-b2c"
    ],
-   "week": 4,
+   "week": 3,
    "duration_min": 5,
    "video": null,
    "video_source": "none",
