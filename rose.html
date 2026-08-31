@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=233">
-<link rel="manifest" href="site.webmanifest?v=233">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=235">
+<link rel="manifest" href="site.webmanifest?v=235">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Rose Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=233">
+<link rel="stylesheet" href="portal.css?v=235">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Rose Reif';</script>
-<script src="gate.js?v=233"></script>
-<script src="scorecards.js?v=233"></script>
+<script src="gate.js?v=235"></script>
+<script src="scorecards.js?v=235"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -65,29 +65,13 @@
 
 <!-- ========================= TEAM: COMMISSION ========================= -->
 <div class="tab-content active" id="tab-commission-admin">
-<!-- MANUAL COMMISSION PAYOUT (transition + special cases) -->
+<!-- COMMISSION FINAL APPROVAL -->
 <div class="card">
-  <div class="card-title" style="justify-content:space-between;cursor:pointer" onclick="toggleManualComm(this)"><span>Record Commission Payout</span><span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="manual-comm-toggle">(click to expand)</span></div>
-  <div id="manual-comm-wrap" style="display:none;margin-top:8px">
-    <div style="font-size:12px;color:#888;margin-bottom:12px">For deals started before the back-end-only switch, or other agreed partial payouts. New deals pay automatically on completion, so use this only for transition or special cases.</div>
-    <div style="display:flex;flex-wrap:wrap;gap:12px">
-      <div style="flex:1;min-width:170px"><label class="form-label">Employee</label><select class="form-input" id="mc-employee" onchange="mcRecalc()"><option>Colin Glenn</option><option>Michael King</option><option>Tyler Wallace</option></select></div>
-      <div style="flex:1;min-width:170px"><label class="form-label">Payout type</label><select class="form-input" id="mc-type" onchange="mcRecalc()"><option value="custom">Custom amount</option><option value="full">Full commission</option></select></div>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:10px">
-      <div style="flex:2;min-width:200px"><label class="form-label">Deal name</label><input class="form-input" id="mc-deal" placeholder="e.g. Cary Academy"></div>
-      <div style="flex:1;min-width:140px"><label class="form-label">Deal ID (optional)</label><input class="form-input" id="mc-dealid" placeholder="Pipedrive ID"></div>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:10px">
-      <div style="flex:1;min-width:150px"><label class="form-label">Deal value (optional)</label><input class="form-input" id="mc-value" type="number" step="0.01" oninput="mcRecalc()" placeholder="0.00"></div>
-      <div style="flex:1;min-width:150px"><label class="form-label">Commission amount</label><input class="form-input" id="mc-amount" type="number" step="0.01" placeholder="0.00"></div>
-    </div>
-    <div style="margin-top:10px"><label class="form-label">Note (optional)</label><input class="form-input" id="mc-note" placeholder="e.g. Back-end portion, deposit already paid"></div>
-    <div style="margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-      <button class="action-btn btn-approve" id="mc-save" onclick="recordCommissionPayout()">Record Payout</button>
-      <span id="mc-msg" style="font-size:13px"></span>
-    </div>
-  </div>
+  <div class="card-title">Commission Approval</div>
+  <div style="font-size:12px;color:#888;margin-bottom:12px">Records Brandon has reviewed. Approving writes the payout to the commission ledger below. Anything blocked or disputed is listed so it is visible, but only Brandon can move those.</div>
+  <div id="cap-loading" class="loading">Loading...</div>
+  <div id="cap-empty" class="empty-state" style="display:none">Nothing waiting on you.</div>
+  <div id="cap-body"></div>
 </div>
 
 <div class="card">
@@ -599,7 +583,6 @@ let ROSTER = ['Brandon McClure','Colin Glenn','Michael King','Tyler Wallace','Ke
 const COMMISSION_REPS = ['Colin Glenn','Jimmie Coleman','Michael King','Tyler Wallace'];
 // B2C reps earn 8% on a company lead. Colin is B2B at 4.5%. Jimmie stays listed so a
 // recalculation of one of his closed deals still rates at the correct percentage.
-const B2C_REPS = ['Jimmie Coleman','Michael King','Tyler Wallace'];
 const EARNINGS_DOCS={sales:'Commission Earnings Agreement (Sales Consultant)',admin:'Performance Earnings Agreement (Admin Professional)',pm:'Performance Earnings Agreement (Project Manager)'};
 const OPTIONAL_DOCS=['Direct Deposit Form','Lead Generation Agreement','Equipment Assignment Form'];
 function buildDocList(earningsType){
@@ -715,51 +698,158 @@ function fmtPayDate(d){return d.toLocaleDateString('en-US',{month:'short',day:'n
 // ===================================================================
 
 // ---------- Commission ----------
-// ---------- Manual commission payout (transition + special cases) ----------
-function toggleManualComm(el){
-  const w=document.getElementById('manual-comm-wrap');
-  const t=document.getElementById('manual-comm-toggle');
-  if(!w)return; const open=w.style.display!=='none';
-  w.style.display=open?'none':'block';
-  if(t)t.textContent=open?'(click to expand)':'(click to collapse)';
+
+function capPill(s){
+  var m={Blocked:'pill-denied',Waiting:'pill-gray',Eligible:'pill-yellow',
+    Reviewed:'pill-pending',Approved:'pill-approved',Paid:'pill-approved',
+    Disputed:'pill-orange',Rejected:'pill-denied'};
+  return '<span class="pill '+(m[s]||'pill-gray')+'">'+(s||'')+'</span>';
 }
-function mcRate(emp){ return B2C_REPS.indexOf(emp)>=0?0.08:0.045; }
-function mcRecalc(){
-  const typeEl=document.getElementById('mc-type'); if(!typeEl)return;
-  if(typeEl.value!=='full')return;
-  const emp=document.getElementById('mc-employee').value;
-  const val=parseFloat(document.getElementById('mc-value').value)||0;
-  document.getElementById('mc-amount').value=(Math.round(val*mcRate(emp)*100)/100).toFixed(2);
-}
-async function recordCommissionPayout(){
-  const btn=document.getElementById('mc-save'); const msg=document.getElementById('mc-msg');
-  const emp=document.getElementById('mc-employee').value;
-  const deal=document.getElementById('mc-deal').value.trim();
-  const dealId=document.getElementById('mc-dealid').value.trim();
-  const value=document.getElementById('mc-value').value.trim();
-  const amount=parseFloat(document.getElementById('mc-amount').value)||0;
-  const note=document.getElementById('mc-note').value.trim();
-  const type=document.getElementById('mc-type').value;
-  const setMsg=(t,ok)=>{ if(msg){msg.textContent=t;msg.style.color=ok?'#28a745':'#c0392b';} };
-  if(!deal){ setMsg('Enter a deal name.',false); return; }
-  if(!(amount>0)){ setMsg('Enter a commission amount greater than 0.',false); return; }
-  if(btn){btn.disabled=true;btn.textContent='Recording...';}
+
+/* Reviewed records are the ones needing a decision. Blocked and disputed are
+   shown read only so nothing disappears from view, but they belong to Brandon
+   until he clears them. */
+async function loadCommApproval(){
+  var load=document.getElementById('cap-loading');
+  var empty=document.getElementById('cap-empty');
+  var body=document.getElementById('cap-body');
   try{
-    const d=await api({action:'read',tab:'Commissions'});
-    const header=(d.success&&d.data&&d.data.length)?d.data[0]:['Date','Employee','Deal Name','Deal Value','Deal ID','Rate','Lead Type','Commission','Pay Period','Notes','Approved by','Approved date'];
-    const now=new Date();
-    const dateStr=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-    const rateDisp=type==='full'?(B2C_REPS.indexOf(emp)>=0?'8%':'4.5%'):'Manual';
-    const vals={'Date':dateStr,'Employee':emp,'Deal Name':deal,'Deal Value':value,'Deal ID':dealId,'Rate':rateDisp,'Lead Type':'','Commission':amount.toFixed(2),'Pay Period':getCurrentPeriod(),'Notes':note,'Approved by':'','Approved date':''};
-    const row=header.map(h=>{const n=String(h).trim();return (n in vals)?vals[n]:'';});
-    const w=await api({action:'append',tab:'Commissions',row:JSON.stringify(row)});
-    if(w&&w.success){
-      setMsg('Recorded. It will show in the list below for approval.',true);
-      ['mc-deal','mc-dealid','mc-value','mc-amount','mc-note'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-      if(typeof loadTeamCommission==='function')loadTeamCommission();
-    } else setMsg('Save failed. Please try again.',false);
-  }catch(e){ setMsg('Error saving. Please try again.',false); }
-  if(btn){btn.disabled=false;btn.textContent='Record Payout';}
+    var d=await api({action:'read',tab:'Commission_Records'});
+    if(load)load.style.display='none';
+    if(!d.success||!d.data||d.data.length<2){if(empty)empty.style.display='block';return;}
+    var c=cols(d.data[0]);
+    var show={Reviewed:1,Blocked:1,Disputed:1};
+    var rows=[];
+    for(var i=1;i<d.data.length;i++){
+      var st=String(d.data[i][c('Status')]||'').trim();
+      if(show[st])rows.push({r:d.data[i],st:st});
+    }
+    if(!rows.length){if(empty)empty.style.display='block';return;}
+    var order={Reviewed:0,Disputed:1,Blocked:2};
+    rows.sort(function(a,b){
+      var o=(order[a.st]||9)-(order[b.st]||9);
+      if(o)return o;
+      return String(a.r[c('Payment Date')])<String(b.r[c('Payment Date')])?1:-1;
+    });
+    if(!body)return;
+    body.innerHTML=rows.map(function(x){
+      var r=x.r,st=x.st;
+      var rid=r[c('Record ID')]||'';
+      var comm=r[c('Commission')];
+      var base=r[c('Commissionable Base')];
+      var blockers=String(r[c('Blockers')]||'').trim();
+      var notes=String(r[c('Notes')]||'').trim();
+      var right=(comm===''||comm===null||comm===undefined)
+        ? '<span style="color:#aaa;font-size:13px">not calculated</span>'
+        : '<strong style="color:#c4581f;font-size:18px">'+fmtMoney(comm)+'</strong>';
+      var meta='<div style="font-size:13px;color:#666;margin-top:4px">'+
+        (r[c('Rep')]||'')+' &bull; payment '+fmtDate(r[c('Payment Date')])+' of '+fmtMoney(r[c('Payment Gross')])+
+        (base===''||base===null||base===undefined?'':' &bull; base '+fmtMoney(base))+
+        ' &bull; rate '+(r[c('Rate')]||'')+'</div>';
+      var warn=blockers?'<div style="font-size:13px;color:#c0392b;margin-top:4px">'+blockers.split('; ').join('<br>')+'</div>':'';
+      var note=notes?'<div style="font-size:13px;color:#8a6d3b;margin-top:4px">'+notes+'</div>':'';
+      var act='';
+      if(st==='Reviewed'){
+        act='<div style="font-size:12px;color:#888;margin-top:8px">Reviewed '+(r[c('Reviewed At')]||'')+' by '+(r[c('Reviewed By')]||'')+'</div>'+
+            '<div style="margin-top:8px"><button class="btn btn-sm btn-approve" onclick="capApprove(\''+rid+'\')">Approve and record</button> '+
+            '<button class="btn btn-sm" onclick="capSendBack(\''+rid+'\')">Send back to Brandon</button></div>';
+      }else{
+        act='<div style="font-size:12px;color:#888;margin-top:8px">With Brandon.</div>';
+      }
+      return '<div style="border:1px solid #e2ded6;padding:12px 14px;margin-bottom:10px;background:#fff">'+
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'+
+        '<div style="font-family:\'Barlow Condensed\',Arial,sans-serif;font-size:18px;font-weight:700;color:#1a1a1a">'+
+        (r[c('Deal')]||'')+wwDealLink(r[c('Deal ID')])+'</div>'+
+        '<div style="text-align:right;white-space:nowrap">'+right+'<div style="margin-top:3px">'+capPill(st)+'</div></div></div>'+
+        meta+warn+note+act+'</div>';
+    }).join('');
+  }catch(e){
+    if(load)load.style.display='none';
+    if(empty)empty.style.display='block';
+    console.error('loadCommApproval',e);
+  }
+}
+
+/* Approving does two things: it stamps the record, and it appends the payout to
+   the Commissions ledger. The ledger is what the pay period cards read, so this
+   is the only point at which a commission becomes payable. The Record ID goes
+   in Notes so a ledger line can always be traced back to the payment it came
+   from. */
+async function capApprove(recordId){
+  try{
+    var d=await api({action:'read',tab:'Commission_Records'});
+    if(!d.success){alert('Could not reach the commission records.');return;}
+    var c=cols(d.data[0]);
+    var at=-1;
+    for(var i=1;i<d.data.length;i++){
+      if(String(d.data[i][c('Record ID')]).trim()===String(recordId).trim()){at=i;break;}
+    }
+    if(at<0){alert('Could not find that record.');return;}
+    var row=d.data[at].slice();
+    while(row.length<d.data[0].length)row.push('');
+    if(String(row[c('Status')]).trim()!=='Reviewed'){
+      alert('That record is no longer waiting for approval.');loadCommApproval();return;
+    }
+    var comm=Number(row[c('Commission')])||0;
+    if(!(comm>0)&&!confirm('This record has no commission amount. Approve anyway?'))return;
+
+    var led=await api({action:'read',tab:'Commissions'});
+    var header=(led.success&&led.data&&led.data.length)?led.data[0]
+      :['Date','Employee','Deal Name','Deal Value','Deal ID','Rate','Lead Type','Commission','Pay Period','Notes','Approved by','Approved date'];
+    var now=new Date();
+    var today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    var rate=Number(row[c('Rate')])||0;
+    var vals={
+      'Date':row[c('Payment Date')]||today,
+      'Employee':row[c('Rep')]||'',
+      'Deal Name':row[c('Deal')]||'',
+      'Deal Value':row[c('Commissionable Base')]||'',
+      'Deal ID':row[c('Deal ID')]||'',
+      'Rate':rate?(Math.round(rate*1000)/10)+'%':'',
+      'Lead Type':'Company',
+      'Commission':comm.toFixed(2),
+      'Pay Period':getCurrentPeriod(),
+      'Notes':recordId,
+      'Approved by':APPROVER,
+      'Approved date':today
+    };
+    /* Commissions headers carry trailing spaces, so every lookup trims. */
+    var ledRow=header.map(function(h){var n=String(h).trim();return (n in vals)?vals[n]:'';});
+    var w=await api({action:'append',tab:'Commissions',row:JSON.stringify(ledRow)});
+    if(!w||!w.success){alert('Could not write to the commission ledger. Nothing was changed.');return;}
+
+    row[c('Status')]='Approved';
+    row[c('Approved By')]=APPROVER;
+    row[c('Approved At')]=new Date().toISOString().slice(0,16).replace('T',' ');
+    var u=await api({action:'update',tab:'Commission_Records',rowIndex:at+1,row:JSON.stringify(row)});
+    if(!u.success)alert('The payout was recorded but the record status did not update. Check Commission_Records.');
+    loadCommApproval();
+    if(typeof loadTeamCommission==='function')loadTeamCommission();
+  }catch(e){console.error(e);alert('Could not approve that record.');}
+}
+
+async function capSendBack(recordId){
+  var note=prompt('What should Brandon look at?');
+  if(note===null)return;
+  try{
+    var d=await api({action:'read',tab:'Commission_Records'});
+    if(!d.success){alert('Could not reach the commission records.');return;}
+    var c=cols(d.data[0]);
+    var at=-1;
+    for(var i=1;i<d.data.length;i++){
+      if(String(d.data[i][c('Record ID')]).trim()===String(recordId).trim()){at=i;break;}
+    }
+    if(at<0){alert('Could not find that record.');return;}
+    var row=d.data[at].slice();
+    while(row.length<d.data[0].length)row.push('');
+    row[c('Status')]='Eligible';
+    row[c('Reviewed By')]='';
+    row[c('Reviewed At')]='';
+    if(note.trim())row[c('Notes')]=APPROVER+': '+note.trim();
+    var u=await api({action:'update',tab:'Commission_Records',rowIndex:at+1,row:JSON.stringify(row)});
+    if(!u.success){alert('Could not save: '+(u.error||'unknown error'));return;}
+    loadCommApproval();
+  }catch(e){console.error(e);alert('Could not send that record back.');}
 }
 
 async function loadTeamCommission(){
@@ -2565,6 +2655,7 @@ async function loadScorecardsSummary(){
     if(loadEl)loadEl.textContent='Could not load scorecards.';
   }
 }
+loadCommApproval();
 populateAdminSelects();
 cacheCommissionHeaders().then(loadTeamCommission);
 loadIncentivePay();populateAdminSelects();
@@ -2588,17 +2679,17 @@ loadDocs(EMPLOYEE,null);
 loadEquipment(EMPLOYEE);
 </script>
 
-<script src="training.js?v=233"></script>
+<script src="training.js?v=235"></script>
 <script>
 initTrainingReview("tr-review-root", [
   {name:"Tyler Wallace", role:"sales-b2c"},
   {name:"Michael King",  role:"sales-b2c"}
 ], {viewer:"Rose Reif", badgeId:"badge-training"});
 </script>
-<script src="taskboard.js?v=233"></script>
+<script src="taskboard.js?v=235"></script>
 <script>initTaskBoard("rose");</script>
-<script src="resources.js?v=233"></script>
-<script src="docnaming.js?v=233"></script>
+<script src="resources.js?v=235"></script>
+<script src="docnaming.js?v=235"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
