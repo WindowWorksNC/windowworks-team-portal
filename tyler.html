@@ -5,19 +5,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=229">
-<link rel="manifest" href="site.webmanifest?v=229">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=230">
+<link rel="manifest" href="site.webmanifest?v=230">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Tyler Wallace | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=229">
+<link rel="stylesheet" href="portal.css?v=230">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Tyler Wallace';</script>
-<script src="gate.js?v=229"></script>
+<script src="gate.js?v=230"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -57,6 +57,13 @@
     <table class="data-table"><thead><tr><th>Date</th><th>Deal</th><th>Amount</th><th>Rate</th><th>Commission</th><th>Approved By</th><th>Approved</th></tr></thead>
     <tbody id="comm-body"></tbody></table>
   </div>
+</div>
+<div class="card">
+  <div class="card-title">Deals Pending Commission</div>
+  <div class="pay-note">Every customer payment earns commission on its own. A payment becomes eligible five days after the later of the payment date and the date both the installation agreement and the payment policy were signed. Anything showing Blocked is waiting on what is listed in that row.</div>
+  <div id="pend-loading" class="loading">Loading...</div>
+  <div id="pend-empty" class="empty-state" style="display:none">Nothing in progress right now. Deals appear here once they are won, a payment is collected, or your signed documents are in the deal.</div>
+  <div id="pend-body"></div>
 </div>
 <div class="card">
   <div class="card-title" style="cursor:pointer" onclick="togglePrevPeriods_tyler(this)">Previous Periods <span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="prev-toggle-label_tyler">(click to expand)</span></div>
@@ -918,12 +925,12 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="training.js?v=229"></script>
+<script src="training.js?v=230"></script>
 <script>initTraining("Tyler Wallace","sales-b2c");</script>
-<script src="taskboard.js?v=229"></script>
+<script src="taskboard.js?v=230"></script>
 <script>initTaskBoard("tyler");</script>
-<script src="resources.js?v=229"></script>
-<script src="docnaming.js?v=229"></script>
+<script src="resources.js?v=230"></script>
+<script src="docnaming.js?v=230"></script>
 <script>
 function getCurrentPayPeriodLabel_tyler() {
   const startMs=Date.UTC(2025,11,18);
@@ -997,7 +1004,124 @@ function togglePrevPeriods_tyler(el){
   if(label)label.textContent=isOpen?'(click to expand)':'(click to collapse)';
 }
 
+
+function pendPill_tyler(s){
+  var map={Blocked:'pill-denied',Waiting:'pill-gray',Eligible:'pill-yellow',
+    Reviewed:'pill-pending',Approved:'pill-approved',Paid:'pill-approved',
+    Disputed:'pill-orange',Rejected:'pill-denied'};
+  return '<span class="pill '+(map[s]||'pill-gray')+'">'+(s||'')+'</span>';
+}
+
+async function loadPending_tyler(){
+  var load=document.getElementById('pend-loading');
+  var empty=document.getElementById('pend-empty');
+  var body=document.getElementById('pend-body');
+  try{
+    var d=await api({action:'read',tab:'Commission_Records'});
+    if(load)load.style.display='none';
+    if(!d.success||!d.data||d.data.length<2){if(empty)empty.style.display='block';return;}
+    var c=cols(d.data[0]);
+    var rows=d.data.slice(1).filter(function(r){
+      return (r[c('Rep')]||'').toString().trim()===EMPLOYEE;
+    });
+    if(!rows.length){if(empty)empty.style.display='block';return;}
+    rows.sort(function(a,b){
+      var x=String(a[c('Payment Date')]||''),y=String(b[c('Payment Date')]||'');
+      return x<y?1:x>y?-1:0;
+    });
+    if(!body)return;
+    body.innerHTML=rows.map(function(r){
+      var rid=r[c('Record ID')]||'';
+      var status=(r[c('Status')]||'').toString().trim();
+      var blockers=(r[c('Blockers')]||'').toString().trim();
+      var comm=r[c('Commission')];
+      var base=r[c('Commissionable Base')];
+      var elig=r[c('Eligible Date')];
+      var needsVd=blockers.indexOf('Vinyl Design quote total')>=0;
+      var canDispute=status&&status!=='Paid'&&status!=='Disputed';
+      var right=(comm===''||comm===null||comm===undefined)
+        ? '<span style="color:#aaa;font-size:13px">not calculated yet</span>'
+        : '<strong style="color:#c4581f;font-size:18px">'+fmtMoney(comm)+'</strong>';
+      var lines=[];
+      lines.push('<div style="font-size:13px;color:#666;margin-top:4px">Payment '+fmtDate(r[c('Payment Date')])+' of '+fmtMoney(r[c('Payment Gross')])+
+        (base===''||base===null||base===undefined?'':' &bull; commissionable '+fmtMoney(base))+'</div>');
+      if(elig)lines.push('<div style="font-size:13px;color:#666">Eligible '+fmtDate(elig)+'</div>');
+      if(blockers)lines.push('<div style="font-size:13px;color:#c0392b;margin-top:4px">'+blockers.split('; ').join('<br>')+'</div>');
+      var actions=[];
+      if(needsVd){
+        actions.push('<div style="margin-top:8px"><label style="font-size:12px;color:#666;display:block;margin-bottom:3px">Vinyl Design quote total</label>'+
+          '<input type="number" step="0.01" id="vd-'+rid+'" placeholder="0.00" style="width:130px;padding:5px 7px;border:1px solid #ccc;font-size:13px">'+
+          ' <button class="btn btn-sm" onclick="saveVdTotal_tyler(\''+r[c('Deal ID')]+'\',\''+rid+'\')">Save</button></div>');
+      }
+      if(canDispute){
+        actions.push('<div style="margin-top:8px"><button class="btn btn-sm btn-secondary" onclick="disputeRecord_tyler(\''+rid+'\')">This looks wrong</button></div>');
+      }
+      return '<div style="border:1px solid #e2ded6;padding:12px 14px;margin-bottom:10px;background:#fff">'+
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'+
+        '<div style="font-family:\'Barlow Condensed\',Arial,sans-serif;font-size:18px;font-weight:700;color:#1a1a1a">'+
+        (r[c('Deal')]||'')+wwDealLink(r[c('Deal ID')])+'</div>'+
+        '<div style="text-align:right;white-space:nowrap">'+right+'<div style="margin-top:3px">'+pendPill_tyler(status)+'</div></div></div>'+
+        lines.join('')+actions.join('')+'</div>';
+    }).join('');
+  }catch(e){
+    if(load)load.style.display='none';
+    if(empty)empty.style.display='block';
+    console.error('loadPending_tyler',e);
+  }
+}
+
+async function saveVdTotal_tyler(dealId,recordId){
+  var el=document.getElementById('vd-'+recordId);
+  var val=el?Number(el.value):0;
+  if(!val||val<=0){alert('Enter the Vinyl Design quote total from the quote you imported.');return;}
+  try{
+    var d=await api({action:'read',tab:'Deal_Documents'});
+    if(!d.success){alert('Could not reach the document records.');return;}
+    var c=cols(d.data[0]);
+    var at=-1;
+    for(var i=1;i<d.data.length;i++){
+      if(String(d.data[i][c('Deal ID')]).trim()===String(dealId).trim()&&
+         String(d.data[i][c('Doc Type')]).trim()==='installation_agreement'){at=i;break;}
+    }
+    if(at<0){alert('No installation agreement is on file for this deal yet.');return;}
+    var row=d.data[at].slice();
+    while(row.length<d.data[0].length)row.push('');
+    row[c('VD Total')]=val;
+    var u=await api({action:'update',tab:'Deal_Documents',rowIndex:at+1,row:JSON.stringify(row)});
+    if(!u.success){alert('Could not save: '+(u.error||'unknown error'));return;}
+    alert('Saved. Your commission will recalculate on the next run.');
+    location.reload();
+  }catch(e){console.error(e);alert('Could not save the Vinyl Design total.');}
+}
+
+async function disputeRecord_tyler(recordId){
+  var note=prompt('What looks wrong? This goes to Brandon with the record.');
+  if(note===null)return;
+  if(!note.trim()){alert('Add a short note so Brandon knows what to look at.');return;}
+  try{
+    var d=await api({action:'read',tab:'Commission_Records'});
+    if(!d.success){alert('Could not reach the commission records.');return;}
+    var c=cols(d.data[0]);
+    var at=-1;
+    for(var i=1;i<d.data.length;i++){
+      if(String(d.data[i][c('Record ID')]).trim()===String(recordId).trim()){at=i;break;}
+    }
+    if(at<0){alert('Could not find that record.');return;}
+    var row=d.data[at].slice();
+    while(row.length<d.data[0].length)row.push('');
+    row[c('Status')]='Disputed';
+    row[c('Notes')]=EMPLOYEE+': '+note.trim();
+    var u=await api({action:'update',tab:'Commission_Records',rowIndex:at+1,row:JSON.stringify(row)});
+    if(!u.success){alert('Could not save: '+(u.error||'unknown error'));return;}
+    await api({action:'send_email',subject:'Commission record disputed: '+recordId,
+      body:'<p>'+EMPLOYEE+' flagged commission record '+recordId+'.</p><p>'+note.trim()+'</p>'});
+    alert('Sent. Brandon will take a look.');
+    location.reload();
+  }catch(e){console.error(e);alert('Could not raise the dispute.');}
+}
+
 loadCommission_tyler();
+loadPending_tyler();
 </script>
 <script>
 (function(){
