@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=230">
-<link rel="manifest" href="site.webmanifest?v=230">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=232">
+<link rel="manifest" href="site.webmanifest?v=232">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=230">
+<link rel="stylesheet" href="portal.css?v=232">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Brandon McClure';</script>
-<script src="gate.js?v=230"></script>
-<script src="scorecards.js?v=230"></script>
+<script src="gate.js?v=232"></script>
+<script src="scorecards.js?v=232"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -63,6 +63,15 @@
 
 <!-- ========================= TEAM: COMMISSION ========================= -->
 <div class="tab-content active" id="tab-commission-admin">
+<!-- COMMISSION REVIEW QUEUE -->
+<div class="card">
+  <div class="card-title">Commission Review Queue</div>
+  <div style="font-size:12px;color:#888;margin-bottom:12px">One row per customer payment. Eligible means the payment cleared and both signed documents are on file. Reviewing sends it to Rose for final approval. Blocked and disputed records are listed so they do not get lost.</div>
+  <div id="crq-loading" class="loading">Loading...</div>
+  <div id="crq-empty" class="empty-state" style="display:none">Nothing waiting.</div>
+  <div id="crq-body"></div>
+</div>
+
 <!-- MANUAL COMMISSION PAYOUT (transition + special cases) -->
 <div class="card">
   <div class="card-title" style="justify-content:space-between;cursor:pointer" onclick="toggleManualComm(this)"><span>Record Commission Payout</span><span style="font-size:12px;color:#aaa;font-weight:400;text-transform:none" id="manual-comm-toggle">(click to expand)</span></div>
@@ -1079,6 +1088,109 @@ async function archiveRequest(rowIndex){
     await api({action:'delete',tab:'PTO_Requests',rowIndex:rowIndex});
     loadAdminPTO();loadAllBalances();
   }catch(e){alert('Error archiving request');}
+}
+
+
+function crqPill(s){
+  var m={Blocked:'pill-denied',Waiting:'pill-gray',Eligible:'pill-yellow',
+    Reviewed:'pill-pending',Approved:'pill-approved',Paid:'pill-approved',
+    Disputed:'pill-orange',Rejected:'pill-denied'};
+  return '<span class="pill '+(m[s]||'pill-gray')+'">'+(s||'')+'</span>';
+}
+
+/* Brandon acts on Eligible. Blocked and Disputed are shown because they need
+   chasing, not clicking. Waiting is hidden: the clock has not run out yet and
+   there is nothing to do about it. */
+async function loadCommQueue(){
+  var load=document.getElementById('crq-loading');
+  var empty=document.getElementById('crq-empty');
+  var body=document.getElementById('crq-body');
+  try{
+    var d=await api({action:'read',tab:'Commission_Records'});
+    if(load)load.style.display='none';
+    if(!d.success||!d.data||d.data.length<2){if(empty)empty.style.display='block';return;}
+    var c=cols(d.data[0]);
+    var show={Eligible:1,Blocked:1,Disputed:1,Reviewed:1};
+    var rows=[];
+    for(var i=1;i<d.data.length;i++){
+      var st=String(d.data[i][c('Status')]||'').trim();
+      if(show[st])rows.push({r:d.data[i],idx:i+1,st:st});
+    }
+    if(!rows.length){if(empty)empty.style.display='block';return;}
+    var order={Eligible:0,Disputed:1,Reviewed:2,Blocked:3};
+    rows.sort(function(a,b){
+      var o=(order[a.st]||9)-(order[b.st]||9);
+      if(o)return o;
+      return String(a.r[c('Payment Date')])<String(b.r[c('Payment Date')])?1:-1;
+    });
+    if(!body)return;
+    body.innerHTML=rows.map(function(x){
+      var r=x.r,st=x.st;
+      var rid=r[c('Record ID')]||'';
+      var comm=r[c('Commission')];
+      var base=r[c('Commissionable Base')];
+      var blockers=String(r[c('Blockers')]||'').trim();
+      var notes=String(r[c('Notes')]||'').trim();
+      var right=(comm===''||comm===null||comm===undefined)
+        ? '<span style="color:#aaa;font-size:13px">not calculated</span>'
+        : '<strong style="color:#c4581f;font-size:18px">'+fmtMoney(comm)+'</strong>';
+      var meta='<div style="font-size:13px;color:#666;margin-top:4px">'+
+        (r[c('Rep')]||'')+' &bull; payment '+fmtDate(r[c('Payment Date')])+' of '+fmtMoney(r[c('Payment Gross')])+
+        (base===''||base===null||base===undefined?'':' &bull; base '+fmtMoney(base))+
+        (r[c('Eligible Date')]?' &bull; eligible '+fmtDate(r[c('Eligible Date')]):'')+'</div>';
+      var warn=blockers?'<div style="font-size:13px;color:#c0392b;margin-top:4px">'+blockers.split('; ').join('<br>')+'</div>':'';
+      var note=notes?'<div style="font-size:13px;color:#8a6d3b;margin-top:4px">'+notes+'</div>':'';
+      var act='';
+      if(st==='Eligible'){
+        act='<div style="margin-top:10px"><button class="btn btn-sm btn-approve" onclick="crqSet(\''+rid+'\',\'Reviewed\')">Review and send to Rose</button> '+
+            '<button class="btn btn-sm btn-danger" onclick="crqSet(\''+rid+'\',\'Rejected\')">Reject</button></div>';
+      }else if(st==='Disputed'){
+        act='<div style="margin-top:10px"><button class="btn btn-sm" onclick="crqSet(\''+rid+'\',\'Eligible\')">Resolved, put back in the queue</button></div>';
+      }else if(st==='Reviewed'){
+        act='<div style="margin-top:8px;font-size:12px;color:#888">Reviewed '+(r[c('Reviewed At')]||'')+' by '+(r[c('Reviewed By')]||'')+'. Waiting on Rose.</div>';
+      }
+      return '<div style="border:1px solid #e2ded6;padding:12px 14px;margin-bottom:10px;background:#fff">'+
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'+
+        '<div style="font-family:\'Barlow Condensed\',Arial,sans-serif;font-size:18px;font-weight:700;color:#1a1a1a">'+
+        (r[c('Deal')]||'')+wwDealLink(r[c('Deal ID')])+'</div>'+
+        '<div style="text-align:right;white-space:nowrap">'+right+'<div style="margin-top:3px">'+crqPill(st)+'</div></div></div>'+
+        meta+warn+note+act+'</div>';
+    }).join('');
+  }catch(e){
+    if(load)load.style.display='none';
+    if(empty)empty.style.display='block';
+    console.error('loadCommQueue',e);
+  }
+}
+
+async function crqSet(recordId,next){
+  if(next==='Rejected'&&!confirm('Reject this record? It will not be paid until it is put back in the queue.'))return;
+  try{
+    var d=await api({action:'read',tab:'Commission_Records'});
+    if(!d.success){alert('Could not reach the commission records.');return;}
+    var c=cols(d.data[0]);
+    var at=-1;
+    for(var i=1;i<d.data.length;i++){
+      if(String(d.data[i][c('Record ID')]).trim()===String(recordId).trim()){at=i;break;}
+    }
+    if(at<0){alert('Could not find that record.');return;}
+    var row=d.data[at].slice();
+    while(row.length<d.data[0].length)row.push('');
+    row[c('Status')]=next;
+    if(next==='Reviewed'){
+      row[c('Reviewed By')]=APPROVER;
+      row[c('Reviewed At')]=new Date().toISOString().slice(0,16).replace('T',' ');
+    }
+    var u=await api({action:'update',tab:'Commission_Records',rowIndex:at+1,row:JSON.stringify(row)});
+    if(!u.success){alert('Could not save: '+(u.error||'unknown error'));return;}
+    if(next==='Reviewed'){
+      await api({action:'send_email',subject:'Commission ready for approval: '+(row[c('Deal')]||recordId),
+        body:'<p>'+APPROVER+' reviewed a commission record and it is ready for final approval.</p>'+
+             '<p>'+(row[c('Rep')]||'')+' &bull; '+(row[c('Deal')]||'')+' &bull; '+
+             (row[c('Commission')]||'')+'</p>'});
+    }
+    loadCommQueue();
+  }catch(e){console.error(e);alert('Could not update that record.');}
 }
 
 async function reviewPTO(rowIndex,status){
@@ -2636,6 +2748,7 @@ document.addEventListener('DOMContentLoaded',function(){
 populateAdminSelects();
 cacheCommissionHeaders().then(loadTeamCommission);
 loadIncentivePay();
+loadCommQueue();
 loadAdminPTO();
 loadAllBalances();
 loadExpiryAlerts();
@@ -2654,10 +2767,10 @@ loadBrandonScorecard();
 loadScorecardArchiveBrandon();
 </script>
 
-<script src="taskboard.js?v=230"></script>
+<script src="taskboard.js?v=232"></script>
 <script>initTaskBoard("brandon");</script>
-<script src="resources.js?v=230"></script>
-<script src="docnaming.js?v=230"></script>
+<script src="resources.js?v=232"></script>
+<script src="docnaming.js?v=232"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
