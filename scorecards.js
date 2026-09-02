@@ -178,17 +178,20 @@ window.WWSC = (function () {
     try {
       var d = await api({ action: 'read', tab: 'Yard_Signs' });
       if (d.success && d.data && d.data.length > 1) {
-        var c = cols(d.data[0]); var di = c('Completed_Date'), sgi = c('Sign');
+        var c = cols(d.data[0]); var di = c('Completed_Date'), sgi = c('Sign'), dli = c('Deal'), ai = c('Address');
         var rows = d.data.slice(1).filter(function (r) { return inQ(r[di]); });
+        var jobs = rows.map(function (r) {
+          return { id: dli >= 0 ? r[dli] : '', name: ai >= 0 ? r[ai] : '', date: r[di], sign: String(r[sgi] || '').trim() };
+        });
         if (rows.length) {
           var yes = rows.filter(function (r) { return String(r[sgi] || '').trim().toLowerCase() === 'yes'; }).length;
           var pct = (yes / rows.length) * 100;
-          return { tier: pct >= 90 ? 'full' : 'none', display: yes + '/' + rows.length + ' (' + pct.toFixed(0) + '%)', extra: null };
+          return { tier: pct >= 90 ? 'full' : 'none', display: yes + '/' + rows.length + ' (' + pct.toFixed(0) + '%)', extra: { jobs: jobs } };
         }
-        return { tier: 'none', display: '0 signs', extra: null };
+        return { tier: 'none', display: '0 signs', extra: { jobs: [] } };
       }
-      return { tier: 'none', display: '0 signs', extra: null };
-    } catch (e) { console.error(e); return { tier: 'none', display: '0 signs', extra: null }; }
+      return { tier: 'none', display: '0 signs', extra: { jobs: [] } };
+    } catch (e) { console.error(e); return { tier: 'none', display: '0 signs', extra: { jobs: null } }; }
   }
 
   // ---- Keith domain 4: Testimonials ----
@@ -196,12 +199,16 @@ window.WWSC = (function () {
     try {
       var d = await api({ action: 'read', tab: 'Testimonials' });
       if (d.success && d.data && d.data.length > 1) {
-        var c = cols(d.data[0]); var di = c('Date'), cap = c('Capturer');
-        var cnt = d.data.slice(1).filter(function (r) { return (r[cap] || '').trim() === 'Keith Howze' && inQ(r[di]); }).length;
-        return { tier: cnt >= 5 ? 'full' : cnt >= 3 ? 'half' : 'none', display: cnt + (cnt === 1 ? ' video' : ' videos'), extra: null };
+        var c = cols(d.data[0]); var di = c('Date'), cap = c('Capturer'), dli = c('Deal'), cui = c('Customer'), cci = c('CC_ID');
+        var mine = d.data.slice(1).filter(function (r) { return (r[cap] || '').trim() === 'Keith Howze' && inQ(r[di]); });
+        var vids = mine.map(function (r) {
+          return { date: r[di], id: dli >= 0 ? r[dli] : '', customer: cui >= 0 ? r[cui] : '', cc: cci >= 0 ? r[cci] : '' };
+        });
+        var cnt = mine.length;
+        return { tier: cnt >= 5 ? 'full' : cnt >= 3 ? 'half' : 'none', display: cnt + (cnt === 1 ? ' video' : ' videos'), extra: { vids: vids } };
       }
-      return { tier: 'pending', display: 'No data yet', extra: null };
-    } catch (e) { console.error(e); return { tier: 'pending', display: 'No data yet', extra: null }; }
+      return { tier: 'pending', display: 'No data yet', extra: { vids: [] } };
+    } catch (e) { console.error(e); return { tier: 'pending', display: 'No data yet', extra: { vids: null } }; }
   }
 
   var BRANDON_DOMAINS = [
@@ -210,10 +217,10 @@ window.WWSC = (function () {
     { key: 'office', label: 'Office Satisfaction', valEl: 'd3-val', pillEl: 'd3-pill', domEl: 'domain-office', breakdownEl: 'd3-breakdown' }
   ];
   var KEITH_DOMAINS = [
-    { key: 'install', label: 'Install Satisfaction', valEl: 'd1-val', pillEl: 'd1-pill', domEl: 'domain-install', breakdownEl: null },
-    { key: 'data', label: 'Data Integrity', valEl: 'd2-avg', pillEl: 'd2-pill', domEl: 'domain-data', breakdownEl: 'd2-breakdown' },
-    { key: 'yardsign', label: 'Yard Sign Rate', valEl: 'd3-val', pillEl: 'd3-pill', domEl: 'domain-yardsign', breakdownEl: null },
-    { key: 'testimonials', label: 'Testimonials', valEl: 'd4-val', pillEl: 'd4-pill', domEl: 'domain-testimonials', breakdownEl: null }
+    { key: 'install', label: 'Install Satisfaction', valEl: 'd1-val', pillEl: 'd1-pill', domEl: 'domain-install', breakdownEl: 'd1-breakdown' },
+    { key: 'data', label: 'Data Integrity', valEl: 'd2-avg', pillEl: 'd2-pill', domEl: 'domain-data', breakdownEl: 'd2-days' },
+    { key: 'yardsign', label: 'Yard Sign Rate', valEl: 'd3-val', pillEl: 'd3-pill', domEl: 'domain-yardsign', breakdownEl: 'd3-breakdown' },
+    { key: 'testimonials', label: 'Testimonials', valEl: 'd4-val', pillEl: 'd4-pill', domEl: 'domain-testimonials', breakdownEl: 'd4-breakdown' }
   ];
 
   function enrich(who, defs, results) {

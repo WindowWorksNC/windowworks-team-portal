@@ -5,20 +5,20 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=236">
-<link rel="manifest" href="site.webmanifest?v=236">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=237">
+<link rel="manifest" href="site.webmanifest?v=237">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Keith Howze | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=236">
+<link rel="stylesheet" href="portal.css?v=237">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Keith Howze';</script>
-<script src="gate.js?v=236"></script>
-<script src="scorecards.js?v=236"></script>
+<script src="gate.js?v=237"></script>
+<script src="scorecards.js?v=237"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -64,6 +64,10 @@
           <div class="incentive-amount" id="d1-val">--</div>
         </div>
       </div>
+      <div style="margin-top:12px;border-top:1px solid #f0ece6;padding-top:10px">
+        <span onclick="var w=document.getElementById('d1-breakdown');w.style.display=w.style.display==='none'?'block':'none'" style="font-size:11px;color:#c4581f;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.05em">View contributing responses</span>
+        <div id="d1-breakdown" style="display:none;margin-top:10px"></div>
+      </div>
     </div>
 
     <div class="sc-domain" id="domain-data">
@@ -78,8 +82,11 @@
         </div>
       </div>
       <div style="margin-top:12px;border-top:1px solid #f0ece6;padding-top:10px">
-        <span onclick="var w=document.getElementById('d2-breakdown');w.style.display=w.style.display==='none'?'block':'none'" style="font-size:11px;color:#c4581f;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.05em">View daily breakdown</span>
-        <div id="d2-breakdown" style="display:none;margin-top:10px"></div>
+        <span onclick="var w=document.getElementById('d2-breakdown');w.style.display=w.style.display==='none'?'block':'none'" style="font-size:11px;color:#c4581f;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.05em">View overdue activities and daily breakdown</span>
+        <div id="d2-breakdown" style="display:none;margin-top:10px">
+          <div id="d2-overdue"></div>
+          <div id="d2-days"></div>
+        </div>
       </div>
     </div>
 
@@ -94,6 +101,10 @@
           <div class="incentive-amount" id="d3-val">--</div>
         </div>
       </div>
+      <div style="margin-top:12px;border-top:1px solid #f0ece6;padding-top:10px">
+        <span onclick="var w=document.getElementById('d3-breakdown');w.style.display=w.style.display==='none'?'block':'none'" style="font-size:11px;color:#c4581f;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.05em">View contributing installs</span>
+        <div id="d3-breakdown" style="display:none;margin-top:10px"></div>
+      </div>
     </div>
 
     <div class="sc-domain" id="domain-testimonials">
@@ -106,6 +117,10 @@
         <div class="incentive-row-right">
           <div class="incentive-amount" id="d4-val">--</div>
         </div>
+      </div>
+      <div style="margin-top:12px;border-top:1px solid #f0ece6;padding-top:10px">
+        <span onclick="var w=document.getElementById('d4-breakdown');w.style.display=w.style.display==='none'?'block':'none'" style="font-size:11px;color:#c4581f;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.05em">View contributing videos</span>
+        <div id="d4-breakdown" style="display:none;margin-top:10px"></div>
       </div>
     </div>
     <div class="card">
@@ -377,6 +392,9 @@ async function api(params){
 
 function fmtMoney(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtDate(d){if(!d)return '';try{var s=String(d);var x=/^\d{4}-\d{2}-\d{2}$/.test(s)?new Date(s+'T12:00:00'):new Date(s);return x.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}catch(e){return d}}
+function escHtml(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function wwDealLink(id){var s=(id==null?'':String(id).trim());return s?` <a href="https://windowworksco.pipedrive.com/deal/${encodeURIComponent(s)}" target="_blank" rel="noopener" style="color:#c4581f;text-decoration:none;font-size:11px;font-weight:600;white-space:nowrap">See Deal</a>`:'';}
+
 function statusPill(s){const map={Pending:'pill-pending',Approved:'pill-approved',Denied:'pill-denied'};return `<span class="pill ${map[s]||'pill-pending'}">${s||'Pending'}</span>`;}
 function passFailPill(pass,pending){if(pending)return '<span class="pill pill-gray">Pending Data</span>';return pass?'<span class="pill pill-approved">Pass</span>':'<span class="pill pill-denied">Fail</span>';}
 function missingPill(){return '<span class="pill pill-denied">Missing</span>';}
@@ -1002,6 +1020,97 @@ function updateTotal(){
 function _scPQL(s){s=String(s||'').trim();if(!s)return null;if(s.indexOf('-')===4){var p=s.split('-');return new Date(+p[0],(+p[1])-1,parseInt((p[2]||'1'),10),12,0,0);}var x=new Date(s);if(!isNaN(x)){x.setHours(12,0,0,0);return x;}return null;}
 function _scInQ(s){var x=_scPQL(s);return !!x&&x.getFullYear()===getActiveYear()&&(Math.floor(x.getMonth()/3)+1)===getCurrentQuarter();}
 
+// Keith's Pipedrive user id, confirmed against /users. Drives the live overdue lookup.
+var KEITH_PD_ID=24244308;
+
+// Domain 1. The Survey tab stores the Pipedrive deal id in RID, so each response
+// resolves to a deal title and a link. Install is the rating that scores; office is
+// shown for context only.
+async function renderInstallBreakdown(rows){
+  var bd=document.getElementById('d1-breakdown'); if(!bd)return;
+  if(!rows){ bd.innerHTML='<div style="font-size:12px;color:#888">Could not load responses.</div>'; return; }
+  if(!rows.length){ bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5">No survey responses have counted this quarter yet. A response appears here once a customer completes the post-project rating.</div>'; return; }
+  bd.innerHTML='<div style="font-size:12px;color:#888">Loading responses...</div>';
+  var names={};
+  for(var i=0;i<rows.length;i++){
+    var rid=rows[i].rid; if(!rid||names[rid]!=null)continue;
+    try{ var j=await (await fetch(WWSC.PD_BASE+'/deals/'+encodeURIComponent(rid)+'?api_token='+WWSC.PD_TOKEN)).json(); names[rid]=(j&&j.data&&j.data.title)||('Deal '+rid); }
+    catch(e){ names[rid]='Deal '+rid; }
+  }
+  var srt=rows.slice().sort(function(a,b){return String(b.ts).localeCompare(String(a.ts));});
+  bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">Completed post-project survey responses counted toward this quarter\'s install score. Install is the 1 to 5 rating that feeds the score; Office is the rating that feeds Brandon\'s, shown for context. It takes 3 responses before the domain scores at all.</div>'
+    +'<div class="table-wrap"><table class="data-table"><thead><tr><th>Deal</th><th style="text-align:center">Install</th><th style="text-align:center">Office</th><th>Date</th></tr></thead><tbody>'
+    +srt.map(function(r){return '<tr><td>'+escHtml(names[r.rid]||('Deal '+r.rid))+wwDealLink(r.rid)+'</td><td style="text-align:center;font-weight:700">'+escHtml(String(r.project==null?'':r.project))+'</td><td style="text-align:center;color:#888">'+escHtml(String(r.office==null?'':r.office))+'</td><td>'+fmtDate(r.ts)+'</td></tr>';}).join('')
+    +'</tbody></table></div>';
+}
+
+// Domain 2. The nightly job records a count per day and nothing else, so the deals
+// behind a day that already went red are not recoverable. What can be linked is the
+// live state: every open activity sitting past its due date right now.
+async function renderOverdueNow(){
+  var bd=document.getElementById('d2-overdue'); if(!bd)return;
+  bd.innerHTML='<div style="font-size:12px;color:#888">Checking Pipedrive...</div>';
+  try{
+    var acts=[],start=0,guard=0;
+    while(guard++<8){
+      var r=await fetch(WWSC.PD_BASE+'/activities?api_token='+WWSC.PD_TOKEN+'&user_id='+KEITH_PD_ID+'&done=0&limit=500&start='+start);
+      var j=(await r.json())||{};
+      acts=acts.concat(j.data||[]);
+      var more=j.additional_data&&j.additional_data.pagination&&j.additional_data.pagination.more_items_in_collection;
+      if(!more)break; start+=500;
+    }
+    var today=new Date(); today.setHours(12,0,0,0);
+    var late=[];
+    acts.forEach(function(a){
+      var due=WWSC.pql(a.due_date); if(!due||due>=today)return;
+      late.push({id:a.deal_id,deal:a.deal_title||a.person_name||a.org_name||'',subject:a.subject||a.type_name||'Activity',due:a.due_date,days:Math.round((today-due)/86400000)});
+    });
+    if(!late.length){
+      bd.innerHTML='<div style="font-size:13px;color:#28a745;font-weight:600;margin-bottom:14px">Nothing overdue right now. '+acts.length+' open '+(acts.length===1?'activity':'activities')+' on your board, all still due.</div>';
+      return;
+    }
+    late.sort(function(a,b){return b.days-a.days;});
+    bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">Open activities past their due date <strong>right now</strong>. Clear these and tonight\'s snapshot logs a clean day. This is live from Pipedrive, not a record of past days: the nightly job stores a count only, so the deals behind a day that already went red are not kept.</div>'
+      +'<div class="table-wrap"><table class="data-table"><thead><tr><th>Deal</th><th>Activity</th><th>Due</th><th style="text-align:right">Days late</th></tr></thead><tbody>'
+      +late.map(function(r){return '<tr><td>'+escHtml(r.deal||('Deal '+(r.id||'')))+wwDealLink(r.id)+'</td><td style="color:#666">'+escHtml(r.subject)+'</td><td>'+fmtDate(r.due)+'</td><td style="text-align:right;font-weight:700;color:#c0392b">'+r.days+'</td></tr>';}).join('')
+      +'</tbody></table></div><div style="height:16px"></div>';
+  }catch(e){
+    console.error(e);
+    bd.innerHTML='<div style="font-size:12px;color:#888;margin-bottom:14px">Could not reach Pipedrive to check what is overdue right now.</div>';
+  }
+}
+
+// Domain 3. Every completed install this quarter, whether or not a sign photo landed.
+function renderYardsignBreakdown(jobs){
+  var bd=document.getElementById('d3-breakdown'); if(!bd)return;
+  if(!jobs){ bd.innerHTML='<div style="font-size:12px;color:#888">Could not load installs.</div>'; return; }
+  if(!jobs.length){ bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5">No completed installs have counted this quarter yet.</div>'; return; }
+  var srt=jobs.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date));});
+  var missing=srt.filter(function(j){return j.sign.toLowerCase()!=='yes';}).length;
+  bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">Every install completed this quarter. The score is the share with a tagged yard-sign photo in CompanyCam'+(missing?', and '+missing+' '+(missing===1?'is':'are')+' missing one':'')+'. The domain pays out at 90% or higher.</div>'
+    +'<div class="table-wrap"><table class="data-table"><thead><tr><th>Job</th><th>Completed</th><th style="text-align:right">Sign</th></tr></thead><tbody>'
+    +srt.map(function(j){
+      var yes=j.sign.toLowerCase()==='yes';
+      return '<tr><td>'+escHtml(j.name||('Deal '+(j.id||'')))+wwDealLink(j.id)+'</td><td>'+fmtDate(j.date)+'</td><td style="text-align:right">'+(yes?'<span class="pill pill-approved">Yes</span>':'<span class="pill pill-denied">No</span>')+'</td></tr>';
+    }).join('')
+    +'</tbody></table></div>';
+}
+
+// Domain 4. Customer and capture date. The Deal column on the Testimonials tab is
+// optional and empty on every row today, so the deal link renders only when it is
+// filled in. Testimonial rows also carry a CC_ID, but it does not resolve to a known
+// CompanyCam web address, so nothing links out to CompanyCam yet.
+function renderTestimonialsBreakdown(vids){
+  var bd=document.getElementById('d4-breakdown'); if(!bd)return;
+  if(!vids){ bd.innerHTML='<div style="font-size:12px;color:#888">Could not load videos.</div>'; return; }
+  if(!vids.length){ bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5">No testimonial videos are logged to you this quarter yet. A video counts once it is tagged in CompanyCam and logged with you as the capturer. Full pay at 5 videos, half at 3.</div>'; return; }
+  var srt=vids.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date));});
+  bd.innerHTML='<div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">Testimonial videos logged to you this quarter. Full pay at 5, half at 3.</div>'
+    +'<div class="table-wrap"><table class="data-table"><thead><tr><th>Customer</th><th>Captured</th></tr></thead><tbody>'
+    +srt.map(function(v){return '<tr><td>'+escHtml(String(v.customer||'').trim()||'Untitled')+wwDealLink(v.id)+'</td><td>'+fmtDate(v.date)+'</td></tr>';}).join('')
+    +'</tbody></table></div>';
+}
+
 async function loadScorecard(){
   await refreshPriorClosed_();
   document.getElementById('sc-quarter').textContent=getCurrentQuarter();
@@ -1014,7 +1123,7 @@ async function loadScorecard(){
       var v=document.getElementById(dm.valEl);if(v&&dm.display!=null)v.textContent=dm.display;
       setDomain(dm.domEl,dm.pillEl,dm.tier);
     });
-    var dd=sc.domains[1].extra,bd=document.getElementById('d2-breakdown');
+    var dd=sc.domains[1].extra,bd=document.getElementById('d2-days');
     if(bd){
       if(dd&&dd.rows&&dd.rows.length){
         var srt=dd.rows.slice().sort(function(a,b){return String(a[dd.di]).localeCompare(String(b[dd.di]));});
@@ -1026,6 +1135,10 @@ async function loadScorecard(){
         bd.innerHTML='<div style="font-size:12px;color:#888">No overdue activity logged yet this quarter.</div>';
       }
     }
+    var ys=sc.domains[2].extra;renderYardsignBreakdown(ys?ys.jobs:null);
+    var tm=sc.domains[3].extra;renderTestimonialsBreakdown(tm?tm.vids:null);
+    var iv=sc.domains[0].extra;renderInstallBreakdown(iv&&iv.resp?iv.resp:[]);
+    renderOverdueNow();
   }catch(e){console.error(e);}
   updateTotal();
   saveScorecard();
@@ -1066,7 +1179,7 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="taskboard.js?v=236"></script>
+<script src="taskboard.js?v=237"></script>
 <script>initTaskBoard("keith");</script>
 <script>
 async function applyCloseGateKeith(){
@@ -1188,8 +1301,8 @@ async function loadScorecardArchiveKeith() {
 }
 
 loadScorecardArchiveKeith();</script>
-<script src="resources.js?v=236"></script>
-<script src="docnaming.js?v=236"></script>
+<script src="resources.js?v=237"></script>
+<script src="docnaming.js?v=237"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');
