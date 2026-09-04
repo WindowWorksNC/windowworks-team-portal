@@ -5,6 +5,7 @@
 (function(){
   function ssGet(k){ try { return sessionStorage.getItem(k); } catch(e){ return null; } }
   function isAdmin(){
+    if (typeof window.wwDocsEditable === 'function') return window.wwDocsEditable();
     if (ssGet('ww_admin') === '1' || ssGet('ww_owner') === '1') return true;
     var emp = (window.WW_EMPLOYEE || '').trim();
     return ['Rose Reif','Justin Reif','Brandon McClure'].indexOf(emp) >= 0;
@@ -53,11 +54,11 @@
             '2025-03-10_EarningsCommission_Glenn-Colin.pdf<br>'+
             '2024-11-02_EarningsPerformancePM_Howze-Keith.pdf<br>'+
             '2025-03-10_I9_Glenn-Colin.pdf<br>'+
-            '2025-03-10_ID_Glenn-Colin.pdf'+
+            '2024-02-25_ID_Glenn-Colin.pdf'+
           '</div>'+
           '<div style="font-family:\'Barlow Condensed\',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c4581f;margin-bottom:8px">Rules</div>'+
           '<ul style="font-size:13px;color:#444;line-height:1.6;margin:0;padding-left:18px">'+
-            '<li>The date is the signature or effective date. For a Government ID it is the date the copy was captured; the expiration is tracked here in the portal, not in the filename.</li>'+
+            '<li>The date is the signature or effective date. For a Government ID it is the issue date printed on the ID, not the day the copy was made; the expiration is tracked here in the portal, not in the filename.</li>'+
             '<li>One document per file. The contract and the earnings agreement are signed together but stay two files, since they are two rows here.</li>'+
             '<li>Re-signs never overwrite. A re-signed document is a new file with the new date; keep the older copy for the audit trail. Add _v2 before the extension only if two files would otherwise collide on date, code, and name.</li>'+
             '<li>Lowercase extension, no spaces.</li>'+
@@ -81,22 +82,34 @@
   function hide(){ var m = document.getElementById('docname-modal'); if (m) m.style.display = 'none'; }
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape') hide(); });
 
-  function refresh(){ var b = document.getElementById('docname-btn'); if (b) b.style.display = isAdmin() ? 'inline-block' : 'none'; }
+  // Two cards can host the guide: the personal Documents card on every page, and
+  // the Employee Documents card on Brandon's Team Management view.
+  var TARGETS = [['docs-list','docname-btn'], ['docs-admin-list','docname-btn-admin']];
+
+  function refresh(){
+    var on = isAdmin();
+    TARGETS.forEach(function(t){
+      var b = document.getElementById(t[1]);
+      if (b) b.style.display = on ? 'inline-block' : 'none';
+    });
+  }
 
   function injectButton(){
-    var list = document.getElementById('docs-list');
-    if (!list) return;
-    var card = list.closest('.card');
-    if (!card) return;
-    var title = card.querySelector('.card-title');
-    if (!title || document.getElementById('docname-btn')) return;
-    var btn = document.createElement('button');
-    btn.id = 'docname-btn';
-    btn.type = 'button';
-    btn.textContent = 'File naming guide';
-    btn.style.cssText = 'display:none;font-family:\'Barlow Condensed\',Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#c4581f;background:#fff;border:1px solid #c4581f;border-radius:4px;padding:4px 10px;cursor:pointer';
-    btn.addEventListener('click', show);
-    title.appendChild(btn);
+    TARGETS.forEach(function(t){
+      var list = document.getElementById(t[0]);
+      if (!list) return;
+      var card = list.closest('.card');
+      if (!card) return;
+      var title = card.querySelector('.card-title');
+      if (!title || document.getElementById(t[1])) return;
+      var btn = document.createElement('button');
+      btn.id = t[1];
+      btn.type = 'button';
+      btn.textContent = 'File naming guide';
+      btn.style.cssText = 'display:none;font-family:\'Barlow Condensed\',Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#c4581f;background:#fff;border:1px solid #c4581f;border-radius:4px;padding:4px 10px;cursor:pointer;margin-left:10px';
+      btn.addEventListener('click', show);
+      title.appendChild(btn);
+    });
     refresh();
   }
 

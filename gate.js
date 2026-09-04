@@ -21,6 +21,13 @@
    - A PIN typed before the read finishes is held and checked automatically when the
      read lands, instead of dead ending on "One moment".
 
+   v238 notes:
+   - wwDocsEditable() is defined here so the Documents card, docnaming.js and any
+     future reader share one answer to "may this person edit documents". It sits
+     above the ungated early return so a page without WW_EMPLOYEE can still ask,
+     and it returns false when sessionStorage cannot be read, so a failure locks
+     editing rather than opening it.
+
    v209 notes (iPad):
    - The PIN field is gone. There is no text input in the gate at all, only an
      on-screen keypad and a masked display. iPadOS never opens the software keyboard
@@ -33,6 +40,19 @@
      on the last digit with no button tap. Unlock stays for an explicit submit and is
      the only thing that reports an incorrect PIN. */
 (function(){
+  // Documents are read-only unless an owner or admin is looking at them. Rose,
+  // Justin and Brandon are editable on their own pages; for anyone else it takes an
+  // owner or admin PIN unlock on the page being roamed into. Employees see the
+  // checklist and the View links for what is on file, and nothing to type into.
+  window.wwDocsEditable = function(){
+    try {
+      if (sessionStorage.getItem('ww_admin') === '1') return true;
+      if (sessionStorage.getItem('ww_owner') === '1') return true;
+    } catch(e){}
+    return ['Rose Reif','Justin Reif','Brandon McClure']
+      .indexOf((window.WW_EMPLOYEE || '').trim()) >= 0;
+  };
+
   var EMP = (window.WW_EMPLOYEE || '').trim();
   if (!EMP) return; // ungated: no employee declared on this page
 

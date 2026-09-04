@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=237">
-<link rel="manifest" href="site.webmanifest?v=237">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=238">
+<link rel="manifest" href="site.webmanifest?v=238">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Brandon McClure | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=237">
+<link rel="stylesheet" href="portal.css?v=238">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Brandon McClure';</script>
-<script src="gate.js?v=237"></script>
-<script src="scorecards.js?v=237"></script>
+<script src="gate.js?v=238"></script>
+<script src="scorecards.js?v=238"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -275,6 +275,14 @@
   </div>
   <div id="records-admin-roster"></div>
   <div id="records-admin-list"></div>
+</div>
+<div class="card">
+  <div class="card-title">Employee Documents <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Paste the OneDrive link for each signed document</span></div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+    <span style="font-size:11px;color:#888;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:0.1em;text-transform:uppercase">Employee</span>
+    <select id="da-emp" onchange="loadDocsAdmin(this.value)" style="font-size:14px;font-family:'Barlow',Arial,sans-serif;padding:7px 10px;border:1px solid #ddd;border-radius:4px;background:#faf8f5;color:#1a1a1a;min-width:220px"></select>
+  </div>
+  <div id="docs-admin-list"><div class="loading">Loading...</div></div>
 </div>
 <div class="card">
   <div class="card-title">Equipment <span style="font-size:12px;color:#888;font-weight:400;text-transform:none">Assign and collect company equipment</span></div>
@@ -1616,6 +1624,7 @@ async function addEmployee(){
     if(a)a.innerHTML='<div class="alert alert-success"><strong>'+name+'</strong> added as Active. PTO balance started (10 vacation, 5 sick) and the 90-day review is set for '+fmtDate(addDays(hire,90))+'.<br><br><strong>One manual step:</strong> the dashboard cannot create their portal page in GitHub. Copy an existing employee file (for example ashley.html) to <strong>'+first+'.html</strong>, update the displayed name and the EMPLOYEE constant inside it, then commit it to the repo.</div>';
     ['add-emp-name','add-emp-role','add-emp-hire','add-emp-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     loadRecordsAdmin(); if(typeof loadEquipAdminEmployees==='function')loadEquipAdminEmployees();
+    if(typeof loadDocsAdminEmployees==='function')loadDocsAdminEmployees();
   }catch(e){ if(a)a.innerHTML='<div class="alert alert-error">Error adding employee. Please try again.</div>'; }
   if(btn){btn.disabled=false;btn.textContent='Add Employee';}
 }
@@ -2134,7 +2143,15 @@ async function loadRecord(employee){
   }catch(e){console.error(e);}
 }
 
+// The Documents card is a read-only checklist for the person it belongs to: what is
+// on file, what is missing, and a View link for each. Editing needs an owner or admin,
+// which is wwDocsEditable() in gate.js. An admin unlock can land after this first
+// render, so ww-auth re-renders with the fields in place.
+var WW_DOCS_LAST=null;
+document.addEventListener('ww-auth',function(){ if(WW_DOCS_LAST)loadDocs(WW_DOCS_LAST[0],WW_DOCS_LAST[1]); });
 async function loadDocs(employee,earningsType){
+  WW_DOCS_LAST=[employee,earningsType];
+  const canEdit=(typeof wwDocsEditable==='function')?wwDocsEditable():false;
   const docs=buildDocList(earningsType);
   try{
     const d=await api({action:'read',tab:'Employee_Records'});
@@ -2154,11 +2171,12 @@ async function loadDocs(employee,earningsType){
       let url=docData[name]||'';
       const eEsc=employee.replace(/'/g,"\\'");
       const nEsc=name.replace(/'/g,"\\'");
-      const expirySection=doc.expiry?`<div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap"><span class="${expiryClass(idExpiry)}" id="expiry-label">${expiryLabel(idExpiry)}</span><input type="date" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" id="expiry-input" value="${idExpiry}" onchange="saveExpiry('${eEsc}')"></div>`:'';
+      const expirySection=doc.expiry?`<div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap"><span class="${expiryClass(idExpiry)}" id="expiry-label">${expiryLabel(idExpiry)}</span>${canEdit?`<input type="date" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" id="expiry-input" value="${idExpiry}" onchange="saveExpiry('${eEsc}')">`:''}</div>`:'';
       const safeDoc=name.replace(/[^a-zA-Z0-9]/g,'-');
       const optTag=doc.optional?' <span style="font-size:11px;color:#aaa;font-weight:400">(optional)</span>':'';
       const emptyPill=doc.optional?'<span class="pill pill-gray">Optional</span>':missingPill();
-      return `<div class="doc-row"><div><div class="doc-name">${name}${optTag}</div>${expirySection}</div><div class="doc-actions"><span id="docstatus-${safeDoc}">${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:emptyPill}</span><input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${eEsc}','${nEsc}',this.value)"><span id="docsaved-${safeDoc}" style="font-size:11px;color:#28a745;font-weight:600;opacity:0;transition:opacity .2s"></span></div></div>`;
+      const editFields=canEdit?`<input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${eEsc}','${nEsc}',this.value)"><span id="docsaved-${safeDoc}" style="font-size:11px;color:#28a745;font-weight:600;opacity:0;transition:opacity .2s"></span>`:'';
+      return `<div class="doc-row"><div><div class="doc-name">${name}${optTag}</div>${expirySection}</div><div class="doc-actions"><span id="docstatus-${safeDoc}">${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:emptyPill}</span>${editFields}</div></div>`;
     }).join('');
   }catch(e){console.error(e);}
 }
@@ -2188,7 +2206,9 @@ async function saveDocLink(employee,doc,url){
 }
 
 async function saveExpiry(employee){
-  const val=document.getElementById('expiry-input').value;
+  const input=document.getElementById('expiry-input');
+  if(!input)return; // no date picker rendered for a read-only viewer
+  const val=input.value;
   const label=document.getElementById('expiry-label');
   if(label){label.className=expiryClass(val);label.textContent=expiryLabel(val);}
   try{
@@ -2252,6 +2272,7 @@ async function loadInactiveRoster(){
     if(INACTIVE.length){
       if(typeof loadAllBalances==='function')loadAllBalances();
       if(typeof loadEquipAdminEmployees==='function')loadEquipAdminEmployees();
+      if(typeof loadDocsAdminEmployees==='function')loadDocsAdminEmployees();
     }
   }catch(e){}
 }
@@ -2271,6 +2292,109 @@ async function cacheCommissionHeaders(){
 
 // ---------- Equipment manager (admin) ----------
 const EQUIP_TYPES=['Computer','Computer case / backpack','iPad','Store keys','Warehouse keys','Company vehicle','Phone','V1CE card','Other'];
+/* ---------- Employee Documents admin ----------
+   Brandon files documents for the whole team from here, so he does not have to open
+   each person's page. The links point at the same OneDrive folders as before; this
+   card only writes the link into the Documents blob on Employee_Records.
+   The Government ID expiry reads here and is edited in the Employee Records card
+   above, so one field keeps one write path. */
+let DOCS_ADMIN_EMP='';
+
+// Which earnings agreement a person owes follows their Role in the sheet, so this
+// card shows the same list their own page does without a second roster to maintain.
+// Sales titles take the commission agreement, Project Manager and Admin/Payroll take
+// their performance agreement, owners and Admin take none.
+function docsEarningsType_(role){
+  const r=String(role==null?'':role).trim().toLowerCase();
+  if(r.indexOf('sales')>=0)return 'sales';
+  if(r.indexOf('project manager')>=0)return 'pm';
+  if(r.indexOf('payroll')>=0)return 'admin';
+  return null;
+}
+
+async function loadDocsAdminEmployees(){
+  const sel=document.getElementById('da-emp');
+  if(!sel)return;
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success)return;
+    const c=cols(d.data[0]);
+    const si=c('Status');
+    const seen=d.data.slice(1).map(r=>({n:(r[c('Employee')]||'').trim(),off:si>=0&&isInactive_(r[si])})).filter(o=>o.n);
+    const act=[...new Set(seen.filter(o=>!o.off).map(o=>o.n))].sort();
+    const off=[...new Set(seen.filter(o=>o.off).map(o=>o.n))].sort();
+    // Former employees stay selectable. Their file still has to be readable after
+    // they leave, and the label keeps anyone from filing to the wrong person.
+    sel.innerHTML=act.map(e=>`<option value="${e}">${e}</option>`).join('')
+      +off.map(e=>`<option value="${e}">${e} (inactive)</option>`).join('');
+    const all=act.concat(off);
+    const pick=(DOCS_ADMIN_EMP&&all.indexOf(DOCS_ADMIN_EMP)>=0)?DOCS_ADMIN_EMP:(all.length?all[0]:'');
+    if(pick){sel.value=pick;loadDocsAdmin(pick);}
+    else{const w=document.getElementById('docs-admin-list');if(w)w.innerHTML='<div class="empty-state">No employee records found.</div>';}
+  }catch(e){const w=document.getElementById('docs-admin-list');if(w)w.innerHTML='<div class="empty-state">Could not load documents.</div>';}
+}
+
+async function loadDocsAdmin(employee){
+  DOCS_ADMIN_EMP=employee;
+  const wrap=document.getElementById('docs-admin-list');
+  if(!wrap)return;
+  wrap.innerHTML='<div class="loading">Loading...</div>';
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success){wrap.innerHTML='<div class="empty-state">Could not load documents.</div>';return;}
+    const c=cols(d.data[0]);
+    const docsIdx=c('Documents');
+    if(docsIdx<0){wrap.innerHTML='<div class="empty-state">Employee_Records has no Documents column.</div>';return;}
+    const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
+    if(!row){wrap.innerHTML='<div class="empty-state">No record on file for this employee.</div>';return;}
+    let docData={};
+    if(row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
+    const docs=buildDocList(docsEarningsType_(row[c('Role')]));
+    const idExpiry=docData['Government ID - Expiry']||'';
+    const eEsc=employee.replace(/'/g,"\\'");
+    wrap.innerHTML=docs.map(doc=>{
+      const name=doc.name;
+      const url=docData[name]||'';
+      const nEsc=name.replace(/'/g,"\\'");
+      const safeDoc=name.replace(/[^a-zA-Z0-9]/g,'-');
+      const optTag=doc.optional?' <span style="font-size:11px;color:#aaa;font-weight:400">(optional)</span>':'';
+      const emptyPill=doc.optional?'<span class="pill pill-gray">Optional</span>':missingPill();
+      const expirySection=doc.expiry?`<div style="margin-top:4px"><span class="${expiryClass(idExpiry)}">${expiryLabel(idExpiry)}</span> <span style="font-size:11px;color:#aaa">set in Employee Records above</span></div>`:'';
+      return `<div class="doc-row"><div><div class="doc-name">${name}${optTag}</div>${expirySection}</div><div class="doc-actions"><span id="dastatus-${safeDoc}">${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:emptyPill}</span><input type="text" class="doc-input" id="dadoc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLinkAdmin('${eEsc}','${nEsc}',this.value)"><span id="dasaved-${safeDoc}" style="font-size:11px;color:#28a745;font-weight:600;opacity:0;transition:opacity .2s"></span></div></div>`;
+    }).join('');
+  }catch(e){console.error(e);wrap.innerHTML='<div class="empty-state">Could not load documents.</div>';}
+}
+
+async function saveDocLinkAdmin(employee,doc,url){
+  const safeDoc=doc.replace(/[^a-zA-Z0-9]/g,'-');
+  const statusEl=document.getElementById('dastatus-'+safeDoc);
+  const savedEl=document.getElementById('dasaved-'+safeDoc);
+  url=(url||'').trim();
+  if(savedEl){savedEl.textContent='Saving...';savedEl.style.color='#aaa';savedEl.style.opacity='1';}
+  try{
+    const d=await api({action:'read',tab:'Employee_Records'});
+    if(!d.success)throw new Error('read failed');
+    const headers=d.data[0];
+    const c=cols(headers);
+    const docsIdx=c('Documents');
+    if(docsIdx<0)throw new Error('no Documents column');
+    const rowIdx=d.data.findIndex((r,i)=>i>0&&(r[c('Employee')]||'').trim()===employee);
+    if(rowIdx<0)throw new Error('no row');
+    const row=[...d.data[rowIdx]];
+    while(row.length<headers.length)row.push('');
+    let docData={};
+    if(row[docsIdx]){try{docData=JSON.parse(row[docsIdx]);}catch(e){}}
+    docData[doc]=url;
+    row[docsIdx]=JSON.stringify(docData);
+    await api({action:'update',tab:'Employee_Records',rowIndex:rowIdx+1,row:JSON.stringify(row)});
+    if(statusEl)statusEl.innerHTML=url?(presentPill()+' <a class="doc-link" href="'+url+'" target="_blank">View</a>'):(OPTIONAL_DOCS.indexOf(doc)>=0?'<span class="pill pill-gray">Optional</span>':missingPill());
+    if(savedEl){savedEl.textContent='Saved';savedEl.style.color='#28a745';savedEl.style.opacity='1';setTimeout(function(){savedEl.style.opacity='0';},2000);}
+  }catch(e){
+    console.error(e);
+    if(savedEl){savedEl.textContent='Not saved, try again';savedEl.style.color='#c0392b';savedEl.style.opacity='1';}
+  }
+}
+
 let _equipEdit=null;
 function eqAttr(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 async function loadEquipAdminEmployees(){
@@ -2683,6 +2807,7 @@ loadReviewAlerts();
 loadRecordsAdmin();
 computeOwnerAlerts();
 loadEquipAdminEmployees();
+loadDocsAdminEmployees();
 loadPTOBalances(EMPLOYEE);
 loadMyRequests(EMPLOYEE);
 loadMyReimbursements(EMPLOYEE);
@@ -2694,10 +2819,10 @@ loadBrandonScorecard();
 loadScorecardArchiveBrandon();
 </script>
 
-<script src="taskboard.js?v=237"></script>
+<script src="taskboard.js?v=238"></script>
 <script>initTaskBoard("brandon");</script>
-<script src="resources.js?v=237"></script>
-<script src="docnaming.js?v=237"></script>
+<script src="resources.js?v=238"></script>
+<script src="docnaming.js?v=238"></script>
 <script>
 (function(){
   var el=document.querySelector('link[href*="portal.css?v="]')||document.querySelector('script[src*="gate.js?v="]')||document.querySelector('link[href*="?v="]')||document.querySelector('script[src*="?v="]');

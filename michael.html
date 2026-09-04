@@ -5,19 +5,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+CiAgPHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD4KICA8dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=237">
-<link rel="manifest" href="site.webmanifest?v=237">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=238">
+<link rel="manifest" href="site.webmanifest?v=238">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Michael King | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=237">
+<link rel="stylesheet" href="portal.css?v=238">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Michael King';</script>
-<script src="gate.js?v=237"></script>
+<script src="gate.js?v=238"></script>
     
     <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -786,7 +786,15 @@ function buildDocList(earningsType){
   list.push({name:'Emergency Contact and Medical Information'});
   return list;
 }
+// The Documents card is a read-only checklist for the person it belongs to: what is
+// on file, what is missing, and a View link for each. Editing needs an owner or admin,
+// which is wwDocsEditable() in gate.js. An admin unlock can land after this first
+// render, so ww-auth re-renders with the fields in place.
+var WW_DOCS_LAST=null;
+document.addEventListener('ww-auth',function(){ if(WW_DOCS_LAST)loadDocs(WW_DOCS_LAST[0],WW_DOCS_LAST[1]); });
 async function loadDocs(employee,earningsType){
+  WW_DOCS_LAST=[employee,earningsType];
+  const canEdit=(typeof wwDocsEditable==='function')?wwDocsEditable():false;
   const docs=buildDocList(earningsType);
   try{
     const d=await api({action:'read',tab:'Employee_Records'});
@@ -806,11 +814,12 @@ async function loadDocs(employee,earningsType){
       let url=docData[name]||'';
       const eEsc=employee.replace(/'/g,"\\'");
       const nEsc=name.replace(/'/g,"\\'");
-      const expirySection=doc.expiry?`<div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap"><span class="${expiryClass(idExpiry)}" id="expiry-label">${expiryLabel(idExpiry)}</span><input type="date" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" id="expiry-input" value="${idExpiry}" onchange="saveExpiry('${eEsc}')"></div>`:'';
+      const expirySection=doc.expiry?`<div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap"><span class="${expiryClass(idExpiry)}" id="expiry-label">${expiryLabel(idExpiry)}</span>${canEdit?`<input type="date" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" id="expiry-input" value="${idExpiry}" onchange="saveExpiry('${eEsc}')">`:''}</div>`:'';
       const safeDoc=name.replace(/[^a-zA-Z0-9]/g,'-');
       const optTag=doc.optional?' <span style="font-size:11px;color:#aaa;font-weight:400">(optional)</span>':'';
       const emptyPill=doc.optional?'<span class="pill pill-gray">Optional</span>':missingPill();
-      return `<div class="doc-row"><div><div class="doc-name">${name}${optTag}</div>${expirySection}</div><div class="doc-actions"><span id="docstatus-${safeDoc}">${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:emptyPill}</span><input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${eEsc}','${nEsc}',this.value)"><span id="docsaved-${safeDoc}" style="font-size:11px;color:#28a745;font-weight:600;opacity:0;transition:opacity .2s"></span></div></div>`;
+      const editFields=canEdit?`<input type="text" class="doc-input" id="doc-${safeDoc}" value="${url}" placeholder="Paste OneDrive link..." onblur="saveDocLink('${eEsc}','${nEsc}',this.value)"><span id="docsaved-${safeDoc}" style="font-size:11px;color:#28a745;font-weight:600;opacity:0;transition:opacity .2s"></span>`:'';
+      return `<div class="doc-row"><div><div class="doc-name">${name}${optTag}</div>${expirySection}</div><div class="doc-actions"><span id="docstatus-${safeDoc}">${url?`${presentPill()} <a class="doc-link" href="${url}" target="_blank">View</a>`:emptyPill}</span>${editFields}</div></div>`;
     }).join('');
   }catch(e){console.error(e);}
 }
@@ -840,7 +849,9 @@ async function saveDocLink(employee,doc,url){
 }
 
 async function saveExpiry(employee){
-  const val=document.getElementById('expiry-input').value;
+  const input=document.getElementById('expiry-input');
+  if(!input)return; // no date picker rendered for a read-only viewer
+  const val=input.value;
   const label=document.getElementById('expiry-label');
   if(label){label.className=expiryClass(val);label.textContent=expiryLabel(val);}
   try{
@@ -925,12 +936,12 @@ function calcWorkingDays() {
 }
 </script>
 
-<script src="training.js?v=237"></script>
+<script src="training.js?v=238"></script>
 <script>initTraining("Michael King","sales-b2c");</script>
-<script src="taskboard.js?v=237"></script>
+<script src="taskboard.js?v=238"></script>
 <script>initTaskBoard("michael");</script>
-<script src="resources.js?v=237"></script>
-<script src="docnaming.js?v=237"></script>
+<script src="resources.js?v=238"></script>
+<script src="docnaming.js?v=238"></script>
 <script>
 function getCurrentPayPeriodLabel_michael() {
   const startMs=Date.UTC(2025,11,18);
