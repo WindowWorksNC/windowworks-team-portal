@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Measure calendar</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='5'%20fill='%23191817'/%3E%3Cpath%20d='M0%205a5%205%200%200%201%205-5h22a5%205%200%200%201%205%205v4H0Z'%20fill='%23d86018'/%3E%3Crect%20x='5'%20y='13'%20width='9'%20height='7'%20rx='1'%20fill='%23fff'/%3E%3Crect%20x='18'%20y='13'%20width='9'%20height='7'%20rx='1'%20fill='%23fff'/%3E%3Crect%20x='5'%20y='23'%20width='9'%20height='5'%20rx='1'%20fill='%23fff'%20opacity='.45'/%3E%3Crect%20x='18'%20y='23'%20width='9'%20height='5'%20rx='1'%20fill='%23fff'%20opacity='.45'/%3E%3C/svg%3E">
 <style>
   :root {
     --ink: #191817;
@@ -17,7 +18,6 @@
   }
 
   * { box-sizing: border-box; }
-
   html { height: 100%; }
 
   body {
@@ -35,278 +35,205 @@
 
   /* ---------------- header ---------------- */
 
-  header {
-    flex: none;
-    padding: 16px 22px 13px;
-    border-bottom: 1px solid var(--rule);
-  }
+  header { flex: none; padding: 16px 22px 13px; border-bottom: 1px solid var(--rule); }
 
-  .top {
-    display: flex;
-    align-items: baseline;
-    gap: 14px;
-  }
+  .top { display: flex; align-items: baseline; gap: 14px; }
+  h1 { margin: 0; font-size: 15px; font-weight: 600; color: var(--soft); letter-spacing: 0.01em; }
+  .range { font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
 
-  h1 {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--soft);
-    letter-spacing: 0.01em;
-  }
+  .views { display: flex; gap: 1px; margin-left: 8px; }
+  .views button[aria-pressed="true"] { color: var(--ink); font-weight: 600; background: var(--hair); }
 
-  .range {
-    font-size: 21px;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-  }
-
-  .nav {
-    margin-left: auto;
-    display: flex;
-    gap: 2px;
-  }
+  .nav { margin-left: auto; display: flex; gap: 2px; }
 
   button {
-    font: inherit;
-    font-size: 13.5px;
-    color: var(--soft);
-    background: none;
-    border: 0;
-    border-radius: 4px;
-    padding: 5px 10px;
-    cursor: pointer;
+    font: inherit; font-size: 13.5px; color: var(--soft);
+    background: none; border: 0; border-radius: 4px;
+    padding: 5px 10px; cursor: pointer;
   }
   button:hover { background: var(--hair); color: var(--ink); }
   button:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+  button[disabled] { color: #cdc9c2; cursor: default; }
+  button[disabled]:hover { background: none; color: #cdc9c2; }
   .nav .now { color: var(--ink); font-weight: 600; }
 
   .sub {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-top: 11px;
-    font-size: 13px;
-    color: var(--faint);
+    display: flex; align-items: center; gap: 16px;
+    margin-top: 11px; font-size: 13px; color: var(--faint);
   }
 
   .legend { display: flex; gap: 14px; }
-
   .rep-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 0;
-    font-size: 13.5px;
-    color: var(--ink);
-    background: none;
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 0; font-size: 13.5px; color: var(--ink); background: none;
   }
   .rep-toggle:hover { background: none; text-decoration: underline; }
   .rep-toggle .swatch {
-    width: 9px;
-    height: 9px;
-    border-radius: 2px;
-    background: var(--rep);
-    flex: none;
+    width: 9px; height: 9px; border-radius: 2px;
+    background: var(--rep); flex: none;
   }
+  .rep-toggle .tally { font-weight: 600; }
   .rep-toggle[aria-pressed="false"] { color: var(--faint); }
   .rep-toggle[aria-pressed="false"] .swatch { background: none; box-shadow: inset 0 0 0 1.5px var(--faint); }
 
-  .cap-note { color: var(--faint); }
   .stamp { margin-left: auto; display: flex; align-items: center; gap: 4px; }
 
-  /* ---------------- week ---------------- */
+  /* ---------------- week view ---------------- */
 
-  .week {
-    flex: 1;
-    display: flex;
-    overflow: auto;
-  }
+  .week { flex: 1; display: flex; overflow: auto; }
 
   .day {
-    flex: 1 1 0;
-    min-width: 196px;
+    flex: 1 1 0; min-width: 196px;
     border-right: 1px solid var(--hair);
-    display: flex;
-    flex-direction: column;
+    display: flex; flex-direction: column;
   }
   .day:last-child { border-right: 0; }
   .day.past { background: #fcfbfa; }
   .day.past .day-head, .day.past .day-body { opacity: 0.55; }
 
-  .day-head {
-    flex: none;
-    padding: 13px 14px 10px;
-  }
-  .weekday {
-    font-size: 12.5px;
-    color: var(--soft);
-    letter-spacing: 0.02em;
-  }
-  .daynum {
-    font-size: 26px;
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    line-height: 1.05;
-  }
+  .day-head { flex: none; padding: 13px 14px 10px; }
+  .weekday { font-size: 12.5px; color: var(--soft); letter-spacing: 0.02em; }
+  .daynum { font-size: 26px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.05; }
   .day.today .daynum { color: var(--brand); }
   .day.today .weekday { color: var(--brand); font-weight: 600; }
 
-  .caps {
-    flex: none;
-    padding: 0 14px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-  .cap {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 12.5px;
-    color: var(--soft);
-  }
+  .caps { flex: none; padding: 0 14px 12px; display: flex; flex-direction: column; gap: 3px; }
+  .cap { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--soft); }
   .cap .mark {
-    width: 9px;
-    height: 9px;
-    border-radius: 2px;
-    flex: none;
+    width: 9px; height: 9px; border-radius: 2px; flex: none;
     box-shadow: inset 0 0 0 1.5px var(--rep);
   }
   .cap.full .mark { background: var(--rep); }
   .cap.full { color: var(--ink); }
-  .cap.part .mark {
-    background: linear-gradient(to right, var(--rep) 50%, transparent 50%);
-  }
+  .cap.part .mark { background: linear-gradient(to right, var(--rep) 50%, transparent 50%); }
   .cap.over { color: var(--alarm); font-weight: 600; }
   .cap.over .mark { background: var(--alarm); box-shadow: inset 0 0 0 1.5px var(--alarm); }
   .cap.blocked { color: var(--faint); }
   .cap.none { color: var(--faint); }
   .cap.blocked .mark { background: none; box-shadow: inset 0 0 0 1.5px var(--faint); opacity: 0.6; }
 
-  .day-body {
-    flex: 1;
-    padding: 0 12px 32px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .nothing {
-    font-size: 13px;
-    color: var(--faint);
-    padding: 4px 2px;
-  }
-
-  /* ---------------- appointment ---------------- */
+  .day-body { flex: 1; padding: 0 12px 32px; display: flex; flex-direction: column; gap: 8px; }
+  .nothing { font-size: 13px; color: var(--faint); padding: 4px 2px; }
 
   .appt {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 9px 12px 11px;
-    border: 0;
-    border-left: 3px solid var(--rep);
-    border-radius: 0 5px 5px 0;
-    background: var(--tint);
-    cursor: pointer;
-    color: var(--ink);
-    font-size: 15px;
+    display: block; width: 100%; text-align: left;
+    padding: 9px 12px 11px; border: 0;
+    border-left: 3px solid var(--rep); border-radius: 0 5px 5px 0;
+    background: var(--tint); cursor: pointer; color: var(--ink); font-size: 15px;
   }
   .appt:hover { border-left-width: 6px; padding-left: 9px; }
   .appt:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
 
   .meta {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 8px;
-    font-size: 12.5px;
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 8px; font-size: 12.5px;
   }
   .meta .time { font-weight: 600; }
   .meta .kind { font-weight: 400; color: var(--soft); }
   .meta .rep { color: var(--rep); font-weight: 600; }
 
   .pill {
-    display: inline-block;
-    margin: 7px 0 6px;
-    padding: 2px 11px 3px;
-    background: var(--page);
-    border: 1px solid var(--ink);
-    border-radius: 100px;
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    display: inline-block; margin: 7px 0 6px; padding: 2px 11px 3px;
+    background: var(--page); border: 1px solid var(--ink); border-radius: 100px;
+    font-size: 16px; font-weight: 600; letter-spacing: -0.01em;
   }
-  .pill .zip {
-    font-weight: 400;
-    font-size: 13px;
-    color: var(--soft);
-    margin-left: 1px;
-  }
+  .pill .zip { font-weight: 400; font-size: 13px; color: var(--soft); margin-left: 1px; }
 
   .street { font-size: 13px; color: var(--soft); line-height: 1.4; }
   .who { font-size: 13px; margin-top: 2px; }
 
   .flag {
-    display: inline-block;
-    margin-top: 7px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--alarm);
+    display: inline-block; margin-top: 7px;
+    font-size: 12px; font-weight: 600; color: var(--alarm);
   }
   .flag .mark {
-    display: inline-block;
-    width: 8px; height: 8px;
-    border-radius: 2px;
-    background: var(--alarm);
-    margin-right: 5px;
+    display: inline-block; width: 8px; height: 8px; border-radius: 2px;
+    background: var(--alarm); margin-right: 5px;
   }
 
   .detail {
-    display: none;
-    margin-top: 9px;
-    padding-top: 8px;
+    display: none; margin-top: 9px; padding-top: 8px;
     border-top: 1px solid rgba(25,24,23,0.14);
-    font-size: 13px;
-    line-height: 1.55;
-    color: var(--soft);
+    font-size: 13px; line-height: 1.55; color: var(--soft);
   }
   .appt.open .detail { display: block; }
   .detail .row { display: block; }
   .detail .k { color: var(--faint); margin-right: 3px; }
   .detail a { color: var(--ink); }
 
-  /* ---------------- team block ---------------- */
-
-  .block {
-    padding: 9px 12px 10px;
-    border-radius: 5px;
-    background: var(--ink);
-    color: #fff;
-  }
+  .block { padding: 9px 12px 10px; border-radius: 5px; background: var(--ink); color: #fff; }
   .block .label { font-size: 14px; font-weight: 600; line-height: 1.3; }
   .block .when { font-size: 12.5px; color: rgba(255,255,255,0.68); margin-top: 2px; }
 
   .away {
-    padding: 8px 12px 9px;
-    border-left: 3px solid var(--rep);
-    border-radius: 0 5px 5px 0;
-    background: #f3f1ee;
-    color: var(--soft);
+    padding: 8px 12px 9px; border-left: 3px solid var(--rep);
+    border-radius: 0 5px 5px 0; background: #f3f1ee; color: var(--soft);
   }
   .away .label { font-size: 13.5px; font-weight: 600; color: var(--ink); }
   .away .when { font-size: 12.5px; margin-top: 1px; }
 
+  /* ---------------- month view ---------------- */
+
+  .month { flex: 1; overflow: auto; padding: 0 14px 24px; }
+
+  .month-head, .month-row {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(150px, 1fr));
+    gap: 8px;
+  }
+  .month-head {
+    position: sticky; top: 0; background: var(--page);
+    padding: 10px 0 8px; border-bottom: 1px solid var(--rule); z-index: 5;
+  }
+  .month-head div { font-size: 12.5px; color: var(--soft); padding-left: 2px; }
+
+  .month-row { padding: 8px 0; border-bottom: 1px solid var(--hair); }
+
+  .mday { display: flex; flex-direction: column; gap: 4px; min-height: 92px; }
+  .mday.other { opacity: 0.38; }
+  .mday.past { opacity: 0.5; }
+
+  .mhead { display: flex; align-items: baseline; gap: 6px; }
+  .mnum { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
+  .mday.today .mnum {
+    color: #fff; background: var(--brand);
+    border-radius: 4px; padding: 0 6px;
+  }
+  .mfree { font-size: 11.5px; color: var(--faint); }
+  .mover { font-size: 11.5px; color: var(--alarm); font-weight: 600; }
+
+  .mrow {
+    display: flex; align-items: center; gap: 6px;
+    border-left: 3px solid var(--rep); border-radius: 0 3px 3px 0;
+    background: var(--tint); padding: 3px 7px 4px;
+    font-size: 11.5px; color: var(--soft);
+    width: 100%; text-align: left; cursor: pointer;
+  }
+  .mrow:hover { border-left-width: 6px; padding-left: 4px; background: var(--tint); }
+  .mrow .mtime { flex: none; font-weight: 600; color: var(--ink); }
+  .mrow .mpill {
+    background: var(--page); border: 1px solid var(--ink); border-radius: 100px;
+    padding: 1px 8px 2px; font-size: 11.5px; font-weight: 600; color: var(--ink);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .mrow .mrep { margin-left: auto; color: var(--rep); font-weight: 600; flex: none; }
+
+  .mblock {
+    background: var(--ink); color: #fff; border-radius: 3px;
+    padding: 3px 7px 4px; font-size: 11.5px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .maway {
+    border-left: 3px solid var(--rep); border-radius: 0 3px 3px 0;
+    background: #f3f1ee; color: var(--soft);
+    padding: 3px 7px 4px; font-size: 11.5px;
+  }
+
   /* ---------------- messages ---------------- */
 
   .notice {
-    flex: none;
-    padding: 9px 22px;
-    font-size: 13px;
-    color: var(--soft);
-    background: #fbf9f6;
-    border-bottom: 1px solid var(--rule);
+    flex: none; padding: 9px 22px; font-size: 13px; color: var(--soft);
+    background: #fbf9f6; border-bottom: 1px solid var(--rule);
   }
   .notice.error { background: #fdf0ee; color: #8c2513; }
 
@@ -317,10 +244,11 @@
     .day-head { align-items: baseline; gap: 9px; padding-bottom: 4px; }
     .caps { flex-direction: row; gap: 16px; }
     .day.empty-day { display: none; }
+    .month-head, .month-row { grid-template-columns: repeat(5, minmax(112px, 1fr)); gap: 5px; }
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .appt { transition: border-left-width 80ms linear, padding-left 80ms linear; }
+    .appt, .mrow { transition: border-left-width 80ms linear, padding-left 80ms linear; }
   }
 </style>
 </head>
@@ -330,21 +258,26 @@
   <div class="top">
     <h1>Measures</h1>
     <div class="range" id="range">Loading</div>
+    <div class="views">
+      <button id="viewWeek" aria-pressed="true">Week</button>
+      <button id="viewMonth" aria-pressed="false">Month</button>
+    </div>
     <div class="nav">
-      <button id="prev" title="Previous week">Back</button>
+      <button id="prev">Back</button>
       <button id="today" class="now">This week</button>
-      <button id="next" title="Next week">Forward</button>
+      <button id="next">Forward</button>
     </div>
   </div>
   <div class="sub">
     <div class="legend" id="legend"></div>
-    <span class="cap-note" id="capNote"></span>
+    <span id="capNote"></span>
     <span class="stamp"><span id="stamp"></span><button id="refresh">Refresh</button></span>
   </div>
 </header>
 
 <div class="notice" id="notice" hidden></div>
 <div class="week" id="week"></div>
+<div class="month" id="month" hidden></div>
 
 <script>
 /* ============================================================
@@ -356,20 +289,6 @@ const CONFIG = {
   // "live" reads the Worker. "demo" renders sample appointments.
   mode: "live",
 
-  // Read endpoint, called as:
-  //   GET <endpoint>?start=2026-09-07&end=2026-09-11&key=...
-  // returning JSON: an array of objects, or { events: [...] }.
-  //
-  //   rep       "Tyler Wallace"                required
-  //   start     "2026-09-08T10:00:00-04:00"    required, ISO 8601
-  //   end       "2026-09-08T12:00:00-04:00"    optional
-  //   address   "412 Kildaire Farm Rd, Cary, NC 27511"   for the pill
-  //   customer  "Whitaker"                     optional
-  //   phone     "(919) 555-0142"               optional
-  //   type      "Measure"                      optional
-  //   notes     "gate code 4412"               optional
-  //   blocksAll true                           whole team block
-  //   blocksRep true                           one rep out that day
   endpoint: "https://ww-calendar-proxy.misty-moon-cbc9.workers.dev/schedule",
 
   // Must match the SCHEDULE_KEY secret on the Worker.
@@ -378,7 +297,6 @@ const CONFIG = {
   // Colors only. The roster, the daily caps and each rep's start and end
   // dates come from the Worker, which reads them off REPS in
   // ww-calendar-proxy.js. Raise a cap there and this page follows.
-  // A rep with no color here gets one from the fallback palette.
   reps: [
     { name: "Tyler Wallace",  color: "#1c5fa8", tint: "#eef4fb" },
     { name: "Michael King",   color: "#c1500d", tint: "#fdf1e8" },
@@ -388,17 +306,26 @@ const CONFIG = {
   // Used only in demo mode, or if the Worker sends no roster.
   dailyCap: 1,
 
-  // A team block holds everyone. Detected when the feed sends blocksAll: true,
-  // or the rep field matches blockReps, or the title matches blockKeywords.
-  blockReps: ["all", "team", "everyone", "company", "office", "all block"],
+  // One rep out rather than the whole team.
+  awayKeywords: ["pto", "vacation", "out of office", "ooo", "sick", "away", "personal day"],
+
+  // Backstop for team blocks the Worker did not already flag.
   blockKeywords: ["all block", "team meeting", "sales meeting", "training",
                   "office closed", "holiday", "company"],
 
-  // One rep out for the day rather than the whole team.
-  awayKeywords: ["pto", "vacation", "out of office", "ooo", "sick", "away", "personal day"],
-
   // A block this long or longer takes out the whole day.
   fullDayBlockHours: 5,
+
+  // Towns you work in, used to pull the right name out of an address no
+  // matter how it was typed. Add to this if you take work further out.
+  towns: [
+    "Cary", "Apex", "Holly Springs", "Fuquay Varina", "Fuquay-Varina", "Morrisville",
+    "Raleigh", "Garner", "Knightdale", "Wendell", "Zebulon", "Wake Forest",
+    "Rolesville", "Youngsville", "Willow Spring", "Angier", "New Hill",
+    "Durham", "Chapel Hill", "Carrboro", "Hillsborough", "Pittsboro",
+    "Clayton", "Smithfield", "Selma", "Benson", "Sanford",
+    "Creedmoor", "Butner", "Franklinton", "Louisburg", "Rougemont", "Mebane"
+  ],
 
   refreshSeconds: 120,
   weekStartsOn: 1,   // Monday
@@ -427,7 +354,6 @@ function repColor(name) { return repEntry(name).color; }
 function repTint(name) { return repEntry(name).tint; }
 function firstName(name) { return String(name).trim().split(/\s+/)[0] || name; }
 
-// The Worker's roster wins when it sent one.
 function roster() {
   return state.reps.length ? state.reps : CONFIG.reps.map(r => ({ name: r.name }));
 }
@@ -435,9 +361,6 @@ function capFor(name) {
   const r = state.reps.find(x => x.name === name);
   return (r && r.dailyCap) || CONFIG.dailyCap;
 }
-
-// Reps who take appointments on a given day, so someone who has finished or
-// has not started yet does not show as open.
 function repsOn(dateStr) {
   return roster().filter(r => {
     if (r.activeFrom && dateStr < r.activeFrom) return false;
@@ -447,9 +370,12 @@ function repsOn(dateStr) {
 }
 
 const state = {
-  anchor: startOfWeek(new Date()),
+  view: "week",
+  anchor: null,
   events: [],
   reps: [],
+  upcoming: {},
+  tallyDays: 28,
   hidden: new Set(),
   openId: null,
   loadedAt: null
@@ -462,7 +388,20 @@ function startOfWeek(d) {
   out.setDate(out.getDate() - ((out.getDay() - CONFIG.weekStartsOn + 7) % 7));
   return out;
 }
+function startOfMonth(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
 function addDays(d, n) { const o = new Date(d); o.setDate(o.getDate() + n); return o; }
+function addMonths(d, n) { return new Date(d.getFullYear(), d.getMonth() + n, 1); }
+
+// This period is as far back as the page goes. Nobody booking needs to look
+// at work that has already happened, and it keeps the view forward looking.
+function floorAnchor() {
+  return state.view === "month" ? startOfMonth(new Date()) : startOfWeek(new Date());
+}
+function clampAnchor() {
+  const floor = floorAnchor();
+  if (!state.anchor || state.anchor < floor) state.anchor = floor;
+}
+
 function ymd(d) {
   return d.getFullYear() + "-" +
     String(d.getMonth() + 1).padStart(2, "0") + "-" +
@@ -478,20 +417,85 @@ function clockTime(d) {
   h = h % 12 || 12;
   return m ? h + ":" + String(m).padStart(2, "0") + ap : h + ap;
 }
+function shortTime(d) {
+  let h = d.getHours();
+  const m = d.getMinutes();
+  const ap = h >= 12 ? "p" : "a";
+  h = h % 12 || 12;
+  return m ? h + ":" + String(m).padStart(2, "0") + ap : h + ap;
+}
+
+// Weekdays covered by the current view, and the range to ask the Worker for.
+function viewDays() {
+  const out = [];
+  if (state.view === "week") {
+    for (let i = 0; i < CONFIG.daysShown; i++) out.push(addDays(state.anchor, i));
+    return out;
+  }
+  const first = startOfMonth(state.anchor);
+  const last = new Date(state.anchor.getFullYear(), state.anchor.getMonth() + 1, 0);
+  let cursor = startOfWeek(first);
+  const stop = addDays(startOfWeek(last), 7);
+  while (cursor < stop) {
+    for (let i = 0; i < CONFIG.daysShown; i++) out.push(addDays(cursor, i));
+    cursor = addDays(cursor, 7);
+  }
+  return out;
+}
 
 /* ---------- address ---------- */
 
+const STREET_SUFFIX = "(?:rd|road|dr|drive|st|street|ave|avenue|ln|lane|way|wy|ct|court|" +
+  "blvd|pkwy|parkway|cir|circle|trl|trail|hwy|highway|pl|place|ter|terrace|loop|run|" +
+  "path|walk|xing|crossing|sq|square|ext|extension)";
+
+/**
+ * Addresses arrive in whatever shape the customer typed or Pipedrive wrote:
+ *   "412 Kildaire Farm Rd, Cary, NC 27511"
+ *   "412 Kildaire Farm Rd, Cary, NC, USA"
+ *   "412 Kildaire Farm Rd Cary NC 27511"
+ * Look for a town we know first, since that works with or without commas,
+ * then fall back to the comma layout, then to whatever sits before the state.
+ */
 function splitAddress(raw) {
-  const text = String(raw || "").trim();
+  const text = String(raw || "").replace(/\s+/g, " ").trim();
   if (!text) return { city: "No address", street: "", zip: "" };
+
+  const zipHit = text.match(/\b(\d{5})(?:-\d{4})?\b/);
+  const zip = zipHit ? zipHit[1] : "";
+
   const parts = text.split(",").map(s => s.trim()).filter(Boolean);
-  const street = parts[0] || "";
-  const zipHit = parts.slice(1).join(" ").match(/\b(\d{5})(?:-\d{4})?\b/);
-  return {
-    city: parts[1] || (street ? "Address on deal" : "No address"),
-    street: street,
-    zip: zipHit ? zipHit[1] : ""
-  };
+  const street = parts[0] || text;
+
+  // 1. A town we serve, spelled any way, with or without commas around it.
+  //    Take the last match and skip anything that is really part of a street
+  //    name, so "1200 Raleigh Rd, Chapel Hill" is Chapel Hill, not Raleigh.
+  let town = "";
+  CONFIG.towns.forEach(t => {
+    const re = new RegExp("\\b" + t.replace(/[\s-]+/g, "[\\s-]+") + "\\b(?!\\s+" + STREET_SUFFIX + "\\b)", "gi");
+    let m;
+    while ((m = re.exec(text)) !== null) town = t;
+  });
+  if (town) return { city: town, street: street, zip: zip };
+
+  // 2. The comma segment sitting before the state or the zip.
+  if (parts.length >= 2) {
+    const city = parts.slice(1).find(p =>
+      p && !/^[A-Z]{2}$/i.test(p) && !/^\d/.test(p) && !/^(usa|united states)$/i.test(p)
+    );
+    if (city) return { city: city.replace(/\s+[A-Z]{2}$/, "").trim(), street: street, zip: zip };
+  }
+
+  // 3. The one or two words before a state abbreviation, minus any street
+  //    suffix that got swept up with them.
+  const beforeState = text.match(/([A-Za-z]+(?:\s+[A-Za-z]+)?)\s+[A-Z]{2}\b/);
+  if (beforeState) {
+    const city = beforeState[1].replace(new RegExp("^" + STREET_SUFFIX + "\\s+", "i"), "").trim();
+    if (city) return { city: city, street: street, zip: zip };
+  }
+
+  // 4. Nothing readable. Show the zip rather than a shrug.
+  return { city: zip || "Check address", street: street, zip: zip === street ? "" : zip };
 }
 
 /* ---------- data ---------- */
@@ -499,11 +503,10 @@ function splitAddress(raw) {
 function isTeamBlock(e) {
   if (e.blocksAll === true || e.allBlock === true) return true;
   const rep = String(e.rep || e.owner || e.assignedTo || "").toLowerCase().trim();
-  if (CONFIG.blockReps.some(r => rep === r)) return true;
+  if (["all", "team", "everyone", "company", "office"].includes(rep)) return true;
   const text = [e.type, e.title, e.subject, e.customer, e.notes].filter(Boolean).join(" ").toLowerCase();
   return CONFIG.blockKeywords.some(k => text.includes(k));
 }
-
 function isRepAway(e, block) {
   if (block) return false;
   if (e.blocksRep === true) return true;
@@ -544,8 +547,11 @@ function normalize(raw) {
 }
 
 async function load() {
+  clampAnchor();
+  const days = viewDays();
+
   if (CONFIG.mode === "demo") {
-    state.events = normalize(demoWeek(state.anchor));
+    state.events = normalize(demoWeek(days[0]));
     state.loadedAt = new Date();
     setNotice("Sample appointments. Set mode to \"live\" in the config block to pull the real calendar.");
     render();
@@ -555,15 +561,18 @@ async function load() {
   setStamp("Loading");
   try {
     const url = CONFIG.endpoint +
-      "?start=" + ymd(state.anchor) +
-      "&end=" + ymd(addDays(state.anchor, CONFIG.daysShown - 1)) +
+      "?start=" + ymd(days[0]) +
+      "&end=" + ymd(days[days.length - 1]) +
       (CONFIG.accessKey ? "&key=" + encodeURIComponent(CONFIG.accessKey) : "");
     const res = await fetch(url, { headers: { "Accept": "application/json" } });
     if (res.status === 401) throw new Error("the access key was rejected");
     if (!res.ok) throw new Error("the calendar returned " + res.status);
     const payload = await res.json();
     if (payload && payload.error) throw new Error(payload.error);
-    state.reps = (payload && Array.isArray(payload.reps)) ? payload.reps : [];
+
+    state.reps = Array.isArray(payload.reps) ? payload.reps : [];
+    state.upcoming = payload.upcoming || {};
+    state.tallyDays = payload.tallyDays || state.tallyDays;
     state.events = normalize(payload);
     state.loadedAt = new Date();
     setNotice(null);
@@ -574,7 +583,7 @@ async function load() {
   }
 }
 
-/* ---------- render ---------- */
+/* ---------- chrome ---------- */
 
 function setNotice(text, isError) {
   const el = document.getElementById("notice");
@@ -586,20 +595,24 @@ function setNotice(text, isError) {
 function setStamp(text) { document.getElementById("stamp").textContent = text; }
 
 function render() {
-  const days = [];
-  for (let i = 0; i < CONFIG.daysShown; i++) days.push(addDays(state.anchor, i));
-  const last = days[days.length - 1];
+  const days = viewDays();
+  const isMonth = state.view === "month";
 
-  document.getElementById("range").textContent =
-    state.anchor.toLocaleDateString(undefined, { month: "long", day: "numeric" }) + " to " +
-    last.toLocaleDateString(undefined, {
-      month: state.anchor.getMonth() === last.getMonth() ? undefined : "long",
-      day: "numeric"
-    });
+  document.getElementById("range").textContent = isMonth
+    ? state.anchor.toLocaleDateString(undefined, { month: "long", year: "numeric" })
+    : state.anchor.toLocaleDateString(undefined, { month: "long", day: "numeric" }) + " to " +
+      days[days.length - 1].toLocaleDateString(undefined, {
+        month: state.anchor.getMonth() === days[days.length - 1].getMonth() ? undefined : "long",
+        day: "numeric"
+      });
 
-  const dayStrs = days.map(ymd);
+  document.getElementById("today").textContent = isMonth ? "This month" : "This week";
+  document.getElementById("prev").disabled = state.anchor <= floorAnchor();
+  document.getElementById("viewWeek").setAttribute("aria-pressed", String(!isMonth));
+  document.getElementById("viewMonth").setAttribute("aria-pressed", String(isMonth));
+
   const weekReps = [];
-  dayStrs.forEach(ds => repsOn(ds).forEach(r => {
+  days.map(ymd).forEach(ds => repsOn(ds).forEach(r => {
     if (!weekReps.some(x => x.name === r.name)) weekReps.push(r);
   }));
 
@@ -612,31 +625,48 @@ function render() {
 
   renderLegend(weekReps);
 
+  document.getElementById("week").hidden = isMonth;
+  document.getElementById("month").hidden = !isMonth;
+  if (isMonth) renderMonth(days); else renderWeek(days);
+
+  setStamp(state.loadedAt ? "Updated " + clockTime(state.loadedAt) : "");
+}
+
+// Everything on one day, split into the three things that can appear.
+function dayParts(day) {
+  const onDay = state.events.filter(e => sameDay(e.start, day));
+  const blocks = onDay.filter(e => e.isBlock).sort((a, b) => a.start - b.start);
+  const aways = onDay.filter(e => e.isAway && !state.hidden.has(e.rep)).sort((a, b) => a.start - b.start);
+  const appts = onDay.filter(e => !e.isBlock && !e.isAway && !state.hidden.has(e.rep)).sort((a, b) => a.start - b.start);
+
+  const awayReps = {};
+  aways.forEach(a => {
+    if (a.allDay) awayReps[a.rep] = "out";
+    else if (!awayReps[a.rep]) awayReps[a.rep] = "part";
+  });
+
+  const perRep = {};
+  appts.forEach(e => { if (e.countsToCap) perRep[e.rep] = (perRep[e.rep] || 0) + 1; });
+
+  return { blocks, aways, appts, awayReps, perRep, closed: blocks.some(b => b.allDay) };
+}
+
+/* ---------- week view ---------- */
+
+function renderWeek(days) {
   const week = document.getElementById("week");
   week.innerHTML = "";
   const now = new Date();
   const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   days.forEach(day => {
-    const onDay = state.events.filter(e => sameDay(e.start, day));
-    const blocks = onDay.filter(e => e.isBlock).sort((a, b) => a.start - b.start);
-    const aways = onDay.filter(e => e.isAway && !state.hidden.has(e.rep)).sort((a, b) => a.start - b.start);
-    const appts = onDay
-      .filter(e => !e.isBlock && !e.isAway && !state.hidden.has(e.rep))
-      .sort((a, b) => a.start - b.start);
-    const closed = blocks.some(b => b.allDay);
-
-    const awayReps = {};
-    aways.forEach(a => {
-      if (a.allDay) awayReps[a.rep] = "out";
-      else if (!awayReps[a.rep]) awayReps[a.rep] = "part";
-    });
+    const p = dayParts(day);
 
     const col = document.createElement("div");
     col.className = "day";
     if (sameDay(day, now)) col.classList.add("today");
     else if (day < midnight) col.classList.add("past");
-    if (!appts.length && !blocks.length && !aways.length) col.classList.add("empty-day");
+    if (!p.appts.length && !p.blocks.length && !p.aways.length) col.classList.add("empty-day");
 
     const head = document.createElement("div");
     head.className = "day-head";
@@ -645,43 +675,39 @@ function render() {
       '<div class="daynum">' + day.getDate() + "</div>";
     col.appendChild(head);
 
-    const perRep = {};
-    appts.forEach(e => { if (e.countsToCap) perRep[e.rep] = (perRep[e.rep] || 0) + 1; });
-    col.appendChild(capRows(perRep, closed, awayReps, ymd(day)));
+    col.appendChild(capRows(p, ymd(day)));
 
     const body = document.createElement("div");
     body.className = "day-body";
-    blocks.forEach(b => body.appendChild(blockBand(b)));
-    aways.forEach(a => body.appendChild(awayBand(a)));
-    if (!appts.length && !closed) {
+    p.blocks.forEach(b => body.appendChild(blockBand(b)));
+    p.aways.forEach(a => body.appendChild(awayBand(a)));
+    if (!p.appts.length && !p.closed) {
       const none = document.createElement("div");
       none.className = "nothing";
       none.textContent = "Nothing booked";
       body.appendChild(none);
     }
-    appts.forEach(e => body.appendChild(card(e, perRep[e.rep])));
+    p.appts.forEach(e => body.appendChild(card(e, p.perRep[e.rep])));
 
     col.appendChild(body);
     week.appendChild(col);
   });
-
-  setStamp(state.loadedAt ? "Updated " + clockTime(state.loadedAt) : "");
 }
 
-function capRows(perRep, closed, awayReps, dateStr) {
+function capRows(p, dateStr) {
   const wrap = document.createElement("div");
   wrap.className = "caps";
 
   repsOn(dateStr).forEach(r => {
     if (state.hidden.has(r.name)) return;
     const cap = capFor(r.name);
-    const booked = perRep[r.name] || 0;
+    const booked = p.perRep[r.name] || 0;
+    const away = p.awayReps[r.name];
     const row = document.createElement("div");
     row.style.setProperty("--rep", repColor(r.name));
 
     let label;
-    const away = awayReps && awayReps[r.name];
-    if (closed) { row.className = "cap blocked"; label = firstName(r.name) + " blocked"; }
+    if (p.closed) { row.className = "cap blocked"; label = firstName(r.name) + " blocked"; }
     else if (away === "out") { row.className = "cap blocked"; label = firstName(r.name) + " out"; }
     else if (booked > cap) { row.className = "cap over"; label = firstName(r.name) + " " + booked + " of " + cap; }
     else if (booked >= cap) { row.className = "cap full"; label = firstName(r.name) + " full"; }
@@ -703,6 +729,16 @@ function capRows(perRep, closed, awayReps, dateStr) {
   return wrap;
 }
 
+function blockBand(b) {
+  const el = document.createElement("div");
+  el.className = "block";
+  const when = b.allDay ? "All day" : clockTime(b.start) + (b.end ? " to " + clockTime(b.end) : "");
+  el.innerHTML =
+    '<div class="label">' + esc(b.label) + "</div>" +
+    '<div class="when">' + esc(when) + ", whole team</div>";
+  return el;
+}
+
 function awayBand(a) {
   const el = document.createElement("div");
   el.className = "away";
@@ -711,16 +747,6 @@ function awayBand(a) {
   el.innerHTML =
     '<div class="label">' + esc(firstName(a.rep)) + " out</div>" +
     '<div class="when">' + esc(a.label) + ", " + esc(when.toLowerCase()) + "</div>";
-  return el;
-}
-
-function blockBand(b) {
-  const el = document.createElement("div");
-  el.className = "block";
-  const when = b.allDay ? "All day" : clockTime(b.start) + (b.end ? " to " + clockTime(b.end) : "");
-  el.innerHTML =
-    '<div class="label">' + esc(b.label) + "</div>" +
-    '<div class="when">' + esc(when) + ", whole team</div>";
   return el;
 }
 
@@ -764,9 +790,108 @@ function card(e, repDayCount) {
   return el;
 }
 
+/* ---------- month view ---------- */
+
+function renderMonth(days) {
+  const wrap = document.getElementById("month");
+  wrap.innerHTML = "";
+  const now = new Date();
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const thisMonth = state.anchor.getMonth();
+
+  const head = document.createElement("div");
+  head.className = "month-head";
+  days.slice(0, CONFIG.daysShown).forEach(d => {
+    const c = document.createElement("div");
+    c.textContent = d.toLocaleDateString(undefined, { weekday: "long" });
+    head.appendChild(c);
+  });
+  wrap.appendChild(head);
+
+  for (let i = 0; i < days.length; i += CONFIG.daysShown) {
+    const row = document.createElement("div");
+    row.className = "month-row";
+
+    days.slice(i, i + CONFIG.daysShown).forEach(day => {
+      const p = dayParts(day);
+      const cell = document.createElement("div");
+      cell.className = "mday";
+      if (day.getMonth() !== thisMonth) cell.classList.add("other");
+      else if (sameDay(day, now)) cell.classList.add("today");
+      else if (day < midnight) cell.classList.add("past");
+
+      const over = Object.keys(p.perRep).filter(name => p.perRep[name] > capFor(name));
+      const free = repsOn(ymd(day)).filter(r =>
+        !state.hidden.has(r.name) && !p.closed && !p.awayReps[r.name] &&
+        (p.perRep[r.name] || 0) < capFor(r.name)
+      );
+
+      const hd = document.createElement("div");
+      hd.className = "mhead";
+      hd.innerHTML = '<span class="mnum">' + day.getDate() + "</span>" +
+        (over.length
+          ? '<span class="mover">over cap</span>'
+          : free.length
+            ? '<span class="mfree">' + esc(free.map(r => firstName(r.name)).join(", ")) + " open</span>"
+            : "");
+      cell.appendChild(hd);
+
+      p.blocks.forEach(b => {
+        const el = document.createElement("div");
+        el.className = "mblock";
+        el.textContent = b.label;
+        el.title = b.label + ", whole team";
+        cell.appendChild(el);
+      });
+
+      p.aways.forEach(a => {
+        const el = document.createElement("div");
+        el.className = "maway";
+        el.style.setProperty("--rep", repColor(a.rep));
+        el.textContent = firstName(a.rep) + " out";
+        el.title = a.label;
+        cell.appendChild(el);
+      });
+
+      p.appts.forEach(e => cell.appendChild(monthRow(e)));
+      row.appendChild(cell);
+    });
+
+    wrap.appendChild(row);
+  }
+}
+
+function monthRow(e) {
+  const el = document.createElement("button");
+  el.type = "button";
+  el.className = "mrow";
+  el.style.setProperty("--rep", repColor(e.rep));
+  el.style.setProperty("--tint", repTint(e.rep));
+  el.innerHTML =
+    '<span class="mtime">' + esc(shortTime(e.start)) + "</span>" +
+    '<span class="mpill">' + esc(e.city) + "</span>" +
+    '<span class="mrep">' + esc(firstName(e.rep)) + "</span>";
+  el.title = [clockTime(e.start), e.customer, e.fullAddress, e.phone].filter(Boolean).join("  ");
+
+  // Jump to that week, where the full detail lives.
+  el.addEventListener("click", () => {
+    state.view = "week";
+    state.anchor = startOfWeek(e.start);
+    state.openId = e.id;
+    load();
+  });
+
+  return el;
+}
+
+/* ---------- legend ---------- */
+
 function renderLegend(weekReps) {
   const names = new Set((weekReps || roster()).map(r => r.name));
-  state.events.filter(e => !e.isBlock).forEach(e => names.add(e.rep));
+  // Anyone with work still to come belongs here regardless of which week is
+  // on screen, since the totals are the point.
+  Object.keys(state.upcoming).forEach(n => { if (state.upcoming[n] > 0) names.add(n); });
+  state.events.filter(e => !e.isBlock && !e.isAway).forEach(e => names.add(e.rep));
 
   const box = document.getElementById("legend");
   box.innerHTML = "";
@@ -776,8 +901,14 @@ function renderLegend(weekReps) {
     b.className = "rep-toggle";
     b.style.setProperty("--rep", repColor(name));
     b.setAttribute("aria-pressed", state.hidden.has(name) ? "false" : "true");
-    b.innerHTML = '<span class="swatch"></span>' + esc(firstName(name));
-    b.title = name;
+
+    const tally = state.upcoming[name];
+    b.innerHTML = '<span class="swatch"></span>' + esc(firstName(name)) +
+      (tally === undefined ? "" : ' <span class="tally">' + tally + "</span>");
+    b.title = tally === undefined
+      ? name
+      : name + ": " + tally + " measures booked over the next " + state.tallyDays + " days";
+
     b.addEventListener("click", () => {
       state.hidden.has(name) ? state.hidden.delete(name) : state.hidden.add(name);
       render();
@@ -792,31 +923,50 @@ function esc(s) {
 
 /* ---------- controls ---------- */
 
-document.getElementById("prev").addEventListener("click", () => {
-  state.anchor = addDays(state.anchor, -7); state.openId = null; load();
-});
-document.getElementById("next").addEventListener("click", () => {
-  state.anchor = addDays(state.anchor, 7); state.openId = null; load();
-});
+function step(n) {
+  state.anchor = state.view === "month"
+    ? addMonths(state.anchor, n)
+    : addDays(state.anchor, n * 7);
+  state.openId = null;
+  load();
+}
+
+document.getElementById("prev").addEventListener("click", () => step(-1));
+document.getElementById("next").addEventListener("click", () => step(1));
 document.getElementById("today").addEventListener("click", () => {
-  state.anchor = startOfWeek(new Date()); state.openId = null; load();
+  state.anchor = floorAnchor(); state.openId = null; load();
 });
 document.getElementById("refresh").addEventListener("click", load);
 
+function setView(view) {
+  if (state.view === view) return;
+  const keep = state.anchor;
+  state.view = view;
+  state.anchor = view === "month" ? startOfMonth(keep) : startOfWeek(keep);
+  state.openId = null;
+  load();
+}
+document.getElementById("viewWeek").addEventListener("click", () => setView("week"));
+document.getElementById("viewMonth").addEventListener("click", () => setView("month"));
+
 document.addEventListener("keydown", ev => {
-  if (ev.key === "ArrowLeft") document.getElementById("prev").click();
-  if (ev.key === "ArrowRight") document.getElementById("next").click();
+  if (ev.key === "ArrowLeft") { if (!document.getElementById("prev").disabled) step(-1); }
+  if (ev.key === "ArrowRight") step(1);
   if (ev.key === "t") document.getElementById("today").click();
   if (ev.key === "r") load();
+  if (ev.key === "m") setView(state.view === "month" ? "week" : "month");
 });
 
+// Refresh on a timer, and roll the view forward when the date changes, so a
+// tab left open over the weekend does not sit on a week that has passed.
 setInterval(() => { if (!document.hidden) load(); }, CONFIG.refreshSeconds * 1000);
 
 /* ---------- sample data ---------- */
 
 function demoWeek(anchor) {
+  const base = startOfWeek(new Date());
   const at = (dayOffset, hour, min) => {
-    const d = addDays(anchor, dayOffset);
+    const d = addDays(base, dayOffset);
     d.setHours(hour, min || 0, 0, 0);
     return d.toISOString();
   };
@@ -827,7 +977,6 @@ function demoWeek(anchor) {
     [0, 13, 0, "Michael King",  "77 Sunset Lake Rd, Holly Springs, NC 27540", "Ferrante", "(984) 555-0188"],
     [1, 9, 30, "Tyler Wallace", "108 Hunter St, Apex, NC 27502", "Delacroix", "(919) 555-0107"],
     [1, 12, 0, "Michael King",  "615 Oberlin Rd, Raleigh, NC 27605", "Sandoval", "(919) 555-0164"],
-    [1, 15, 30,"Michael King",  "204 Bickett Blvd, Raleigh, NC 27608", "Kwan", "(919) 555-0150"],
     [2, 13, 0, "Tyler Wallace", "5 Davis Dr, Morrisville, NC 27560", "Patel", "(919) 555-0136"],
     [3, 10, 0, "Michael King",  "2019 Fayetteville St, Durham, NC 27707", "Brennan", "(919) 555-0121"],
     [3, 14, 0, "Tyler Wallace", "801 Gilbert St, Durham, NC 27701", "Halvorsen", "(919) 555-0166"],
@@ -837,14 +986,8 @@ function demoWeek(anchor) {
   const appts = rows.map((r, i) => {
     const s = at(r[0], r[1], r[2]);
     return {
-      id: "demo-" + i,
-      rep: r[3],
-      start: s,
-      end: plus2(s),
-      address: r[4],
-      customer: r[5],
-      phone: r[6],
-      type: "Measure",
+      id: "demo-" + i, rep: r[3], start: s, end: plus2(s),
+      address: r[4], customer: r[5], phone: r[6], type: "Measure",
       notes: i === 4 ? "Rear yard access through side gate" : ""
     };
   });
