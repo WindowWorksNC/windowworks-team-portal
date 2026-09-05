@@ -394,8 +394,15 @@ function addMonths(d, n) { return new Date(d.getFullYear(), d.getMonth() + n, 1)
 
 // This period is as far back as the page goes. Nobody booking needs to look
 // at work that has already happened, and it keeps the view forward looking.
+// Once the working week is over, meaning it is the weekend, the floor moves
+// to the week ahead rather than sitting on five days that have all passed.
 function floorAnchor() {
-  return state.view === "month" ? startOfMonth(new Date()) : startOfWeek(new Date());
+  if (state.view === "month") return startOfMonth(new Date());
+
+  const now = new Date();
+  const week = startOfWeek(now);
+  const dow = (now.getDay() - CONFIG.weekStartsOn + 7) % 7;
+  return dow >= CONFIG.daysShown ? addDays(week, 7) : week;
 }
 function clampAnchor() {
   const floor = floorAnchor();
