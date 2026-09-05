@@ -80,6 +80,10 @@
 
   /* ---------------- week view ---------------- */
 
+  /* A class with display beats the browser default for [hidden], so the two
+     views need this or they stack on top of each other. */
+  .week[hidden], .month[hidden] { display: none; }
+
   .week { flex: 1; display: flex; overflow: auto; }
 
   .day {
@@ -182,8 +186,8 @@
     gap: 8px;
   }
   .month-head {
-    position: sticky; top: 0; background: var(--page);
-    padding: 10px 0 8px; border-bottom: 1px solid var(--rule); z-index: 5;
+    padding: 10px 0 8px;
+    border-bottom: 1px solid var(--rule);
   }
   .month-head div { font-size: 12.5px; color: var(--soft); padding-left: 2px; }
 
