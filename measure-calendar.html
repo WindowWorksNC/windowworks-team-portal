@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Measure calendar</title>
+<style>
+  :root {
+    --ink: #191817;
+    --soft: #6a6660;
+    --faint: #9b968e;
+    --rule: #e6e2db;
+    --hair: #f0ede7;
+    --page: #ffffff;
+    --brand: #d86018;
+    --alarm: #a01029;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { height: 100%; }
+
+  body {
+    margin: 0;
+    height: 100%;
+    background: var(--page);
+    color: var(--ink);
+    font-family: "Segoe UI", system-ui, Arial, sans-serif;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---------------- header ---------------- */
+
+  header {
+    flex: none;
+    padding: 16px 22px 13px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .top {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--soft);
+    letter-spacing: 0.01em;
+  }
+
+  .range {
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .nav {
+    margin-left: auto;
+    display: flex;
+    gap: 2px;
+  }
+
+  button {
+    font: inherit;
+    font-size: 13.5px;
+    color: var(--soft);
+    background: none;
+    border: 0;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  button:hover { background: var(--hair); color: var(--ink); }
+  button:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .nav .now { color: var(--ink); font-weight: 600; }
+
+  .sub {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 11px;
+    font-size: 13px;
+    color: var(--faint);
+  }
+
+  .legend { display: flex; gap: 14px; }
+
+  .rep-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0;
+    font-size: 13.5px;
+    color: var(--ink);
+    background: none;
+  }
+  .rep-toggle:hover { background: none; text-decoration: underline; }
+  .rep-toggle .swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    background: var(--rep);
+    flex: none;
+  }
+  .rep-toggle[aria-pressed="false"] { color: var(--faint); }
+  .rep-toggle[aria-pressed="false"] .swatch { background: none; box-shadow: inset 0 0 0 1.5px var(--faint); }
+
+  .cap-note { color: var(--faint); }
+  .stamp { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+
+  /* ---------------- week ---------------- */
+
+  .week {
+    flex: 1;
+    display: flex;
+    overflow: auto;
+  }
+
+  .day {
+    flex: 1 1 0;
+    min-width: 196px;
+    border-right: 1px solid var(--hair);
+    display: flex;
+    flex-direction: column;
+  }
+  .day:last-child { border-right: 0; }
+  .day.past { background: #fcfbfa; }
+  .day.past .day-head, .day.past .day-body { opacity: 0.55; }
+
+  .day-head {
+    flex: none;
+    padding: 13px 14px 10px;
+  }
+  .weekday {
+    font-size: 12.5px;
+    color: var(--soft);
+    letter-spacing: 0.02em;
+  }
+  .daynum {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+  .day.today .daynum { color: var(--brand); }
+  .day.today .weekday { color: var(--brand); font-weight: 600; }
+
+  .caps {
+    flex: none;
+    padding: 0 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .cap {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    color: var(--soft);
+  }
+  .cap .mark {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    flex: none;
+    box-shadow: inset 0 0 0 1.5px var(--rep);
+  }
+  .cap.full .mark { background: var(--rep); }
+  .cap.full { color: var(--ink); }
+  .cap.part .mark {
+    background: linear-gradient(to right, var(--rep) 50%, transparent 50%);
+  }
+  .cap.over { color: var(--alarm); font-weight: 600; }
+  .cap.over .mark { background: var(--alarm); box-shadow: inset 0 0 0 1.5px var(--alarm); }
+  .cap.blocked { color: var(--faint); }
+  .cap.none { color: var(--faint); }
+  .cap.blocked .mark { background: none; box-shadow: inset 0 0 0 1.5px var(--faint); opacity: 0.6; }
+
+  .day-body {
+    flex: 1;
+    padding: 0 12px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .nothing {
+    font-size: 13px;
+    color: var(--faint);
+    padding: 4px 2px;
+  }
+
+  /* ---------------- appointment ---------------- */
+
+  .appt {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 9px 12px 11px;
+    border: 0;
+    border-left: 3px solid var(--rep);
+    border-radius: 0 5px 5px 0;
+    background: var(--tint);
+    cursor: pointer;
+    color: var(--ink);
+    font-size: 15px;
+  }
+  .appt:hover { border-left-width: 6px; padding-left: 9px; }
+  .appt:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+
+  .meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12.5px;
+  }
+  .meta .time { font-weight: 600; }
+  .meta .kind { font-weight: 400; color: var(--soft); }
+  .meta .rep { color: var(--rep); font-weight: 600; }
+
+  .pill {
+    display: inline-block;
+    margin: 7px 0 6px;
+    padding: 2px 11px 3px;
+    background: var(--page);
+    border: 1px solid var(--ink);
+    border-radius: 100px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .pill .zip {
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--soft);
+    margin-left: 1px;
+  }
+
+  .street { font-size: 13px; color: var(--soft); line-height: 1.4; }
+  .who { font-size: 13px; margin-top: 2px; }
+
+  .flag {
+    display: inline-block;
+    margin-top: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--alarm);
+  }
+  .flag .mark {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    background: var(--alarm);
+    margin-right: 5px;
+  }
+
+  .detail {
+    display: none;
+    margin-top: 9px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(25,24,23,0.14);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--soft);
+  }
+  .appt.open .detail { display: block; }
+  .detail .row { display: block; }
+  .detail .k { color: var(--faint); margin-right: 3px; }
+  .detail a { color: var(--ink); }
+
+  /* ---------------- team block ---------------- */
+
+  .block {
+    padding: 9px 12px 10px;
+    border-radius: 5px;
+    background: var(--ink);
+    color: #fff;
+  }
+  .block .label { font-size: 14px; font-weight: 600; line-height: 1.3; }
+  .block .when { font-size: 12.5px; color: rgba(255,255,255,0.68); margin-top: 2px; }
+
+  .away {
+    padding: 8px 12px 9px;
+    border-left: 3px solid var(--rep);
+    border-radius: 0 5px 5px 0;
+    background: #f3f1ee;
+    color: var(--soft);
+  }
+  .away .label { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+  .away .when { font-size: 12.5px; margin-top: 1px; }
+
+  /* ---------------- messages ---------------- */
+
+  .notice {
+    flex: none;
+    padding: 9px 22px;
+    font-size: 13px;
+    color: var(--soft);
+    background: #fbf9f6;
+    border-bottom: 1px solid var(--rule);
+  }
+  .notice.error { background: #fdf0ee; color: #8c2513; }
+
+  @media (max-width: 820px) {
+    .week { display: block; }
+    .day { min-width: 0; border-right: 0; border-bottom: 1px solid var(--hair); }
+    .day-head, .caps { display: flex; }
+    .day-head { align-items: baseline; gap: 9px; padding-bottom: 4px; }
+    .caps { flex-direction: row; gap: 16px; }
+    .day.empty-day { display: none; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .appt { transition: border-left-width 80ms linear, padding-left 80ms linear; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <h1>Measures</h1>
+    <div class="range" id="range">Loading</div>
+    <div class="nav">
+      <button id="prev" title="Previous week">Back</button>
+      <button id="today" class="now">This week</button>
+      <button id="next" title="Next week">Forward</button>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="legend" id="legend"></div>
+    <span class="cap-note" id="capNote"></span>
+    <span class="stamp"><span id="stamp"></span><button id="refresh">Refresh</button></span>
+  </div>
+</header>
+
+<div class="notice" id="notice" hidden></div>
+<div class="week" id="week"></div>
+
+<script>
+/* ============================================================
+   CONFIG. This is the only block you should need to touch.
+   ============================================================ */
+
+const CONFIG = {
+
+  // "live" reads the Worker. "demo" renders sample appointments.
+  mode: "live",
+
+  // Read endpoint, called as:
+  //   GET <endpoint>?start=2026-09-07&end=2026-09-11&key=...
+  // returning JSON: an array of objects, or { events: [...] }.
+  //
+  //   rep       "Tyler Wallace"                required
+  //   start     "2026-09-08T10:00:00-04:00"    required, ISO 8601
+  //   end       "2026-09-08T12:00:00-04:00"    optional
+  //   address   "412 Kildaire Farm Rd, Cary, NC 27511"   for the pill
+  //   customer  "Whitaker"                     optional
+  //   phone     "(919) 555-0142"               optional
+  //   type      "Measure"                      optional
+  //   notes     "gate code 4412"               optional
+  //   blocksAll true                           whole team block
+  //   blocksRep true                           one rep out that day
+  endpoint: "https://ww-calendar-proxy.misty-moon-cbc9.workers.dev/schedule",
+
+  // Must match the SCHEDULE_KEY secret on the Worker.
+  accessKey: "ww-measure-view-8Kq3nRxT2vLp9mZw",
+
+  // Colors only. The roster, the daily caps and each rep's start and end
+  // dates come from the Worker, which reads them off REPS in
+  // ww-calendar-proxy.js. Raise a cap there and this page follows.
+  // A rep with no color here gets one from the fallback palette.
+  reps: [
+    { name: "Tyler Wallace",  color: "#1c5fa8", tint: "#eef4fb" },
+    { name: "Michael King",   color: "#c1500d", tint: "#fdf1e8" },
+    { name: "Colin Glenn",    color: "#1f7a3a", tint: "#eef6ef" }
+  ],
+
+  // Used only in demo mode, or if the Worker sends no roster.
+  dailyCap: 1,
+
+  // A team block holds everyone. Detected when the feed sends blocksAll: true,
+  // or the rep field matches blockReps, or the title matches blockKeywords.
+  blockReps: ["all", "team", "everyone", "company", "office", "all block"],
+  blockKeywords: ["all block", "team meeting", "sales meeting", "training",
+                  "office closed", "holiday", "company"],
+
+  // One rep out for the day rather than the whole team.
+  awayKeywords: ["pto", "vacation", "out of office", "ooo", "sick", "away", "personal day"],
+
+  // A block this long or longer takes out the whole day.
+  fullDayBlockHours: 5,
+
+  refreshSeconds: 120,
+  weekStartsOn: 1,   // Monday
+  daysShown: 5       // Monday through Friday
+};
+
+/* ============================================================
+   Page
+   ============================================================ */
+
+const FALLBACK = [
+  { color: "#6d3a95", tint: "#f4eefa" },
+  { color: "#0f7076", tint: "#ecf5f6" },
+  { color: "#8a6a12", tint: "#f9f4e6" },
+  { color: "#95356b", tint: "#faeef4" }
+];
+const auto = new Map();
+
+function repEntry(name) {
+  const known = CONFIG.reps.find(r => r.name.toLowerCase() === String(name).toLowerCase());
+  if (known) return known;
+  if (!auto.has(name)) auto.set(name, FALLBACK[auto.size % FALLBACK.length]);
+  return auto.get(name);
+}
+function repColor(name) { return repEntry(name).color; }
+function repTint(name) { return repEntry(name).tint; }
+function firstName(name) { return String(name).trim().split(/\s+/)[0] || name; }
+
+// The Worker's roster wins when it sent one.
+function roster() {
+  return state.reps.length ? state.reps : CONFIG.reps.map(r => ({ name: r.name }));
+}
+function capFor(name) {
+  const r = state.reps.find(x => x.name === name);
+  return (r && r.dailyCap) || CONFIG.dailyCap;
+}
+
+// Reps who take appointments on a given day, so someone who has finished or
+// has not started yet does not show as open.
+function repsOn(dateStr) {
+  return roster().filter(r => {
+    if (r.activeFrom && dateStr < r.activeFrom) return false;
+    if (r.activeUntil && dateStr > r.activeUntil) return false;
+    return true;
+  });
+}
+
+const state = {
+  anchor: startOfWeek(new Date()),
+  events: [],
+  reps: [],
+  hidden: new Set(),
+  openId: null,
+  loadedAt: null
+};
+
+/* ---------- dates ---------- */
+
+function startOfWeek(d) {
+  const out = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  out.setDate(out.getDate() - ((out.getDay() - CONFIG.weekStartsOn + 7) % 7));
+  return out;
+}
+function addDays(d, n) { const o = new Date(d); o.setDate(o.getDate() + n); return o; }
+function ymd(d) {
+  return d.getFullYear() + "-" +
+    String(d.getMonth() + 1).padStart(2, "0") + "-" +
+    String(d.getDate()).padStart(2, "0");
+}
+function sameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+function clockTime(d) {
+  let h = d.getHours();
+  const m = d.getMinutes();
+  const ap = h >= 12 ? "pm" : "am";
+  h = h % 12 || 12;
+  return m ? h + ":" + String(m).padStart(2, "0") + ap : h + ap;
+}
+
+/* ---------- address ---------- */
+
+function splitAddress(raw) {
+  const text = String(raw || "").trim();
+  if (!text) return { city: "No address", street: "", zip: "" };
+  const parts = text.split(",").map(s => s.trim()).filter(Boolean);
+  const street = parts[0] || "";
+  const zipHit = parts.slice(1).join(" ").match(/\b(\d{5})(?:-\d{4})?\b/);
+  return {
+    city: parts[1] || (street ? "Address on deal" : "No address"),
+    street: street,
+    zip: zipHit ? zipHit[1] : ""
+  };
+}
+
+/* ---------- data ---------- */
+
+function isTeamBlock(e) {
+  if (e.blocksAll === true || e.allBlock === true) return true;
+  const rep = String(e.rep || e.owner || e.assignedTo || "").toLowerCase().trim();
+  if (CONFIG.blockReps.some(r => rep === r)) return true;
+  const text = [e.type, e.title, e.subject, e.customer, e.notes].filter(Boolean).join(" ").toLowerCase();
+  return CONFIG.blockKeywords.some(k => text.includes(k));
+}
+
+function isRepAway(e, block) {
+  if (block) return false;
+  if (e.blocksRep === true) return true;
+  const text = [e.type, e.title, e.subject, e.customer].filter(Boolean).join(" ").toLowerCase();
+  return CONFIG.awayKeywords.some(k => text.includes(k));
+}
+
+function normalize(raw) {
+  const list = Array.isArray(raw) ? raw : (raw && raw.events) || [];
+  return list.map((e, i) => {
+    const start = new Date(e.start || e.startTime || e.datetime);
+    const rawEnd = e.end || e.endTime ? new Date(e.end || e.endTime) : null;
+    const end = rawEnd && !isNaN(rawEnd) ? rawEnd : null;
+    const addr = splitAddress(e.address || e.location);
+    const block = isTeamBlock(e);
+    const away = isRepAway(e, block);
+    const hours = end ? (end - start) / 3600000 : 0;
+    return {
+      id: String(e.id || (e.rep || "") + "-" + (e.start || i)),
+      rep: e.rep || e.owner || e.assignedTo || "Unassigned",
+      start: start,
+      end: end,
+      isBlock: block,
+      isAway: away,
+      countsToCap: !/showroom/i.test(e.type || ""),
+      allDay: e.allDay === true || (block && hours >= CONFIG.fullDayBlockHours),
+      label: e.title || e.subject || e.type || (away ? "Out" : "Team block"),
+      customer: e.customer || e.name || e.title || "",
+      phone: e.phone || "",
+      type: e.type || "Measure",
+      notes: e.notes || "",
+      fullAddress: e.address || e.location || "",
+      city: addr.city,
+      street: addr.street,
+      zip: addr.zip
+    };
+  }).filter(e => e.start && !isNaN(e.start));
+}
+
+async function load() {
+  if (CONFIG.mode === "demo") {
+    state.events = normalize(demoWeek(state.anchor));
+    state.loadedAt = new Date();
+    setNotice("Sample appointments. Set mode to \"live\" in the config block to pull the real calendar.");
+    render();
+    return;
+  }
+
+  setStamp("Loading");
+  try {
+    const url = CONFIG.endpoint +
+      "?start=" + ymd(state.anchor) +
+      "&end=" + ymd(addDays(state.anchor, CONFIG.daysShown - 1)) +
+      (CONFIG.accessKey ? "&key=" + encodeURIComponent(CONFIG.accessKey) : "");
+    const res = await fetch(url, { headers: { "Accept": "application/json" } });
+    if (res.status === 401) throw new Error("the access key was rejected");
+    if (!res.ok) throw new Error("the calendar returned " + res.status);
+    const payload = await res.json();
+    if (payload && payload.error) throw new Error(payload.error);
+    state.reps = (payload && Array.isArray(payload.reps)) ? payload.reps : [];
+    state.events = normalize(payload);
+    state.loadedAt = new Date();
+    setNotice(null);
+    render();
+  } catch (err) {
+    setNotice("Could not load the calendar: " + err.message + ". The last good view is still on screen. Try Refresh.", true);
+    setStamp("Not updated");
+  }
+}
+
+/* ---------- render ---------- */
+
+function setNotice(text, isError) {
+  const el = document.getElementById("notice");
+  if (!text) { el.hidden = true; return; }
+  el.hidden = false;
+  el.textContent = text;
+  el.className = isError ? "notice error" : "notice";
+}
+function setStamp(text) { document.getElementById("stamp").textContent = text; }
+
+function render() {
+  const days = [];
+  for (let i = 0; i < CONFIG.daysShown; i++) days.push(addDays(state.anchor, i));
+  const last = days[days.length - 1];
+
+  document.getElementById("range").textContent =
+    state.anchor.toLocaleDateString(undefined, { month: "long", day: "numeric" }) + " to " +
+    last.toLocaleDateString(undefined, {
+      month: state.anchor.getMonth() === last.getMonth() ? undefined : "long",
+      day: "numeric"
+    });
+
+  const dayStrs = days.map(ymd);
+  const weekReps = [];
+  dayStrs.forEach(ds => repsOn(ds).forEach(r => {
+    if (!weekReps.some(x => x.name === r.name)) weekReps.push(r);
+  }));
+
+  const caps = [...new Set(weekReps.map(r => capFor(r.name)))];
+  document.getElementById("capNote").textContent = !weekReps.length
+    ? ""
+    : caps.length === 1
+      ? (caps[0] === 1 ? "One measure per rep per day" : caps[0] + " measures per rep per day")
+      : weekReps.map(r => firstName(r.name) + " " + capFor(r.name)).join(", ") + " per day";
+
+  renderLegend(weekReps);
+
+  const week = document.getElementById("week");
+  week.innerHTML = "";
+  const now = new Date();
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  days.forEach(day => {
+    const onDay = state.events.filter(e => sameDay(e.start, day));
+    const blocks = onDay.filter(e => e.isBlock).sort((a, b) => a.start - b.start);
+    const aways = onDay.filter(e => e.isAway && !state.hidden.has(e.rep)).sort((a, b) => a.start - b.start);
+    const appts = onDay
+      .filter(e => !e.isBlock && !e.isAway && !state.hidden.has(e.rep))
+      .sort((a, b) => a.start - b.start);
+    const closed = blocks.some(b => b.allDay);
+
+    const awayReps = {};
+    aways.forEach(a => {
+      if (a.allDay) awayReps[a.rep] = "out";
+      else if (!awayReps[a.rep]) awayReps[a.rep] = "part";
+    });
+
+    const col = document.createElement("div");
+    col.className = "day";
+    if (sameDay(day, now)) col.classList.add("today");
+    else if (day < midnight) col.classList.add("past");
+    if (!appts.length && !blocks.length && !aways.length) col.classList.add("empty-day");
+
+    const head = document.createElement("div");
+    head.className = "day-head";
+    head.innerHTML =
+      '<div class="weekday">' + day.toLocaleDateString(undefined, { weekday: "long" }) + "</div>" +
+      '<div class="daynum">' + day.getDate() + "</div>";
+    col.appendChild(head);
+
+    const perRep = {};
+    appts.forEach(e => { if (e.countsToCap) perRep[e.rep] = (perRep[e.rep] || 0) + 1; });
+    col.appendChild(capRows(perRep, closed, awayReps, ymd(day)));
+
+    const body = document.createElement("div");
+    body.className = "day-body";
+    blocks.forEach(b => body.appendChild(blockBand(b)));
+    aways.forEach(a => body.appendChild(awayBand(a)));
+    if (!appts.length && !closed) {
+      const none = document.createElement("div");
+      none.className = "nothing";
+      none.textContent = "Nothing booked";
+      body.appendChild(none);
+    }
+    appts.forEach(e => body.appendChild(card(e, perRep[e.rep])));
+
+    col.appendChild(body);
+    week.appendChild(col);
+  });
+
+  setStamp(state.loadedAt ? "Updated " + clockTime(state.loadedAt) : "");
+}
+
+function capRows(perRep, closed, awayReps, dateStr) {
+  const wrap = document.createElement("div");
+  wrap.className = "caps";
+
+  repsOn(dateStr).forEach(r => {
+    if (state.hidden.has(r.name)) return;
+    const cap = capFor(r.name);
+    const booked = perRep[r.name] || 0;
+    const row = document.createElement("div");
+    row.style.setProperty("--rep", repColor(r.name));
+
+    let label;
+    const away = awayReps && awayReps[r.name];
+    if (closed) { row.className = "cap blocked"; label = firstName(r.name) + " blocked"; }
+    else if (away === "out") { row.className = "cap blocked"; label = firstName(r.name) + " out"; }
+    else if (booked > cap) { row.className = "cap over"; label = firstName(r.name) + " " + booked + " of " + cap; }
+    else if (booked >= cap) { row.className = "cap full"; label = firstName(r.name) + " full"; }
+    else if (away === "part") { row.className = "cap part"; label = firstName(r.name) + " part day"; }
+    else { row.className = "cap free"; label = firstName(r.name) + " open"; }
+
+    row.innerHTML = '<span class="mark"></span>' + esc(label);
+    row.title = firstName(r.name) + ": " + booked + " booked, cap " + cap + " per day";
+    wrap.appendChild(row);
+  });
+
+  if (!wrap.children.length) {
+    const none = document.createElement("div");
+    none.className = "cap none";
+    none.textContent = "No reps scheduled";
+    wrap.appendChild(none);
+  }
+
+  return wrap;
+}
+
+function awayBand(a) {
+  const el = document.createElement("div");
+  el.className = "away";
+  el.style.setProperty("--rep", repColor(a.rep));
+  const when = a.allDay ? "All day" : clockTime(a.start) + (a.end ? " to " + clockTime(a.end) : "");
+  el.innerHTML =
+    '<div class="label">' + esc(firstName(a.rep)) + " out</div>" +
+    '<div class="when">' + esc(a.label) + ", " + esc(when.toLowerCase()) + "</div>";
+  return el;
+}
+
+function blockBand(b) {
+  const el = document.createElement("div");
+  el.className = "block";
+  const when = b.allDay ? "All day" : clockTime(b.start) + (b.end ? " to " + clockTime(b.end) : "");
+  el.innerHTML =
+    '<div class="label">' + esc(b.label) + "</div>" +
+    '<div class="when">' + esc(when) + ", whole team</div>";
+  return el;
+}
+
+function card(e, repDayCount) {
+  const el = document.createElement("button");
+  el.type = "button";
+  el.className = "appt" + (state.openId === e.id ? " open" : "");
+  el.style.setProperty("--rep", repColor(e.rep));
+  el.style.setProperty("--tint", repTint(e.rep));
+
+  const time = clockTime(e.start) + (e.end ? " to " + clockTime(e.end) : "");
+  const maps = e.fullAddress
+    ? '<a href="https://www.google.com/maps/search/?api=1&query=' +
+      encodeURIComponent(e.fullAddress) + '" target="_blank" rel="noopener">Open in Maps</a>'
+    : "";
+
+  el.innerHTML =
+    '<div class="meta"><span class="time">' + esc(time) +
+      (e.countsToCap ? "" : ' <span class="kind">' + esc(e.type) + "</span>") + "</span>" +
+      '<span class="rep">' + esc(firstName(e.rep)) + "</span></div>" +
+    '<span class="pill">' + esc(e.city) +
+      (e.zip ? ' <span class="zip">' + esc(e.zip) + "</span>" : "") + "</span>" +
+    (e.street ? '<div class="street">' + esc(e.street) + "</div>" : "") +
+    (e.customer ? '<div class="who">' + esc(e.customer) + "</div>" : "") +
+    (e.countsToCap && repDayCount > capFor(e.rep)
+      ? '<span class="flag"><span class="mark"></span>Over cap, ' + repDayCount + " this day</span>" : "") +
+    '<div class="detail">' +
+      (e.phone ? '<span class="row"><span class="k">Phone</span>' + esc(e.phone) + "</span>" : "") +
+      (e.type ? '<span class="row"><span class="k">Type</span>' + esc(e.type) + "</span>" : "") +
+      (e.fullAddress ? '<span class="row"><span class="k">Address</span>' + esc(e.fullAddress) + "</span>" : "") +
+      (e.notes ? '<span class="row"><span class="k">Notes</span>' + esc(e.notes) + "</span>" : "") +
+      (maps ? '<span class="row">' + maps + "</span>" : "") +
+    "</div>";
+
+  el.addEventListener("click", ev => {
+    if (ev.target.tagName === "A") return;
+    state.openId = state.openId === e.id ? null : e.id;
+    render();
+  });
+
+  return el;
+}
+
+function renderLegend(weekReps) {
+  const names = new Set((weekReps || roster()).map(r => r.name));
+  state.events.filter(e => !e.isBlock).forEach(e => names.add(e.rep));
+
+  const box = document.getElementById("legend");
+  box.innerHTML = "";
+
+  [...names].forEach(name => {
+    const b = document.createElement("button");
+    b.className = "rep-toggle";
+    b.style.setProperty("--rep", repColor(name));
+    b.setAttribute("aria-pressed", state.hidden.has(name) ? "false" : "true");
+    b.innerHTML = '<span class="swatch"></span>' + esc(firstName(name));
+    b.title = name;
+    b.addEventListener("click", () => {
+      state.hidden.has(name) ? state.hidden.delete(name) : state.hidden.add(name);
+      render();
+    });
+    box.appendChild(b);
+  });
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+/* ---------- controls ---------- */
+
+document.getElementById("prev").addEventListener("click", () => {
+  state.anchor = addDays(state.anchor, -7); state.openId = null; load();
+});
+document.getElementById("next").addEventListener("click", () => {
+  state.anchor = addDays(state.anchor, 7); state.openId = null; load();
+});
+document.getElementById("today").addEventListener("click", () => {
+  state.anchor = startOfWeek(new Date()); state.openId = null; load();
+});
+document.getElementById("refresh").addEventListener("click", load);
+
+document.addEventListener("keydown", ev => {
+  if (ev.key === "ArrowLeft") document.getElementById("prev").click();
+  if (ev.key === "ArrowRight") document.getElementById("next").click();
+  if (ev.key === "t") document.getElementById("today").click();
+  if (ev.key === "r") load();
+});
+
+setInterval(() => { if (!document.hidden) load(); }, CONFIG.refreshSeconds * 1000);
+
+/* ---------- sample data ---------- */
+
+function demoWeek(anchor) {
+  const at = (dayOffset, hour, min) => {
+    const d = addDays(anchor, dayOffset);
+    d.setHours(hour, min || 0, 0, 0);
+    return d.toISOString();
+  };
+  const plus2 = iso => new Date(new Date(iso).getTime() + 7200000).toISOString();
+
+  const rows = [
+    [0, 10, 0, "Tyler Wallace", "412 Kildaire Farm Rd, Cary, NC 27511", "Whitaker", "(919) 555-0142"],
+    [0, 13, 0, "Michael King",  "77 Sunset Lake Rd, Holly Springs, NC 27540", "Ferrante", "(984) 555-0188"],
+    [1, 9, 30, "Tyler Wallace", "108 Hunter St, Apex, NC 27502", "Delacroix", "(919) 555-0107"],
+    [1, 12, 0, "Michael King",  "615 Oberlin Rd, Raleigh, NC 27605", "Sandoval", "(919) 555-0164"],
+    [1, 15, 30,"Michael King",  "204 Bickett Blvd, Raleigh, NC 27608", "Kwan", "(919) 555-0150"],
+    [2, 13, 0, "Tyler Wallace", "5 Davis Dr, Morrisville, NC 27560", "Patel", "(919) 555-0136"],
+    [3, 10, 0, "Michael King",  "2019 Fayetteville St, Durham, NC 27707", "Brennan", "(919) 555-0121"],
+    [3, 14, 0, "Tyler Wallace", "801 Gilbert St, Durham, NC 27701", "Halvorsen", "(919) 555-0166"],
+    [4, 11, 0, "Michael King",  "944 High House Rd, Cary, NC 27513", "Lindqvist", "(919) 555-0129"]
+  ];
+
+  const appts = rows.map((r, i) => {
+    const s = at(r[0], r[1], r[2]);
+    return {
+      id: "demo-" + i,
+      rep: r[3],
+      start: s,
+      end: plus2(s),
+      address: r[4],
+      customer: r[5],
+      phone: r[6],
+      type: "Measure",
+      notes: i === 4 ? "Rear yard access through side gate" : ""
+    };
+  });
+
+  return appts.concat([
+    { id: "demo-block-1", rep: "All", title: "Sales team meeting",
+      start: at(2, 8, 0), end: at(2, 10, 0), blocksAll: true },
+    { id: "demo-block-2", rep: "All", title: "Andersen product training",
+      start: at(4, 8, 0), end: at(4, 17, 0), blocksAll: true }
+  ]);
+}
+
+load();
+</script>
+</body>
+</html>
