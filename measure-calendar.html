@@ -392,17 +392,20 @@ function startOfMonth(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
 function addDays(d, n) { const o = new Date(d); o.setDate(o.getDate() + n); return o; }
 function addMonths(d, n) { return new Date(d.getFullYear(), d.getMonth() + n, 1); }
 
-// This period is as far back as the page goes. Nobody booking needs to look
-// at work that has already happened, and it keeps the view forward looking.
-// Once the working week is over, meaning it is the weekend, the floor moves
-// to the week ahead rather than sitting on five days that have all passed.
-function floorAnchor() {
-  if (state.view === "month") return startOfMonth(new Date());
-
+// The earliest week worth showing. Monday through Friday it is the current
+// week, since a call on Wednesday can still be about Monday. Once the working
+// week is done, meaning the weekend, it moves to the week ahead.
+function weekFloor() {
   const now = new Date();
   const week = startOfWeek(now);
   const dow = (now.getDay() - CONFIG.weekStartsOn + 7) % 7;
   return dow >= CONFIG.daysShown ? addDays(week, 7) : week;
+}
+
+// This period is as far back as the page goes. Nobody booking needs to look
+// at work that has already happened, and it keeps the view forward looking.
+function floorAnchor() {
+  return state.view === "month" ? startOfMonth(new Date()) : weekFloor();
 }
 function clampAnchor() {
   const floor = floorAnchor();
@@ -441,7 +444,13 @@ function viewDays() {
   }
   const first = startOfMonth(state.anchor);
   const last = new Date(state.anchor.getFullYear(), state.anchor.getMonth() + 1, 0);
+
+  // Start at the first week still worth looking at, so the current month does
+  // not open on rows that have already been worked.
+  const floor = weekFloor();
   let cursor = startOfWeek(first);
+  if (cursor < floor) cursor = floor;
+
   const stop = addDays(startOfWeek(last), 7);
   while (cursor < stop) {
     for (let i = 0; i < CONFIG.daysShown; i++) out.push(addDays(cursor, i));
