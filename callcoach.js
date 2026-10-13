@@ -473,14 +473,21 @@
       }).join('') + '</tbody></table></div>';
   }
 
+  function closeCall() {
+    co.open = '';
+    $('cc-detail').innerHTML = '';
+    renderList();
+  }
+
   async function openCall(id) {
+    if (co.open === id) { closeCall(); return; }
     co.open = id;
     renderList();
     var box = $('cc-detail');
     box.innerHTML = '<div class="cc-detail"><div class="loading">Loading...</div></div>';
     try {
       var d = await api('GET', '/calls/' + id);
-      box.innerHTML = '<div class="cc-detail">' + renderDetail(d, 'coach') + '</div>';
+      box.innerHTML = '<div class="cc-detail"><button class="cc-close" onclick="CallCoach._close()" aria-label="Close">Close</button>' + renderDetail(d, 'coach') + '</div>';
       box.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (e) {
       box.innerHTML = '<div class="alert alert-error">Could not load this call.</div>';
@@ -537,6 +544,7 @@
     initCoach: initCoach,
     forgetKey: forgetKey,
     _open: openCall,
+    _close: closeCall,
     _openMine: openMine,
     _audio: playAudio,
     _seek: seek,

@@ -423,7 +423,9 @@ tr.cur td:first-child{border-left:3px solid #c4581f}
 .cc-row{cursor:pointer}
 .cc-row-open td{background:#fae8df}
 .cc-top-cell{font-size:13px;color:#555;max-width:340px}
-.cc-detail{border:1px solid #e4dbd0;border-radius:8px;padding:18px;margin-top:16px;background:#fdfbf8}
+.cc-detail{position:relative;border:1px solid #e4dbd0;border-radius:8px;padding:18px;margin-top:16px;background:#fdfbf8}
+.cc-close{float:right;margin:0 0 8px 12px;background:#fff;border:1px solid #ddd;border-radius:4px;padding:4px 12px;font-family:'Barlow Condensed',Arial,sans-serif;font-weight:700;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#555;cursor:pointer}
+.cc-close:hover{border-color:#c4581f;color:#c4581f}
 .cc-detail-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
 .cc-detail-title{font-family:'Barlow Condensed',Arial,sans-serif;font-size:22px;font-weight:700;color:#1a1a1a}
 .cc-detail-meta{font-size:13px;color:#666;margin-top:2px}
