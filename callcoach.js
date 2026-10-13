@@ -155,7 +155,8 @@
         h += '<div class="cc-step"><div class="cc-step-head"><span class="cc-step-name">' + esc(rs.name) + '</span>' +
           '<span class="cc-step-score cc-s' + (s.score == null ? 'na' : s.score) + '">' + val + '</span></div>' +
           (s.evidence ? '<div class="cc-step-ev">' + esc(s.evidence) + '</div>' : '') +
-          (s.coaching ? '<div class="cc-step-co">' + esc(s.coaching) + '</div>' : '') + '</div>';
+          (s.coaching ? '<div class="cc-step-co">' + esc(s.coaching) + '</div>' : '') +
+          (rs.id === 'needs' ? needsCoverage(sc) : '') + '</div>';
       });
       h += '</div></div>';
       if (mode === 'rep' && c.overall != null) h += '<div class="cc-quiet-line">Overall ' + scoreHtml + ' of 100</div>';
@@ -164,8 +165,15 @@
     if (sc && sc.objections && sc.objections.length) {
       h += '<div class="cc-block"><div class="cc-label">Objections</div><ul class="cc-list">' +
         sc.objections.map(function (o) {
+          var card = o.card && o.card !== 'none' ? '<div class="cc-obj-card">Card: ' + esc(o.card) + '</div>' : '';
+          var cs = '';
+          if (o.four_cs) {
+            cs = '<div class="cc-4c">' + ['concede', 'commit', 'convince', 'close'].map(function (k) {
+              return '<span class="cc-c ' + (o.four_cs[k] ? 'cc-c-yes' : 'cc-c-no') + '">' + k.charAt(0).toUpperCase() + k.slice(1) + '</span>';
+            }).join('') + '</div>';
+          }
           return '<li><strong>' + esc(o.objection) + '</strong>' + (o.timestamp ? ' <span class="rb-muted">' + esc(o.timestamp) + '</span>' : '') +
-            '<br>' + esc(o.how_handled) + (o.effective === false ? ' <span class="pill pill-denied">Missed</span>' : o.effective ? ' <span class="pill pill-approved">Handled</span>' : '') + '</li>';
+            card + '<div>' + esc(o.how_handled) + '</div>' + cs + '</li>';
         }).join('') + '</ul></div>';
     }
 
@@ -190,6 +198,16 @@
       h += '<div class="rb-muted">Transcript no longer available.</div>';
     }
     return h;
+  }
+
+  function needsCoverage(sc) {
+    var list = sc.needsQuestions, asked = sc.needs_questions_asked;
+    if (!list || !Array.isArray(asked)) return '';
+    var set = {};
+    asked.forEach(function (n) { set[Number(n)] = 1; });
+    var missed = list.filter(function (q, i) { return !set[i + 1]; });
+    return '<div class="cc-needs"><div class="cc-needs-count">Covered ' + (list.length - missed.length) + ' of ' + list.length + ' needs questions</div>' +
+      (missed.length ? '<div class="rb-muted">Skipped:</div><ul class="cc-list">' + missed.map(function (q) { return '<li>' + esc(q) + '</li>'; }).join('') + '</ul>' : '') + '</div>';
   }
 
   // ---------- rep: recorder ----------

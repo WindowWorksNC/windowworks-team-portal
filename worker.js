@@ -25,13 +25,11 @@
 //   config/settings.json         {repVisibility}
 
 // ===== RUBRIC (edit this section to change scoring) =====
-
-// Scoring rubric for in-home appointments.
 //
-// PILOT NOTE: the steps below are a placeholder skeleton. Replace the names,
-// "lookFor" descriptions, and weights with the steps from the Top Rep
-// workbook so the scorecard matches the process reps are trained on.
-// The disclosure check is separate from the steps and gates scoring.
+// Built from the Window Works In-Home Appointment Self-Assessment, the Vendo
+// needs assessment, and the Top Rep Pivot Points objection deck. Only things
+// that can be heard on a recording are scored; prep, photos, measuring, and
+// Vendo builds stay on the self-assessment.
 
 const RUBRIC = {
   company:
@@ -43,73 +41,141 @@ const RUBRIC = {
       "Near the start of the appointment, the rep tells the customer they are using a notetaker or recording to keep track of the conversation, and gives the customer a chance to object. Any clear wording counts. It also counts if the customer clearly acknowledges it (for example, 'sure, record away').",
   },
 
+  outcomes: ["signed", "pending", "lost"],
+
+  needsQuestions: [
+    "Opens by referencing the customer notes, showing they know whether it is windows (and how many), doors, or both",
+    "How long have you lived here?",
+    "Do you have any plans on selling the home?",
+    "Have you had any previous experience with window or door replacement or installation?",
+    "What are the reasons you're considering new windows or doors?",
+    "What made you call Window Works?",
+    "How long have you been thinking about getting new windows or doors?",
+    "What made you decide it was time to move forward with this project now?",
+    "How old are your current windows or doors?",
+    "Which of these are important to you? (energy efficiency, change the look, keep the look, function better (open, close, lock), stop fading on rugs, floors, furniture, drapes, reduce noise, easier to clean, cut down on maintenance)",
+    "Of these, which is most important to you?",
+    "The research question: products, contractors, and pricing can look similar, so what has to be different for you to make a decision?",
+    "When are you wanting to start your project?",
+    "Are there any homeowners association guidelines we need to consider?",
+    "Do you have any specific questions about the installation process?",
+  ],
+
   steps: [
     {
-      id: "rapport_agenda",
-      name: "Rapport and agenda",
-      weight: 10,
+      id: "door",
+      name: "At the door",
+      weight: 5,
       lookFor:
-        "Builds genuine rapport, then sets a clear agenda for the visit so the customer knows what will happen and how long it takes.",
+        "Asks whether where they parked is ok, mentions or offers the Window Works shoe mat, greets both homeowners by name, and asks whether now is still a good time to spend about 90 minutes. If a decision maker is missing, uses the Be Back strategy (playbook: They're not home).",
     },
     {
-      id: "discovery",
-      name: "Discovery",
+      id: "setup",
+      name: "Set up the appointment",
+      weight: 10,
+      lookFor:
+        "Asks whether the office told them what to expect, then tells them the plan again in their own words. Brings out any elephant in the room early, such as a for sale sign or other contractors already out (playbook: We're moving; My brother does this work).",
+    },
+    {
+      id: "needs",
+      name: "Needs assessment",
       weight: 20,
       lookFor:
-        "Uncovers why they are replacing now, problems with current windows or doors, priorities (energy, noise, looks, maintenance), timeline, budget expectations, and who else is involved in the decision.",
+        "Asks the Vendo needs assessment questions listed below, in their own words, and gets real answers. Score by coverage and depth: 3 means essentially all were covered with follow-up, 2 most, 1 a few, 0 none. In the coaching note, name the specific questions that were skipped.",
     },
     {
-      id: "walkthrough",
-      name: "Home walkthrough",
+      id: "inspection",
+      name: "Inspection",
       weight: 10,
       lookFor:
-        "Inspects and measures with the customer, points out issues, and ties what they see back to what the customer said matters to them.",
+        "Asks the homeowner to walk them through their issues and lets the homeowner sell themselves on why this project matters. Acts as the expert, explains what they find, and builds urgency and credibility (playbook: Purpose of the inspection). Do not score measuring or photos.",
     },
     {
       id: "presentation",
-      name: "Product presentation",
-      weight: 15,
+      name: "Presentation",
+      weight: 10,
       lookFor:
-        "Presents products as solutions to the customer's stated needs rather than a generic feature list. Checks for understanding and agreement along the way.",
+        "Runs the full Ingage presentation without cutting it short, even if the homeowner said time was tight, and ties it back to the priorities and the research answer from the needs assessment. Introduces the Value Match Guarantee when it fits.",
+    },
+    {
+      id: "trial_close",
+      name: "Trial close",
+      weight: 10,
+      lookFor:
+        "Before presenting price, asks some version of: 'Other than price and affordability, is there any reason I can't get you on our production schedule today?' The purpose is to funnel every concern down to money before price.",
     },
     {
       id: "price",
       name: "Price and financing",
-      weight: 15,
+      weight: 10,
       lookFor:
-        "Presents price confidently without apologizing or discounting unprompted. Offers financing as an option.",
+        "Presents price with confidence, offers financing using the term 'trade partner' even if the customer says they want to pay cash, and does not lead with the best payment option up front.",
     },
     {
       id: "objections",
       name: "Objection handling",
-      weight: 15,
-      lookFor:
-        "Acknowledges objections, asks questions to find the real concern, and addresses it directly rather than arguing or immediately dropping price.",
-    },
-    {
-      id: "close",
-      name: "Asking for the business",
       weight: 10,
-      lookFor: "Clearly asks the customer to move forward today.",
+      lookFor:
+        "Handles each objection the way the matching playbook card describes, using the 4 C's: Concede (puts themselves on the customer's side; the most important C), Commit (gets a commitment), Convince (makes the case), Close (asks again). Score null if no objections came up.",
     },
     {
-      id: "next_steps",
-      name: "Next steps",
+      id: "not_signed",
+      name: "If they didn't sign",
+      weight: 10,
+      lookFor:
+        "Sends the quote while still in the house and confirms out loud that the customer received it, calls a supervisor if something couldn't be quoted on site, and sets the next step with a specific date and time before leaving. Never leaves without a clear and definite future. Score null if the customer signed.",
+    },
+    {
+      id: "silence",
+      name: "Silence",
       weight: 5,
       lookFor:
-        "Whatever the outcome, confirms concrete next steps (signed paperwork and install expectations, or a specific follow-up date and who else needs to be there).",
+        "After presenting price and after asking for the business, stops talking and lets the customer respond, instead of talking past the moment ('park and puke'). When the couple look at each other, gives them room to talk, for example by stepping out to take more pictures (playbook: Mum's the word). Use the transcript timestamps to judge pauses.",
     },
+  ],
+
+  // Top Rep Pivot Points deck, condensed. The cards were written for roofing;
+  // apply them to windows and doors.
+  playbook: [
+    ["Purpose of the inspection", "The inspection is where the job is sold. Build urgency and credibility, be the expert, explain your competitive advantage."],
+    ["Mum's the word (after price, one spouse looks at the other)", "They have approved and want the other's okay. Give them room: 'I don't know how it works in your house, but my wife and I like to talk about investments like this. I have more pictures to take, about 5 to 10 minutes. Would that be enough time?' The best way to stay quiet is to not be there."],
+    ["We're moving (for sale sign)", "Bring it out early: 'What is your goal for our visit today?' Buyers walk away or negotiate about 10% over the repair cost when something needs replacing, so it is best to get the work done before buyers see it."],
+    ["We are not buying anything today", "Lower their guard: 'Absolutely, didn't our office tell you I'm only here to give you information?' Make them comfortable."],
+    ["You're being too pushy", "Stay calm: 'I'm so sorry, that's not my intent. Please don't mistake my passion for pushiness. My biggest fear is you'll choose a lesser option because of cost and have years of issues and regret.'"],
+    ["They're not home (a decision maker is missing)", "Be Back strategy: confirm they can't join, set expectations, do the full inspection, share findings, take measurements back to the office, and book a time to return with both decision makers. Whoever meets with all the homeowners wins the job."],
+    ["I need to talk to my spouse (end of appointment)", "'How does your spouse feel about this? If they were here, what would they say about everything we went through? Is it a big conversation, or just letting them know the framework and whether to go monthly or half down? Would you be against reaching out to them right now so I can answer their questions?'"],
+    ["I don't want to pay anything down", "'A lot of our customers decide against paying anything down. We can do this for nothing down with one of our trade partners; if you qualify, pay in full at the end of the job or keep the terms.'"],
+    ["It's out of our budget", "Use if the monthly payment rebuttal didn't work: 'When I find something that solves a problem or makes my life easier, I buy it. We work hard for our money to buy things we deserve, and you deserve this.' People budget differently for investments than for groceries."],
+    ["We can't afford that monthly payment", "'Everything else you love? So what could you afford, so I'm not taking away from date night?' If it is a payment you can offer: confirm they would move forward today at that payment, then call to see what you can do. If not: revisit the scope (fewer windows now, the rest later) or step down the product. Never give the best payment option up front."],
+    ["My brother, family, or friend does this work", "'If your brother does this work, why am I here? You didn't think I could do it cheaper than he could, did you?' Best handled early: 'Have you had anyone else out? What did they say?'"],
+    ["I need to talk to my son or daughter", "'My parents do the same. I always ask them three things: will it solve your problem, do you like and trust the company and the person in front of you, and can you afford it?' Then stop talking. Follow this one to the letter."],
+    ["I need to talk to my dad, uncle, neighbor", "'Can we get them on the phone so I can answer their questions?' If not: 'If they were unreachable for three months, how do you personally feel about spending this?' Take it back to money."],
+    ["It's just the total amount", "'Before I came out, what did you think this would cost? After everything I showed you, where are you now? So we're only that far apart; how long would it take to come up with the rest?' Close the gap with financing, not a discount."],
+    ["This is just more than we can afford right now", "'Is it the monthly payment or the down payment?' Get a commitment on what they could afford, then go to financing (Window Works does not use a marketing agreement). If they insist it is the total, use the total amount card."],
+    ["We have a bonus or tax return coming", "Timing, not price: 'When are you expecting it? If I were here then, we'd be doing business?' Then offer to do the project now with a trade partner so they don't pay until the money comes."],
+    ["Your price is too much", "First ask: 'How do you mean?' Find out what too much means; it may be timing."],
+    ["Your competitor is cheaper", "'You can always find someone cheaper. If both proposals were the same price, who would you choose? Why?' Let them build your value, ask 'why else?', then: 'So with all that, don't you see the extra difference?'"],
+    ["Stone wall (want more contractors, won't decide tonight)", "'It appears there's no way to earn your business while I'm here. Can I ask a favor: give me the same respect and not do business with the others the night of? When is the last estimate, so I can schedule a follow-up?'"],
+    ["Stone wall version 2 (a pact not to buy up front)", "Call it out respectfully: 'I'm getting the impression you had no intention of buying today. If I offered this for $500, you still wouldn't take it?' When they say they'd consider it: 'So there's a number in mind. What is it?'"],
+    ["We want to sleep on it", "'If there were a way I could help with both of these numbers, could that help you decide?' Consider a porchlight close (step out to take more pictures so they can talk). If still stuck, set a time the next morning; never leave without a definite future."],
+    ["We need to think about it", "A stall; work through it slowly: 'How long do you need?' Confirm they love the product and trust us to install it, so it comes down to money, which is value, affordability, or timing. 'Which is it for you?'"],
+    ["We need 3 estimates", "'Is there any other reason you wouldn't choose us? When you compare bids, what criteria will you use?' Get them to confirm best value. 'If within 7 to 10 days our value meets your expectations, could you see yourselves as a customer?' Introduce the Value Match Guarantee."],
+    ["We need 3 estimates, part 2", "Remind them of the Value Match Guarantee: 'If we put that in writing, isn't it almost impossible to beat? What would you look for in another company that you haven't found in us? Isn't it easier to get it done now?'"],
+    ["Value Match Guarantee", "If the customer finds an apples-to-apples quote (same materials, professional install, warranty, accredited company) for less, they bring it in writing and Window Works refunds the difference plus $100 for their time."],
+    ["Trial close", "'Other than price and affordability, is there any reason we can't get you on the production schedule while I'm here?' Never go to price until the final decision is funneled to money."],
   ],
 };
 
 function buildSystemPrompt(rubric = RUBRIC) {
-  const steps = rubric.steps
-    .map((s) => `- id "${s.id}", name "${s.name}": ${s.lookFor}`)
-    .join("\n");
+  const steps = rubric.steps.map((s) => `- id "${s.id}", name "${s.name}": ${s.lookFor}`).join("\n");
+  const needs = rubric.needsQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n");
+  const playbook = rubric.playbook.map(([title, body]) => `- ${title}: ${body}`).join("\n");
 
   return `You are a sales coach reviewing a transcript of ${rubric.appointmentType} for ${rubric.company}.
 
 The transcript has speaker labels and timestamps. Speaker numbers come from automatic diarization and may occasionally be wrong. First decide which speaker is the sales rep and which are customers.
+
+Only judge what can be heard. Do not penalize the rep for things a recording cannot capture (photos, measuring, what was on the iPad screen) unless they are discussed out loud.
 
 STEP 1: DISCLOSURE CHECK
 ${rubric.disclosure.lookFor}
@@ -121,24 +187,35 @@ Score each step from 0 to 3:
 1 = attempted but weak
 2 = solid
 3 = excellent, a model for other reps
-Use null only if the step genuinely did not apply to this appointment (for example, no objections came up). Do not use null just because the rep skipped a step; that is a 0.
+Use null only if the step genuinely did not apply (for example, no objections came up, or the customer signed so the not-signed step does not apply). Do not use null just because the rep skipped a step; that is a 0.
 
 Steps:
 ${steps}
 
-For each step give short evidence with a timestamp, and one specific, practical coaching note written directly to the rep ("you"). Be honest and direct but constructive. Base everything on what is in the transcript; do not invent details.
+VENDO NEEDS ASSESSMENT QUESTIONS (for the needs step; the rep may use their own words):
+${needs}
+
+TOP REP OBJECTION PLAYBOOK (the company's trained responses; written for roofing, so apply them to windows and doors):
+${playbook}
+
+For each step give short evidence with a timestamp, and one specific, practical coaching note written directly to the rep ("you"). When a playbook card applies, say what the card would have the rep do. Be honest and direct but constructive. Base everything on what is in the transcript; do not invent details.
+
+For each objection the customer raised, name the playbook card it matches (or "none"), and judge each of the 4 C's: concede, commit, convince, close.
+
+Outcome is one of: ${rubric.outcomes.map((o) => `"${o}"`).join(", ")}, or "unclear". "pending" means no signature but a follow-up is set or a decision is still open; "lost" means the customer clearly said no.
 
 Return ONLY a JSON object, no preamble and no markdown fences, with exactly this shape:
 {
   "rep_speaker": "Speaker N",
   "disclosure": { "given": true, "timestamp": "mm:ss or null", "evidence": "short paraphrase" },
   "scored": true,
-  "outcome": "sold" | "not sold" | "follow up scheduled" | "unclear",
+  "outcome": "signed" | "pending" | "lost" | "unclear",
   "steps": [
     { "id": "step id", "score": 0, "evidence": "[mm:ss] short paraphrase", "coaching": "one specific suggestion" }
   ],
+  "needs_questions_asked": [1, 2, 5],
   "objections": [
-    { "objection": "what the customer raised", "timestamp": "mm:ss", "how_handled": "short description", "effective": true }
+    { "objection": "what the customer raised", "timestamp": "mm:ss", "card": "playbook card title or none", "how_handled": "short description", "four_cs": { "concede": true, "commit": false, "convince": true, "close": false }, "effective": true }
   ],
   "strengths": ["up to 3 short items"],
   "top_coaching_point": "the single most valuable thing for this rep to work on next",
@@ -555,6 +632,7 @@ async function processCall(job, env) {
     overall,
     disclosureOverride: override,
     rubricSteps: RUBRIC.steps.map((s) => ({ id: s.id, name: s.name, weight: s.weight })),
+    needsQuestions: RUBRIC.needsQuestions,
     model: env.SCORING_MODEL,
     scoredAt: new Date().toISOString(),
   };
@@ -621,7 +699,7 @@ COACH OVERRIDE: A coach listened to this recording and confirmed the notetaker d
     },
     body: JSON.stringify({
       model: env.SCORING_MODEL,
-      max_tokens: 4096,
+      max_tokens: 8000,
       system,
       messages: [{ role: "user", content: user }],
     }),
