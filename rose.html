@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iMiIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M0NTgxZiI+VzwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjayxBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2ZmZmZmZiI+VzwvdGV4dD48L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=241">
-<link rel="manifest" href="site.webmanifest?v=241">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=242">
+<link rel="manifest" href="site.webmanifest?v=242">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Window Works">
 <title>Rose Reif | Window Works Team Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="portal.css?v=241">
+<link rel="stylesheet" href="portal.css?v=242">
 </head>
 <body>
 <script>window.WW_EMPLOYEE='Rose Reif';</script>
-<script src="gate.js?v=241"></script>
-<script src="scorecards.js?v=241"></script>
+<script src="gate.js?v=242"></script>
+<script src="scorecards.js?v=242"></script>
 
 <div class="header">
   <a class="logo" href="index.html">Window <span>Works</span> Co.</a>
@@ -183,7 +183,7 @@
     </div>
     <div class="form-group">
       <label class="form-label">Type</label>
-      <select class="form-input" id="admin-pto-type"><option>Vacation</option><option>Sick</option></select>
+      <select class="form-input" id="admin-pto-type"><option>Vacation</option><option>Sick</option><option>Unpaid</option></select>
     </div>
     <div class="form-group">
       <label class="form-label">Start Date</label>
@@ -1162,14 +1162,33 @@ async function reviewPTO(rowIndex,status){
     if(!d.success)return;
     const c=cols(d.data[0]);
     const row=[...d.data[rowIndex-1]];
+    let extra=null;
+    if(status==='Approved'){
+      const emp=(row[c('Employee')]||'').toString().trim();const kind=ptoKind(row[c('Type')]);const days=Number(row[c('Days')])||0;
+      if(kind!=='unpaid'&&days>0){
+        const id=(row[c('ID')]||'').toString().trim();
+        const L=await ptoLedger(emp,id);
+        if(L.found&&days>L[kind].avail){
+          const ch=await ptoOverdrawChoice(emp,kind,days,L);
+          if(!ch)return;
+          if(ch.mode==='switch')row[c('Type')]=ch.type;
+          else if(ch.covered>0){
+            row[c('Days')]=ch.covered;
+            extra=ptoNewRow(d.data[0],{'ID':`PTO-${Date.now()}`,'Employee':emp,'Type':'Unpaid','Start Date':ptoDay(row[c('Start Date')]),'End Date':ptoDay(row[c('End Date')]||row[c('Start Date')]),'Days':days-ch.covered,'Reason':'Overage of '+id+' ('+ptoLabel(kind).toLowerCase()+' balance exhausted)','Status':'Approved','Submitted':new Date().toLocaleDateString('en-US'),'Reviewed By':APPROVER});
+          }else row[c('Type')]='Unpaid';
+        }
+      }
+    }
     row[c('Status')]=status;
     row[c('Reviewed By')]=APPROVER;
     await api({action:'update',tab:'PTO_Requests',rowIndex:rowIndex,row:JSON.stringify(row)});
+    if(extra)await api({action:'append',tab:'PTO_Requests',row:JSON.stringify(extra)});
     loadAdminPTO();
     if(typeof loadAllBalances==='function')loadAllBalances();
     if(typeof computeOwnerAlerts==='function')computeOwnerAlerts();
   }catch(e){alert('Error updating request');}
 }
+
 
 function adminCalcDays(){
   const start=document.getElementById('admin-pto-start').value;
@@ -1191,51 +1210,46 @@ async function adminCreatePTO(){
   if(!emp||!start||!days){alertEl.innerHTML='<div class="alert alert-error">Employee, start date, and days are required.</div>';return;}
   const btn=document.getElementById('admin-pto-btn');btn.disabled=true;btn.textContent='Saving...';
   try{
-    const row=[`PTO-${Date.now()}`,emp,type,start,end,Number(days),notes,'Approved',new Date().toLocaleDateString('en-US'),APPROVER];
-    await api({action:'append',tab:'PTO_Requests',row:JSON.stringify(row)});
-    alertEl.innerHTML=`<div class="alert alert-success">Logged and approved for ${emp}.</div>`;
+    const n=Number(days);const kind=ptoKind(type);
+    const L=await ptoLedger(emp);
+    const base={'Employee':emp,'Start Date':start,'End Date':end,'Status':'Approved','Submitted':new Date().toLocaleDateString('en-US'),'Reviewed By':APPROVER};
+    const rows=[Object.assign({},base,{'ID':`PTO-${Date.now()}`,'Type':type,'Days':n,'Reason':notes})];
+    let note='';
+    if(kind!=='unpaid'&&L.found&&n>L[kind].avail){
+      const ch=await ptoOverdrawChoice(emp,kind,n,L);
+      if(!ch){alertEl.innerHTML='';btn.disabled=false;btn.textContent='Log and Approve';return;}
+      if(ch.mode==='switch'){rows[0]['Type']=ch.type;note=' as '+ch.type;}
+      else if(ch.covered>0){rows[0]['Days']=ch.covered;rows.push(Object.assign({},base,{'ID':`PTO-${Date.now()+1}`,'Type':'Unpaid','Days':n-ch.covered,'Reason':'Overage of '+rows[0]['ID']+' ('+ptoLabel(kind).toLowerCase()+' balance exhausted)'}));note=': '+ch.covered+' '+ptoLabel(kind)+', '+(n-ch.covered)+' Unpaid';}
+      else{rows[0]['Type']='Unpaid';note=' as Unpaid';}
+    }
+    for(const o of rows)await api({action:'append',tab:'PTO_Requests',row:JSON.stringify(ptoNewRow(L.reqHeader,o))});
+    alertEl.innerHTML=`<div class="alert alert-success">Logged and approved for ${emp}${note}.</div>`;
     ['admin-pto-start','admin-pto-end','admin-pto-days','admin-pto-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     loadAdminPTO();loadAllBalances();
   }catch(e){alertEl.innerHTML='<div class="alert alert-error">Error saving. Please try again.</div>';}
   btn.disabled=false;btn.textContent='Log and Approve';
 }
 
+
 async function loadAllBalances(){
   try{
-    const d=await api({action:'read',tab:'PTO_Balances'});
+    const res=await Promise.all([api({action:'read',tab:'PTO_Balances'}),api({action:'read',tab:'PTO_Requests'})]);
+    const d=res[0],rq=res[1];
     document.getElementById('balances-loading').style.display='none';
     if(!d.success)return;
     const c=cols(d.data[0]);
     const rows=d.data.slice(1).filter(r=>(r[c('Employee')]||'').trim()&&INACTIVE.indexOf((r[c('Employee')]||'').trim())<0);
     if(!rows.length)return;
-    const usedVac={},usedSick={};
-    try{
-      const rq=await api({action:'read',tab:'PTO_Requests'});
-      if(rq.success&&rq.data&&rq.data.length){
-        const rc=cols(rq.data[0]);
-        const today=new Date().toISOString().split('T')[0];
-        rq.data.slice(1).forEach(r=>{
-          const emp=(r[rc('Employee')]||'').trim();if(!emp)return;
-          if((r[rc('Status')]||'').trim()!=='Approved')return;
-          const ed=(r[rc('End Date')]||r[rc('Start Date')]||'').toString().trim();
-          if(!(ed&&ed<today))return;
-          const dy=Number(r[rc('Days')])||0;
-          if((r[rc('Type')]||'').toLowerCase().indexOf('sick')>=0)usedSick[emp]=(usedSick[emp]||0)+dy;else usedVac[emp]=(usedVac[emp]||0)+dy;
-        });
-      }
-    }catch(_){}
+    const M=ptoComputeLedgers(d,rq&&rq.success?rq:null);
+    const neg=n=>n<0?' style="color:#c0392b;font-weight:700"':'';
     document.getElementById('balances-table').style.display='table';
     document.getElementById('balances-body').innerHTML=rows.map(r=>{
-      const emp=(r[c('Employee')]||'').trim();
-      const vTot=c('Vacation Balance')>=0?(Number(r[c('Vacation Used')])||0)+(Number(r[c('Vacation Balance')])||0):10;
-      const sTot=c('Sick Balance')>=0?(Number(r[c('Sick Used')])||0)+(Number(r[c('Sick Balance')])||0):5;
-      const vu=usedVac[emp]||0,su=usedSick[emp]||0;
-      const vb=Math.max(0,vTot-vu);
-      const sb=Math.max(0,sTot-su);
-      return `<tr><td><strong>${ptoNameLink(r[c('Employee')])}</strong></td><td>${vu}</td><td>${vb}</td><td>${su}</td><td>${sb}</td></tr>`;
+      const L=M[(r[c('Employee')]||'').trim()]||ptoEmptyLedger();
+      return `<tr><td><strong>${ptoNameLink(r[c('Employee')])}</strong></td><td>${L.vac.taken}</td><td${neg(L.vac.avail)}>${L.vac.avail}</td><td>${L.sick.taken}</td><td${neg(L.sick.avail)}>${L.sick.avail}</td></tr>`;
     }).join('');
   }catch(e){console.error(e);}
 }
+
 
 function ptoNameLink(emp){
   var e=(emp||'').toString();
@@ -2050,6 +2064,93 @@ async function reviewReimbursement(rowIndex,status){
   }catch(e){}
 }
 
+// ---------- PTO ledger (shared, identical on every page) ----------
+function ptoKind(t){t=(t||'').toString().toLowerCase();if(t.indexOf('unpaid')>=0)return 'unpaid';if(t.indexOf('sick')>=0)return 'sick';return 'vac';}
+function ptoLabel(k){return k==='sick'?'Sick':(k==='unpaid'?'Unpaid':'Vacation');}
+function ptoDay(v){return (v||'').toString().trim().slice(0,10);}
+function ptoToday(){var n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
+function ptoEmptyLedger(){return {found:false,hireDate:'',vac:{total:0,taken:0,upcoming:0,pending:0,avail:0},sick:{total:0,taken:0,upcoming:0,pending:0,avail:0}};}
+function ptoComputeLedgers(bal,req,excludeId){
+  var M={};
+  if(bal&&bal.data&&bal.data.length){
+    var c=cols(bal.data[0]);
+    bal.data.slice(1).forEach(function(r){
+      var emp=(r[c('Employee')]||'').toString().trim();if(!emp)return;
+      var L=ptoEmptyLedger();L.found=true;
+      L.vac.total=c('Vacation Balance')>=0?(Number(r[c('Vacation Used')])||0)+(Number(r[c('Vacation Balance')])||0):10;
+      L.sick.total=c('Sick Balance')>=0?(Number(r[c('Sick Used')])||0)+(Number(r[c('Sick Balance')])||0):5;
+      L.hireDate=c('Hire Date')>=0?(r[c('Hire Date')]||''):'';
+      M[emp]=L;
+    });
+  }
+  if(req&&req.data&&req.data.length){
+    var rc=cols(req.data[0]);var today=ptoToday();
+    req.data.slice(1).forEach(function(r){
+      var emp=(r[rc('Employee')]||'').toString().trim();if(!emp||!M[emp])return;
+      if(excludeId&&(r[rc('ID')]||'').toString().trim()===excludeId)return;
+      var k=ptoKind(r[rc('Type')]);if(k==='unpaid')return;
+      var st=(r[rc('Status')]||'').toString().trim();var dy=Number(r[rc('Days')])||0;
+      if(st==='Approved'){var ed=ptoDay(r[rc('End Date')]||r[rc('Start Date')]);if(ed&&ed<today)M[emp][k].taken+=dy;else M[emp][k].upcoming+=dy;}
+      else if(st===''||st==='Pending')M[emp][k].pending+=dy;
+    });
+  }
+  Object.keys(M).forEach(function(e){['vac','sick'].forEach(function(k){var x=M[e][k];x.avail=x.total-x.taken-x.upcoming-x.pending;});});
+  return M;
+}
+async function ptoLedger(employee,excludeId){
+  var res=await Promise.all([api({action:'read',tab:'PTO_Balances'}),api({action:'read',tab:'PTO_Requests'})]);
+  var b=res[0]&&res[0].success?res[0]:null,q=res[1]&&res[1].success?res[1]:null;
+  var M=ptoComputeLedgers(b,q,excludeId);
+  var L=M[employee]||ptoEmptyLedger();L.reqHeader=q&&q.data&&q.data.length?q.data[0]:null;
+  return L;
+}
+function ptoNewRow(hdr,o){
+  if(!hdr)return [o.ID,o.Employee,o.Type,o['Start Date'],o['End Date'],o.Days,o.Reason,o.Status,o.Submitted,o['Reviewed By']];
+  var c=cols(hdr);var row=new Array(hdr.length).fill('');
+  Object.keys(o).forEach(function(k){var i=c(k);if(i<0&&k==='Reason')i=c('Notes');if(i>=0)row[i]=o[k];});
+  return row;
+}
+function ptoRenderBalances(L){
+  var s=function(id,v,neg){var el=document.getElementById(id);if(el){el.textContent=v;if(neg!==undefined)el.style.color=neg?'#c0392b':'';}};
+  var sw=function(id,v){var el=document.getElementById(id);if(el)el.style.width=v;};
+  ['vac','sick'].forEach(function(k){
+    var x=L[k];
+    s(k+'-remaining',x.avail,x.avail<0);
+    s(k+'-used','of '+x.total+' used: '+x.taken+(x.pending>0?' ('+x.pending+' pending)':''));
+    sw(k+'-bar',x.total>0?Math.min(100,((x.taken+x.upcoming+x.pending)/x.total)*100)+'%':'0%');
+  });
+}
+function ptoBlockMessage(kind,days,L){
+  var other=kind==='sick'?'vac':'sick';var a=Math.max(0,L[kind].avail),oa=Math.max(0,L[other].avail);
+  var m='You have '+a+' '+ptoLabel(kind).toLowerCase()+' day'+(a===1?'':'s')+' available and this request is for '+days+'.';
+  if(oa>=days)m+=' You have '+oa+' '+ptoLabel(other).toLowerCase()+' day'+(oa===1?'':'s')+' available; change the type to '+ptoLabel(other)+' to use those.';
+  else m+=' Talk to Brandon about unpaid time.';
+  return m;
+}
+function ptoOverdrawChoice(emp,kind,days,L){
+  return new Promise(function(resolve){
+    var old=document.getElementById('pto-overdraw-modal');if(old)old.remove();
+    var other=kind==='sick'?'vac':'sick';var a=Math.max(0,L[kind].avail),oa=Math.max(0,L[other].avail);
+    var opts=[];
+    if(oa>=days)opts.push({label:'Approve as '+ptoLabel(other),val:{mode:'switch',type:ptoLabel(other)}});
+    if(a>0)opts.push({label:'Approve '+a+' '+ptoLabel(kind)+' + '+(days-a)+' Unpaid',val:{mode:'split',covered:a}});
+    else opts.push({label:'Approve as Unpaid',val:{mode:'split',covered:0}});
+    var btnCss="flex:1 1 100%;border:none;border-radius:6px;padding:10px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer";
+    var modal=document.createElement('div');modal.id='pto-overdraw-modal';
+    modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+    var box=document.createElement('div');
+    box.style.cssText='background:#fff;border-radius:8px;padding:28px;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18)';
+    box.innerHTML='<div style="font-family:\'Barlow Condensed\',Arial,sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#1a1a1a;margin-bottom:14px">Not Enough '+ptoLabel(kind)+' Time</div>'+
+      '<div style="font-size:14px;color:#555;margin-bottom:6px"><strong>'+emp+'</strong> has <strong style="color:#c0392b">'+a+'</strong> '+ptoLabel(kind).toLowerCase()+' day'+(a===1?'':'s')+' available. This request is for <strong>'+days+'</strong>.</div>'+
+      '<div style="font-size:13px;color:#888;margin-bottom:18px">'+ptoLabel(other)+' available: '+oa+'</div>';
+    var wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-wrap:wrap;gap:8px';
+    var done=function(v){modal.remove();resolve(v);};
+    opts.forEach(function(o,i){var b=document.createElement('button');b.textContent=o.label;b.style.cssText=btnCss+(i===0?';background:#1a1a1a;color:#fff':';background:#c4581f;color:#fff');b.onclick=function(){done(o.val);};wrap.appendChild(b);});
+    var cb=document.createElement('button');cb.textContent='Cancel';cb.style.cssText=btnCss+';background:#f0ece6;color:#1a1a1a';cb.onclick=function(){done(null);};wrap.appendChild(cb);
+    box.appendChild(wrap);modal.appendChild(box);document.body.appendChild(modal);
+  });
+}
+
 async function submitPTO(employee,approver){
   const type=document.getElementById('pto-type').value;
   const start=document.getElementById('pto-start').value;
@@ -2059,6 +2160,7 @@ async function submitPTO(employee,approver){
   const alertEl=document.getElementById('pto-form-alert');
   if(!start||!days){alertEl.innerHTML='<div class="alert alert-error">Start date and number of days are required.</div>';return;}
   const btn=document.getElementById('pto-submit-btn');btn.disabled=true;btn.textContent='Submitting...';
+  if(ptoKind(type)!=='unpaid'){try{const L=await ptoLedger(employee);if(L.found&&Number(days)>L[ptoKind(type)].avail){alertEl.innerHTML='<div class="alert alert-error">'+ptoBlockMessage(ptoKind(type),Number(days),L)+'</div>';btn.disabled=false;btn.textContent='Submit Request';return;}}catch(_){}}
   try{
     const row=[`PTO-${Date.now()}`,employee,type,start,end,Number(days),notes,'Pending',new Date().toLocaleDateString('en-US'),''];
     await api({action:'append',tab:'PTO_Requests',row:JSON.stringify(row)});
@@ -2080,39 +2182,12 @@ function calcWorkingDays(){
 
 async function loadPTOBalances(employee){
   try{
-    const d=await api({action:'read',tab:'PTO_Balances'});
-    if(!d.success)return;
-    const c=cols(d.data[0]);
-    const row=d.data.slice(1).find(r=>(r[c('Employee')]||'').trim()===employee);
-    if(!row)return;
-    const vacUsed=Number(row[c('Vacation Used')])||0;
-    const sickUsed=Number(row[c('Sick Used')])||0;
-    const vacTotal=c('Vacation Balance')>=0?vacUsed+(Number(row[c('Vacation Balance')])||0):10;
-    const sickTotal=c('Sick Balance')>=0?sickUsed+(Number(row[c('Sick Balance')])||0):5;
-    let vacDone=0,sickDone=0;
-    try{
-      const rq=await api({action:'read',tab:'PTO_Requests'});
-      if(rq.success&&rq.data&&rq.data.length){
-        const rc=cols(rq.data[0]);
-        const today=new Date().toISOString().split('T')[0];
-        rq.data.slice(1).forEach(r=>{
-          if((r[rc('Employee')]||'').trim()!==employee)return;
-          if((r[rc('Status')]||'').trim()!=='Approved')return;
-          const ed=(r[rc('End Date')]||r[rc('Start Date')]||'').toString().trim();
-          if(!(ed&&ed<today))return;
-          const dy=Number(r[rc('Days')])||0;
-          if((r[rc('Type')]||'').toLowerCase().indexOf('sick')>=0)sickDone+=dy;else vacDone+=dy;
-        });
-      }
-    }catch(_){}
-    const vacUsedEff=vacDone,sickUsedEff=sickDone;
-    const vacBal=Math.max(0,vacTotal-vacUsedEff),sickBal=Math.max(0,sickTotal-sickUsedEff);
-    const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-    const sw=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=v;};
-    s('vac-remaining',vacBal);s('vac-used',`of ${vacTotal} used: ${vacUsedEff}`);sw('vac-bar',vacTotal>0?Math.min(100,(vacUsedEff/vacTotal)*100)+'%':'0%');
-    s('sick-remaining',sickBal);s('sick-used',`of ${sickTotal} used: ${sickUsedEff}`);sw('sick-bar',sickTotal>0?Math.min(100,(sickUsedEff/sickTotal)*100)+'%':'0%');
+    const L=await ptoLedger(employee);
+    if(!L.found)return;
+    ptoRenderBalances(L);
   }catch(e){console.error(e);}
 }
+
 
 async function loadMyRequests(employee){
   const loadEl=document.getElementById('my-requests-loading');
@@ -2128,7 +2203,7 @@ async function loadMyRequests(employee){
     if(!rows.length){if(emptyEl)emptyEl.style.display='block';return;}
     if(tableEl)tableEl.style.display='table';
     let __vacUp=0,__sickUp=0,__vacIn=0,__sickIn=0;
-    rows.forEach(r=>{const st=(r[c('Status')]||'').trim();const sd=(r[c('Start Date')]||'').toString().trim();const ed=(r[c('End Date')]||r[c('Start Date')]||'').toString().trim();if(st==='Approved'&&ed>=today){const dy=Number(r[c('Days')])||0;const tp=(r[c('Type')]||'').toLowerCase();const inProg=sd&&sd<=today;if(tp.indexOf('sick')>=0){if(inProg)__sickIn+=dy;else __sickUp+=dy;}else{if(inProg)__vacIn+=dy;else __vacUp+=dy;}}});
+    rows.forEach(r=>{const st=(r[c('Status')]||'').trim();const sd=(r[c('Start Date')]||'').toString().trim();const ed=(r[c('End Date')]||r[c('Start Date')]||'').toString().trim();if(st==='Approved'&&ed>=today&&ptoKind(r[c('Type')])!=='unpaid'){const dy=Number(r[c('Days')])||0;const tp=(r[c('Type')]||'').toLowerCase();const inProg=sd&&sd<=today;if(tp.indexOf('sick')>=0){if(inProg)__sickIn+=dy;else __sickUp+=dy;}else{if(inProg)__vacIn+=dy;else __vacUp+=dy;}}});
     {const su=(id,v,n)=>{const el=document.getElementById(id);if(el){el.textContent=v;el.style.color=n>0?'#c4581f':'';}};const phr=(a,b)=>{const p=[];if(a>0)p.push(a+' in progress');if(b>0)p.push(b+' upcoming');return p.length?p.join(', '):'0 upcoming';};su('vac-upcoming',phr(__vacIn,__vacUp),__vacIn+__vacUp);su('sick-upcoming',phr(__sickIn,__sickUp),__sickIn+__sickUp);}
     const tbody=document.getElementById('my-requests-body');
     if(tbody)tbody.innerHTML=rows.slice().reverse().map(r=>{
@@ -2699,18 +2774,18 @@ loadDocs(EMPLOYEE,null);
 loadEquipment(EMPLOYEE);
 </script>
 
-<script src="training.js?v=241"></script>
+<script src="training.js?v=242"></script>
 <script>
 initTrainingReview("tr-review-root", [
   {name:"Tyler Wallace", role:"sales-b2c"},
   {name:"Michael King",  role:"sales-b2c"}
 ], {viewer:"Rose Reif", badgeId:"badge-training"});
 </script>
-<script src="taskboard.js?v=241"></script>
+<script src="taskboard.js?v=242"></script>
 <script>initTaskBoard("rose");</script>
-<script src="resources.js?v=241"></script>
-<script src="docnaming.js?v=241"></script>
-<script src="callcoach.js?v=241"></script>
+<script src="resources.js?v=242"></script>
+<script src="docnaming.js?v=242"></script>
+<script src="callcoach.js?v=242"></script>
 <script>CallCoach.initCoach("cc-root");</script>
 <script>
 (function(){
