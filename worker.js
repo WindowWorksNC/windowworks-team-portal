@@ -297,7 +297,9 @@ async function route(request, env, ctx, cors) {
 
   if (parts[0] === "me" && method === "GET") {
     const settings = await getSettings(env);
-    return json({ name: me.name, role: me.role, repVisibility: settings.repVisibility }, 200, cors);
+    const out = { name: me.name, role: me.role, repVisibility: settings.repVisibility };
+    if (me.role === "coach") out.reps = repNames(env);
+    return json(out, 200, cors);
   }
 
   if (parts[0] === "settings") {
@@ -351,6 +353,17 @@ function identify(request, env) {
   return { name: entry.name, role: entry.role };
 }
 
+// Names of everyone with the rep role, for the coach upload picker.
+function repNames(env) {
+  try {
+    const keys = JSON.parse(env.REP_KEYS || "{}");
+    const names = Object.values(keys).filter((v) => v && v.role === "rep" && v.name).map((v) => v.name);
+    return [...new Set(names)].sort();
+  } catch (e) {
+    return [];
+  }
+}
+
 async function getSettings(env) {
   const stored = await getJson(env, "config/settings.json");
   return { repVisibility: !!(stored && stored.repVisibility) };
@@ -380,6 +393,14 @@ async function startUpload(request, env, me, url, cors) {
   if (!Number.isFinite(size) || size <= 0) return json({ error: "bad_size" }, 400, cors);
   if (size > MAX_AUDIO_BYTES) return json({ error: "file_too_large", maxBytes: MAX_AUDIO_BYTES }, 400, cors);
 
+  // Reps always upload as themselves. A coach uploads on a rep's behalf and
+  // must name the rep, which has to be a rep in REP_KEYS.
+  let rep = me.name;
+  if (me.role === "coach") {
+    rep = String(body.rep || "").trim();
+    if (!repNames(env).includes(rep)) return json({ error: "bad_rep" }, 400, cors);
+  }
+
   const id = crypto.randomUUID();
   const audioKey = `audio/${id}.${ext}`;
   const contentType = String(body.contentType || "").slice(0, 100) || "application/octet-stream";
@@ -387,7 +408,8 @@ async function startUpload(request, env, me, url, cors) {
 
   const meta = {
     id,
-    rep: me.name,
+    rep,
+    uploadedBy: me.name,
     customer,
     appointmentDate,
     filename,
@@ -405,7 +427,7 @@ async function startUpload(request, env, me, url, cors) {
 
 async function loadUploading(env, me, id, uploadId) {
   const meta = await getMeta(env, id);
-  if (!meta || meta.rep !== me.name || meta.status !== "uploading") return null;
+  if (!meta || (meta.uploadedBy || meta.rep) !== me.name || meta.status !== "uploading") return null;
   if (!uploadId || uploadId !== meta.uploadId) return null;
   return meta;
 }
