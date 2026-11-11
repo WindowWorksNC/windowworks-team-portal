@@ -227,115 +227,97 @@
     renderRecorder();
   }
 
-  // Upload form, shared by the rep page (prefix cc-) and the coach
-  // "Upload a Recording" panel (prefix cc-u-). u = {p, store, rep(), coach, after}.
-  function uploadFormHtml(u, resume, extraTop) {
-    var p = u.p;
-    return (resume ? '<div class="alert alert-info">An upload for ' + esc(resume.customer) + ' (' + esc(resume.fileName) + ') did not finish. Choose the same file again to pick up where it left off.</div>' : '') +
-      (extraTop || '') +
-      '<div class="form-row">' +
-      '<div class="form-group"><label class="form-label">Customer Name</label><input class="form-input" id="' + p + 'customer" value="' + esc(resume ? resume.customer : '') + '"></div>' +
-      '<div class="form-group" style="max-width:180px"><label class="form-label">Appointment Date</label><input type="date" class="form-input" id="' + p + 'date" value="' + esc(resume ? resume.date : todayStr()) + '"></div>' +
-      '</div>' +
-      '<div class="form-row"><div class="form-group"><label class="form-label">Recording</label>' +
-      '<input type="file" class="form-input" id="' + p + 'file" accept="audio/*,.m4a,.mp3,.wav,.aac,.mp4,.webm,.ogg,.flac,.opus"></div></div>' +
-      '<div id="' + p + 'up-msg"></div>' +
-      '<div id="' + p + 'progress" class="cc-progress" style="display:none"><div class="cc-bar"><div class="cc-fill" id="' + p + 'fill"></div></div><div class="cc-prog-txt" id="' + p + 'prog-txt"></div></div>' +
-      '<button class="submit-btn" id="' + p + 'up-btn">Upload Recording</button>';
-  }
-
   function renderRecorder() {
-    var u = rec.u = {
-      p: 'cc-', store: RESUME_STORE, coach: false,
-      rep: function () { return rec.employee; },
-      after: function () { if (rec.me.repVisibility) loadMine(); },
-    };
+    var resume = loadResume();
     rec.root.innerHTML =
       '<div class="cc-note"><strong>Start recording before you introduce the notetaker,</strong> then mention it near the start and give the customer a chance to say no. If they decline, stop recording and do not upload.</div>' +
-      uploadFormHtml(u, loadResume(u)) +
+      (resume ? '<div class="alert alert-info">An upload for ' + esc(resume.customer) + ' (' + esc(resume.fileName) + ') did not finish. Choose the same file again to pick up where it left off.</div>' : '') +
+      '<div class="form-row">' +
+      '<div class="form-group"><label class="form-label">Customer Name</label><input class="form-input" id="cc-customer" value="' + esc(resume ? resume.customer : '') + '"></div>' +
+      '<div class="form-group" style="max-width:180px"><label class="form-label">Appointment Date</label><input type="date" class="form-input" id="cc-date" value="' + esc(resume ? resume.date : todayStr()) + '"></div>' +
+      '</div>' +
+      '<div class="form-row"><div class="form-group"><label class="form-label">Recording</label>' +
+      '<input type="file" class="form-input" id="cc-file" accept="audio/*,.m4a,.mp3,.wav,.aac,.mp4,.webm,.ogg,.flac,.opus"></div></div>' +
+      '<div id="cc-up-msg"></div>' +
+      '<div id="cc-progress" class="cc-progress" style="display:none"><div class="cc-bar"><div class="cc-fill" id="cc-fill"></div></div><div class="cc-prog-txt" id="cc-prog-txt"></div></div>' +
+      '<button class="submit-btn" id="cc-up-btn">Upload Recording</button>' +
       '<div id="cc-mine"></div>' +
       '<div class="cc-foot">Signed in as ' + esc(rec.me.name) + '. ' + switchKeyLink() + '</div>';
-    $('cc-up-btn').onclick = function () { startUpload(u); };
+    $('cc-up-btn').onclick = startUpload;
     if (rec.me.repVisibility) loadMine();
   }
 
-  function loadResume(u) {
+  function loadResume() {
     try {
-      var r = JSON.parse(localStorage.getItem(u.store) || 'null');
-      if (!r) return null;
-      return u.coach || r.rep === u.rep() ? r : null;
+      var r = JSON.parse(localStorage.getItem(RESUME_STORE) || 'null');
+      return r && r.rep === rec.employee ? r : null;
     } catch (e) { return null; }
   }
-  function saveResume(u, r) { try { localStorage.setItem(u.store, JSON.stringify(r)); } catch (e) {} }
-  function clearResume(u) { try { localStorage.removeItem(u.store); } catch (e) {} }
+  function saveResume(r) { try { localStorage.setItem(RESUME_STORE, JSON.stringify(r)); } catch (e) {} }
+  function clearResume() { try { localStorage.removeItem(RESUME_STORE); } catch (e) {} }
 
-  function upMsg(u, kind, text) { $(u.p + 'up-msg').innerHTML = text ? '<div class="alert alert-' + kind + '">' + text + '</div>' : ''; }
+  function upMsg(kind, text) { $('cc-up-msg').innerHTML = text ? '<div class="alert alert-' + kind + '">' + text + '</div>' : ''; }
 
-  async function startUpload(u) {
-    var p = u.p;
-    var rep = u.rep();
-    var customer = $(p + 'customer').value.trim();
-    var date = $(p + 'date').value;
-    var file = $(p + 'file').files[0];
-    if (!rep) return upMsg(u, 'error', 'Choose which rep this appointment belongs to.');
-    if (!customer) return upMsg(u, 'error', 'Enter the customer name.');
-    if (!date) return upMsg(u, 'error', 'Enter the appointment date.');
-    if (!file) return upMsg(u, 'error', 'Choose the recording file.');
-    upMsg(u, '', '');
+  async function startUpload() {
+    var customer = $('cc-customer').value.trim();
+    var date = $('cc-date').value;
+    var file = $('cc-file').files[0];
+    if (!customer) return upMsg('error', 'Enter the customer name.');
+    if (!date) return upMsg('error', 'Enter the appointment date.');
+    if (!file) return upMsg('error', 'Choose the recording file.');
+    upMsg('', '');
 
-    var btn = $(p + 'up-btn');
+    var btn = $('cc-up-btn');
     btn.disabled = true;
     var wake = null;
     try { if (navigator.wakeLock) wake = await navigator.wakeLock.request('screen'); } catch (e) {}
 
     try {
-      var r = loadResume(u);
-      var same = r && r.rep === rep && r.fileName === file.name && r.size === file.size && r.lastModified === file.lastModified;
+      var r = loadResume();
+      var same = r && r.fileName === file.name && r.size === file.size && r.lastModified === file.lastModified;
       if (!same) {
-        var body = { customer: customer, appointmentDate: date, filename: file.name, contentType: file.type || '', size: file.size };
-        if (u.coach) body.rep = rep;
-        var init = await api('POST', '/uploads', body);
+        var init = await api('POST', '/uploads', {
+          customer: customer, appointmentDate: date, filename: file.name, contentType: file.type || '', size: file.size,
+        });
         r = {
-          rep: rep, id: init.id, uploadId: init.uploadId, partSize: init.partSize, partCount: init.partCount,
+          rep: rec.employee, id: init.id, uploadId: init.uploadId, partSize: init.partSize, partCount: init.partCount,
           fileName: file.name, size: file.size, lastModified: file.lastModified, customer: customer, date: date, done: {},
         };
-        saveResume(u, r);
+        saveResume(r);
       }
 
-      $(p + 'progress').style.display = 'block';
+      $('cc-progress').style.display = 'block';
       for (var n = 1; n <= r.partCount; n++) {
-        progress(u, r, n);
+        progress(r, n);
         if (r.done[n]) continue;
         var blob = file.slice((n - 1) * r.partSize, Math.min(n * r.partSize, file.size));
         r.done[n] = await sendPart(r, n, blob);
-        saveResume(u, r);
+        saveResume(r);
       }
-      progress(u, r, r.partCount + 1);
+      progress(r, r.partCount + 1);
 
       var parts = [];
-      for (var q = 1; q <= r.partCount; q++) parts.push({ partNumber: q, etag: r.done[q] });
+      for (var p = 1; p <= r.partCount; p++) parts.push({ partNumber: p, etag: r.done[p] });
       await api('POST', '/uploads/' + r.id + '/complete', { uploadId: r.uploadId, parts: parts });
-      clearResume(u);
+      clearResume();
 
-      $(p + 'progress').style.display = 'none';
-      $(p + 'customer').value = '';
-      $(p + 'file').value = '';
-      $(p + 'date').value = todayStr();
-      upMsg(u, 'success', 'Uploaded ' + esc(r.customer) + (u.coach ? ' for ' + esc(rep) : '') + '. Scoring runs in the background; you can close this page.');
-      if (u.after) u.after();
+      $('cc-progress').style.display = 'none';
+      $('cc-customer').value = '';
+      $('cc-file').value = '';
+      $('cc-date').value = todayStr();
+      upMsg('success', 'Uploaded ' + esc(r.customer) + '. Scoring runs in the background; you can close this page.');
+      if (rec.me.repVisibility) loadMine();
     } catch (e) {
-      $(p + 'progress').style.display = 'none';
+      $('cc-progress').style.display = 'none';
       if (e.code === 'upload_not_found') {
-        clearResume(u);
-        upMsg(u, 'error', 'That upload expired. Tap Upload Recording to start it fresh.');
+        clearResume();
+        upMsg('error', 'That upload expired. Tap Upload Recording to start it fresh.');
       } else if (e.code === 'unsupported_file') {
-        upMsg(u, 'error', 'That file type is not supported. Use the audio file from the recorder app (usually .m4a).');
+        upMsg('error', 'That file type is not supported. Use the audio file from your recorder app (usually .m4a).');
       } else if (e.code === 'file_too_large') {
-        upMsg(u, 'error', 'That file is larger than 400 MB. Check that it is the audio file, not a video.');
-      } else if (e.code === 'bad_rep') {
-        upMsg(u, 'error', 'Call Coach does not recognize that rep. Refresh the page and pick again.');
+        upMsg('error', 'That file is larger than 400 MB. Check that it is the audio file, not a video.');
       } else {
-        upMsg(u, 'error', 'Upload stopped (' + esc(e.message) + '). Check your connection and tap Upload Recording again; it will pick up where it left off.');
+        upMsg('error', 'Upload stopped (' + esc(e.message) + '). Check your connection and tap Upload Recording again; it will pick up where it left off.');
       }
     } finally {
       btn.disabled = false;
@@ -358,11 +340,11 @@
     throw last;
   }
 
-  function progress(u, r, n) {
+  function progress(r, n) {
     var done = Math.min(n - 1, r.partCount);
     var pct = Math.round((done / r.partCount) * 100);
-    $(u.p + 'fill').style.width = pct + '%';
-    $(u.p + 'prog-txt').textContent = n > r.partCount ? 'Finishing up...' :
+    $('cc-fill').style.width = pct + '%';
+    $('cc-prog-txt').textContent = n > r.partCount ? 'Finishing up...' :
       'Uploading part ' + n + ' of ' + r.partCount + ' (' + mb(r.size) + ' total). Keep this page open.';
   }
 
@@ -413,7 +395,6 @@
       '<button class="submit-btn secondary-btn" id="cc-refresh">Refresh</button>' +
       '<label class="cc-toggle"><input type="checkbox" id="cc-vis"> Reps can see their own scorecards</label>' +
       '</div>' +
-      '<div class="cc-upload-box"><button class="cc-link" id="cc-u-toggle">Upload a recording for a rep</button><div id="cc-u-panel" style="display:none"></div></div>' +
       '<div id="cc-weekly"></div><div id="cc-list"><div class="loading">Loading...</div></div><div id="cc-detail"></div>' +
       '<div class="cc-foot">Signed in as ' + esc(co.me.name) + '. ' + switchKeyLink() + '</div>';
     $('cc-vis').checked = !!co.me.repVisibility;
@@ -421,29 +402,7 @@
     $('cc-f-rep').onchange = function () { co.rep = this.value; renderList(); };
     $('cc-f-range').onchange = function () { co.range = this.value; loadCalls(); };
     $('cc-refresh').onclick = loadCalls;
-    setupCoachUpload();
     loadCalls();
-  }
-
-  function setupCoachUpload() {
-    var u = co.u = {
-      p: 'cc-u-', store: RESUME_STORE + '_coach', coach: true,
-      rep: function () { var s = $('cc-u-rep'); return s ? s.value : ''; },
-      after: loadCalls,
-    };
-    var reps = co.me.reps || [];
-    var resume = loadResume(u);
-    var sel = '<div class="form-row"><div class="form-group" style="max-width:260px"><label class="form-label">Rep</label>' +
-      '<select class="form-input" id="cc-u-rep"><option value="">Choose a rep</option>' +
-      reps.map(function (n) { return '<option value="' + esc(n) + '"' + (resume && resume.rep === n ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('') +
-      '</select></div></div>';
-    $('cc-u-panel').innerHTML = '<div class="cc-note">For recordings a rep sent you. The call is filed and scored as theirs, as if they uploaded it.</div>' + uploadFormHtml(u, resume, sel);
-    $('cc-u-up-btn').onclick = function () { startUpload(u); };
-    $('cc-u-toggle').onclick = function () {
-      var pnl = $('cc-u-panel');
-      pnl.style.display = pnl.style.display === 'none' ? 'block' : 'none';
-    };
-    if (resume) $('cc-u-panel').style.display = 'block';
   }
 
   async function setVisibility() {

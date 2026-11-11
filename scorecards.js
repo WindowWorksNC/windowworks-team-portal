@@ -67,10 +67,51 @@ window.WWSC = (function () {
     return _installPipelineId;
   }
 
+  var _pdStages = null, _pdPipes = null;
+  async function pdStagePipelines() {
+    if (_pdStages) return _pdStages;
+    _pdStages = {};
+    try { (((await (await fetch(PD + '/stages?api_token=' + PD_TOKEN)).json()) || {}).data || []).forEach(function (st) { _pdStages[st.id] = st.pipeline_id; }); } catch (e) {}
+    return _pdStages;
+  }
+  async function pdPipelineId(re, fallback) {
+    if (!_pdPipes) { try { _pdPipes = ((await (await fetch(PD + '/pipelines?api_token=' + PD_TOKEN)).json()) || {}).data || []; } catch (e) { _pdPipes = []; } }
+    var hit = _pdPipes.find(function (p) { return re.test(String(p.name || '')); });
+    return hit ? hit.id : fallback;
+  }
+  // Stage changes for one deal, oldest first, as {t, from, to} with UTC log times.
+  async function pdStageChanges(id) {
+    var out = [], start = 0, guard = 0;
+    while (guard++ < 10) {
+      var j = (await (await fetch(PD + '/deals/' + id + '/flow?api_token=' + PD_TOKEN + '&limit=500&start=' + start)).json()) || {};
+      (j.data || []).forEach(function (x) {
+        var dd = x.data || {};
+        if (x.object === 'dealChange' && dd.field_key === 'stage_id' && dd.log_time) out.push({ t: String(dd.log_time), from: Number(dd.old_value), to: Number(dd.new_value) });
+      });
+      var more = j.additional_data && j.additional_data.pagination && j.additional_data.pagination.more_items_in_collection;
+      if (!more) break; start += 500;
+    }
+    out.sort(function (a, b) { return a.t < b.t ? -1 : a.t > b.t ? 1 : 0; });
+    return out;
+  }
+  // A paid deal moves on to Solicit Review or Services, so judge the pipeline
+  // the deal was in when the install was marked done, not where it sits now.
+  // whenRaw is a YYYY-MM-DD activity date, so it sorts before any log_time on that
+  // same day: a deal moved to Solicit Review the evening of its install still counts.
+  function stageAt(changes, whenRaw, currentStage) {
+    if (!changes.length) return currentStage;
+    var st = changes[0].from;
+    for (var i = 0; i < changes.length; i++) { if (changes[i].t <= whenRaw) st = changes[i].to; else break; }
+    return st;
+  }
+  var COLLECT_GRACE_DAYS = 5; // a payment marked done shortly before the install was closed out counts as 0 days
+
   // ---- Brandon domain 2: Collections (live Pipedrive) ----
   async function bCollections() {
     try {
       var pid = await pdInstallPipelineId();
+      var b2bPid = await pdPipelineId(/profession|b2b/i, 3);
+      var stagePipe = await pdStagePipelines();
       var acts = [], start = 0, guard = 0;
       while (guard++ < 8) {
         var r = await fetch(PD + '/activities?api_token=' + PD_TOKEN + '&type=installation&done=1&user_id=0&limit=500&start=' + start);
@@ -80,11 +121,13 @@ window.WWSC = (function () {
         if (!more) break; start += 500;
       }
       var installByDeal = {};
+      // Install clock is the activity date (due_date), the install day as entered in
+      // Pipedrive and correctable there. The done click often lags the real install.
       acts.forEach(function (a) {
-        var id = a.deal_id, mdt = a.marked_as_done_time;
-        if (!id || !mdt || !inQ(mdt)) return;
-        var d = pql(mdt); if (!d) return;
-        if (!installByDeal[id] || d > installByDeal[id].d) installByDeal[id] = { d: d, raw: mdt };
+        var id = a.deal_id, ad = String(a.due_date || '').trim();
+        if (!id || !a.done || !ad || !inQ(ad)) return;
+        var d = pql(ad); if (!d) return;
+        if (!installByDeal[id] || d > installByDeal[id].d) installByDeal[id] = { d: d, raw: ad };
       });
       var dealIds = Object.keys(installByDeal);
       var daysList = [], contrib = [];
@@ -92,17 +135,27 @@ window.WWSC = (function () {
         var id = dealIds[k], installDate = installByDeal[id].d, installRaw = installByDeal[id].raw;
         var deal = null, dacts = [];
         try { deal = (((await (await fetch(PD + '/deals/' + id + '?api_token=' + PD_TOKEN)).json()) || {}).data) || null; } catch (e) { continue; }
-        if (!deal || deal.status !== 'won' || Number(deal.pipeline_id) !== Number(pid)) continue;
+        if (!deal || deal.status !== 'won') continue;
+        var changes = [];
+        try { changes = await pdStageChanges(id); } catch (e) { continue; }
+        var originStage = changes.length ? changes[0].from : Number(deal.stage_id);
+        if (Number(stagePipe[originStage]) === Number(b2bPid)) continue; // builder deals started in Professionals
+        if (Number(stagePipe[stageAt(changes, String(installRaw), Number(deal.stage_id))]) !== Number(pid)) continue;
         try { dacts = (((await (await fetch(PD + '/deals/' + id + '/activities?api_token=' + PD_TOKEN)).json()) || {}).data) || []; } catch (e) { continue; }
-        var collectDate = null, collectRaw = '';
+        var collectDate = null, collectRaw = '', preDate = null, preRaw = '';
+        var graceStart = new Date(installDate.getTime() - COLLECT_GRACE_DAYS * 86400000);
         dacts.forEach(function (a) {
-          if (a.type !== 'collect_payment' || !a.done || !a.marked_as_done_time) return;
-          var cd = pql(a.marked_as_done_time);
-          if (!cd || cd < installDate) return;
-          if (!collectDate || cd < collectDate) { collectDate = cd; collectRaw = a.marked_as_done_time; }
+          // Collect clock is the activity date too (due_date), not the done click.
+          var cdr = String(a.due_date || '').trim();
+          if (a.type !== 'collect_payment' || !a.done || !cdr) return;
+          var cd = pql(cdr);
+          if (!cd) return;
+          if (cd < installDate) { if (cd >= graceStart && (!preDate || cd > preDate)) { preDate = cd; preRaw = cdr; } return; }
+          if (!collectDate || cd < collectDate) { collectDate = cd; collectRaw = cdr; }
         });
+        if (!collectDate && preDate) { collectDate = installDate; collectRaw = preRaw; }
         if (!collectDate) continue;
-        var days = Math.round((collectDate - installDate) / 86400000);
+        var days = Math.max(0, Math.round((collectDate - installDate) / 86400000));
         daysList.push(days);
         contrib.push({ id: id, name: deal.title || ('Deal ' + id), install: installRaw, collect: collectRaw, days: days });
       }
